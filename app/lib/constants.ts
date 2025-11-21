@@ -24,8 +24,10 @@ export const HAZARD_DATA: Record<string, { label: string, risk: string, control:
   biological: { label: "Biological Hazards", risk: "Infection, Weil's disease, sickness.", control: "Good hygiene, gloves, cover wounds, welfare facilities." },
   falling_objects: { label: "Falling Objects", risk: "Head injury, impact.", control: "Hard hats, toe boards, exclusion zones, tool lanyards." },
   underground_services: { label: "Underground Services", risk: "Electrocution, gas strike, explosion.", control: "CAT scan, safe digging practice, review utility plans." },
+  fragile_surfaces: { label: "Fragile Surfaces", risk: "Falls through roof/skylights.", control: "Crawling boards, fall arrest nets, harness." },
   water_ingress: { label: "Water Ingress", risk: "Property damage, slips, electrical short.", control: "Temporary sheeting, pump availability, isolation of water." },
-  sharp_objects: { label: "Sharp Objects", risk: "Cuts, lacerations.", control: "Kevlar gloves, safe disposal of blades/sharps." }
+  sharp_objects: { label: "Sharp Objects", risk: "Cuts, lacerations.", control: "Kevlar gloves, safe disposal of blades/sharps." },
+  poor_lighting: { label: "Poor Lighting", risk: "Trips, mistakes, eye strain.", control: "Temporary task lighting, torch." }
 };
 
 export const HAZARD_GROUPS = {
@@ -35,45 +37,47 @@ export const HAZARD_GROUPS = {
   "Physical": ["manual_handling", "plant_machinery", "underground_services", "sharp_objects"]
 };
 
-// --- CLUSTER LOGIC (The Brain) ---
-// This maps job types to descriptions and specific questions
+// --- CLUSTER LOGIC WITH 5+ QUESTIONS PER TYPE ---
 
 const ELECTRICIAN_CLUSTERS = {
-  domestic_install: {
-    desc: "Installation of new electrical circuits, accessories, and containment within a domestic property. Includes routing cables, terminating accessories, and testing.",
+  domestic_small: {
+    desc: "Standard electrical installation/maintenance within domestic premises.",
     hazards: ["live_electricity", "manual_handling", "dust_fumes", "slips_trips", "public_interface"],
     questions: [
       { id: "isolation", label: "Can the main supply be fully isolated?" },
       { id: "occupied", label: "Is the property occupied by residents?" },
       { id: "floorboards", label: "Will floorboards need to be lifted?" },
       { id: "rcd", label: "Is there existing RCD protection?" },
-      { id: "bonding", label: "Is main equipotential bonding in place?" }
+      { id: "bonding", label: "Is main equipotential bonding in place?" },
+      { id: "pets", label: "Are there pets/children requiring exclusion?" }
     ]
   },
   distribution: {
-    desc: "Replacement or upgrade of electrical distribution equipment (Consumer Units/Panel Boards). Involves full isolation, strip out, and commissioning.",
+    desc: "Heavy electrical distribution work, consumer units, or sub-mains.",
     hazards: ["live_electricity", "manual_handling", "fire_explosion", "public_interface"],
     questions: [
       { id: "lock_off", label: "Do you have a padlock/key for Lock-Out Tag-Out?" },
       { id: "tails_condition", label: "Are the meter tails in good condition?" },
       { id: "ze_check", label: "Has the external loop impedance (Ze) been verified?" },
       { id: "circuits_id", label: "Are all existing circuits identified/labelled?" },
-      { id: "metal_unit", label: "Is the new unit non-combustible (Amendment 3)?" }
+      { id: "metal_unit", label: "Is the new unit non-combustible (Amendment 3)?" },
+      { id: "seals", label: "Are the main fuse seals intact?" }
     ]
   },
   external: {
-    desc: "Installation of external electrical equipment (Lighting, EV Chargers, Power). Involves drilling external walls and weatherproofing.",
-    hazards: ["live_electricity", "work_at_height", "environmental_weather", "silica_dust"],
+    desc: "Outdoor electrical work, lighting, or power supplies.",
+    hazards: ["live_electricity", "work_at_height", "environmental_weather", "silica_dust", "water_ingress"],
     questions: [
       { id: "weather", label: "Is the weather suitable for external work?" },
       { id: "ip_rating", label: "Are all fittings suitably IP rated?" },
       { id: "ladder_footing", label: "Is the ground level/stable for ladders?" },
       { id: "swa_gland", label: "Will armoured cable (SWA) be used?" },
-      { id: "drilling", label: "Is dust extraction available for drilling?" }
+      { id: "drilling", label: "Is dust extraction available for drilling?" },
+      { id: "rcd_ext", label: "Is the external supply RCD protected?" }
     ]
   },
   testing: {
-    desc: "Inspection and testing of electrical installations (EICR). Non-intrusive where possible, with some live testing required.",
+    desc: "Inspection and testing. Non-intrusive where possible.",
     hazards: ["live_electricity", "slips_trips", "lone_working"],
     questions: [
       { id: "permission", label: "Do you have permission to disconnect circuits?" },
@@ -82,23 +86,35 @@ const ELECTRICIAN_CLUSTERS = {
       { id: "live_test", label: "Will live testing (Zs) be performed?" },
       { id: "labels", label: "Are warning labels present on the board?" }
     ]
+  },
+  ev_pv_battery: {
+    desc: "Installation of Green Energy systems (Solar, EV, Battery).",
+    hazards: ["live_electricity", "work_at_height", "manual_handling", "fire_explosion", "structural_collapse"],
+    questions: [
+      { id: "dno", label: "Has DNO approval been submitted?" },
+      { id: "dc_iso", label: "Is DC isolation (Solar) accessible?" },
+      { id: "roof_loading", label: "Has roof structural load been checked?" },
+      { id: "battery_loc", label: "Is the battery location ventilated?" },
+      { id: "ev_earth", label: "Is a separate earth rod required?" }
+    ]
   }
 };
 
 const PLUMBER_CLUSTERS = {
   heating: {
-    desc: "Installation or repair of heating systems, including boilers, radiators, and pipework. Involves hot work and gas safety checks.",
+    desc: "Heating systems, gas appliances, and high temperature pipework.",
     hazards: ["gas", "hot_work", "manual_handling", "chemical_coshh"],
     questions: [
       { id: "gas_safe", label: "Is the engineer Gas Safe registered?" },
       { id: "ventilation", label: "Is there adequate ventilation for testing?" },
       { id: "flue_route", label: "Is the flue route clear and compliant?" },
       { id: "hot_work", label: "Will soldering torches be used?" },
-      { id: "asbestos", label: "Is there potential asbestos (e.g. old flues)?" }
+      { id: "asbestos", label: "Is there potential asbestos (e.g. old flues)?" },
+      { id: "co_alarm", label: "Is a Carbon Monoxide alarm being fitted?" }
     ]
   },
   bathroom: {
-    desc: "Renovation of bathroom facilities. Includes removal of sanitary ware, pipe alterations, tiling, and sealing.",
+    desc: "Sanitary ware, tiling, and general water pipework.",
     hazards: ["manual_handling", "dust_fumes", "water_ingress", "silica_dust"],
     questions: [
       { id: "water_iso", label: "Can water be isolated at the stopcock?" },
@@ -107,23 +123,35 @@ const PLUMBER_CLUSTERS = {
       { id: "lifting", label: "Is help available for lifting heavy ceramics?" },
       { id: "sealant", label: "Is the area ventilated for silicone application?" }
     ]
+  },
+  drainage: {
+    desc: "Waste water, soil stacks, and external drainage.",
+    hazards: ["biological", "confined_space", "excavation", "underground_services"],
+    questions: [
+      { id: "gloves", label: "Are heavy duty rubber gloves available?" },
+      { id: "vaccine", label: "Are operatives vaccinated (Hep B)?" },
+      { id: "services_scan", label: "Have underground services been scanned?" },
+      { id: "confined", label: "Is entry into the manhole required?" },
+      { id: "wash_down", label: "Are wash-down facilities available?" }
+    ]
   }
 };
 
 const ROOFER_CLUSTERS = {
   pitched: {
-    desc: "Work on pitched roof structures. Replacement of tiles, slates, or timber battens. Requires strict fall protection.",
+    desc: "Working on sloped roofs (Tiles, Slates).",
     hazards: ["work_at_height", "falling_objects", "environmental_weather", "fragile_surfaces"],
     questions: [
       { id: "scaffold", label: "Is full scaffolding erected?" },
       { id: "edge_prot", label: "Is edge protection (handrails) in place?" },
       { id: "ladder_tie", label: "Is the access ladder tied off?" },
       { id: "weather", label: "Is the forecast clear of high winds/rain?" },
-      { id: "public", label: "Is the area below cordoned off?" }
+      { id: "public", label: "Is the area below cordoned off?" },
+      { id: "asbestos_roof", label: "Are existing tiles suspected asbestos?" }
     ]
   },
   flat: {
-    desc: "Installation of flat roofing systems (Felt, GRP, EPDM). May involve hot works (torching) and chemical adhesives.",
+    desc: "Working on flat roofs (Felt, GRP, EPDM).",
     hazards: ["work_at_height", "hot_work", "fire_explosion", "chemical_coshh"],
     questions: [
       { id: "torch", label: "Will a propane torch be used?" },
@@ -137,7 +165,7 @@ const ROOFER_CLUSTERS = {
 
 const BUILDER_CLUSTERS = {
   structural: {
-    desc: "Structural alterations involving removal of load-bearing walls and installation of steel beams (RSJ).",
+    desc: "Major alterations, steelwork, and load bearing walls.",
     hazards: ["structural_collapse", "dust_fumes", "noise_vibration", "plant_machinery"],
     questions: [
       { id: "acrows", label: "Are Acrow props and strongboys on site?" },
@@ -148,7 +176,7 @@ const BUILDER_CLUSTERS = {
     ]
   },
   groundworks: {
-    desc: "Excavation of foundations, trenches, or drainage. Involves heavy manual labor and plant machinery.",
+    desc: "Digging, foundations, and concrete.",
     hazards: ["excavation", "underground_services", "plant_machinery", "biological"],
     questions: [
       { id: "cat_scan", label: "Has the ground been scanned (CAT scan)?" },
@@ -160,74 +188,228 @@ const BUILDER_CLUSTERS = {
   }
 };
 
-// --- MASTER MAPPING ---
+// --- THE 200 JOB LIST MAPPED TO CLUSTERS ---
 export const TRADES = {
   Electrician: {
     clusters: ELECTRICIAN_CLUSTERS,
     jobs: [
-      { name: "Consumer Unit Replacement", cluster: "distribution" },
-      { name: "Full House Rewire", cluster: "domestic_install" },
-      { name: "Additional Sockets", cluster: "domestic_install" },
-      { name: "Lighting Upgrade", cluster: "domestic_install" },
-      { name: "EV Charger Install", cluster: "external" },
-      { name: "EICR (Testing)", cluster: "testing" },
-      { name: "Solar PV Install", cluster: "external" },
-      { name: "Outdoor Lighting", cluster: "external" },
-      { name: "Emergency Lighting", cluster: "domestic_install" },
-      { name: "Data Cabling", cluster: "domestic_install" },
-      { name: "CCTV Installation", cluster: "external" },
-      { name: "Fire Alarm Install", cluster: "domestic_install" },
-      { name: "Smart Home System", cluster: "domestic_install" },
-      { name: "Electric Shower", cluster: "domestic_install" },
-      { name: "Cooker Circuit", cluster: "domestic_install" },
-      { name: "Garage Electrics", cluster: "external" },
-      { name: "Loft Wiring", cluster: "domestic_install" },
-      { name: "Underfloor Heating", cluster: "domestic_install" },
-      { name: "Immersion Heater", cluster: "domestic_install" },
-      { name: "PAT Testing", cluster: "testing" },
-      { name: "Other (Custom)", cluster: "domestic_install" }
+      { name: "Consumer unit/fuse board replacement", cluster: "distribution" },
+      { name: "Full house rewire", cluster: "domestic_small" },
+      { name: "Partial rewire", cluster: "domestic_small" },
+      { name: "New circuit installation", cluster: "domestic_small" },
+      { name: "Additional sockets install", cluster: "domestic_small" },
+      { name: "Indoor lighting upgrade/replacement", cluster: "domestic_small" },
+      { name: "Outdoor/garden lighting install", cluster: "external" },
+      { name: "Fault finding & diagnostics", cluster: "domestic_small" },
+      { name: "EV charger installation", cluster: "ev_pv_battery" },
+      { name: "EICR testing (domestic)", cluster: "testing" },
+      { name: "EICR testing (commercial)", cluster: "testing" },
+      { name: "Smoke/heat alarm installation", cluster: "domestic_small" },
+      { name: "Fire alarm system installation", cluster: "commercial" },
+      { name: "Emergency lighting installation", cluster: "commercial" },
+      { name: "Data cabling / ethernet", cluster: "commercial" },
+      { name: "CCTV system installation", cluster: "external" },
+      { name: "Door entry/Intercom system", cluster: "external" },
+      { name: "Solar PV installation", cluster: "ev_pv_battery" },
+      { name: "Battery storage system installation", cluster: "ev_pv_battery" },
+      { name: "Generator installation", cluster: "distribution" },
+      { name: "Temporary site electrics", cluster: "distribution" },
+      { name: "Cooker/oven/hob wiring", cluster: "domestic_small" },
+      { name: "Electric shower circuit installation", cluster: "domestic_small" },
+      { name: "Loft wiring install", cluster: "domestic_small" },
+      { name: "Garage/outhouse electrics", cluster: "external" },
+      { name: "Extension/renovation first fix", cluster: "domestic_small" },
+      { name: "Extension/renovation second fix", cluster: "domestic_small" },
+      { name: "LED retrofit upgrade", cluster: "domestic_small" },
+      { name: "Commercial lighting upgrade", cluster: "commercial" },
+      { name: "Warehouse high-bay lighting", cluster: "commercial" },
+      { name: "PAT testing", cluster: "testing" },
+      { name: "RCD replacement/upgrade", cluster: "distribution" },
+      { name: "Electrical heating system installation", cluster: "domestic_small" },
+      { name: "Underfloor electric heating install", cluster: "domestic_small" },
+      { name: "Immersion heater install/repair", cluster: "domestic_small" },
+      { name: "Security lighting installation", cluster: "external" },
+      { name: "Floodlight installation", cluster: "external" },
+      { name: "Smart home automation system", cluster: "domestic_small" },
+      { name: "Thermostat installation", cluster: "domestic_small" },
+      { name: "Car park lighting installation", cluster: "external" },
+      { name: "Shop fit-out electrical works", cluster: "commercial" },
+      { name: "Electrical containment install", cluster: "commercial" },
+      { name: "Meter relocation", cluster: "distribution" },
+      { name: "Sub-main installation", cluster: "distribution" },
+      { name: "Agricultural electrics", cluster: "external" },
+      { name: "EV infrastructure (multi-bay)", cluster: "ev_pv_battery" },
+      { name: "Cable Management Upgrade", cluster: "commercial" },
+      { name: "Fuse/Breaker Repair", cluster: "domestic_small" },
+      { name: "Other (Custom)", cluster: "domestic_small" }
     ]
   },
   Plumber: {
     clusters: PLUMBER_CLUSTERS,
     jobs: [
-      { name: "Boiler Install (Gas)", cluster: "heating" },
-      { name: "Bathroom Fit-out", cluster: "bathroom" },
-      { name: "Radiator Install", cluster: "heating" },
-      { name: "Underfloor Heating", cluster: "heating" },
-      { name: "Burst Pipe Repair", cluster: "bathroom" },
-      { name: "Drain Unblocking", cluster: "drainage" },
-      { name: "Toilet Replacement", cluster: "bathroom" },
-      { name: "Sink/Tap Install", cluster: "bathroom" },
-      { name: "Shower Install", cluster: "bathroom" },
-      { name: "Gas Hob Install", cluster: "heating" },
-      { name: "Soil Stack Repair", cluster: "drainage" },
-      { name: "Other (Custom)", cluster: "bathroom" }
+      { name: "Boiler installation (gas)", cluster: "heating" },
+      { name: "Combi boiler swap", cluster: "heating" },
+      { name: "Boiler service", cluster: "heating" },
+      { name: "Boiler repair", cluster: "heating" },
+      { name: "Gas leak detection", cluster: "heating" },
+      { name: "Gas pipe rerouting", cluster: "heating" },
+      { name: "Gas hob/cooker install", cluster: "heating" },
+      { name: "Full central heating install", cluster: "heating" },
+      { name: "Radiator installation", cluster: "heating" },
+      { name: "Radiator relocation", cluster: "heating" },
+      { name: "Underfloor heating installation", cluster: "heating" },
+      { name: "Hot water cylinder (vented) install", cluster: "heating" },
+      { name: "Unvented cylinder install", cluster: "heating" },
+      { name: "Immersion heater repair", cluster: "heating" },
+      { name: "Bathroom installation", cluster: "bathroom" },
+      { name: "Shower installation", cluster: "bathroom" },
+      { name: "Toilet repair/replacement", cluster: "bathroom" },
+      { name: "Sink/vanity install", cluster: "bathroom" },
+      { name: "Mixer tap replacement", cluster: "bathroom" },
+      { name: "Thermostatic valve install", cluster: "bathroom" },
+      { name: "Burst pipe repair", cluster: "heating" },
+      { name: "Leak trace & repair", cluster: "heating" },
+      { name: "Drain unblocking", cluster: "drainage" },
+      { name: "Drain CCTV survey", cluster: "drainage" },
+      { name: "Soil stack repair/replacement", cluster: "drainage" },
+      { name: "Guttering/downpipe repair", cluster: "drainage" },
+      { name: "Kitchen plumbing first fix", cluster: "bathroom" },
+      { name: "Kitchen plumbing second fix", cluster: "bathroom" },
+      { name: "Dishwasher plumbing", cluster: "bathroom" },
+      { name: "Washing machine plumbing", cluster: "bathroom" },
+      { name: "Outdoor tap installation", cluster: "heating" },
+      { name: "Water softener installation", cluster: "heating" },
+      { name: "Rainwater harvesting setup", cluster: "drainage" },
+      { name: "Sump pump installation", cluster: "drainage" },
+      { name: "Pumped shower installation", cluster: "bathroom" },
+      { name: "Macerator toilet installation", cluster: "bathroom" },
+      { name: "Commercial boiler installation", cluster: "heating" },
+      { name: "Plant room works", cluster: "heating" },
+      { name: "Pressurised system testing", cluster: "heating" },
+      { name: "Pipe insulation installation", cluster: "heating" },
+      { name: "Heating pump replacement", cluster: "heating" },
+      { name: "Expansion vessel replacement", cluster: "heating" },
+      { name: "Hot & cold pipe rerouting", cluster: "heating" },
+      { name: "Wet room plumbing install", cluster: "bathroom" },
+      { name: "Grey water system installation", cluster: "drainage" },
+      { name: "Septic tank connection work", cluster: "drainage" },
+      { name: "Manhole replacement", cluster: "drainage" },
+      { name: "Bathroom rip-out & refit", cluster: "bathroom" },
+      { name: "Radiator power flushing", cluster: "heating" },
+      { name: "Commercial toilet/urinal install", cluster: "bathroom" },
+      { name: "Other (Custom)", cluster: "heating" }
     ]
   },
   Roofer: {
     clusters: ROOFER_CLUSTERS,
     jobs: [
-      { name: "Pitched Roof Re-tile", cluster: "pitched" },
-      { name: "Flat Roof (Felt)", cluster: "flat" },
-      { name: "Lead Flashing", cluster: "pitched" },
-      { name: "Guttering Replace", cluster: "pitched" },
-      { name: "Chimney Repair", cluster: "pitched" },
-      { name: "Roof Window Install", cluster: "pitched" },
-      { name: "Emergency Leak Fix", cluster: "pitched" },
+      { name: "Pitched roof re-tile", cluster: "pitched" },
+      { name: "Slate roof installation", cluster: "pitched" },
+      { name: "Flat roof (felt) install", cluster: "flat" },
+      { name: "Flat roof (GRP) install", cluster: "flat" },
+      { name: "Flat roof (EPDM) install", cluster: "flat" },
+      { name: "Lead flashing replacement", cluster: "pitched" },
+      { name: "Lead welding/leadwork", cluster: "flat" },
+      { name: "Gutter installation", cluster: "pitched" },
+      { name: "Gutter repair", cluster: "pitched" },
+      { name: "Fascia & soffit replacement", cluster: "pitched" },
+      { name: "Chimney repointing", cluster: "pitched" },
+      { name: "Chimney rebuild", cluster: "pitched" },
+      { name: "Chimney removal", cluster: "pitched" },
+      { name: "Roof leak investigation", cluster: "pitched" },
+      { name: "Emergency leak repair", cluster: "pitched" },
+      { name: "Moss removal", cluster: "pitched" },
+      { name: "Roof cleaning", cluster: "pitched" },
+      { name: "Ridge tile repointing", cluster: "pitched" },
+      { name: "Valley replacement", cluster: "pitched" },
+      { name: "Roof ventilation installation", cluster: "pitched" },
+      { name: "Roof window / Velux installation", cluster: "pitched" },
+      { name: "Dormer construction", cluster: "pitched" },
+      { name: "Skylight replacement", cluster: "pitched" },
+      { name: "Soffit ventilation upgrade", cluster: "pitched" },
+      { name: "Roof insulation install", cluster: "pitched" },
+      { name: "Loft insulation", cluster: "pitched" },
+      { name: "Flat-to-pitched roof conversion", cluster: "pitched" },
+      { name: "Re-bedding ridge tiles", cluster: "pitched" },
+      { name: "Soffit repair", cluster: "pitched" },
+      { name: "Roof coating/sealant", cluster: "flat" },
+      { name: "EPDM patch repair", cluster: "flat" },
+      { name: "GRP patch repair", cluster: "flat" },
+      { name: "Pitched roof underlay replacement", cluster: "pitched" },
+      { name: "Tile/Slate replacement (minor)", cluster: "pitched" },
+      { name: "Roofline repair (bargeboards)", cluster: "pitched" },
+      { name: "Verge repair/reconstruction", cluster: "pitched" },
+      { name: "Chimney cowl installation", cluster: "pitched" },
+      { name: "Bird proofing work", cluster: "pitched" },
+      { name: "Solar panel roof mounting prep", cluster: "pitched" },
+      { name: "Solar panel removal & reinstatement", cluster: "pitched" },
+      { name: "Parapet wall repair", cluster: "pitched" },
+      { name: "Flashing upgrade for roof windows", cluster: "pitched" },
+      { name: "Slate hangers installation", cluster: "pitched" },
+      { name: "Metal roofing installation", cluster: "pitched" },
+      { name: "Asbestos corrugated sheet removal", cluster: "pitched" },
+      { name: "Roof access system installation", cluster: "pitched" },
+      { name: "Dormer roof waterproofing", cluster: "flat" },
+      { name: "Green roof installation", cluster: "flat" },
+      { name: "Gutter guard installation", cluster: "pitched" },
+      { name: "Roof membrane installation", cluster: "pitched" },
       { name: "Other (Custom)", cluster: "pitched" }
     ]
   },
   Builder: {
     clusters: BUILDER_CLUSTERS,
     jobs: [
-      { name: "Structural Knock-through", cluster: "structural" },
-      { name: "Single Storey Ext", cluster: "groundworks" },
-      { name: "Foundation Dig", cluster: "groundworks" },
-      { name: "Plastering", cluster: "structural" },
-      { name: "Bricklaying", cluster: "structural" },
-      { name: "Patio/Driveway", cluster: "groundworks" },
-      { name: "Other (Custom)", cluster: "structural" }
+      { name: "Structural knock-through", cluster: "structural" },
+      { name: "Single-storey extension", cluster: "extension" },
+      { name: "Double-storey extension", cluster: "extension" },
+      { name: "Loft conversion", cluster: "structural" },
+      { name: "Garage conversion", cluster: "internal" },
+      { name: "Basement conversion", cluster: "groundworks" },
+      { name: "Internal demolition / rip-out", cluster: "internal" },
+      { name: "Bricklaying blockwork", cluster: "extension" },
+      { name: "Garden wall construction", cluster: "groundworks" },
+      { name: "Driveway installation", cluster: "groundworks" },
+      { name: "Patio installation", cluster: "groundworks" },
+      { name: "Foundation excavation", cluster: "groundworks" },
+      { name: "Concrete slab pouring", cluster: "groundworks" },
+      { name: "Screeding", cluster: "internal" },
+      { name: "RSJ/steel beam installation", cluster: "structural" },
+      { name: "Floor joist replacement", cluster: "structural" },
+      { name: "Roof carpentry (rafters/trusses)", cluster: "extension" },
+      { name: "Timber stud wall installation", cluster: "internal" },
+      { name: "Drylining / plasterboard fitting", cluster: "internal" },
+      { name: "Plastering", cluster: "internal" },
+      { name: "Rendering", cluster: "extension" },
+      { name: "Tiling (kitchen/bathroom)", cluster: "internal" },
+      { name: "Door fitting", cluster: "internal" },
+      { name: "Window fitting", cluster: "internal" },
+      { name: "Kitchen installation", cluster: "internal" },
+      { name: "Bathroom installation", cluster: "internal" },
+      { name: "Staircase installation", cluster: "internal" },
+      { name: "Fencing installation", cluster: "groundworks" },
+      { name: "Decking installation", cluster: "groundworks" },
+      { name: "Garden landscaping", cluster: "groundworks" },
+      { name: "Shed/base construction", cluster: "groundworks" },
+      { name: "Conservatory base/shell build", cluster: "extension" },
+      { name: "Chimney breast removal", cluster: "structural" },
+      { name: "Drainage works", cluster: "groundworks" },
+      { name: "Manhole installation", cluster: "groundworks" },
+      { name: "DPC injection/damp proofing", cluster: "internal" },
+      { name: "Insulation installation", cluster: "internal" },
+      { name: "Cladding installation", cluster: "extension" },
+      { name: "Roof structure changes", cluster: "extension" },
+      { name: "Underpinning", cluster: "structural" },
+      { name: "Load-bearing wall removal", cluster: "structural" },
+      { name: "Porch construction", cluster: "extension" },
+      { name: "Shop fit-out", cluster: "internal" },
+      { name: "Commercial partitioning", cluster: "internal" },
+      { name: "Suspended ceiling installation", cluster: "internal" },
+      { name: "Fire door installation", cluster: "internal" },
+      { name: "Renovation/refurbishment", cluster: "internal" },
+      { name: "External rendering/pebble dash", cluster: "extension" },
+      { name: "Site clearance", cluster: "groundworks" },
+      { name: "Garden room/outbuilding construction", cluster: "extension" },
+      { name: "Other (Custom)", cluster: "internal" }
     ]
   }
 };

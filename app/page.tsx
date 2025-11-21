@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
-import { Loader2, CheckCircle, ShieldCheck, ArrowRight, MapPin, Briefcase, AlertTriangle, Lock, Search, Info, FileText, Users, Ambulance, Flame, FileSignature } from "lucide-react";
+import { Loader2, CheckCircle, ShieldCheck, ArrowRight, MapPin, Briefcase, AlertTriangle, Lock, Search, Info, FileText, Users, Ambulance, Flame } from "lucide-react";
 import { TRADES, HAZARD_GROUPS, HAZARD_DATA } from "./lib/constants";
 
 // --- UI: TOOLTIP ---
@@ -73,14 +73,14 @@ export default function Home() {
   const [questions, setQuestions] = useState<any[]>([]);
   const [answers, setAnswers] = useState<Record<string, string>>({});
 
-  // --- AUTO-FILL LOGIC (RESTORED) ---
+  // --- AUTO-FILL LOGIC ---
   useEffect(() => {
     // @ts-ignore
     const tradeData = TRADES[formData.trade];
     if (tradeData && formData.jobType) {
       if (formData.jobType === "Other (Custom)") {
-        setFormData(prev => ({ ...prev, jobDesc: "" })); // Clear desc for custom
-        setHazards([]); 
+        // Clear logic for "Other"
+        setFormData(prev => ({ ...prev, jobDesc: "" })); 
         setQuestions([]);
       } else {
         const jobObj = tradeData.jobs.find((j: any) => j.name === formData.jobType);
@@ -88,9 +88,9 @@ export default function Home() {
           // @ts-ignore
           const clusterData = tradeData.clusters[jobObj.cluster];
           if (clusterData) {
-            setFormData(prev => ({ ...prev, jobDesc: clusterData.desc })); // RESTORED: Auto-fill Description
+            setFormData(prev => ({ ...prev, jobDesc: clusterData.desc })); // Auto-fill Description
             setHazards(prev => [...new Set([...prev, ...clusterData.hazards])]); // Auto-fill Hazards
-            setQuestions(clusterData.questions || []); // Load Specific Questions
+            setQuestions(clusterData.questions || []); // Load 5+ Questions
           }
         }
       }
@@ -130,14 +130,12 @@ export default function Home() {
     finally { setLoading(false); }
   };
 
-  // --- PROFESSIONAL PDF GENERATION ---
+  // --- PDF GENERATION (Classic Clean Style) ---
   const createPDF = (data: any) => {
     const doc = new jsPDF();
-    const totalPagesExp = "{total_pages_count_string}";
     
     const drawHeader = (doc: any) => {
-        // NAVY BLUE HEADER
-        doc.setFillColor(0, 51, 102); 
+        doc.setFillColor(0, 51, 102); // Royal Blue
         doc.rect(0, 0, 210, 30, 'F');
         doc.setTextColor(255, 255, 255);
         doc.setFontSize(20); doc.setFont("helvetica", "bold");
@@ -251,7 +249,7 @@ export default function Home() {
     autoTable(doc, {
         startY: y,
         head: [['Print Name', 'Company', 'Signature', 'Date']],
-        body: [['', '', '', ''], ['', '', '', ''], ['', '', '', '']],
+        body: [['', '', '', ''], ['', '', '', ''], ['', '', '', ''], ['', '', '', '']],
         theme: 'grid',
         styles: { minCellHeight: 15 }
     });
