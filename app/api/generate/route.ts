@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { HAZARD_DATA, HazardKey } from "../../lib/constants";
+import { HAZARD_DATA } from "../../lib/constants";
 
 export const runtime = 'nodejs'; 
 export const maxDuration = 60; 
@@ -11,17 +11,6 @@ export async function POST(req: Request) {
 
     if (!apiKey) return NextResponse.json({ error: "API Key Missing" }, { status: 500 });
 
-    // 🛡️ SAFETY CHECK: Prepare Hazard Details for AI
-    // Only include hazards that actually exist in our dictionary to prevent crashes
-    // @ts-ignore
-    const hazardDetails = body.hazards.map((k: string) => {
-        // @ts-ignore
-        const h = HAZARD_DATA[k];
-        if (!h) return ""; // Skip undefined hazards safely
-        return `${h.label} (Risk: ${h.risk}, Control: ${h.control})`;
-    }).filter(Boolean).join("\n"); // Remove empty strings
-
-    // Model Discovery
     const listUrl = `https://generativelanguage.googleapis.com/v1beta/models?key=${apiKey}`;
     const listRes = await fetch(listUrl);
     const listData = await listRes.json();
@@ -29,40 +18,40 @@ export async function POST(req: Request) {
     const modelName = validModel ? validModel.name.replace("models/", "") : "gemini-pro";
     const generateUrl = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${apiKey}`;
 
+    const answerList = Object.entries(body.answers || {}).map(([k, v]) => `${k}: ${v}`).join(", ");
+    // @ts-ignore
+    const hazardInfo = body.hazards.map(h => `${HAZARD_DATA[h]?.label}: ${HAZARD_DATA[h]?.control}`).join("\n");
+
     const payload = {
       contents: [{
         parts: [{
           text: `
             ACT AS: Senior UK Health & Safety Consultant.
-            TASK: Generate RAMS JSON Data.
+            TASK: Generate professional RAMS JSON Data.
             
-            PROJECT DETAILS:
+            PROJECT CONTEXT:
             - Contractor: ${body.companyName} (Contact: ${body.contactName})
             - Client: ${body.clientName}
             - Site Address: ${body.siteAddress}
             - Trade: ${body.trade}
-            - Job Type: ${body.jobType === 'Other (Custom)' ? body.customJobType : body.jobType}
-            - Description: ${body.jobDesc}
-            - Operatives: ${body.operatives}
-            - Start Date: ${body.startDate} (${body.duration})
-            
-            SAFETY CONTEXT:
-            - Hazards Selected: ${body.hazards.join(', ')}
-            - Hazard Details provided: \n${hazardDetails}
-            - Emergency Info: First Aider: ${body.firstAider}, Hospital: ${body.hospital}
-            - Specific Site Notes: ${body.extraNotes}
+            - Job: ${body.jobType} (${body.jobDesc})
+            - Hazards: ${body.hazards.join(', ')}
+            - Specific Checks: ${answerList}
+            - Environment info: ${hazardInfo}
             
             INSTRUCTIONS:
-            1. Create a detailed Method Statement for ${body.trade}.
-            2. Create a Risk Assessment Table. Use the hazard details provided to form the basis, but expand on them with site-specific context.
-            3. Return ONLY valid JSON.
+            1. Method Statement: Use headings: PRE-START, SITE SETUP, TASK EXECUTION, COMPLETION.
+            2. Risk Assessment: Provide Initial Risk (High/Med) and Residual Risk (Low) for all hazards.
+            3. COSHH: If hazards include dust, silica, chemicals, or asbestos, generate a 'coshh' array.
+            4. Return ONLY valid JSON.
             
-            JSON FORMAT:
+            JSON STRUCTURE:
             {
-              "summary": "Executive summary...",
-              "risks": [{"hazard": "Hazard Name", "who": "Operatives/Public", "initial_risk": "High/Med", "control": "Specific controls...", "residual_risk": "Low"}],
-              "method_steps": ["Step 1...", "Step 2..."],
-              "ppe": ["Boots", "Gloves", "Hi-Vis"]
+              "summary": "Executive summary of works...",
+              "risks": [{"hazard": "Name", "who": "Operatives", "initial_risk": "High", "control": "Measure...", "risk_rating": "Low"}],
+              "method_steps": ["PRE-START: Arrive...", "TASK: ..."],
+              "ppe": ["Safety Boots", "Gloves"],
+              "coshh": [{"substance": "Dust/Silica", "risk": "Inhalation", "control": "FFP3 Mask", "disposal": "Bagged"}]
             }
           `
         }]
