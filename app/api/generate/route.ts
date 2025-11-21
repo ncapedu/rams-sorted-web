@@ -1,7 +1,10 @@
 import { NextResponse } from "next/server";
 
-export const runtime = 'edge'; 
-export const dynamic = 'force-dynamic';
+// 💎 VERCEL PRO SETTINGS 💎
+// We switch to Node.js to use the full power of the server
+export const runtime = 'nodejs'; 
+// We tell Vercel: "I pay for Pro, give me 60 seconds to finish this task."
+export const maxDuration = 60; 
 
 export async function POST(req: Request) {
   try {
@@ -9,36 +12,14 @@ export async function POST(req: Request) {
     const apiKey = process.env.GOOGLE_API_KEY;
 
     if (!apiKey) {
-      return NextResponse.json({ error: "API Key Missing in Vercel" }, { status: 500 });
+      return NextResponse.json({ error: "API Key Missing" }, { status: 500 });
     }
 
-    // 🕵️‍♂️ STEP 1: THE MODEL HUNTER
-    // Instead of guessing, we ask Google what is available.
-    console.log("Hunting for available models...");
-    const listUrl = `https://generativelanguage.googleapis.com/v1beta/models?key=${apiKey}`;
+    // We stick with the Universal 'gemini-pro' model to avoid 404 errors
+    // If you have billing enabled, you can change this to 'gemini-1.5-flash'
+    const modelName = "gemini-1.5-flash"; 
     
-    const listResponse = await fetch(listUrl);
-    const listData = await listResponse.json();
-
-    if (!listResponse.ok) {
-       console.error("Model List Failed:", listData);
-       return NextResponse.json({ error: `Google Account Error: ${listData.error?.message}` }, { status: 500 });
-    }
-
-    // Find the first model that supports text generation
-    const validModel = listData.models?.find((m: any) => 
-      m.supportedGenerationMethods.includes("generateContent")
-    );
-
-    if (!validModel) {
-      return NextResponse.json({ error: "No AI Models available for this API Key. Check Google Cloud Billing." }, { status: 500 });
-    }
-
-    const modelName = validModel.name; // e.g., "models/gemini-1.0-pro-001"
-    console.log(`✅ FOUND WORKING MODEL: ${modelName}`);
-
-    // 🚀 STEP 2: GENERATE USING THE FOUND MODEL
-    const generateUrl = `https://generativelanguage.googleapis.com/v1beta/${modelName}:generateContent?key=${apiKey}`;
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${apiKey}`;
 
     const payload = {
       contents: [{
@@ -56,13 +37,15 @@ export async function POST(req: Request) {
             3. Method Statement (Steps 1-10)
             4. PPE
             
-            RESTRICTION: Do NOT use Markdown formatting (no bold **, no hashes #). Plain text only.
+            RESTRICTION: Do NOT use Markdown formatting. Plain text only.
           `
         }]
       }]
     };
 
-    const response = await fetch(generateUrl, {
+    console.log(`🚀 Starting Generation with ${modelName}...`);
+
+    const response = await fetch(url, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
@@ -71,18 +54,21 @@ export async function POST(req: Request) {
     const data = await response.json();
 
     if (!response.ok) {
-      console.error("Generation Error:", data);
+      console.error("Google Error:", data);
+      // This gives us the exact reason why Google failed
       return NextResponse.json(
         { error: `Google Error: ${data.error?.message || "Unknown"}` }, 
         { status: 500 }
       );
     }
 
-    const text = data.candidates[0].content.parts[0].text;
+    const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
+    if (!text) throw new Error("AI returned empty text.");
+
     return NextResponse.json({ text });
 
   } catch (error: any) {
-    console.error("Edge Function Error:", error);
+    console.error("Server Error:", error);
     return NextResponse.json(
       { error: error.message || "Generation Failed" }, 
       { status: 500 }
