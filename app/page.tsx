@@ -1,28 +1,20 @@
 "use client";
 
 import { useState } from "react";
-import { jsPDF } from "jspdf";
-import "jspdf-autotable"; // Imports the table engine
+import jsPDF from "jspdf"; // Fixed import
+import autoTable from "jspdf-autotable"; // Fixed import
 import { Loader2, CheckCircle, HardHat, ShieldCheck, Lock, MapPin, FileText } from "lucide-react";
-
-// Type definition for the PDF library to recognize autoTable
-declare module "jspdf" {
-  interface jsPDF {
-    autoTable: (options: any) => void;
-  }
-}
 
 export default function Home() {
   const [loading, setLoading] = useState(false);
   const [generated, setGenerated] = useState(false);
   
-  // New Extended Form Data
   const [formData, setFormData] = useState({
     trade: "Electrician",
     company: "",
-    address: "", // NEW: Location
+    address: "", 
     job: "",
-    extraDetails: "", // NEW: Extra info
+    extraDetails: "", 
     accessCode: "",
   });
   const [hazards, setHazards] = useState<string[]>([]);
@@ -49,18 +41,25 @@ export default function Home() {
     try {
       const res = await fetch("/api/generate", {
         method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ ...formData, hazards }),
       });
 
       const data = await res.json();
 
-      if (!res.ok) throw new Error(data.error || "Generation Failed");
+      if (!res.ok) {
+        throw new Error(data.error || "Generation Failed");
+      }
       
-      // Pass the JSON data to the PDF creator
+      if (!data.risks) {
+         throw new Error("AI did not return valid JSON data. Try again.");
+      }
+
       createProfessionalPDF(data);
       setGenerated(true);
 
     } catch (error: any) {
+      console.error(error);
       alert(`Error: ${error.message}`);
     } finally {
       setLoading(false);
@@ -73,7 +72,7 @@ export default function Home() {
     const date = new Date().toLocaleDateString('en-GB');
 
     // 1. HEADER
-    doc.setFillColor(17, 24, 39); // Dark Black/Blue
+    doc.setFillColor(0, 0, 0); // Black Header
     doc.rect(0, 0, 210, 40, 'F');
     
     doc.setTextColor(255, 255, 255);
@@ -88,10 +87,17 @@ export default function Home() {
     doc.setFontSize(10);
     
     const startY = 50;
-    doc.text(`Company: ${formData.company}`, 14, startY);
-    doc.text(`Trade: ${formData.trade}`, 14, startY + 6);
-    doc.text(`Date: ${date}`, 14, startY + 12);
+    doc.setFont("helvetica", "bold");
+    doc.text(`Company:`, 14, startY);
+    doc.text(`Trade:`, 14, startY + 6);
+    doc.text(`Date:`, 14, startY + 12);
     
+    doc.setFont("helvetica", "normal");
+    doc.text(formData.company, 40, startY);
+    doc.text(formData.trade, 40, startY + 6);
+    doc.text(date, 40, startY + 12);
+    
+    doc.setFont("helvetica", "bold");
     doc.text(`Site Address:`, 120, startY);
     doc.setFont("helvetica", "normal");
     const splitAddress = doc.splitTextToSize(formData.address, 80);
@@ -103,39 +109,43 @@ export default function Home() {
     doc.text("1. Project Summary & Compliance", 14, currentY);
     doc.setFont("helvetica", "normal");
     currentY += 6;
-    const splitSummary = doc.splitTextToSize(data.summary, 180);
+    const splitSummary = doc.splitTextToSize(data.summary || "", 180);
     doc.text(splitSummary, 14, currentY);
     currentY += splitSummary.length * 5 + 10;
 
-    // 4. RISK ASSESSMENT TABLE (The Magic Part)
+    // 4. RISK ASSESSMENT TABLE (Using explicit autoTable call)
     doc.setFont("helvetica", "bold");
     doc.text("2. Risk Assessment", 14, currentY);
     currentY += 4;
 
-    doc.autoTable({
+    autoTable(doc, {
       startY: currentY,
       head: [['Hazard Identified', 'Who is at Risk', 'Control Measures', 'Rating']],
       body: data.risks.map((r: any) => [r.hazard, r.who, r.control, r.rating]),
       headStyles: { fillColor: [0, 0, 0], textColor: [255, 255, 255] },
       styles: { fontSize: 9, cellPadding: 3 },
-      columnStyles: { 2: { cellWidth: 80 } }, // Make Control Measure column wider
+      columnStyles: { 2: { cellWidth: 80 } },
+      theme: 'grid'
     });
 
     // Update Y position after table
-    currentY = (doc as any).lastAutoTable.finalY + 15;
+    // @ts-ignore
+    currentY = doc.lastAutoTable.finalY + 15;
 
     // 5. METHOD STATEMENT
     doc.setFont("helvetica", "bold");
     doc.text("3. Method Statement", 14, currentY);
     currentY += 6;
     
-    data.method_steps.forEach((step: string, index: number) => {
-      if (currentY > 280) { doc.addPage(); currentY = 20; } // Auto page break
-      doc.setFont("helvetica", "normal");
-      const splitStep = doc.splitTextToSize(`${index + 1}. ${step}`, 180);
-      doc.text(splitStep, 14, currentY);
-      currentY += splitStep.length * 5 + 2;
-    });
+    if (data.method_steps) {
+        data.method_steps.forEach((step: string, index: number) => {
+        if (currentY > 280) { doc.addPage(); currentY = 20; } 
+        doc.setFont("helvetica", "normal");
+        const splitStep = doc.splitTextToSize(`${index + 1}. ${step}`, 180);
+        doc.text(splitStep, 14, currentY);
+        currentY += splitStep.length * 5 + 2;
+        });
+    }
 
     // 6. PPE
     currentY += 10;
@@ -143,7 +153,20 @@ export default function Home() {
     doc.setFont("helvetica", "bold");
     doc.text("4. PPE Required", 14, currentY);
     doc.setFont("helvetica", "normal");
-    doc.text(data.ppe.join(", "), 14, currentY + 6);
+    if(data.ppe) {
+        doc.text(data.ppe.join(", "), 14, currentY + 6);
+    }
+
+    // 7. EXTRA DETAILS (If added)
+    if (formData.extraDetails) {
+        currentY += 20;
+        if (currentY > 260) { doc.addPage(); currentY = 20; }
+        doc.setFont("helvetica", "bold");
+        doc.text("5. Specific Site Notes", 14, currentY);
+        doc.setFont("helvetica", "normal");
+        const splitNotes = doc.splitTextToSize(formData.extraDetails, 180);
+        doc.text(splitNotes, 14, currentY + 6);
+    }
 
     // Save
     doc.save(`RAMS_${formData.company.replace(/ /g, "_")}.pdf`);
