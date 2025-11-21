@@ -1,12 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
-import { Loader2, CheckCircle, ShieldCheck, ArrowRight, MapPin, Briefcase, AlertTriangle, User, Clock, Users, Ambulance, FileText } from "lucide-react";
-import { TRADES, HAZARD_GROUPS } from "./lib/constants";
+import { Loader2, CheckCircle, ShieldCheck, ArrowRight, MapPin, Briefcase, AlertTriangle, Lock, Search, User, Building, Info } from "lucide-react";
+import { TRADES, HAZARD_DATA } from "./lib/constants";
 
-// --- ADDRESS SEARCH COMPONENT (UNCHANGED) ---
+// --- ADDRESS SEARCH ---
 function AddressSearch({ label, value, onChange }: any) {
   const [query, setQuery] = useState(value);
   const [results, setResults] = useState([]);
@@ -48,21 +48,33 @@ export default function Home() {
   const [loading, setLoading] = useState(false);
   const [generated, setGenerated] = useState(false);
   
-  // --- COMPREHENSIVE DATA STATE ---
   const [formData, setFormData] = useState({
-    // Step 1: Company
     companyName: "", officeAddress: "", contactName: "", contactPhone: "",
-    // Step 2: Job
     clientName: "", projectRef: "", siteAddress: "", startDate: new Date().toISOString().split('T')[0], duration: "1 Day",
-    // Step 3: Logistics
     operatives: "1", trade: "Electrician", jobType: "", customJobType: "", jobDesc: "",
-    // Step 4: Emergency
     firstAider: "", hospital: "", welfare: "Client WC",
-    // Step 5: Specifics
     extraNotes: "", accessCode: ""
   });
   
   const [hazards, setHazards] = useState<string[]>([]);
+
+  // --- SMART CLUSTER LOADING ---
+  useEffect(() => {
+    // @ts-ignore
+    const tradeInfo = TRADES[formData.trade];
+    if (tradeInfo && formData.jobType) {
+      const jobObj = tradeInfo.jobs.find((j:any) => j.name === formData.jobType);
+      if (jobObj && jobObj.cluster) {
+        // @ts-ignore
+        const clusterData = tradeInfo.clusters[jobObj.cluster];
+        if (clusterData) {
+          setFormData(prev => ({ ...prev, jobDesc: clusterData.method.join("\n") })); // Pre-fill method outline
+          // Pre-select hazards from cluster, keeping existing ones
+          setHazards(prev => [...new Set([...prev, ...clusterData.hazards])]);
+        }
+      }
+    }
+  }, [formData.jobType, formData.trade]);
 
   const handleInput = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -94,99 +106,137 @@ export default function Home() {
 
   const createPDF = (data: any) => {
     const doc = new jsPDF();
+    const margin = 14;
+    const pageWidth = 210;
+    const maxTextWidth = pageWidth - (margin * 2);
     
-    // HEADER
-    doc.setFillColor(0, 0, 0); doc.rect(0, 0, 210, 40, 'F');
-    doc.setTextColor(255, 255, 255);
-    doc.setFontSize(22); doc.setFont("helvetica", "bold"); doc.text("RAMS DOCUMENT", 14, 18);
-    doc.setFontSize(10); doc.setFont("helvetica", "normal"); doc.text("Risk Assessment & Method Statement", 14, 25);
-    
-    // INFO GRID
+    // --- HEADER ---
+    // Clean, professional header. No massive block.
     doc.setTextColor(0, 0, 0);
-    let y = 50;
+    doc.setFontSize(20); doc.setFont("helvetica", "bold"); 
+    doc.text("RISK ASSESSMENT & METHOD STATEMENT", margin, 20);
     
-    // Row 1: Parties
-    doc.setFont("helvetica", "bold"); doc.text("CONTRACTOR", 14, y); doc.text("CLIENT / PROJECT", 110, y);
-    y += 5;
-    doc.setFont("helvetica", "normal"); doc.setFontSize(9);
-    doc.text(`${formData.companyName}`, 14, y); doc.text(`${formData.clientName}`, 110, y);
-    y += 5;
-    doc.text(`Lead: ${formData.contactName} (${formData.contactPhone})`, 14, y); doc.text(`Ref: ${formData.projectRef}`, 110, y);
-    y += 5;
-    
-    const offAddr = doc.splitTextToSize(formData.officeAddress, 80);
-    doc.text(offAddr, 14, y);
-    const siteAddr = doc.splitTextToSize(formData.siteAddress, 80);
-    doc.text(siteAddr, 110, y);
-    y += Math.max(offAddr.length, siteAddr.length) * 4 + 10;
+    doc.setLineWidth(0.5); doc.setDrawColor(0, 0, 0);
+    doc.line(margin, 25, pageWidth - margin, 25);
 
-    // Row 2: Logistics Line
-    doc.setDrawColor(200); doc.line(14, y, 196, y); y += 5;
+    let y = 35;
+
+    // --- PROJECT BLOCK ---
+    doc.setFontSize(10);
+    
+    // Left Column (Contractor)
+    doc.setFont("helvetica", "bold"); doc.text("CONTRACTOR DETAILS", margin, y);
+    doc.setFont("helvetica", "normal"); y += 5;
+    doc.text(formData.companyName, margin, y); y += 5;
+    const officeAddr = doc.splitTextToSize(formData.officeAddress, 80);
+    doc.text(officeAddr, margin, y);
+    y += (officeAddr.length * 4) + 2;
+    doc.text(`Lead: ${formData.contactName} (${formData.contactPhone})`, margin, y);
+
+    // Right Column (Client/Site) - Calculate Y independently then sync
+    let rightY = 35;
+    doc.setFont("helvetica", "bold"); doc.text("PROJECT DETAILS", 110, rightY);
+    rightY += 5;
+    doc.setFont("helvetica", "normal");
+    doc.text(`Client: ${formData.clientName}`, 110, rightY); rightY += 5;
+    const siteAddr = doc.splitTextToSize(formData.siteAddress, 80);
+    doc.text(siteAddr, 110, rightY);
+    rightY += (siteAddr.length * 4) + 2;
+    doc.text(`Ref: ${formData.projectRef} | Date: ${formData.startDate}`, 110, rightY);
+
+    // Sync Y to lowest point
+    y = Math.max(y, rightY) + 10;
+
+    // --- LOGISTICS LINE ---
+    doc.setDrawColor(200); doc.line(margin, y, pageWidth - margin, y); y += 6;
     doc.setFont("helvetica", "bold");
-    doc.text(`Start Date: ${formData.startDate}`, 14, y);
-    doc.text(`Duration: ${formData.duration}`, 60, y);
-    doc.text(`Operatives: ${formData.operatives}`, 110, y);
-    doc.text(`First Aider: ${formData.firstAider}`, 150, y);
+    doc.text(`Duration: ${formData.duration}   |   Operatives: ${formData.operatives}   |   First Aider: ${formData.firstAider}`, margin, y);
     y += 10;
 
-    // 1. SCOPE
-    doc.setFontSize(12); doc.setFont("helvetica", "bold"); doc.text("1. Scope of Works", 14, y);
-    y += 6; doc.setFontSize(9); doc.setFont("helvetica", "normal");
-    const summary = doc.splitTextToSize(data.summary || "", 180);
-    doc.text(summary, 14, y);
-    y += summary.length * 4 + 10;
+    // 1. SCOPE OF WORKS
+    doc.setFontSize(12); doc.setFont("helvetica", "bold"); doc.text("1. Scope of Works", margin, y);
+    y += 6; doc.setFontSize(10); doc.setFont("helvetica", "normal");
+    const summary = doc.splitTextToSize(data.summary || "", maxTextWidth);
+    doc.text(summary, margin, y);
+    y += summary.length * 5 + 10;
 
-    // 2. RISK TABLE
-    doc.setFontSize(12); doc.setFont("helvetica", "bold"); doc.text("2. Risk Assessment", 14, y);
+    // 2. RISK ASSESSMENT TABLE
+    doc.setFontSize(12); doc.setFont("helvetica", "bold"); doc.text("2. Risk Assessment", margin, y);
     y += 5;
     autoTable(doc, {
       startY: y,
-      head: [['Hazard', 'Who', 'Init Risk', 'Controls', 'Res Risk']],
-      body: data.risks ? data.risks.map((r: any) => [r.hazard, r.who, r.initial_risk, r.control, r.residual_risk]) : [],
+      head: [['Hazard', 'Who is at Risk', 'Controls', 'Risk Rating']],
+      body: data.risks ? data.risks.map((r: any) => [
+        r.hazard, 
+        r.who, 
+        r.control, 
+        `${r.initial_risk} -> ${r.residual_risk}`
+      ]) : [],
       theme: 'grid',
-      headStyles: { fillColor: [0, 0, 0], fontSize: 8 },
-      styles: { fontSize: 8 },
-      columnStyles: { 3: { cellWidth: 70 } }
+      headStyles: { fillColor: [240, 240, 240], textColor: [0, 0, 0], lineColor: [0, 0, 0], lineWidth: 0.1 },
+      styles: { fontSize: 9, textColor: [0, 0, 0], lineColor: [200, 200, 200] },
+      columnStyles: { 2: { cellWidth: 80 } } // Wide column for controls
     });
     // @ts-ignore
     y = doc.lastAutoTable.finalY + 15;
 
-    // 3. METHOD
+    // 3. METHOD STATEMENT
     if(y > 250) { doc.addPage(); y=20; }
-    doc.setFontSize(12); doc.setFont("helvetica", "bold"); doc.text("3. Method Statement", 14, y);
-    y += 7; doc.setFontSize(9); doc.setFont("helvetica", "normal");
+    doc.setFontSize(12); doc.setFont("helvetica", "bold"); doc.text("3. Method Statement", margin, y);
+    y += 8; doc.setFontSize(10); doc.setFont("helvetica", "normal");
+    
     if(data.method_steps) {
       data.method_steps.forEach((step: string, i: number) => {
-        if(y > 270) { doc.addPage(); y=20; }
-        const text = doc.splitTextToSize(`${i+1}. ${step}`, 180);
-        doc.text(text, 14, y);
-        y += text.length * 4 + 2;
+        if(y > 275) { doc.addPage(); y=20; }
+        const text = doc.splitTextToSize(`${i+1}. ${step}`, maxTextWidth);
+        doc.text(text, margin, y);
+        y += text.length * 5 + 3;
       });
     }
 
-    // 4. EMERGENCY & PPE
-    y += 10; if(y > 250) { doc.addPage(); y=20; }
-    doc.setFontSize(12); doc.setFont("helvetica", "bold"); doc.text("4. Site Arrangements", 14, y);
-    y += 6; doc.setFontSize(9); doc.setFont("helvetica", "normal");
-    doc.text(`Nearest Hospital: ${formData.hospital}`, 14, y); y+=5;
-    doc.text(`Welfare Facilities: ${formData.welfare}`, 14, y); y+=5;
-    doc.text(`PPE Required: ${data.ppe ? data.ppe.join(", ") : "Standard PPE"}`, 14, y); y+=10;
+    // 4. SITE ARRANGEMENTS (COSHH / EMERGENCY)
+    y += 5; if(y > 250) { doc.addPage(); y=20; }
+    doc.setFontSize(12); doc.setFont("helvetica", "bold"); doc.text("4. Site & Safety Arrangements", margin, y);
+    y += 8; doc.setFontSize(10); doc.setFont("helvetica", "normal");
+    
+    doc.text(`• Nearest Hospital: ${formData.hospital}`, margin, y); y+=6;
+    doc.text(`• Welfare: ${formData.welfare}`, margin, y); y+=6;
+    
+    if (data.ppe) {
+        const ppeText = doc.splitTextToSize(`• PPE Required: ${data.ppe.join(", ")}`, maxTextWidth);
+        doc.text(ppeText, margin, y);
+        y += ppeText.length * 5 + 2;
+    }
+    
+    // Add COSHH note if relevant hazards exist
+    if (hazards.some(h => ["dust_fumes", "chemical_coshh", "silica_dust", "asbestos"].includes(h))) {
+        const coshhText = doc.splitTextToSize("• COSHH: Relevant COSHH assessments must be attached for all hazardous substances used (e.g., silica dust, solvents, cement).", maxTextWidth);
+        doc.text(coshhText, margin, y);
+        y += coshhText.length * 5 + 2;
+    }
 
-    // 5. EXTRA NOTES
+    // 5. SPECIFIC NOTES
     if(formData.extraNotes) {
-        doc.setFont("helvetica", "bold"); doc.text("5. Specific Site Notes", 14, y); y+=6;
+        y += 5; if(y > 260) { doc.addPage(); y=20; }
+        doc.setFont("helvetica", "bold"); doc.text("Specific Site Notes:", margin, y); y+=6;
         doc.setFont("helvetica", "normal");
-        const notes = doc.splitTextToSize(formData.extraNotes, 180);
-        doc.text(notes, 14, y);
-        y += notes.length * 4 + 10;
+        const notes = doc.splitTextToSize(formData.extraNotes, maxTextWidth);
+        doc.text(notes, margin, y);
+        y += notes.length * 5 + 10;
     }
 
     // SIGN OFF
-    if(y > 250) { doc.addPage(); y=20; }
-    doc.setDrawColor(0); doc.setLineWidth(0.5);
-    doc.rect(14, y, 180, 30);
-    doc.text("I confirm I have read and understood the method statement and risks above.", 16, y+8);
-    doc.text("Operative Name: __________________   Signature: __________________   Date: ________", 16, y+22);
+    y += 10; if(y > 240) { doc.addPage(); y=20; }
+    doc.setDrawColor(0); doc.setLineWidth(0.2);
+    doc.rect(margin, y, pageWidth - (margin*2), 35);
+    
+    doc.setFont("helvetica", "bold"); doc.text("Acknowledgement", margin+5, y+8);
+    doc.setFont("helvetica", "normal"); doc.setFontSize(9);
+    doc.text("I confirm I have read, understood, and will work in accordance with this RAMS.", margin+5, y+14);
+    
+    doc.text("Name: ________________________", margin+5, y+25);
+    doc.text("Signature: ________________________", 110, y+25);
+    doc.text("Date: ____________", 170, y+25);
 
     doc.save(`RAMS_${formData.companyName.replace(/ /g,'_')}.pdf`);
   };
@@ -201,120 +251,69 @@ export default function Home() {
       <main className="max-w-3xl mx-auto py-8 px-4">
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
           
-          {/* --- STEP 1: THE BASICS --- */}
+          {/* STEP 1 */}
           {step === 1 && (
             <div className="space-y-6 animate-in fade-in">
               <h2 className="text-xl font-bold flex items-center gap-2 border-b pb-2"><Briefcase className="w-5 h-5"/> Company & Client</h2>
-              
               <div className="grid grid-cols-2 gap-4">
-                <div><label className="block text-xs font-bold uppercase text-gray-500 mb-1">Your Company</label><input className="w-full border rounded-md p-2 text-sm" value={formData.companyName} onChange={e => handleInput("companyName", e.target.value)} /></div>
-                <div><label className="block text-xs font-bold uppercase text-gray-500 mb-1">Competent Person</label><input className="w-full border rounded-md p-2 text-sm" value={formData.contactName} onChange={e => handleInput("contactName", e.target.value)} /></div>
+                <div><label className="text-xs font-bold uppercase text-gray-500">Company Name</label><input className="w-full border rounded-md p-2 text-sm" value={formData.companyName} onChange={e => handleInput("companyName", e.target.value)} /></div>
+                <div><label className="text-xs font-bold uppercase text-gray-500">Competent Person</label><input className="w-full border rounded-md p-2 text-sm" value={formData.contactName} onChange={e => handleInput("contactName", e.target.value)} /></div>
               </div>
-              
               <div className="grid grid-cols-2 gap-4">
-                <AddressSearch label="Your Office Address" value={formData.officeAddress} onChange={(val:string) => handleInput("officeAddress", val)} />
-                <div><label className="block text-xs font-bold uppercase text-gray-500 mb-1">Contact Phone</label><input className="w-full border rounded-md p-2 text-sm" value={formData.contactPhone} onChange={e => handleInput("contactPhone", e.target.value)} /></div>
+                <AddressSearch label="Office Address" value={formData.officeAddress} onChange={(val:string) => handleInput("officeAddress", val)} />
+                <div><label className="text-xs font-bold uppercase text-gray-500">Phone</label><input className="w-full border rounded-md p-2 text-sm" value={formData.contactPhone} onChange={e => handleInput("contactPhone", e.target.value)} /></div>
               </div>
-
               <hr className="border-gray-100"/>
-
               <div className="grid grid-cols-2 gap-4">
-                <div><label className="block text-xs font-bold uppercase text-gray-500 mb-1">Client Name</label><input className="w-full border rounded-md p-2 text-sm" value={formData.clientName} onChange={e => handleInput("clientName", e.target.value)} /></div>
-                <div><label className="block text-xs font-bold uppercase text-gray-500 mb-1">Project Ref</label><input className="w-full border rounded-md p-2 text-sm" value={formData.projectRef} onChange={e => handleInput("projectRef", e.target.value)} /></div>
+                <div><label className="text-xs font-bold uppercase text-gray-500">Client Name</label><input className="w-full border rounded-md p-2 text-sm" value={formData.clientName} onChange={e => handleInput("clientName", e.target.value)} /></div>
+                <div><label className="text-xs font-bold uppercase text-gray-500">Project Ref</label><input className="w-full border rounded-md p-2 text-sm" value={formData.projectRef} onChange={e => handleInput("projectRef", e.target.value)} /></div>
               </div>
-              <AddressSearch label="Site Address (Where works happen)" value={formData.siteAddress} onChange={(val:string) => handleInput("siteAddress", val)} />
-
+              <AddressSearch label="Site Address" value={formData.siteAddress} onChange={(val:string) => handleInput("siteAddress", val)} />
               <button onClick={() => setStep(2)} className="w-full bg-black text-white py-3 rounded-md font-bold mt-4 flex justify-center gap-2">Next Step <ArrowRight/></button>
             </div>
           )}
 
-          {/* --- STEP 2: LOGISTICS & SCOPE --- */}
+          {/* STEP 2 */}
           {step === 2 && (
             <div className="space-y-6 animate-in fade-in">
-              <h2 className="text-xl font-bold flex items-center gap-2 border-b pb-2"><Clock className="w-5 h-5"/> Logistics & Scope</h2>
+              <h2 className="text-xl font-bold flex items-center gap-2 border-b pb-2"><Briefcase className="w-5 h-5"/> Scope & Logistics</h2>
+              <div className="grid grid-cols-3 gap-4 bg-gray-50 p-3 rounded-md border">
+                <div><label className="text-xs font-bold uppercase text-gray-500">Start Date</label><input type="date" className="w-full border rounded-md p-2 text-sm bg-white" value={formData.startDate} onChange={e => handleInput("startDate", e.target.value)} /></div>
+                <div><label className="text-xs font-bold uppercase text-gray-500">Duration</label><input className="w-full border rounded-md p-2 text-sm bg-white" value={formData.duration} onChange={e => handleInput("duration", e.target.value)} /></div>
+                <div><label className="text-xs font-bold uppercase text-gray-500">Operatives</label><input type="number" className="w-full border rounded-md p-2 text-sm bg-white" value={formData.operatives} onChange={e => handleInput("operatives", e.target.value)} /></div>
+              </div>
               
-              <div className="grid grid-cols-3 gap-4 bg-blue-50 p-4 rounded-md border border-blue-100">
-                <div><label className="block text-xs font-bold uppercase text-gray-500 mb-1">Start Date</label><input type="date" className="w-full border rounded-md p-2 text-sm bg-white" value={formData.startDate} onChange={e => handleInput("startDate", e.target.value)} /></div>
-                <div><label className="block text-xs font-bold uppercase text-gray-500 mb-1">Duration</label><input className="w-full border rounded-md p-2 text-sm bg-white" placeholder="e.g. 3 Days" value={formData.duration} onChange={e => handleInput("duration", e.target.value)} /></div>
-                <div><label className="block text-xs font-bold uppercase text-gray-500 mb-1">Operatives</label><input type="number" className="w-full border rounded-md p-2 text-sm bg-white" value={formData.operatives} onChange={e => handleInput("operatives", e.target.value)} /></div>
-              </div>
-
-              <div>
-                <label className="block text-xs font-bold uppercase text-gray-500 mb-1">Trade</label>
-                <select className="w-full border rounded-md p-2 text-sm bg-white" value={formData.trade} onChange={e => handleInput("trade", e.target.value)}>
-                  {Object.keys(TRADES).map(t => <option key={t}>{t}</option>)}
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-xs font-bold uppercase text-gray-500 mb-1">Job Type</label>
-                <select className="w-full border rounded-md p-2 text-sm bg-white" value={formData.jobType} onChange={e => handleInput("jobType", e.target.value)}>
-                  <option value="">-- Select --</option>
+              <div className="grid grid-cols-2 gap-4">
+                  <div><label className="text-xs font-bold uppercase text-gray-500">Trade</label><select className="w-full border rounded-md p-2 text-sm bg-white" value={formData.trade} onChange={e => handleInput("trade", e.target.value)}>{Object.keys(TRADES).map(t => <option key={t}>{t}</option>)}</select></div>
                   {/* @ts-ignore */}
-                  {TRADES[formData.trade].jobs.map((j:string) => <option key={j}>{j}</option>)}
-                </select>
+                  <div><label className="text-xs font-bold uppercase text-gray-500">Job Type</label><select className="w-full border rounded-md p-2 text-sm bg-white" value={formData.jobType} onChange={e => handleInput("jobType", e.target.value)}><option value="">-- Select --</option>{TRADES[formData.trade].jobs.map((j:any) => <option key={j.name}>{j.name}</option>)}</select></div>
               </div>
 
-              {/* THE "OTHER" BOX */}
-              {formData.jobType === "Other" && (
-                <div className="animate-in fade-in slide-in-from-top-2">
-                  <label className="block text-xs font-bold uppercase text-black mb-1">Custom Job Title</label>
-                  <input className="w-full border-2 border-black rounded-md p-2 text-sm" placeholder="Type specific job title..." value={formData.customJobType} onChange={e => handleInput("customJobType", e.target.value)} />
-                </div>
+              {formData.jobType === "Other (Custom)" && (
+                <div className="animate-in fade-in"><label className="text-xs font-bold uppercase text-black">Custom Job Title</label><input className="w-full border-2 border-black rounded-md p-2 text-sm" placeholder="e.g. Jacuzzi Installation" value={formData.customJobType} onChange={e => handleInput("customJobType", e.target.value)} /></div>
               )}
 
-              <div>
-                <label className="block text-xs font-bold uppercase text-gray-500 mb-1">Detailed Description</label>
-                <textarea className="w-full border rounded-md p-2 text-sm h-24" placeholder="Describe the exact works..." value={formData.jobDesc} onChange={e => handleInput("jobDesc", e.target.value)} />
-              </div>
-
-              <div className="flex gap-3"><button onClick={() => setStep(1)} className="w-1/3 border py-3 rounded-md font-bold">Back</button><button onClick={() => setStep(3)} className="w-2/3 bg-black text-white py-3 rounded-md font-bold flex justify-center gap-2">Next <ArrowRight/></button></div>
+              <div><label className="text-xs font-bold uppercase text-gray-500">Job Description</label><textarea className="w-full border rounded-md p-2 text-sm h-32" value={formData.jobDesc} onChange={e => handleInput("jobDesc", e.target.value)} /></div>
+              <div className="flex gap-3"><button onClick={() => setStep(1)} className="w-1/3 border py-3 rounded-md font-bold">Back</button><button onClick={() => setStep(3)} className="w-2/3 bg-black text-white py-3 rounded-md font-bold">Next <ArrowRight/></button></div>
             </div>
           )}
 
-          {/* --- STEP 3: SAFETY & FILTERS --- */}
+          {/* STEP 3 */}
           {step === 3 && (
             <div className="space-y-6 animate-in fade-in">
               <h2 className="text-xl font-bold flex items-center gap-2 border-b pb-2"><AlertTriangle className="w-5 h-5"/> Safety & Specifics</h2>
-              
-              {/* Emergency Section */}
               <div className="grid grid-cols-2 gap-4 bg-red-50 p-4 rounded-md border border-red-100">
-                 <div className="col-span-2 flex items-center gap-2 text-red-800 font-bold text-sm"><Ambulance className="w-4 h-4"/> Emergency Arrangements</div>
-                 <div><label className="block text-xs font-bold uppercase text-gray-500 mb-1">First Aider Name</label><input className="w-full border rounded-md p-2 text-sm bg-white" value={formData.firstAider} onChange={e => handleInput("firstAider", e.target.value)} /></div>
-                 <div><label className="block text-xs font-bold uppercase text-gray-500 mb-1">Nearest A&E / Hospital</label><input className="w-full border rounded-md p-2 text-sm bg-white" placeholder="Hospital Name & Postcode" value={formData.hospital} onChange={e => handleInput("hospital", e.target.value)} /></div>
-                 <div className="col-span-2"><label className="block text-xs font-bold uppercase text-gray-500 mb-1">Welfare Facilities</label><input className="w-full border rounded-md p-2 text-sm bg-white" value={formData.welfare} onChange={e => handleInput("welfare", e.target.value)} /></div>
+                 <div className="col-span-2 flex items-center gap-2 text-red-800 font-bold text-sm"><ShieldCheck className="w-4 h-4"/> Emergency Arrangements</div>
+                 <div><label className="text-xs font-bold uppercase text-gray-500">First Aider</label><input className="w-full border rounded-md p-2 text-sm bg-white" value={formData.firstAider} onChange={e => handleInput("firstAider", e.target.value)} /></div>
+                 <div><label className="text-xs font-bold uppercase text-gray-500">Nearest A&E</label><input className="w-full border rounded-md p-2 text-sm bg-white" value={formData.hospital} onChange={e => handleInput("hospital", e.target.value)} /></div>
+                 <div className="col-span-2"><label className="text-xs font-bold uppercase text-gray-500">Welfare Facilities</label><input className="w-full border rounded-md p-2 text-sm bg-white" value={formData.welfare} onChange={e => handleInput("welfare", e.target.value)} /></div>
               </div>
 
-              {/* Hazards Accordion */}
-              <div className="space-y-4">
-                 {Object.entries(HAZARD_GROUPS).map(([group, items]) => (
-                   <div key={group} className="border rounded-md p-3">
-                      <h4 className="text-xs font-bold uppercase text-black mb-2">{group}</h4>
-                      <div className="flex flex-wrap gap-2">
-                        {items.map(h => (
-                           <button key={h} onClick={() => toggleHazard(h)} className={`text-xs py-1.5 px-3 rounded-md border transition-all ${hazards.includes(h) ? 'bg-black text-white border-black' : 'bg-white text-gray-600 hover:bg-gray-50'}`}>{h}</button>
-                        ))}
-                      </div>
-                   </div>
-                 ))}
-              </div>
+              <div className="space-y-4">{Object.entries(HAZARD_DATA).map(([key, data]) => (<div key={key} onClick={() => toggleHazard(key)} className={`cursor-pointer p-3 border rounded-md flex items-center gap-3 transition-all ${hazards.includes(key) ? "bg-black text-white border-black" : "bg-white hover:bg-gray-50"}`}><div className={`w-4 h-4 border rounded flex items-center justify-center ${hazards.includes(key) ? "bg-white" : "bg-gray-200"}`}>{hazards.includes(key) && <div className="w-2 h-2 bg-black rounded-full"/>}</div><div><div className="font-bold text-sm">{data.label}</div><div className={`text-xs ${hazards.includes(key) ? "text-gray-300" : "text-gray-500"}`}>{data.risk}</div></div></div>))}</div>
 
-              {/* Extra Details Box */}
-              <div>
-                <label className="block text-xs font-bold uppercase text-gray-500 mb-1 flex items-center gap-2"><FileText className="w-4 h-4"/> Specific Site Notes / Restrictions</label>
-                <textarea className="w-full border rounded-md p-2 text-sm h-20" placeholder="e.g. Access via rear alley only. No noisy works between 12-2pm." value={formData.extraNotes} onChange={e => handleInput("extraNotes", e.target.value)} />
-              </div>
+              <div><label className="text-xs font-bold uppercase text-gray-500 flex items-center gap-2"><Info className="w-4 h-4"/> Specific Site Notes</label><textarea className="w-full border rounded-md p-2 text-sm h-24" placeholder="e.g. Access via rear gate only. No noisy works after 3pm." value={formData.extraNotes} onChange={e => handleInput("extraNotes", e.target.value)} /></div>
 
-              <div className="pt-4 border-t mt-4">
-                 <input type="password" placeholder="PRO2025" className="w-full border rounded-md p-2 mb-4 font-mono text-center tracking-widest" value={formData.accessCode} onChange={e => handleInput("accessCode", e.target.value)} />
-                 <div className="flex gap-3">
-                    <button onClick={() => setStep(2)} className="w-1/3 border py-3 rounded-md font-bold">Back</button>
-                    <button onClick={generateRAMS} disabled={loading} className="w-2/3 bg-green-600 text-white py-3 rounded-md font-bold flex justify-center gap-2 items-center">
-                        {loading ? <Loader2 className="animate-spin"/> : <ShieldCheck/>} Create Document
-                    </button>
-                 </div>
-              </div>
-
+              <div className="pt-4 border-t mt-4"><input type="password" placeholder="PRO2025" className="w-full border rounded-md p-2 mb-4 font-mono text-center tracking-widest" value={formData.accessCode} onChange={e => handleInput("accessCode", e.target.value)} /><div className="flex gap-3"><button onClick={() => setStep(2)} className="w-1/3 border py-3 rounded-md font-bold">Back</button><button onClick={generateRAMS} disabled={loading} className="w-2/3 bg-green-600 text-white py-3 rounded-md font-bold flex justify-center gap-2 items-center">{loading ? <Loader2 className="animate-spin"/> : <ShieldCheck/>} Create Document</button></div></div>
               {generated && <div className="bg-green-50 p-4 rounded-md border border-green-200 flex items-center gap-3 text-green-800 mt-4"><CheckCircle/> <b>Success!</b> PDF Downloaded.</div>}
             </div>
           )}
