@@ -1,41 +1,39 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import jsPDF from "jspdf";
-import autoTable from "jspdf-autotable"; 
-import { Loader2, CheckCircle, HardHat, ShieldCheck, ArrowRight, MapPin, Briefcase, AlertTriangle, Lock, Search, User, Building } from "lucide-react";
+import autoTable from "jspdf-autotable";
+import { Loader2, CheckCircle, ShieldCheck, ArrowRight, MapPin, Briefcase, AlertTriangle, User, Clock, Users, Ambulance, FileText } from "lucide-react";
 import { TRADES, HAZARD_GROUPS } from "./lib/constants";
 
-// --- COMPONENT: ADDRESS SEARCH (Free UK Lookup) ---
+// --- ADDRESS SEARCH COMPONENT (UNCHANGED) ---
 function AddressSearch({ label, value, onChange }: any) {
   const [query, setQuery] = useState(value);
   const [results, setResults] = useState([]);
   const [showDropdown, setShowDropdown] = useState(false);
 
   const searchAddress = async (text: string) => {
-    setQuery(text);
-    onChange(text);
+    setQuery(text); onChange(text);
     if (text.length > 3) {
       try {
         const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${text}&countrycodes=gb&limit=5`);
         const data = await res.json();
-        setResults(data);
-        setShowDropdown(true);
+        setResults(data); setShowDropdown(true);
       } catch (e) { console.error(e); }
     } else { setShowDropdown(false); }
   };
 
   return (
     <div className="relative">
-      <label className="block text-sm font-bold mb-1">{label}</label>
+      <label className="block text-xs font-bold uppercase text-gray-500 mb-1">{label}</label>
       <div className="relative">
-        <input className="w-full border rounded-lg p-3 pl-10" placeholder="Start typing address..." value={query} onChange={(e) => searchAddress(e.target.value)} />
-        <Search className="w-4 h-4 absolute left-3 top-3.5 text-gray-400" />
+        <input className="w-full border rounded-md p-2 text-sm" placeholder="Start typing..." value={query} onChange={(e) => searchAddress(e.target.value)} />
+        <MapPin className="w-4 h-4 absolute right-3 top-2.5 text-gray-400" />
       </div>
       {showDropdown && results.length > 0 && (
-        <ul className="absolute z-50 w-full bg-white border rounded-lg shadow-lg mt-1 max-h-60 overflow-auto">
+        <ul className="absolute z-50 w-full bg-white border rounded-md shadow-lg mt-1 max-h-60 overflow-auto">
           {results.map((r: any, i) => (
-            <li key={i} onClick={() => { setQuery(r.display_name); onChange(r.display_name); setShowDropdown(false); }} className="p-3 hover:bg-gray-100 cursor-pointer text-sm border-b last:border-0">
+            <li key={i} onClick={() => { setQuery(r.display_name); onChange(r.display_name); setShowDropdown(false); }} className="p-2 hover:bg-gray-100 cursor-pointer text-xs border-b">
               {r.display_name}
             </li>
           ))}
@@ -45,44 +43,49 @@ function AddressSearch({ label, value, onChange }: any) {
   );
 }
 
-// --- MAIN WIZARD APP ---
 export default function Home() {
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const [generated, setGenerated] = useState(false);
   
-  const [company, setCompany] = useState({ name: "", address: "", contact: "" });
-  const [job, setJob] = useState({ client: "", clientType: "Direct", siteAddress: "", trade: "Electrician", type: "", desc: "", date: new Date().toISOString().split('T')[0] });
-  const [context, setContext] = useState({ occupied: false, outdoor: false, accessCode: "" });
+  // --- COMPREHENSIVE DATA STATE ---
+  const [formData, setFormData] = useState({
+    // Step 1: Company
+    companyName: "", officeAddress: "", contactName: "", contactPhone: "",
+    // Step 2: Job
+    clientName: "", projectRef: "", siteAddress: "", startDate: new Date().toISOString().split('T')[0], duration: "1 Day",
+    // Step 3: Logistics
+    operatives: "1", trade: "Electrician", jobType: "", customJobType: "", jobDesc: "",
+    // Step 4: Emergency
+    firstAider: "", hospital: "", welfare: "Client WC",
+    // Step 5: Specifics
+    extraNotes: "", accessCode: ""
+  });
+  
   const [hazards, setHazards] = useState<string[]>([]);
 
-  // Smart Template Auto-Fill
-  useEffect(() => {
-    // @ts-ignore
-    const tradeData = TRADES[job.trade];
-    if (tradeData && job.type) {
-      const template = tradeData.jobs.find((j: any) => j.name === job.type);
-      if (template) {
-        setJob(prev => ({ ...prev, desc: template.desc }));
-        setHazards(prev => [...new Set([...prev, ...template.hazards])]);
-      }
-    }
-  }, [job.type, job.trade]);
+  const handleInput = (field: string, value: string) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
+  };
+
+  const toggleHazard = (h: string) => {
+    setHazards(prev => prev.includes(h) ? prev.filter(i => i !== h) : [...prev, h]);
+  };
 
   const generateRAMS = async () => {
-    if (context.accessCode !== "PRO2025") return alert("❌ Invalid Access Code.");
-    if (!company.name || !job.siteAddress) return alert("⚠️ Missing Details.");
+    if (formData.accessCode !== "PRO2025") return alert("❌ Invalid Access Code.");
+    if (!formData.companyName || !formData.clientName) return alert("⚠️ Missing Company or Client Name.");
     
     setLoading(true);
     try {
       const res = await fetch("/api/generate", {
         method: "POST",
-        body: JSON.stringify({ company, job, hazards, context }),
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...formData, hazards }),
       });
       
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
-      
       createPDF(data);
       setGenerated(true);
     } catch (e: any) { alert(e.message); } 
@@ -92,149 +95,229 @@ export default function Home() {
   const createPDF = (data: any) => {
     const doc = new jsPDF();
     
-    // 1. Header Strip
-    doc.setFillColor(20, 20, 20); 
-    doc.rect(0, 0, 210, 35, 'F');
+    // HEADER
+    doc.setFillColor(0, 0, 0); doc.rect(0, 0, 210, 40, 'F');
     doc.setTextColor(255, 255, 255);
-    doc.setFontSize(22); doc.setFont("helvetica", "bold");
-    doc.text("RAMS DOCUMENT", 105, 18, { align: "center" });
-    doc.setFontSize(10); doc.setFont("helvetica", "normal");
-    doc.text("Risk Assessment & Method Statement", 105, 26, { align: "center" });
-
+    doc.setFontSize(22); doc.setFont("helvetica", "bold"); doc.text("RAMS DOCUMENT", 14, 18);
+    doc.setFontSize(10); doc.setFont("helvetica", "normal"); doc.text("Risk Assessment & Method Statement", 14, 25);
+    
+    // INFO GRID
     doc.setTextColor(0, 0, 0);
     let y = 50;
-
-    // 2. Info Block
-    doc.setFont("helvetica", "bold"); doc.text("CONTRACTOR:", 14, y);
-    doc.text("PROJECT DETAILS:", 110, y);
-    y += 6;
     
-    doc.setFontSize(9); doc.setFont("helvetica", "normal");
-    doc.text(company.name, 14, y);
-    doc.text(`Client: ${job.client}`, 110, y);
+    // Row 1: Parties
+    doc.setFont("helvetica", "bold"); doc.text("CONTRACTOR", 14, y); doc.text("CLIENT / PROJECT", 110, y);
     y += 5;
-    doc.text(`Contact: ${company.contact}`, 14, y);
-    doc.text(`Date: ${job.date}`, 110, y);
+    doc.setFont("helvetica", "normal"); doc.setFontSize(9);
+    doc.text(`${formData.companyName}`, 14, y); doc.text(`${formData.clientName}`, 110, y);
+    y += 5;
+    doc.text(`Lead: ${formData.contactName} (${formData.contactPhone})`, 14, y); doc.text(`Ref: ${formData.projectRef}`, 110, y);
     y += 5;
     
-    const offAddr = doc.splitTextToSize(`Office: ${company.address}`, 80);
+    const offAddr = doc.splitTextToSize(formData.officeAddress, 80);
     doc.text(offAddr, 14, y);
-    const siteAddr = doc.splitTextToSize(`Site: ${job.siteAddress}`, 80);
+    const siteAddr = doc.splitTextToSize(formData.siteAddress, 80);
     doc.text(siteAddr, 110, y);
-    
-    y += Math.max(offAddr.length, siteAddr.length) * 5 + 15;
+    y += Math.max(offAddr.length, siteAddr.length) * 4 + 10;
 
-    // 3. Summary
-    doc.setFontSize(11); doc.setFont("helvetica", "bold"); doc.text("1. Scope of Works", 14, y);
+    // Row 2: Logistics Line
+    doc.setDrawColor(200); doc.line(14, y, 196, y); y += 5;
+    doc.setFont("helvetica", "bold");
+    doc.text(`Start Date: ${formData.startDate}`, 14, y);
+    doc.text(`Duration: ${formData.duration}`, 60, y);
+    doc.text(`Operatives: ${formData.operatives}`, 110, y);
+    doc.text(`First Aider: ${formData.firstAider}`, 150, y);
+    y += 10;
+
+    // 1. SCOPE
+    doc.setFontSize(12); doc.setFont("helvetica", "bold"); doc.text("1. Scope of Works", 14, y);
     y += 6; doc.setFontSize(9); doc.setFont("helvetica", "normal");
     const summary = doc.splitTextToSize(data.summary || "", 180);
     doc.text(summary, 14, y);
-    y += summary.length * 5 + 10;
+    y += summary.length * 4 + 10;
 
-    // 4. Risk Table (Grid)
-    doc.setFontSize(11); doc.setFont("helvetica", "bold"); doc.text("2. Risk Assessment", 14, y);
+    // 2. RISK TABLE
+    doc.setFontSize(12); doc.setFont("helvetica", "bold"); doc.text("2. Risk Assessment", 14, y);
     y += 5;
-    
     autoTable(doc, {
       startY: y,
-      head: [['Hazard', 'Risk To', 'Initial', 'Control Measures', 'Residual']],
+      head: [['Hazard', 'Who', 'Init Risk', 'Controls', 'Res Risk']],
       body: data.risks ? data.risks.map((r: any) => [r.hazard, r.who, r.initial_risk, r.control, r.residual_risk]) : [],
       theme: 'grid',
-      headStyles: { fillColor: [20, 20, 20], fontSize: 8 },
-      styles: { fontSize: 8, cellPadding: 3 },
+      headStyles: { fillColor: [0, 0, 0], fontSize: 8 },
+      styles: { fontSize: 8 },
       columnStyles: { 3: { cellWidth: 70 } }
     });
     // @ts-ignore
     y = doc.lastAutoTable.finalY + 15;
 
-    // 5. Method Statement
-    if(y > 240) { doc.addPage(); y=20; }
-    doc.setFontSize(11); doc.setFont("helvetica", "bold"); doc.text("3. Method Statement", 14, y);
+    // 3. METHOD
+    if(y > 250) { doc.addPage(); y=20; }
+    doc.setFontSize(12); doc.setFont("helvetica", "bold"); doc.text("3. Method Statement", 14, y);
     y += 7; doc.setFontSize(9); doc.setFont("helvetica", "normal");
-    
     if(data.method_steps) {
-        data.method_steps.forEach((step: string, i: number) => {
-            if(y > 270) { doc.addPage(); y=20; }
-            const text = doc.splitTextToSize(`${i+1}. ${step}`, 180);
-            doc.text(text, 14, y);
-            y += text.length * 4.5 + 2;
-        });
+      data.method_steps.forEach((step: string, i: number) => {
+        if(y > 270) { doc.addPage(); y=20; }
+        const text = doc.splitTextToSize(`${i+1}. ${step}`, 180);
+        doc.text(text, 14, y);
+        y += text.length * 4 + 2;
+      });
     }
 
-    // 6. PPE & Sign-off
+    // 4. EMERGENCY & PPE
     y += 10; if(y > 250) { doc.addPage(); y=20; }
-    doc.setFontSize(11); doc.setFont("helvetica", "bold"); doc.text("4. Required PPE", 14, y);
-    y += 7; doc.setFontSize(9); doc.setFont("helvetica", "normal");
-    if(data.ppe) doc.text(data.ppe.join(", "), 14, y);
+    doc.setFontSize(12); doc.setFont("helvetica", "bold"); doc.text("4. Site Arrangements", 14, y);
+    y += 6; doc.setFontSize(9); doc.setFont("helvetica", "normal");
+    doc.text(`Nearest Hospital: ${formData.hospital}`, 14, y); y+=5;
+    doc.text(`Welfare Facilities: ${formData.welfare}`, 14, y); y+=5;
+    doc.text(`PPE Required: ${data.ppe ? data.ppe.join(", ") : "Standard PPE"}`, 14, y); y+=10;
 
-    y += 25; if(y > 250) { doc.addPage(); y=20; }
-    doc.setDrawColor(150); doc.setLineWidth(0.1);
-    doc.rect(14, y, 180, 25);
-    doc.text("I confirm I have read and understood this RAMS.", 16, y+6);
-    doc.text("Name: __________________  Signature: __________________", 16, y+18);
+    // 5. EXTRA NOTES
+    if(formData.extraNotes) {
+        doc.setFont("helvetica", "bold"); doc.text("5. Specific Site Notes", 14, y); y+=6;
+        doc.setFont("helvetica", "normal");
+        const notes = doc.splitTextToSize(formData.extraNotes, 180);
+        doc.text(notes, 14, y);
+        y += notes.length * 4 + 10;
+    }
 
-    doc.save(`RAMS_${company.name.replace(/ /g,'_')}.pdf`);
+    // SIGN OFF
+    if(y > 250) { doc.addPage(); y=20; }
+    doc.setDrawColor(0); doc.setLineWidth(0.5);
+    doc.rect(14, y, 180, 30);
+    doc.text("I confirm I have read and understood the method statement and risks above.", 16, y+8);
+    doc.text("Operative Name: __________________   Signature: __________________   Date: ________", 16, y+22);
+
+    doc.save(`RAMS_${formData.companyName.replace(/ /g,'_')}.pdf`);
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 font-sans text-black">
-      <nav className="bg-white border-b py-4 px-6 sticky top-0 z-50 flex justify-between items-center">
-        <div className="flex items-center gap-2 font-bold text-xl"><ShieldCheck/> RAMS Sorted</div>
-        <div className="text-xs font-bold bg-black text-white px-3 py-1 rounded-full">Step {step} of 3</div>
+    <div className="min-h-screen bg-gray-50 font-sans text-black pb-20">
+      <nav className="bg-white border-b py-4 px-6 sticky top-0 z-50 flex justify-between items-center shadow-sm">
+        <div className="flex items-center gap-2 font-bold text-xl"><ShieldCheck className="w-6 h-6"/> RAMS Sorted</div>
+        <div className="text-xs font-bold bg-black text-white px-3 py-1 rounded-md">Step {step} / 3</div>
       </nav>
 
-      <main className="max-w-2xl mx-auto py-8 px-4">
+      <main className="max-w-3xl mx-auto py-8 px-4">
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
           
-          {/* STEP 1: COMPANY */}
+          {/* --- STEP 1: THE BASICS --- */}
           {step === 1 && (
-            <div className="space-y-6 animate-in fade-in slide-in-from-right-4">
-              <h2 className="text-2xl font-bold flex items-center gap-2"><Briefcase/> Company Profile</h2>
-              <div><label className="block text-sm font-bold mb-1">Company Name</label><input className="w-full border rounded-lg p-3" value={company.name} onChange={e => setCompany({...company, name: e.target.value})} /></div>
-              <AddressSearch label="Office Address (Legal)" value={company.address} onChange={(val: string) => setCompany({...company, address: val})} />
-              <div><label className="block text-sm font-bold mb-1">Competent Person</label><input className="w-full border rounded-lg p-3" value={company.contact} onChange={e => setCompany({...company, contact: e.target.value})} /></div>
-              <button onClick={() => setStep(2)} className="w-full bg-black text-white py-3 rounded-lg font-bold mt-4 flex justify-center gap-2">Next <ArrowRight/></button>
-            </div>
-          )}
-
-          {/* STEP 2: JOB */}
-          {step === 2 && (
-            <div className="space-y-6 animate-in fade-in slide-in-from-right-4">
-              <h2 className="text-2xl font-bold flex items-center gap-2"><MapPin/> Job Details</h2>
-              <div className="flex gap-4 p-1 bg-gray-100 rounded-lg">
-                <button onClick={() => setJob({...job, clientType: "Direct"})} className={`flex-1 py-2 rounded-md text-sm font-bold ${job.clientType === "Direct" ? "bg-white shadow-sm" : "text-gray-500"}`}><User className="w-4 h-4 inline"/> Direct Client</button>
-                <button onClick={() => setJob({...job, clientType: "Subcontract"})} className={`flex-1 py-2 rounded-md text-sm font-bold ${job.clientType === "Subcontract" ? "bg-white shadow-sm" : "text-gray-500"}`}><Building className="w-4 h-4 inline"/> Contractor</button>
-              </div>
-              <AddressSearch label="Site Address (Where work is)" value={job.siteAddress} onChange={(val: string) => setJob({...job, siteAddress: val})} />
+            <div className="space-y-6 animate-in fade-in">
+              <h2 className="text-xl font-bold flex items-center gap-2 border-b pb-2"><Briefcase className="w-5 h-5"/> Company & Client</h2>
               
-              <div className="p-4 bg-blue-50 rounded-lg border border-blue-100">
-                  <label className="block text-sm font-bold mb-1">Trade Template</label>
-                  <div className="grid grid-cols-2 gap-2 mb-2">
-                      <select className="border rounded-lg p-3" value={job.trade} onChange={e => setJob({...job, trade: e.target.value, type: ""})}>{Object.keys(TRADES).map(t => <option key={t}>{t}</option>)}</select>
-                      {/* @ts-ignore */}
-                      <select className="border rounded-lg p-3" value={job.type} onChange={e => setJob({...job, type: e.target.value})}><option value="">-- Select Job --</option>{TRADES[job.trade].jobs.map((j:any) => <option key={j.name}>{j.name}</option>)}</select>
-                  </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div><label className="block text-xs font-bold uppercase text-gray-500 mb-1">Your Company</label><input className="w-full border rounded-md p-2 text-sm" value={formData.companyName} onChange={e => handleInput("companyName", e.target.value)} /></div>
+                <div><label className="block text-xs font-bold uppercase text-gray-500 mb-1">Competent Person</label><input className="w-full border rounded-md p-2 text-sm" value={formData.contactName} onChange={e => handleInput("contactName", e.target.value)} /></div>
+              </div>
+              
+              <div className="grid grid-cols-2 gap-4">
+                <AddressSearch label="Your Office Address" value={formData.officeAddress} onChange={(val:string) => handleInput("officeAddress", val)} />
+                <div><label className="block text-xs font-bold uppercase text-gray-500 mb-1">Contact Phone</label><input className="w-full border rounded-md p-2 text-sm" value={formData.contactPhone} onChange={e => handleInput("contactPhone", e.target.value)} /></div>
               </div>
 
-              <div><label className="block text-sm font-bold mb-1">Scope of Works</label><textarea className="w-full border rounded-lg p-3 h-24" value={job.desc} onChange={e => setJob({...job, desc: e.target.value})} /></div>
-              <div className="flex gap-3 mt-4"><button onClick={() => setStep(1)} className="w-1/3 border py-3 rounded-lg font-bold">Back</button><button onClick={() => setStep(3)} className="w-2/3 bg-black text-white py-3 rounded-lg font-bold">Next <ArrowRight className="inline"/></button></div>
+              <hr className="border-gray-100"/>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div><label className="block text-xs font-bold uppercase text-gray-500 mb-1">Client Name</label><input className="w-full border rounded-md p-2 text-sm" value={formData.clientName} onChange={e => handleInput("clientName", e.target.value)} /></div>
+                <div><label className="block text-xs font-bold uppercase text-gray-500 mb-1">Project Ref</label><input className="w-full border rounded-md p-2 text-sm" value={formData.projectRef} onChange={e => handleInput("projectRef", e.target.value)} /></div>
+              </div>
+              <AddressSearch label="Site Address (Where works happen)" value={formData.siteAddress} onChange={(val:string) => handleInput("siteAddress", val)} />
+
+              <button onClick={() => setStep(2)} className="w-full bg-black text-white py-3 rounded-md font-bold mt-4 flex justify-center gap-2">Next Step <ArrowRight/></button>
             </div>
           )}
 
-          {/* STEP 3: HAZARDS */}
+          {/* --- STEP 2: LOGISTICS & SCOPE --- */}
+          {step === 2 && (
+            <div className="space-y-6 animate-in fade-in">
+              <h2 className="text-xl font-bold flex items-center gap-2 border-b pb-2"><Clock className="w-5 h-5"/> Logistics & Scope</h2>
+              
+              <div className="grid grid-cols-3 gap-4 bg-blue-50 p-4 rounded-md border border-blue-100">
+                <div><label className="block text-xs font-bold uppercase text-gray-500 mb-1">Start Date</label><input type="date" className="w-full border rounded-md p-2 text-sm bg-white" value={formData.startDate} onChange={e => handleInput("startDate", e.target.value)} /></div>
+                <div><label className="block text-xs font-bold uppercase text-gray-500 mb-1">Duration</label><input className="w-full border rounded-md p-2 text-sm bg-white" placeholder="e.g. 3 Days" value={formData.duration} onChange={e => handleInput("duration", e.target.value)} /></div>
+                <div><label className="block text-xs font-bold uppercase text-gray-500 mb-1">Operatives</label><input type="number" className="w-full border rounded-md p-2 text-sm bg-white" value={formData.operatives} onChange={e => handleInput("operatives", e.target.value)} /></div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold uppercase text-gray-500 mb-1">Trade</label>
+                <select className="w-full border rounded-md p-2 text-sm bg-white" value={formData.trade} onChange={e => handleInput("trade", e.target.value)}>
+                  {Object.keys(TRADES).map(t => <option key={t}>{t}</option>)}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold uppercase text-gray-500 mb-1">Job Type</label>
+                <select className="w-full border rounded-md p-2 text-sm bg-white" value={formData.jobType} onChange={e => handleInput("jobType", e.target.value)}>
+                  <option value="">-- Select --</option>
+                  {/* @ts-ignore */}
+                  {TRADES[formData.trade].jobs.map((j:string) => <option key={j}>{j}</option>)}
+                </select>
+              </div>
+
+              {/* THE "OTHER" BOX */}
+              {formData.jobType === "Other" && (
+                <div className="animate-in fade-in slide-in-from-top-2">
+                  <label className="block text-xs font-bold uppercase text-black mb-1">Custom Job Title</label>
+                  <input className="w-full border-2 border-black rounded-md p-2 text-sm" placeholder="Type specific job title..." value={formData.customJobType} onChange={e => handleInput("customJobType", e.target.value)} />
+                </div>
+              )}
+
+              <div>
+                <label className="block text-xs font-bold uppercase text-gray-500 mb-1">Detailed Description</label>
+                <textarea className="w-full border rounded-md p-2 text-sm h-24" placeholder="Describe the exact works..." value={formData.jobDesc} onChange={e => handleInput("jobDesc", e.target.value)} />
+              </div>
+
+              <div className="flex gap-3"><button onClick={() => setStep(1)} className="w-1/3 border py-3 rounded-md font-bold">Back</button><button onClick={() => setStep(3)} className="w-2/3 bg-black text-white py-3 rounded-md font-bold flex justify-center gap-2">Next <ArrowRight/></button></div>
+            </div>
+          )}
+
+          {/* --- STEP 3: SAFETY & FILTERS --- */}
           {step === 3 && (
-            <div className="space-y-6 animate-in fade-in slide-in-from-right-4">
-              <h2 className="text-2xl font-bold flex items-center gap-2"><AlertTriangle/> Risks & Context</h2>
-              <div className="grid grid-cols-2 gap-4 p-4 bg-gray-100 rounded-lg text-sm font-medium">
-                 <label className="flex items-center gap-2 cursor-pointer"><input type="checkbox" className="w-4 h-4 accent-black" checked={context.occupied} onChange={e => setContext({...context, occupied: e.target.checked})} /> Occupied Property?</label>
-                 <label className="flex items-center gap-2 cursor-pointer"><input type="checkbox" className="w-4 h-4 accent-black" checked={context.outdoor} onChange={e => setContext({...context, outdoor: e.target.checked})} /> Outdoor Work?</label>
+            <div className="space-y-6 animate-in fade-in">
+              <h2 className="text-xl font-bold flex items-center gap-2 border-b pb-2"><AlertTriangle className="w-5 h-5"/> Safety & Specifics</h2>
+              
+              {/* Emergency Section */}
+              <div className="grid grid-cols-2 gap-4 bg-red-50 p-4 rounded-md border border-red-100">
+                 <div className="col-span-2 flex items-center gap-2 text-red-800 font-bold text-sm"><Ambulance className="w-4 h-4"/> Emergency Arrangements</div>
+                 <div><label className="block text-xs font-bold uppercase text-gray-500 mb-1">First Aider Name</label><input className="w-full border rounded-md p-2 text-sm bg-white" value={formData.firstAider} onChange={e => handleInput("firstAider", e.target.value)} /></div>
+                 <div><label className="block text-xs font-bold uppercase text-gray-500 mb-1">Nearest A&E / Hospital</label><input className="w-full border rounded-md p-2 text-sm bg-white" placeholder="Hospital Name & Postcode" value={formData.hospital} onChange={e => handleInput("hospital", e.target.value)} /></div>
+                 <div className="col-span-2"><label className="block text-xs font-bold uppercase text-gray-500 mb-1">Welfare Facilities</label><input className="w-full border rounded-md p-2 text-sm bg-white" value={formData.welfare} onChange={e => handleInput("welfare", e.target.value)} /></div>
               </div>
-              <div className="space-y-4">{Object.entries(HAZARD_GROUPS).map(([group, items]) => (<div key={group}><h4 className="text-xs font-bold uppercase text-gray-400 mb-2">{group}</h4><div className="flex flex-wrap gap-2">{items.map(h => (<button key={h} onClick={() => setHazards(prev => prev.includes(h) ? prev.filter(i => i !== h) : [...prev, h])} className={`text-xs py-2 px-3 rounded-lg border transition-all ${hazards.includes(h) ? 'bg-black text-white border-black' : 'bg-white text-gray-600 border-gray-200 hover:border-gray-300'}`}>{h}</button>))}</div></div>))}</div>
-              <div className="pt-6 border-t mt-6"><input type="password" placeholder="PRO2025" className="w-full border rounded-lg p-3 mb-4 font-mono text-center tracking-widest" onChange={e => setContext({...context, accessCode: e.target.value})} /><div className="flex gap-3"><button onClick={() => setStep(2)} className="w-1/3 border py-3 rounded-lg font-bold">Back</button><button onClick={generateRAMS} disabled={loading} className="w-2/3 bg-green-600 text-white py-3 rounded-lg font-bold flex justify-center gap-2 items-center">{loading ? <Loader2 className="animate-spin"/> : <ShieldCheck/>} Generate Document</button></div></div>
-              {generated && <div className="bg-green-50 p-4 rounded-lg border border-green-200 flex items-center gap-3 text-green-800"><CheckCircle/> <b>Success!</b> PDF Downloaded.</div>}
+
+              {/* Hazards Accordion */}
+              <div className="space-y-4">
+                 {Object.entries(HAZARD_GROUPS).map(([group, items]) => (
+                   <div key={group} className="border rounded-md p-3">
+                      <h4 className="text-xs font-bold uppercase text-black mb-2">{group}</h4>
+                      <div className="flex flex-wrap gap-2">
+                        {items.map(h => (
+                           <button key={h} onClick={() => toggleHazard(h)} className={`text-xs py-1.5 px-3 rounded-md border transition-all ${hazards.includes(h) ? 'bg-black text-white border-black' : 'bg-white text-gray-600 hover:bg-gray-50'}`}>{h}</button>
+                        ))}
+                      </div>
+                   </div>
+                 ))}
+              </div>
+
+              {/* Extra Details Box */}
+              <div>
+                <label className="block text-xs font-bold uppercase text-gray-500 mb-1 flex items-center gap-2"><FileText className="w-4 h-4"/> Specific Site Notes / Restrictions</label>
+                <textarea className="w-full border rounded-md p-2 text-sm h-20" placeholder="e.g. Access via rear alley only. No noisy works between 12-2pm." value={formData.extraNotes} onChange={e => handleInput("extraNotes", e.target.value)} />
+              </div>
+
+              <div className="pt-4 border-t mt-4">
+                 <input type="password" placeholder="PRO2025" className="w-full border rounded-md p-2 mb-4 font-mono text-center tracking-widest" value={formData.accessCode} onChange={e => handleInput("accessCode", e.target.value)} />
+                 <div className="flex gap-3">
+                    <button onClick={() => setStep(2)} className="w-1/3 border py-3 rounded-md font-bold">Back</button>
+                    <button onClick={generateRAMS} disabled={loading} className="w-2/3 bg-green-600 text-white py-3 rounded-md font-bold flex justify-center gap-2 items-center">
+                        {loading ? <Loader2 className="animate-spin"/> : <ShieldCheck/>} Create Document
+                    </button>
+                 </div>
+              </div>
+
+              {generated && <div className="bg-green-50 p-4 rounded-md border border-green-200 flex items-center gap-3 text-green-800 mt-4"><CheckCircle/> <b>Success!</b> PDF Downloaded.</div>}
             </div>
           )}
-
         </div>
       </main>
     </div>

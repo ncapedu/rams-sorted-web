@@ -10,49 +10,48 @@ export async function POST(req: Request) {
 
     if (!apiKey) return NextResponse.json({ error: "API Key Missing" }, { status: 500 });
 
-    // 1. Model Discovery
+    // Model Discovery
     const listUrl = `https://generativelanguage.googleapis.com/v1beta/models?key=${apiKey}`;
     const listRes = await fetch(listUrl);
     const listData = await listRes.json();
-    
-    // Find the best available model (Flash or Pro)
-    const validModel = listData.models?.find((m: any) => 
-        m.supportedGenerationMethods?.includes("generateContent") && !m.name.includes("vision")
-    );
-    
+    const validModel = listData.models?.find((m: any) => m.supportedGenerationMethods?.includes("generateContent") && !m.name.includes("vision"));
     const modelName = validModel ? validModel.name.replace("models/", "") : "gemini-pro";
     const generateUrl = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${apiKey}`;
 
-    // 2. The "Strict JSON" Prompt
+    // THE EXTENDED PROMPT
     const payload = {
       contents: [{
         parts: [{
           text: `
             ACT AS: Senior UK Health & Safety Consultant.
-            TASK: Generate RAMS data in strict JSON format.
+            TASK: Generate RAMS JSON Data.
             
-            PROJECT CONTEXT:
-            - Contractor: ${body.company.name}
-            - Client: ${body.job.client} (${body.job.clientType})
-            - Site Address: ${body.job.siteAddress}
-            - Trade: ${body.job.trade}
-            - Job: ${body.job.desc}
-            - Hazards: ${body.hazards.join(', ')}
-            - Environment: ${body.context.occupied ? "Occupied Property" : "Vacant Site"}, ${body.context.outdoor ? "Outdoor Work" : "Indoor Work"}.
+            PROJECT DETAILS:
+            - Contractor: ${body.companyName} (Contact: ${body.contactName})
+            - Client: ${body.clientName}
+            - Site Address: ${body.siteAddress}
+            - Trade: ${body.trade}
+            - Job Type: ${body.jobType === 'Other' ? body.customJobType : body.jobType}
+            - Description: ${body.jobDesc}
+            - Operatives: ${body.operatives}
+            - Start Date: ${body.startDate} (${body.duration})
+            
+            SAFETY CONTEXT:
+            - Hazards Selected: ${body.hazards.join(', ')}
+            - Emergency Info: First Aider: ${body.firstAider}, Hospital: ${body.hospital}
+            - Specific Site Notes: ${body.extraNotes}
             
             INSTRUCTIONS:
-            1. Create a specific Method Statement for ${body.job.trade}.
-            2. For each hazard, determine Initial Risk (High/Med), Control Measures, and Residual Risk (Low).
-            3. Return ONLY valid JSON. No markdown formatting.
+            1. Create a detailed Method Statement for ${body.trade}.
+            2. Include risk assessments for all selected hazards.
+            3. Return ONLY valid JSON.
             
-            JSON STRUCTURE:
+            JSON FORMAT:
             {
-              "summary": "Executive summary string...",
-              "risks": [
-                {"hazard": "Hazard Name", "who": "Operatives/Public", "initial_risk": "High", "control": "Control measures...", "residual_risk": "Low"}
-              ],
+              "summary": "Executive summary...",
+              "risks": [{"hazard": "Name", "who": "Operatives", "initial_risk": "High", "control": "Detailed measure...", "residual_risk": "Low"}],
               "method_steps": ["Step 1...", "Step 2..."],
-              "ppe": ["Boots", "Gloves"]
+              "ppe": ["Boots", "Gloves", "Hi-Vis"]
             }
           `
         }]
@@ -69,8 +68,6 @@ export async function POST(req: Request) {
     if (!response.ok) throw new Error(data.error?.message || "Google Error");
 
     let text = data.candidates?.[0]?.content?.parts?.[0]?.text;
-    
-    // Clean the output to ensure it is pure JSON
     text = text.replace(/```json/g, "").replace(/```/g, "").trim();
 
     return NextResponse.json(JSON.parse(text));
