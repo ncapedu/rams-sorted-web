@@ -1,10 +1,8 @@
 import { NextResponse } from "next/server";
 
-// 💎 VERCEL PRO SETTINGS 💎
-// We switch to Node.js to use the full power of the server
+// 💎 VERCEL PRO SETTINGS
 export const runtime = 'nodejs'; 
-// We tell Vercel: "I pay for Pro, give me 60 seconds to finish this task."
-export const maxDuration = 60; 
+export const maxDuration = 60; // We have 60 seconds on Pro
 
 export async function POST(req: Request) {
   try {
@@ -15,11 +13,36 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "API Key Missing" }, { status: 500 });
     }
 
-    // We stick with the Universal 'gemini-pro' model to avoid 404 errors
-    // If you have billing enabled, you can change this to 'gemini-1.5-flash'
-    const modelName = "gemini-1.5-flash"; 
+    // 🕵️‍♂️ STEP 1: ASK GOOGLE "WHAT MODELS CAN I USE?"
+    console.log("Hunting for valid models...");
+    const listUrl = `https://generativelanguage.googleapis.com/v1beta/models?key=${apiKey}`;
     
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${apiKey}`;
+    const listResponse = await fetch(listUrl);
+    const listData = await listResponse.json();
+
+    if (!listResponse.ok) {
+        // If we can't even list models, the Key is broken/inactive
+        console.error("List Models Failed:", listData);
+        return NextResponse.json({ error: `Google Key Error: ${listData.error?.message}` }, { status: 500 });
+    }
+
+    // Find the first model that supports 'generateContent'
+    // We prefer 'pro' models if available
+    const validModel = listData.models?.find((m: any) => 
+        m.supportedGenerationMethods?.includes("generateContent") &&
+        !m.name.includes("vision") // Skip vision-only models
+    );
+
+    if (!validModel) {
+        return NextResponse.json({ error: "No Text AI Models found for this API Key. Check Google Billing." }, { status: 500 });
+    }
+
+    // Clean the name (remove "models/" prefix if present)
+    const modelName = validModel.name.replace("models/", "");
+    console.log(`✅ CONNECTED TO MODEL: ${modelName}`);
+
+    // 🚀 STEP 2: GENERATE USING THE FOUND MODEL
+    const generateUrl = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${apiKey}`;
 
     const payload = {
       contents: [{
@@ -27,35 +50,30 @@ export async function POST(req: Request) {
           text: `
             ACT AS: Senior UK Health & Safety Consultant.
             CLIENT: ${body.company} (${body.trade}).
-            JOB: ${body.job}.
-            HAZARDS: ${body.hazards.join(', ')}.
+            JOB DESCRIPTION: ${body.job}.
+            HAZARDS IDENTIFIED: ${body.hazards.join(', ')}.
             
             OUTPUT: A professional RAMS document.
-            SECTIONS: 
-            1. Project Details
-            2. Risk Assessment (Table: Hazard | Control)
-            3. Method Statement (Steps 1-10)
-            4. PPE
-            
-            RESTRICTION: Do NOT use Markdown formatting. Plain text only.
+            REQUIREMENTS:
+            - Cite relevant UK regulations (BS 7671, Work at Height, etc).
+            - Sections: 1. Executive Summary, 2. Risk Assessment Table (Hazard | Control), 3. Method Statement, 4. PPE Checklist.
+            - Tone: Formal, British English.
+            - NO MARKDOWN FORMATTING. Plain text only.
           `
         }]
       }]
     };
 
-    console.log(`🚀 Starting Generation with ${modelName}...`);
-
-    const response = await fetch(url, {
+    const genResponse = await fetch(generateUrl, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
     });
 
-    const data = await response.json();
+    const data = await genResponse.json();
 
-    if (!response.ok) {
-      console.error("Google Error:", data);
-      // This gives us the exact reason why Google failed
+    if (!genResponse.ok) {
+      console.error("Generation Error:", data);
       return NextResponse.json(
         { error: `Google Error: ${data.error?.message || "Unknown"}` }, 
         { status: 500 }
@@ -63,7 +81,7 @@ export async function POST(req: Request) {
     }
 
     const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
-    if (!text) throw new Error("AI returned empty text.");
+    if (!text) throw new Error("AI returned empty text");
 
     return NextResponse.json({ text });
 
