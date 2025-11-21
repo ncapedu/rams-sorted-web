@@ -1,19 +1,29 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { NextResponse } from "next/server";
 
+// We are using standard Node.js runtime for maximum compatibility
+export const maxDuration = 10; // Vercel Free Tier limit (explicitly set)
+
 export async function POST(req: Request) {
   try {
+    // 1. Parse Body
     const body = await req.json();
+    
+    // 2. Check API Key
     const apiKey = process.env.GOOGLE_API_KEY;
-
     if (!apiKey) {
-      return NextResponse.json({ error: "API Key missing" }, { status: 500 });
+      console.error("❌ Error: GOOGLE_API_KEY is missing in Vercel Env Variables.");
+      return NextResponse.json(
+        { error: "Server Error: API Key is missing. Please check Vercel Settings." }, 
+        { status: 500 }
+      );
     }
 
+    // 3. Initialize AI
     const genAI = new GoogleGenerativeAI(apiKey);
-    // Using the standard model that works everywhere
     const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
+    // 4. Construct Prompt
     const prompt = `
       ACT AS: Senior UK Health & Safety Consultant.
       CLIENT: ${body.company} (${body.trade}).
@@ -28,13 +38,22 @@ export async function POST(req: Request) {
       - NO MARKDOWN FORMATTING (No bold stars **, no hashes #). Plain text only.
     `;
 
+    // 5. Generate (with error catching)
+    console.log("🚀 Sending request to Gemini...");
     const result = await model.generateContent(prompt);
     const response = result.response;
     const text = response.text();
+    console.log("✅ Generation successful");
 
     return NextResponse.json({ text });
-  } catch (error) {
-    console.error(error);
-    return NextResponse.json({ error: "AI generation failed" }, { status: 500 });
+
+  } catch (error: any) {
+    console.error("🔥 AI Generation Failed:", error);
+    
+    // Return the ACTUAL error message to the frontend so we can see it
+    return NextResponse.json(
+      { error: error.message || "AI Generation Failed" }, 
+      { status: 500 }
+    );
   }
 }
