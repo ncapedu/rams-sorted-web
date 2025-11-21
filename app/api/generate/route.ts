@@ -1,47 +1,28 @@
 import { NextResponse } from "next/server";
 
-// 💎 VERCEL PRO SETTINGS
 export const runtime = 'nodejs'; 
-export const maxDuration = 60; // We have 60 seconds on Pro
+export const maxDuration = 60; 
 
 export async function POST(req: Request) {
   try {
     const body = await req.json();
     const apiKey = process.env.GOOGLE_API_KEY;
 
-    if (!apiKey) {
-      return NextResponse.json({ error: "API Key Missing" }, { status: 500 });
-    }
+    if (!apiKey) return NextResponse.json({ error: "API Key Missing" }, { status: 500 });
 
-    // 🕵️‍♂️ STEP 1: ASK GOOGLE "WHAT MODELS CAN I USE?"
-    console.log("Hunting for valid models...");
+    // 1. Model Discovery
     const listUrl = `https://generativelanguage.googleapis.com/v1beta/models?key=${apiKey}`;
+    const listRes = await fetch(listUrl);
+    const listData = await listRes.json();
     
-    const listResponse = await fetch(listUrl);
-    const listData = await listResponse.json();
-
-    if (!listResponse.ok) {
-        // If we can't even list models, the Key is broken/inactive
-        console.error("List Models Failed:", listData);
-        return NextResponse.json({ error: `Google Key Error: ${listData.error?.message}` }, { status: 500 });
-    }
-
-    // Find the first model that supports 'generateContent'
-    // We prefer 'pro' models if available
     const validModel = listData.models?.find((m: any) => 
-        m.supportedGenerationMethods?.includes("generateContent") &&
-        !m.name.includes("vision") // Skip vision-only models
+        m.supportedGenerationMethods?.includes("generateContent") && !m.name.includes("vision")
     );
-
-    if (!validModel) {
-        return NextResponse.json({ error: "No Text AI Models found for this API Key. Check Google Billing." }, { status: 500 });
-    }
-
-    // Clean the name (remove "models/" prefix if present)
+    
+    if (!validModel) return NextResponse.json({ error: "No AI Models found." }, { status: 500 });
     const modelName = validModel.name.replace("models/", "");
-    console.log(`✅ CONNECTED TO MODEL: ${modelName}`);
 
-    // 🚀 STEP 2: GENERATE USING THE FOUND MODEL
+    // 2. Generate with Strict Structure
     const generateUrl = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${apiKey}`;
 
     const payload = {
@@ -49,47 +30,55 @@ export async function POST(req: Request) {
         parts: [{
           text: `
             ACT AS: Senior UK Health & Safety Consultant.
-            CLIENT: ${body.company} (${body.trade}).
-            JOB DESCRIPTION: ${body.job}.
-            HAZARDS IDENTIFIED: ${body.hazards.join(', ')}.
+            TASK: Generate a RAMS document data structure.
             
-            OUTPUT: A professional RAMS document.
+            PROJECT DETAILS:
+            - Client: ${body.company}
+            - Trade: ${body.trade}
+            - Location/Address: ${body.address}
+            - Description: ${body.job}
+            - Extra Details: ${body.extraDetails}
+            - Hazards Selected: ${body.hazards.join(', ')}
+            
             REQUIREMENTS:
-            - Cite relevant UK regulations (BS 7671, Work at Height, etc).
-            - Sections: 1. Executive Summary, 2. Risk Assessment Table (Hazard | Control), 3. Method Statement, 4. PPE Checklist.
-            - Tone: Formal, British English.
-            - NO MARKDOWN FORMATTING. Plain text only.
+            - Cite UK regulations (BS 7671, CDM 2015, etc).
+            - Risk Assessment must be detailed.
+            
+            OUTPUT FORMAT:
+            You must return ONLY a valid JSON object with this exact structure:
+            {
+              "summary": "Executive summary text...",
+              "regulations": ["Regulation 1", "Regulation 2"],
+              "risks": [
+                {"hazard": "Name of Hazard", "who": "Workers/Public", "control": "Control measure details...", "rating": "High/Med/Low"}
+              ],
+              "method_steps": ["Step 1: Arrive on site...", "Step 2: ..."],
+              "ppe": ["Boots", "Hard Hat"]
+            }
           `
         }]
       }]
     };
 
-    const genResponse = await fetch(generateUrl, {
+    const response = await fetch(generateUrl, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
     });
 
-    const data = await genResponse.json();
+    const data = await response.json();
+    
+    if (!response.ok) throw new Error(data.error?.message || "Google Error");
 
-    if (!genResponse.ok) {
-      console.error("Generation Error:", data);
-      return NextResponse.json(
-        { error: `Google Error: ${data.error?.message || "Unknown"}` }, 
-        { status: 500 }
-      );
-    }
+    let text = data.candidates?.[0]?.content?.parts?.[0]?.text;
+    
+    // Clean the output to ensure it is pure JSON
+    text = text.replace(/```json/g, "").replace(/```/g, "").trim();
 
-    const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
-    if (!text) throw new Error("AI returned empty text");
-
-    return NextResponse.json({ text });
+    return NextResponse.json(JSON.parse(text));
 
   } catch (error: any) {
     console.error("Server Error:", error);
-    return NextResponse.json(
-      { error: error.message || "Generation Failed" }, 
-      { status: 500 }
-    );
+    return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
