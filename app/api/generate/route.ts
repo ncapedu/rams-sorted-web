@@ -1,93 +1,75 @@
 import { NextResponse } from "next/server";
 
+// ⚡ CRITICAL: This forces Vercel to use the Edge network (25s+ timeout)
+// instead of the standard Serverless network (10s timeout).
 export const runtime = 'edge'; 
+export const dynamic = 'force-dynamic';
 
 export async function POST(req: Request) {
   try {
+    // 1. Parse Request
     const body = await req.json();
     const apiKey = process.env.GOOGLE_API_KEY;
 
     if (!apiKey) {
-      return NextResponse.json({ error: "Server Error: API Key Missing" }, { status: 500 });
+      return NextResponse.json({ error: "API Key Missing in Vercel Settings" }, { status: 500 });
     }
 
-    // 1. DEFINE OUR PREFERRED MODELS
-    // We try these in order. If Flash fails, we look for what IS available.
-    let selectedModel = "gemini-1.5-flash";
+    // 2. Prepare Google API URL (Standard Flash Model)
+    // We use standard fetch to be lightweight on the Edge
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
 
-    // 2. HELPER: FUNCTION TO CALL GOOGLE
-    async function generateWithModel(modelName: string) {
-      const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${apiKey}`;
-      
-      const payload = {
-        contents: [{
-          parts: [{
-            text: `
-              ACT AS: Senior UK Health & Safety Consultant.
-              CLIENT: ${body.company} (${body.trade}).
-              JOB DESCRIPTION: ${body.job}.
-              HAZARDS IDENTIFIED: ${body.hazards.join(', ')}.
-              OUTPUT: Professional RAMS document text only.
-            `
-          }]
+    // 3. Construct Prompt
+    const payload = {
+      contents: [{
+        parts: [{
+          text: `
+            ACT AS: UK Health & Safety Consultant.
+            CLIENT: ${body.company} (${body.trade}).
+            JOB: ${body.job}.
+            HAZARDS: ${body.hazards.join(', ')}.
+            
+            OUTPUT: A professional RAMS document.
+            SECTIONS: 
+            1. Project Details
+            2. Risk Assessment (Table: Hazard | Control)
+            3. Method Statement (Steps 1-10)
+            4. PPE
+            
+            RESTRICTION: Do NOT use Markdown formatting (no bold **, no hashes #). Just plain text.
+          `
         }]
-      };
+      }]
+    };
 
-      const response = await fetch(url, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-
-      return response;
-    }
-
-    // 3. ATTEMPT 1: TRY FLASH (Fastest)
-    let response = await generateWithModel(selectedModel);
-
-    // 4. IF 404 (NOT FOUND), ASK GOOGLE WHAT IS AVAILABLE
-    if (response.status === 404) {
-      console.log("Flash not found. Listing available models...");
-      
-      const listUrl = `https://generativelanguage.googleapis.com/v1beta/models?key=${apiKey}`;
-      const listRes = await fetch(listUrl);
-      const listData = await listRes.json();
-
-      if (listData.models) {
-        // Find the first model that supports 'generateContent'
-        const validModel = listData.models.find((m: any) => 
-          m.supportedGenerationMethods.includes("generateContent")
-        );
-
-        if (validModel) {
-          // Extract clean name (e.g., "models/gemini-pro" -> "gemini-pro")
-          selectedModel = validModel.name.replace("models/", "");
-          console.log(`Found valid model: ${selectedModel}. Retrying...`);
-          
-          // RETRY with the found model
-          response = await generateWithModel(selectedModel);
-        } else {
-          throw new Error("No valid generation models found for this API Key.");
-        }
-      }
-    }
+    // 4. Send to Google
+    const response = await fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
 
     const data = await response.json();
 
-    // 5. HANDLE FINAL ERRORS
+    // 5. Handle Google Errors (Like 404 or 403)
     if (!response.ok) {
+      console.error("Google API Error:", data);
       return NextResponse.json(
-        { error: `Google Error (${selectedModel}): ${data.error?.message}` }, 
+        { error: `Google Error: ${data.error?.message || "Unknown"}` }, 
         { status: 500 }
       );
     }
 
-    // 6. SUCCESS
+    // 6. Extract Text
+    if (!data.candidates || data.candidates.length === 0) {
+       return NextResponse.json({ error: "AI returned no text." }, { status: 500 });
+    }
+
     const text = data.candidates[0].content.parts[0].text;
     return NextResponse.json({ text });
 
   } catch (error: any) {
-    console.error("Critical Error:", error);
+    console.error("Edge Function Error:", error);
     return NextResponse.json(
       { error: error.message || "Generation Failed" }, 
       { status: 500 }
