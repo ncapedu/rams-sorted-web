@@ -10,10 +10,12 @@ export async function POST(req: Request) {
 
     if (!apiKey) return NextResponse.json({ error: "API Key Missing" }, { status: 500 });
 
+    // 1. Model Discovery
     const listUrl = `https://generativelanguage.googleapis.com/v1beta/models?key=${apiKey}`;
     const listRes = await fetch(listUrl);
     const listData = await listRes.json();
     
+    // Find the best available model (Flash or Pro)
     const validModel = listData.models?.find((m: any) => 
         m.supportedGenerationMethods?.includes("generateContent") && !m.name.includes("vision")
     );
@@ -21,35 +23,35 @@ export async function POST(req: Request) {
     const modelName = validModel ? validModel.name.replace("models/", "") : "gemini-pro";
     const generateUrl = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${apiKey}`;
 
-    // FORMAT THE SMART QUESTIONS FOR THE AI
-    const smartAnswers = Object.entries(body.answers || {}).map(([key, val]) => `- ${key}: ${val}`).join("\n");
-
+    // 2. The "Strict JSON" Prompt
     const payload = {
       contents: [{
         parts: [{
           text: `
             ACT AS: Senior UK Health & Safety Consultant.
-            TASK: Generate RAMS JSON Data.
+            TASK: Generate RAMS data in strict JSON format.
             
-            CONTEXT:
+            PROJECT CONTEXT:
             - Contractor: ${body.company.name}
-            - Client Type: ${body.job.clientType} (Adjust tone accordingly)
+            - Client: ${body.job.client} (${body.job.clientType})
+            - Site Address: ${body.job.siteAddress}
             - Trade: ${body.job.trade}
             - Job: ${body.job.desc}
-            - Smart Checks: \n${smartAnswers}
             - Hazards: ${body.hazards.join(', ')}
+            - Environment: ${body.context.occupied ? "Occupied Property" : "Vacant Site"}, ${body.context.outdoor ? "Outdoor Work" : "Indoor Work"}.
             
             INSTRUCTIONS:
-            - Calculate 'Initial Risk' (High/Med/Low) based on the hazard.
-            - Define 'Control Measures'.
-            - Calculate 'Residual Risk' (must be lower than Initial).
-            - If Client is 'Direct', use simple language. If 'Subcontract', use formal language.
+            1. Create a specific Method Statement for ${body.job.trade}.
+            2. For each hazard, determine Initial Risk (High/Med), Control Measures, and Residual Risk (Low).
+            3. Return ONLY valid JSON. No markdown formatting.
             
-            JSON FORMAT:
+            JSON STRUCTURE:
             {
-              "summary": "Executive summary...",
-              "risks": [{"hazard": "Name", "who": "Operatives", "initial_risk": "High", "control": "Detailed measure...", "residual_risk": "Low"}],
-              "method_steps": ["Step 1", "Step 2"],
+              "summary": "Executive summary string...",
+              "risks": [
+                {"hazard": "Hazard Name", "who": "Operatives/Public", "initial_risk": "High", "control": "Control measures...", "residual_risk": "Low"}
+              ],
+              "method_steps": ["Step 1...", "Step 2..."],
               "ppe": ["Boots", "Gloves"]
             }
           `
@@ -67,6 +69,8 @@ export async function POST(req: Request) {
     if (!response.ok) throw new Error(data.error?.message || "Google Error");
 
     let text = data.candidates?.[0]?.content?.parts?.[0]?.text;
+    
+    // Clean the output to ensure it is pure JSON
     text = text.replace(/```json/g, "").replace(/```/g, "").trim();
 
     return NextResponse.json(JSON.parse(text));
