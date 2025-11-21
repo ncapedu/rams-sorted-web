@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { HAZARD_DATA, HazardKey } from "../../lib/constants"; // Need to import this to get text labels
+import { HAZARD_DATA, HazardKey } from "../../lib/constants";
 
 export const runtime = 'nodejs'; 
 export const maxDuration = 60; 
@@ -11,13 +11,15 @@ export async function POST(req: Request) {
 
     if (!apiKey) return NextResponse.json({ error: "API Key Missing" }, { status: 500 });
 
-    // Convert Hazard Keys to Full Strings for AI
+    // 🛡️ SAFETY CHECK: Prepare Hazard Details for AI
+    // Only include hazards that actually exist in our dictionary to prevent crashes
     // @ts-ignore
     const hazardDetails = body.hazards.map((k: string) => {
         // @ts-ignore
         const h = HAZARD_DATA[k];
+        if (!h) return ""; // Skip undefined hazards safely
         return `${h.label} (Risk: ${h.risk}, Control: ${h.control})`;
-    }).join("\n");
+    }).filter(Boolean).join("\n"); // Remove empty strings
 
     // Model Discovery
     const listUrl = `https://generativelanguage.googleapis.com/v1beta/models?key=${apiKey}`;

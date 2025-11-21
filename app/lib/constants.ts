@@ -6,111 +6,114 @@ export type HazardKey =
   | "asbestos" | "chemical_coshh" | "slips_trips" | "moving_vehicles" 
   | "public_interface" | "lone_working" | "confined_space" 
   | "structural_collapse" | "excavation" | "plant_machinery" 
-  | "environmental_weather" | "fire_explosion" | "biological";
+  | "environmental_weather" | "fire_explosion" | "biological"
+  | "falling_objects" | "underground_services"; // Added missing keys
 
-export const HAZARD_DATA: Record<HazardKey, { label: string, risk: string, control: string }> = {
-  live_electricity: { label: "Live Electricity", risk: "Electrocution, burns, fire, fatal injury.", control: "Safe isolation (LOTO), calibrated test equipment, insulated tools, RCD protection." },
-  gas: { label: "Gas Supply", risk: "Explosion, asphyxiation, carbon monoxide poisoning.", control: "Gas Safe engineer, leak detection fluid, ventilation, isolation." },
-  work_at_height: { label: "Working at Height", risk: "Falls from height, falling objects.", control: "Scaffold/tower preferred, ladder tied off (3-points of contact), exclusion zones." },
-  manual_handling: { label: "Manual Handling", risk: "Musculoskeletal injury, strains, drops.", control: "Mechanical aids, team lifting, load assessment, PPE (gloves/boots)." },
-  dust_fumes: { label: "Dust & Fumes", risk: "Respiratory issues, eye irritation.", control: "Extraction, water suppression, FFP3 masks, ventilation." },
-  noise_vibration: { label: "Noise & Vibration", risk: "Hearing loss, HAVS.", control: "Ear defenders, limited trigger time, rotation of tasks." },
-  hot_work: { label: "Hot Works / Fire", risk: "Ignition of materials, burns.", control: "Hot work permit, extinguisher nearby, 1-hour fire watch, removal of combustibles." },
-  silica_dust: { label: "Silica Dust", risk: "Silicosis, lung disease.", control: "On-tool extraction, wet cutting, FFP3 respiratory protection." },
-  asbestos: { label: "Asbestos Risk", risk: "Lung disease, cancer.", control: "Asbestos survey review, stop work immediately if suspected, licensed contractor only." },
-  chemical_coshh: { label: "Chemicals / COSHH", risk: "Skin burns, inhalation, poisoning.", control: "COSHH assessment, specific PPE (gloves/goggles), ventilation, spill kit." },
-  slips_trips: { label: "Slips, Trips & Falls", risk: "Impact injury, fractures.", control: "Housekeeping, cable management, adequate lighting, clear walkways." },
-  moving_vehicles: { label: "Moving Vehicles", risk: "Crushing, impact.", control: "Traffic management plan, banksman, high-vis clothing, segregated routes." },
-  public_interface: { label: "Public / Occupants", risk: "Injury to third parties.", control: "Barriers, signage, tool supervision, safe access routes." },
-  lone_working: { label: "Lone Working", risk: "Unable to summon help, increased vulnerability.", control: "Check-in procedure, charged mobile phone, no high-risk tasks alone." },
-  confined_space: { label: "Confined Space", risk: "Asphyxiation, entrapment.", control: "Gas monitoring, top man, rescue plan, permit to work." },
-  structural_collapse: { label: "Structural Instability", risk: "Crushing, burial.", control: "Temporary supports (acrows), structural engineer design, safe demolition method." },
-  excavation: { label: "Excavation", risk: "Collapse, striking services.", control: "CAT scan, trench support (shoring), barriers, safe access/egress." },
-  plant_machinery: { label: "Plant & Machinery", risk: "Entanglement, crushing, noise.", control: "Trained operators (CPCS), guards in place, isolation keys removed." },
-  environmental_weather: { label: "Weather / Environment", risk: "Cold stress, slippery surfaces, wind.", control: "Monitor forecast, appropriate clothing, stop work in high winds." },
-  fire_explosion: { label: "Fire & Explosion", risk: "Burns, smoke inhalation.", control: "Fire extinguishers, clear exit routes, control of ignition sources." },
-  biological: { label: "Biological Hazards", risk: "Infection, Weil's disease.", control: "Hygiene, gloves, cover wounds, welfare facilities." }
+export const HAZARD_DATA: Record<string, { label: string, risk: string, control: string }> = {
+  live_electricity: { label: "Live Electricity", risk: "Electrocution, burns, fire.", control: "Safe isolation (LOTO), calibrated tools, RCD protection." },
+  gas: { label: "Gas Supply", risk: "Explosion, asphyxiation.", control: "Gas Safe engineer, leak detection, ventilation." },
+  work_at_height: { label: "Working at Height", risk: "Falls, serious injury.", control: "Scaffold/tower, ladder tied off, exclusion zones." },
+  manual_handling: { label: "Manual Handling", risk: "Strain injuries.", control: "Mechanical aids, team lifting, load assessment." },
+  dust_fumes: { label: "Dust & Fumes", risk: "Respiratory issues.", control: "Extraction, water suppression, FFP3 masks." },
+  noise_vibration: { label: "Noise & Vibration", risk: "Hearing loss, HAVS.", control: "Ear defenders, rotation of tasks." },
+  hot_work: { label: "Hot Works / Fire", risk: "Ignition, burns.", control: "Hot work permit, extinguisher nearby, 1-hour fire watch." },
+  silica_dust: { label: "Silica Dust", risk: "Silicosis, lung disease.", control: "On-tool extraction, wet cutting, FFP3 masks." },
+  asbestos: { label: "Asbestos", risk: "Lung disease.", control: "Survey review, stop work policy, licensed contractor." },
+  chemical_coshh: { label: "Chemicals / COSHH", risk: "Burns, inhalation.", control: "COSHH assessment, gloves/goggles, ventilation." },
+  slips_trips: { label: "Slips & Trips", risk: "Impact injury.", control: "Housekeeping, cable management, clear walkways." },
+  moving_vehicles: { label: "Moving Vehicles", risk: "Crushing, impact.", control: "Traffic plan, banksman, high-vis clothing." },
+  public_interface: { label: "Public / Occupants", risk: "Third party injury.", control: "Barriers, signage, tool supervision." },
+  lone_working: { label: "Lone Working", risk: "Unable to summon help.", control: "Check-in procedure, mobile phone, no high-risk tasks alone." },
+  confined_space: { label: "Confined Space", risk: "Asphyxiation.", control: "Gas monitoring, top man, rescue plan." },
+  structural_collapse: { label: "Structural Instability", risk: "Crushing.", control: "Temporary supports (acrows), engineer design." },
+  excavation: { label: "Excavation", risk: "Collapse, services.", control: "Trench support, barriers, safe access." },
+  plant_machinery: { label: "Plant & Machinery", risk: "Entanglement, crushing.", control: "Trained operators, guards, isolation keys." },
+  environmental_weather: { label: "Weather", risk: "Cold/Heat stress, slips.", control: "Monitor forecast, appropriate clothing." },
+  fire_explosion: { label: "Fire", risk: "Burns, smoke.", control: "Extinguishers, clear exits." },
+  biological: { label: "Biological", risk: "Infection.", control: "Hygiene, gloves, cover wounds." },
+  falling_objects: { label: "Falling Objects", risk: "Head injury.", control: "Hard hats, toe boards, exclusion zones." },
+  underground_services: { label: "Underground Services", risk: "Electrocution, gas strike.", control: "CAT scan, safe digging practice." }
 };
 
-// --- TRADE CLUSTERS & MAPPINGS ---
+// --- TRADE CLUSTERS (Fixed Typo Mismatches) ---
 
 const ELECTRICIAN_CLUSTERS = {
   domestic_small: {
     hazards: ["live_electricity", "manual_handling", "dust_fumes", "slips_trips", "public_interface", "lone_working"],
-    method: ["Arrive, sign in, brief client.", "Dynamic risk assessment.", "Set up work area & dust sheets.", "Isolate circuit & prove dead.", "Install/replace accessory.", "Dead & Live testing.", "Re-energise & handover."]
+    method: ["Arrive, sign in.", "Dynamic risk assessment.", "Set up work area.", "Isolate circuit.", "Install accessory.", "Testing.", "Handover."]
   },
   distribution: {
     hazards: ["live_electricity", "manual_handling", "dust_fumes", "fire_explosion", "public_interface", "slips_trips"],
-    method: ["Confirm supply details.", "Safe isolation of main intake.", "Strip out old gear.", "Install new board/containment.", "Terminate circuits.", "Full inspection & testing.", "Commissioning & Certification."]
+    method: ["Confirm supply.", "Safe isolation.", "Strip out old gear.", "Install new board.", "Terminate circuits.", "Testing.", "Commissioning."]
   },
   testing: {
     hazards: ["live_electricity", "slips_trips", "public_interface", "lone_working"],
-    method: ["Agree scope with client.", "Safe isolation for dead tests.", "Live testing precautions.", "Record results.", "Re-instate power.", "Issue Report."]
+    method: ["Agree scope.", "Safe isolation for dead tests.", "Live testing precautions.", "Record results.", "Re-instate power.", "Report."]
   },
   external: {
     hazards: ["live_electricity", "work_at_height", "environmental_weather", "manual_handling", "public_interface"],
-    method: ["Check weather/ground conditions.", "Establish exclusion zone.", "Install cabling/containment.", "Mount external fittings.", "Waterproof terminations.", "Testing & Commissioning."]
+    method: ["Check weather.", "Establish exclusion zone.", "Install cabling.", "Mount fittings.", "Waterproof terminations.", "Testing."]
   },
   ev_pv_battery: {
     hazards: ["live_electricity", "manual_handling", "work_at_height", "fire_explosion", "environmental_weather"],
-    method: ["Confirm design & structural mount.", "Install mounting system.", "Run DC/AC cabling.", "Install Inverter/Charger/Battery.", "Connection & Testing.", "Client Handover."]
+    method: ["Confirm design.", "Install mounting.", "Run DC/AC cabling.", "Install Inverter/Charger.", "Connection.", "Handover."]
   },
   commercial: {
     hazards: ["live_electricity", "work_at_height", "manual_handling", "dust_fumes", "noise_vibration", "plant_machinery"],
-    method: ["Site induction.", "Permit to work.", "Install containment (tray/trunking).", "Pull cables.", "Second fix.", "Testing.", "Handover."]
+    method: ["Site induction.", "Install containment.", "Pull cables.", "Second fix.", "Testing.", "Handover."]
   }
 };
 
 const PLUMBER_CLUSTERS = {
   heating: {
     hazards: ["gas", "hot_work", "manual_handling", "chemical_coshh", "slips_trips"],
-    method: ["Check Gas Safe status.", "Isolate gas/water/electric.", "Drain system.", "Remove old unit.", "Install new boiler/rads.", "Flue checks.", "Commissioning."]
+    method: ["Check Gas Safe status.", "Isolate services.", "Drain system.", "Remove old unit.", "Install new boiler.", "Commissioning."]
   },
   bathroom: {
     hazards: ["manual_handling", "dust_fumes", "slips_trips", "chemical_coshh", "public_interface"],
-    method: ["Isolate water.", "Strip out.", "First fix pipework.", "Install sanitaryware.", "Seal & Tile.", "Leak test.", "Handover."]
+    method: ["Isolate water.", "Strip out.", "First fix.", "Install sanitaryware.", "Seal & Tile.", "Leak test.", "Handover."]
   },
   drainage: {
     hazards: ["biological", "slips_trips", "confined_space", "excavation", "manual_handling"],
-    method: ["Identify drain runs.", "Cordon off area.", "Excavate/Access.", "Clear blockage or replace pipe.", "Water test.", "Disinfect area."]
+    method: ["Identify drains.", "Cordon off area.", "Excavate/Access.", "Clear/Replace.", "Water test.", "Disinfect."]
   },
   specialist: {
     hazards: ["manual_handling", "hot_work", "chemical_coshh", "slips_trips"],
-    method: ["Review design.", "Isolate services.", "Install specialist kit (UFH/Pump).", "Pressure test.", "Add inhibitors.", "Commission."]
+    method: ["Review design.", "Isolate services.", "Install specialist kit.", "Pressure test.", "Commission."]
   }
 };
 
 const ROOFER_CLUSTERS = {
   pitched: {
     hazards: ["work_at_height", "manual_handling", "environmental_weather", "falling_objects"],
-    method: ["Erect scaffold/access.", "Strip tiles/slate.", "Inspect felt/battens.", "Lay new covering.", "Fix ridge/verge.", "Clear site."]
+    method: ["Erect scaffold.", "Strip tiles.", "Inspect battens.", "Lay new covering.", "Fix ridge.", "Clear site."]
   },
   flat: {
-    hazards: ["work_at_height", "hot_work", "chemical_coshh", "fire_explosion", "fumes"],
-    method: ["Secure access.", "Prepare deck.", "Apply primer/adhesive.", "Lay felt/GRP/EPDM.", "Hot work precautions (if torch-on).", "Check seals/upstands."]
+    hazards: ["work_at_height", "hot_work", "chemical_coshh", "fire_explosion", "dust_fumes"], // Fixed 'fumes' to 'dust_fumes'
+    method: ["Secure access.", "Prepare deck.", "Apply primer/adhesive.", "Lay felt/GRP.", "Hot work precautions.", "Check seals."]
   },
   repair: {
     hazards: ["work_at_height", "manual_handling", "environmental_weather", "public_interface"],
-    method: ["Ladder safety check.", "Locate defect.", "Remove damaged material.", "Replace/Repair.", "Watertight check.", "Remove access."]
+    method: ["Ladder safety.", "Locate defect.", "Remove damaged material.", "Replace.", "Watertight check.", "Remove access."]
   }
 };
 
 const BUILDER_CLUSTERS = {
   structural: {
-    hazards: ["structural_collapse", "dust_fumes", "manual_handling", "noise_vibration", "heavy_plant"],
-    method: ["Install props/shores.", "Demolish wall.", "Install steel beam.", "Pack & Slate.", "Remove props.", "Make good."]
+    hazards: ["structural_collapse", "dust_fumes", "manual_handling", "noise_vibration", "plant_machinery"], // Fixed 'heavy_plant' to 'plant_machinery'
+    method: ["Install props.", "Demolish wall.", "Install beam.", "Pack & Slate.", "Remove props.", "Make good."]
   },
   extension: {
-    hazards: ["excavation", "work_at_height", "manual_handling", "cement", "plant_machinery"],
-    method: ["Excavate footings.", "Pour concrete.", "Brick/Blockwork.", "Roof structure.", "First fix.", "Finishes."]
+    hazards: ["excavation", "work_at_height", "manual_handling", "chemical_coshh", "plant_machinery"], // Fixed 'cement' to 'chemical_coshh'
+    method: ["Excavate footings.", "Pour concrete.", "Brickwork.", "Roof structure.", "First fix.", "Finishes."]
   },
   internal: {
     hazards: ["manual_handling", "dust_fumes", "slips_trips", "noise_vibration"],
-    method: ["Protect floors.", "Strip out.", "First fix.", "Plaster/Board.", "Second fix.", "Clean."]
+    method: ["Protect floors.", "Strip out.", "First fix.", "Plaster.", "Second fix.", "Clean."]
   },
   groundworks: {
-    hazards: ["excavation", "plant_machinery", "manual_handling", "underground_services"],
-    method: ["CAT scan area.", "Excavate.", "Install drainage/base.", "Backfill/Compact.", "Finish surface."]
+    hazards: ["excavation", "plant_machinery", "manual_handling", "underground_services"], 
+    method: ["CAT scan.", "Excavate.", "Install drainage.", "Backfill.", "Finish surface."]
   }
 };
 
@@ -123,7 +126,7 @@ export const TRADES = {
       { name: "Additional sockets install", cluster: "domestic_small" },
       { name: "Indoor lighting upgrade", cluster: "domestic_small" },
       { name: "Consumer unit replacement", cluster: "distribution" },
-      { name: "Full house rewire", cluster: "domestic_small" }, // Hybrid, map to most relevant
+      { name: "Full house rewire", cluster: "domestic_small" },
       { name: "New circuit installation", cluster: "domestic_small" },
       { name: "Outdoor lighting install", cluster: "external" },
       { name: "Fault finding", cluster: "domestic_small" },
@@ -236,7 +239,7 @@ export const TRADES = {
       { name: "Flat roof (GRP)", cluster: "flat" },
       { name: "Flat roof (EPDM)", cluster: "flat" },
       { name: "Lead flashing", cluster: "repair" },
-      { name: "Lead welding", cluster: "flat" }, // hot work
+      { name: "Lead welding", cluster: "flat" },
       { name: "Gutter Install", cluster: "repair" },
       { name: "Gutter Repair", cluster: "repair" },
       { name: "Fascia/Soffit", cluster: "repair" },
@@ -274,7 +277,7 @@ export const TRADES = {
       { name: "Flashing Upgrade", cluster: "repair" },
       { name: "Slate Hangers", cluster: "pitched" },
       { name: "Metal Roofing", cluster: "pitched" },
-      { name: "Asbestos Removal", cluster: "repair" }, // Note: needs specific license
+      { name: "Asbestos Removal", cluster: "repair" },
       { name: "Access System", cluster: "repair" },
       { name: "Dormer Waterproof", cluster: "flat" },
       { name: "Green Roof", cluster: "flat" },
@@ -339,4 +342,11 @@ export const TRADES = {
       { name: "Other (Custom)", cluster: "internal" }
     ]
   }
+};
+
+export const HAZARD_GROUPS = {
+  "High Risk": ["live_electricity", "gas", "work_at_height", "confined_space", "structural_collapse", "fire_explosion"],
+  "Health": ["dust_fumes", "asbestos", "noise_vibration", "silica_dust", "chemical_coshh", "biological"],
+  "Site": ["slips_trips", "moving_vehicles", "public_interface", "lone_working", "environmental_weather"],
+  "Physical": ["manual_handling", "plant_machinery", "excavation", "falling_objects", "underground_services"]
 };
