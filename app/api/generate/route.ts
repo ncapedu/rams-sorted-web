@@ -1,30 +1,25 @@
 import { NextResponse } from "next/server";
 
-// ⚡ CRITICAL: This forces Vercel to use the Edge network (25s+ timeout)
-// instead of the standard Serverless network (10s timeout).
 export const runtime = 'edge'; 
 export const dynamic = 'force-dynamic';
 
 export async function POST(req: Request) {
   try {
-    // 1. Parse Request
     const body = await req.json();
     const apiKey = process.env.GOOGLE_API_KEY;
 
     if (!apiKey) {
-      return NextResponse.json({ error: "API Key Missing in Vercel Settings" }, { status: 500 });
+      return NextResponse.json({ error: "API Key Missing in Vercel" }, { status: 500 });
     }
 
-    // 2. Prepare Google API URL (Standard Flash Model)
-    // We use standard fetch to be lightweight on the Edge
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+    // 👇 CHANGED TO 'gemini-pro' (The Universal Model)
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${apiKey}`;
 
-    // 3. Construct Prompt
     const payload = {
       contents: [{
         parts: [{
           text: `
-            ACT AS: UK Health & Safety Consultant.
+            ACT AS: Senior UK Health & Safety Consultant.
             CLIENT: ${body.company} (${body.trade}).
             JOB: ${body.job}.
             HAZARDS: ${body.hazards.join(', ')}.
@@ -36,13 +31,12 @@ export async function POST(req: Request) {
             3. Method Statement (Steps 1-10)
             4. PPE
             
-            RESTRICTION: Do NOT use Markdown formatting (no bold **, no hashes #). Just plain text.
+            RESTRICTION: Do NOT use Markdown formatting (no bold **, no hashes #). Plain text only.
           `
         }]
       }]
     };
 
-    // 4. Send to Google
     const response = await fetch(url, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -51,7 +45,6 @@ export async function POST(req: Request) {
 
     const data = await response.json();
 
-    // 5. Handle Google Errors (Like 404 or 403)
     if (!response.ok) {
       console.error("Google API Error:", data);
       return NextResponse.json(
@@ -60,7 +53,6 @@ export async function POST(req: Request) {
       );
     }
 
-    // 6. Extract Text
     if (!data.candidates || data.candidates.length === 0) {
        return NextResponse.json({ error: "AI returned no text." }, { status: 500 });
     }
