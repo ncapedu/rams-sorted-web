@@ -10,50 +10,47 @@ export async function POST(req: Request) {
 
     if (!apiKey) return NextResponse.json({ error: "API Key Missing" }, { status: 500 });
 
-    // 1. Model Discovery
+    // 1. Find the best model (Model Hunter)
     const listUrl = `https://generativelanguage.googleapis.com/v1beta/models?key=${apiKey}`;
     const listRes = await fetch(listUrl);
     const listData = await listRes.json();
     
+    // Try to find Flash or Pro, fallback to whatever works
     const validModel = listData.models?.find((m: any) => 
         m.supportedGenerationMethods?.includes("generateContent") && !m.name.includes("vision")
     );
     
-    if (!validModel) return NextResponse.json({ error: "No AI Models found." }, { status: 500 });
-    const modelName = validModel.name.replace("models/", "");
-
-    // 2. Generate with Strict Structure
+    const modelName = validModel ? validModel.name.replace("models/", "") : "gemini-pro";
     const generateUrl = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${apiKey}`;
 
+    // 2. Construct the Smart Prompt
     const payload = {
       contents: [{
         parts: [{
           text: `
             ACT AS: Senior UK Health & Safety Consultant.
-            TASK: Generate a RAMS document data structure.
+            TASK: Generate RAMS JSON Data.
             
-            PROJECT DETAILS:
-            - Client: ${body.company}
+            PROJECT CONTEXT:
+            - Contractor: ${body.company} (Contact: ${body.contact})
+            - Client: ${body.client}
+            - Site Address: ${body.siteAddress}
             - Trade: ${body.trade}
-            - Location/Address: ${body.address}
-            - Description: ${body.job}
-            - Extra Details: ${body.extraDetails}
+            - Job Type: ${body.job}
             - Hazards Selected: ${body.hazards.join(', ')}
+            - Environment: ${body.context.occupied ? "Occupied Property" : "Vacant Site"}, ${body.context.outdoor ? "Outdoor Work" : "Indoor Work"}.
             
-            REQUIREMENTS:
-            - Cite UK regulations (BS 7671, CDM 2015, etc).
-            - Risk Assessment must be detailed.
+            INSTRUCTIONS:
+            - Create a Method Statement specific to ${body.trade}.
+            - Include specific risk controls for an ${body.context.occupied ? "Occupied" : "Unoccupied"} site.
+            - Return ONLY valid JSON. Do not include markdown formatting like \`\`\`json.
             
-            OUTPUT FORMAT:
-            You must return ONLY a valid JSON object with this exact structure:
+            JSON FORMAT TO FOLLOW EXACTLY:
             {
-              "summary": "Executive summary text...",
-              "regulations": ["Regulation 1", "Regulation 2"],
-              "risks": [
-                {"hazard": "Name of Hazard", "who": "Workers/Public", "control": "Control measure details...", "rating": "High/Med/Low"}
-              ],
+              "summary": "Short executive summary of the works...",
+              "risks": [{"hazard": "Name", "who": "Operatives/Public", "control": "Detailed control measure...", "rating": "High/Med/Low"}],
               "method_steps": ["Step 1: Arrive on site...", "Step 2: ..."],
-              "ppe": ["Boots", "Hard Hat"]
+              "ppe": ["Safety Boots", "Gloves"]
             }
           `
         }]
@@ -67,18 +64,17 @@ export async function POST(req: Request) {
     });
 
     const data = await response.json();
-    
     if (!response.ok) throw new Error(data.error?.message || "Google Error");
 
     let text = data.candidates?.[0]?.content?.parts?.[0]?.text;
     
-    // Clean the output to ensure it is pure JSON
+    // 3. Safety Clean the JSON (Prevents Crashes)
     text = text.replace(/```json/g, "").replace(/```/g, "").trim();
 
     return NextResponse.json(JSON.parse(text));
 
   } catch (error: any) {
-    console.error("Server Error:", error);
+    console.error("API Error:", error);
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }

@@ -1,259 +1,254 @@
 "use client";
 
-import { useState } from "react";
-import jsPDF from "jspdf"; // Fixed import
-import autoTable from "jspdf-autotable"; // Fixed import
-import { Loader2, CheckCircle, HardHat, ShieldCheck, Lock, MapPin, FileText } from "lucide-react";
+import { useState, useEffect } from "react";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable"; // Ensure this is installed
+import { Loader2, CheckCircle, HardHat, ShieldCheck, ArrowRight, MapPin, Briefcase, AlertTriangle, Lock } from "lucide-react";
+import { TRADES, HAZARD_GROUPS } from "./lib/constants"; // We created this in Step 2
 
 export default function Home() {
+  const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const [generated, setGenerated] = useState(false);
   
-  const [formData, setFormData] = useState({
-    trade: "Electrician",
-    company: "",
-    address: "", 
-    job: "",
-    extraDetails: "", 
-    accessCode: "",
-  });
+  // Data Models
+  const [company, setCompany] = useState({ name: "", address: "", contact: "" });
+  const [job, setJob] = useState({ client: "", siteAddress: "", trade: "Electrician", type: "", desc: "", date: new Date().toISOString().split('T')[0] });
+  const [context, setContext] = useState({ occupied: false, outdoor: false, accessCode: "" });
   const [hazards, setHazards] = useState<string[]>([]);
 
-  const handleHazardToggle = (hazard: string) => {
-    setHazards((prev) =>
-      prev.includes(hazard) ? prev.filter((h) => h !== hazard) : [...prev, hazard]
-    );
+  // Smart Template Loader
+  useEffect(() => {
+    // When Trade or Job Type changes, load the template defaults
+    // @ts-ignore
+    const tradeData = TRADES[job.trade];
+    if (tradeData && job.type) {
+      const template = tradeData.jobs.find((j: any) => j.name === job.type);
+      if (template) {
+        setJob(prev => ({ ...prev, desc: template.desc }));
+        setHazards(template.hazards);
+      }
+    }
+  }, [job.type, job.trade]);
+
+  const toggleHazard = (h: string) => {
+    setHazards(prev => prev.includes(h) ? prev.filter(i => i !== h) : [...prev, h]);
   };
 
   const generateRAMS = async () => {
-    if (formData.accessCode !== "PRO2025") {
-      alert("❌ Invalid Access Code.");
-      return;
-    }
-    if (!formData.company || !formData.job || !formData.address) {
-      alert("⚠️ Please fill in Company, Address, and Job Description.");
-      return;
-    }
-
+    if (context.accessCode !== "PRO2025") return alert("❌ Invalid Access Code.");
+    if (!company.name || !job.client) return alert("⚠️ Please fill in all details.");
+    
     setLoading(true);
     setGenerated(false);
-
+    
     try {
+      const payload = {
+        company: company.name,
+        officeAddress: company.address,
+        contact: company.contact,
+        client: job.client,
+        siteAddress: job.siteAddress,
+        trade: job.trade,
+        job: job.desc,
+        hazards,
+        context
+      };
+
       const res = await fetch("/api/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...formData, hazards }),
+        body: JSON.stringify(payload),
       });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        throw new Error(data.error || "Generation Failed");
-      }
       
-      if (!data.risks) {
-         throw new Error("AI did not return valid JSON data. Try again.");
-      }
-
-      createProfessionalPDF(data);
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Generation failed");
+      
+      createPDF(data);
       setGenerated(true);
-
-    } catch (error: any) {
-      console.error(error);
-      alert(`Error: ${error.message}`);
+    } catch (e: any) {
+      alert("Error: " + e.message);
     } finally {
       setLoading(false);
     }
   };
 
-  // 📄 THE PROFESSIONAL PDF ENGINE
-  const createProfessionalPDF = (data: any) => {
+  const createPDF = (data: any) => {
     const doc = new jsPDF();
-    const date = new Date().toLocaleDateString('en-GB');
-
-    // 1. HEADER
-    doc.setFillColor(0, 0, 0); // Black Header
-    doc.rect(0, 0, 210, 40, 'F');
+    
+    // Header Strip
+    doc.setFillColor(17, 24, 39); // Dark Slate
+    doc.rect(0, 0, 210, 35, 'F');
     
     doc.setTextColor(255, 255, 255);
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(22);
-    doc.text("RAMS DOCUMENT", 105, 20, { align: "center" });
-    doc.setFontSize(10);
-    doc.text("Risk Assessment & Method Statement", 105, 28, { align: "center" });
+    doc.setFontSize(22); doc.setFont("helvetica", "bold");
+    doc.text("RAMS DOCUMENT", 105, 18, { align: "center" });
+    doc.setFontSize(10); doc.setFont("helvetica", "normal");
+    doc.text("Risk Assessment & Method Statement", 105, 26, { align: "center" });
 
-    // 2. PROJECT DETAILS GRID
+    // Details Block
     doc.setTextColor(0, 0, 0);
+    let y = 50;
+    
+    // Column 1: Contractor
+    doc.setFont("helvetica", "bold"); doc.text("CONTRACTOR:", 14, y);
+    doc.setFont("helvetica", "normal"); doc.text(company.name, 14, y+6);
+    doc.setFontSize(9); doc.text(company.address, 14, y+11);
+    doc.text(`Contact: ${company.contact}`, 14, y+16);
+    
+    // Column 2: Site
     doc.setFontSize(10);
-    
-    const startY = 50;
-    doc.setFont("helvetica", "bold");
-    doc.text(`Company:`, 14, startY);
-    doc.text(`Trade:`, 14, startY + 6);
-    doc.text(`Date:`, 14, startY + 12);
-    
-    doc.setFont("helvetica", "normal");
-    doc.text(formData.company, 40, startY);
-    doc.text(formData.trade, 40, startY + 6);
-    doc.text(date, 40, startY + 12);
-    
-    doc.setFont("helvetica", "bold");
-    doc.text(`Site Address:`, 120, startY);
-    doc.setFont("helvetica", "normal");
-    const splitAddress = doc.splitTextToSize(formData.address, 80);
-    doc.text(splitAddress, 120, startY + 6);
+    doc.setFont("helvetica", "bold"); doc.text("PROJECT SITE:", 120, y);
+    doc.setFont("helvetica", "normal"); doc.text(job.client, 120, y+6);
+    doc.setFontSize(9); doc.text(job.siteAddress, 120, y+11);
+    doc.text(`Date: ${job.date}`, 120, y+16);
 
-    // 3. EXECUTIVE SUMMARY
-    let currentY = startY + 30;
-    doc.setFont("helvetica", "bold");
-    doc.text("1. Project Summary & Compliance", 14, currentY);
-    doc.setFont("helvetica", "normal");
-    currentY += 6;
-    const splitSummary = doc.splitTextToSize(data.summary || "", 180);
-    doc.text(splitSummary, 14, currentY);
-    currentY += splitSummary.length * 5 + 10;
+    y += 30;
 
-    // 4. RISK ASSESSMENT TABLE (Using explicit autoTable call)
-    doc.setFont("helvetica", "bold");
-    doc.text("2. Risk Assessment", 14, currentY);
-    currentY += 4;
+    // 1. Executive Summary
+    doc.setFontSize(12); doc.setFont("helvetica", "bold"); doc.text("1. Executive Summary", 14, y);
+    y += 7; doc.setFontSize(10); doc.setFont("helvetica", "normal");
+    const summary = doc.splitTextToSize(data.summary || "Summary not generated.", 180);
+    doc.text(summary, 14, y);
+    y += summary.length * 5 + 10;
 
+    // 2. Risk Assessment Table
+    doc.setFontSize(12); doc.setFont("helvetica", "bold"); doc.text("2. Risk Assessment", 14, y);
+    y += 5;
+    
     autoTable(doc, {
-      startY: currentY,
-      head: [['Hazard Identified', 'Who is at Risk', 'Control Measures', 'Rating']],
-      body: data.risks.map((r: any) => [r.hazard, r.who, r.control, r.rating]),
-      headStyles: { fillColor: [0, 0, 0], textColor: [255, 255, 255] },
-      styles: { fontSize: 9, cellPadding: 3 },
-      columnStyles: { 2: { cellWidth: 80 } },
-      theme: 'grid'
+      startY: y,
+      head: [['Hazard', 'Who is at Risk', 'Control Measures', 'Rating']],
+      body: data.risks ? data.risks.map((r: any) => [r.hazard, r.who, r.control, r.rating]) : [],
+      theme: 'grid',
+      headStyles: { fillColor: [17, 24, 39] },
+      styles: { fontSize: 9 }
     });
-
-    // Update Y position after table
     // @ts-ignore
-    currentY = doc.lastAutoTable.finalY + 15;
+    y = doc.lastAutoTable.finalY + 15;
 
-    // 5. METHOD STATEMENT
-    doc.setFont("helvetica", "bold");
-    doc.text("3. Method Statement", 14, currentY);
-    currentY += 6;
+    // 3. Method Statement
+    if(y > 250) { doc.addPage(); y=20; }
+    doc.setFontSize(12); doc.setFont("helvetica", "bold"); doc.text("3. Method Statement", 14, y);
+    y += 7; doc.setFontSize(10); doc.setFont("helvetica", "normal");
     
-    if (data.method_steps) {
-        data.method_steps.forEach((step: string, index: number) => {
-        if (currentY > 280) { doc.addPage(); currentY = 20; } 
-        doc.setFont("helvetica", "normal");
-        const splitStep = doc.splitTextToSize(`${index + 1}. ${step}`, 180);
-        doc.text(splitStep, 14, currentY);
-        currentY += splitStep.length * 5 + 2;
+    if(data.method_steps) {
+        data.method_steps.forEach((step: string, i: number) => {
+            if(y > 270) { doc.addPage(); y=20; }
+            const text = doc.splitTextToSize(`${i+1}. ${step}`, 180);
+            doc.text(text, 14, y);
+            y += text.length * 5 + 2;
         });
     }
 
-    // 6. PPE
-    currentY += 10;
-    if (currentY > 260) { doc.addPage(); currentY = 20; }
-    doc.setFont("helvetica", "bold");
-    doc.text("4. PPE Required", 14, currentY);
-    doc.setFont("helvetica", "normal");
-    if(data.ppe) {
-        doc.text(data.ppe.join(", "), 14, currentY + 6);
-    }
+    // 4. PPE
+    y += 10;
+    if(y > 260) { doc.addPage(); y=20; }
+    doc.setFontSize(12); doc.setFont("helvetica", "bold"); doc.text("4. Required PPE", 14, y);
+    y += 7; doc.setFontSize(10); doc.setFont("helvetica", "normal");
+    if(data.ppe) doc.text(data.ppe.join(", "), 14, y);
 
-    // 7. EXTRA DETAILS (If added)
-    if (formData.extraDetails) {
-        currentY += 20;
-        if (currentY > 260) { doc.addPage(); currentY = 20; }
-        doc.setFont("helvetica", "bold");
-        doc.text("5. Specific Site Notes", 14, currentY);
-        doc.setFont("helvetica", "normal");
-        const splitNotes = doc.splitTextToSize(formData.extraDetails, 180);
-        doc.text(splitNotes, 14, currentY + 6);
-    }
-
-    // Save
-    doc.save(`RAMS_${formData.company.replace(/ /g, "_")}.pdf`);
+    doc.save(`RAMS_${company.name.replace(/ /g,'_')}.pdf`);
   };
 
   return (
-    <div className="min-h-screen bg-white font-sans text-black">
-      {/* Header */}
-      <nav className="border-b border-gray-200 py-4 px-6 flex justify-between items-center sticky top-0 bg-white/90 backdrop-blur-md z-50">
-        <div className="flex items-center gap-2 font-bold text-xl tracking-tighter">
-          <ShieldCheck className="w-6 h-6" /> RAMS Sorted
-        </div>
-        <div className="text-xs font-bold bg-black text-white px-3 py-1 rounded-full">PRO EDITION</div>
+    <div className="min-h-screen bg-gray-50 font-sans text-black">
+      <nav className="bg-white border-b py-4 px-6 sticky top-0 z-50 flex justify-between items-center">
+        <div className="flex items-center gap-2 font-bold text-xl tracking-tighter"><ShieldCheck className="w-6 h-6"/> RAMS Sorted</div>
+        <div className="text-xs font-bold bg-black text-white px-3 py-1 rounded-full">Step {step} of 3</div>
       </nav>
 
-      <main className="max-w-3xl mx-auto py-12 px-4">
-        <div className="text-center mb-10">
-          <h1 className="text-4xl font-extrabold mb-4 tracking-tight">Compliance. Sorted.</h1>
-          <p className="text-gray-500 text-lg">Professional Site Documentation.</p>
-        </div>
-
-        <div className="bg-gray-50 rounded-2xl border border-gray-200 p-8 shadow-lg">
-          {/* Login */}
-          <div className="mb-8 p-4 bg-white rounded-xl border border-gray-200 shadow-sm">
-            <label className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-gray-500 mb-2">
-              <Lock className="w-3 h-3" /> Pro Access Code
-            </label>
-            <input type="password" placeholder="PRO2025" className="w-full outline-none font-mono" onChange={(e) => setFormData({ ...formData, accessCode: e.target.value })} />
-          </div>
-
-          <div className="space-y-6">
-            {/* Row 1 */}
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-bold mb-2">Trade</label>
-                <select className="w-full bg-white border border-gray-300 rounded-lg px-4 py-3 outline-none" onChange={(e) => setFormData({ ...formData, trade: e.target.value })}>
-                  <option>Electrician</option><option>Plumber</option><option>Roofer</option><option>Builder</option>
-                </select>
+      <main className="max-w-2xl mx-auto py-8 px-4">
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 transition-all">
+          
+          {/* STEP 1: COMPANY */}
+          {step === 1 && (
+            <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-300">
+              <div className="mb-6 border-b pb-4"><h2 className="text-2xl font-bold flex items-center gap-2"><Briefcase/> Company Profile</h2><p className="text-gray-500">Enter your details once.</p></div>
+              <div className="space-y-4">
+                  <div><label className="block text-sm font-bold mb-1">Company Name</label><input className="w-full border rounded-lg p-3" placeholder="Your Company Ltd" value={company.name} onChange={e => setCompany({...company, name: e.target.value})} /></div>
+                  <div><label className="block text-sm font-bold mb-1">Office Address (Correspondence)</label><input className="w-full border rounded-lg p-3" placeholder="123 High St..." value={company.address} onChange={e => setCompany({...company, address: e.target.value})} /></div>
+                  <div><label className="block text-sm font-bold mb-1">Competent Person (Sign-off)</label><input className="w-full border rounded-lg p-3" placeholder="Your Name" value={company.contact} onChange={e => setCompany({...company, contact: e.target.value})} /></div>
               </div>
-              <div>
-                <label className="block text-sm font-bold mb-2">Company Name</label>
-                <input type="text" className="w-full bg-white border border-gray-300 rounded-lg px-4 py-3 outline-none" placeholder="Your Company Ltd" onChange={(e) => setFormData({ ...formData, company: e.target.value })} />
+              <button onClick={() => setStep(2)} className="w-full bg-black text-white py-3 rounded-lg font-bold mt-4 flex justify-center gap-2 items-center">Next Step <ArrowRight className="w-4 h-4"/></button>
+            </div>
+          )}
+
+          {/* STEP 2: JOB */}
+          {step === 2 && (
+            <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-300">
+              <div className="mb-6 border-b pb-4"><h2 className="text-2xl font-bold flex items-center gap-2"><MapPin/> Job Details</h2><p className="text-gray-500">What work are you doing?</p></div>
+              
+              <div className="grid grid-cols-2 gap-4">
+                 <div><label className="block text-sm font-bold mb-1">Client Name</label><input className="w-full border rounded-lg p-3" value={job.client} onChange={e => setJob({...job, client: e.target.value})} /></div>
+                 <div><label className="block text-sm font-bold mb-1">Date</label><input type="date" className="w-full border rounded-lg p-3" value={job.date} onChange={e => setJob({...job, date: e.target.value})} /></div>
               </div>
-            </div>
+              <div><label className="block text-sm font-bold mb-1">Site Address (Where is the work?)</label><input className="w-full border rounded-lg p-3" value={job.siteAddress} onChange={e => setJob({...job, siteAddress: e.target.value})} /></div>
+              
+              <div className="p-4 bg-blue-50 rounded-lg border border-blue-100">
+                  <label className="block text-sm font-bold mb-1">Trade</label>
+                  <select className="w-full bg-white border rounded-lg p-3 mb-3" value={job.trade} onChange={e => setJob({...job, trade: e.target.value, type: ""})}>
+                    {Object.keys(TRADES).map(t => <option key={t}>{t}</option>)}
+                  </select>
+                  <label className="block text-sm font-bold mb-1">Job Template (Auto-fill)</label>
+                  <select className="w-full bg-white border rounded-lg p-3" value={job.type} onChange={e => setJob({...job, type: e.target.value})}>
+                    <option value="">-- Select Job Type --</option>
+                    {/* @ts-ignore */}
+                    {TRADES[job.trade].jobs.map((j:any) => <option key={j.name}>{j.name}</option>)}
+                  </select>
+              </div>
 
-            {/* Location Row */}
-            <div>
-              <label className="flex items-center gap-2 text-sm font-bold mb-2">
-                <MapPin className="w-4 h-4" /> Site Address / Location
-              </label>
-              <input type="text" className="w-full bg-white border border-gray-300 rounded-lg px-4 py-3 outline-none" placeholder="e.g. 10 Downing Street, London, SW1A 2AA" onChange={(e) => setFormData({ ...formData, address: e.target.value })} />
-            </div>
-
-            {/* Job Desc */}
-            <div>
-              <label className="block text-sm font-bold mb-2">Job Description</label>
-              <textarea className="w-full bg-white border border-gray-300 rounded-lg px-4 py-3 outline-none h-24 resize-none" placeholder="Describe the work..." onChange={(e) => setFormData({ ...formData, job: e.target.value })}></textarea>
-            </div>
-
-            {/* Extra Details */}
-            <div>
-              <label className="flex items-center gap-2 text-sm font-bold mb-2">
-                <FileText className="w-4 h-4" /> Extra Details / Specific Notes
-              </label>
-              <textarea className="w-full bg-white border border-gray-300 rounded-lg px-4 py-3 outline-none h-20 resize-none" placeholder="e.g. Parking is around the back, Key code is 1234..." onChange={(e) => setFormData({ ...formData, extraDetails: e.target.value })}></textarea>
-            </div>
-
-            {/* Hazards */}
-            <div>
-              <label className="block text-sm font-bold mb-3">Hazards</label>
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                {["Height Work", "Live Electricity", "Dust/Fumes", "Power Tools", "Manual Handling", "Asbestos", "Hot Work", "Confined Space", "Slips/Trips"].map((h) => (
-                  <button key={h} onClick={() => handleHazardToggle(h)} className={`text-sm py-2 px-3 rounded-lg border transition-all ${hazards.includes(h) ? "bg-black text-white border-black" : "bg-white text-gray-600 border-gray-200 hover:border-gray-400"}`}>{h}</button>
-                ))}
+              <div><label className="block text-sm font-bold mb-1">Scope of Works</label><textarea className="w-full border rounded-lg p-3 h-24" value={job.desc} onChange={e => setJob({...job, desc: e.target.value})} /></div>
+              <div className="flex gap-3 mt-4">
+                 <button onClick={() => setStep(1)} className="w-1/3 border py-3 rounded-lg font-bold text-gray-600">Back</button>
+                 <button onClick={() => setStep(3)} className="w-2/3 bg-black text-white py-3 rounded-lg font-bold flex justify-center gap-2 items-center">Next <ArrowRight className="w-4 h-4"/></button>
               </div>
             </div>
+          )}
 
-            <button onClick={generateRAMS} disabled={loading} className="w-full bg-black text-white font-bold text-lg py-4 rounded-xl hover:bg-gray-800 transition-all flex items-center justify-center gap-2 shadow-lg hover:shadow-xl disabled:opacity-50">
-              {loading ? <Loader2 className="animate-spin" /> : <HardHat />} {loading ? "Generating Pro Documents..." : "Generate RAMS"}
-            </button>
-            
-            {generated && (
-              <div className="bg-green-50 border border-green-200 rounded-xl p-4 flex items-center gap-4 text-green-800">
-                <CheckCircle className="w-8 h-8" /> <div><p className="font-bold">Success!</p><p className="text-sm">Your professional PDF has downloaded.</p></div>
+          {/* STEP 3: RISKS & GENERATE */}
+          {step === 3 && (
+            <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-300">
+               <div className="mb-6 border-b pb-4"><h2 className="text-2xl font-bold flex items-center gap-2"><AlertTriangle/> Hazards & Context</h2><p className="text-gray-500">Specific site risks.</p></div>
+              
+              <div className="grid grid-cols-2 gap-4 p-4 bg-gray-100 rounded-lg text-sm font-medium">
+                 <label className="flex items-center gap-2 cursor-pointer"><input type="checkbox" className="w-4 h-4 accent-black" checked={context.occupied} onChange={e => setContext({...context, occupied: e.target.checked})} /> Occupied Property?</label>
+                 <label className="flex items-center gap-2 cursor-pointer"><input type="checkbox" className="w-4 h-4 accent-black" checked={context.outdoor} onChange={e => setContext({...context, outdoor: e.target.checked})} /> Outdoor Work?</label>
               </div>
-            )}
-          </div>
+
+              <div className="space-y-4">
+                 {Object.entries(HAZARD_GROUPS).map(([group, items]) => (
+                   <div key={group}>
+                      <h4 className="text-xs font-bold uppercase text-gray-400 mb-2">{group}</h4>
+                      <div className="flex flex-wrap gap-2">
+                        {items.map(h => (
+                           <button key={h} onClick={() => toggleHazard(h)} className={`text-xs py-2 px-3 rounded-lg border transition-all ${hazards.includes(h) ? 'bg-black text-white border-black' : 'bg-white text-gray-600 border-gray-200 hover:border-gray-300'}`}>{h}</button>
+                        ))}
+                      </div>
+                   </div>
+                 ))}
+              </div>
+
+              <div className="pt-6 border-t mt-6">
+                 <label className="block text-xs font-bold uppercase text-gray-500 mb-1 flex items-center gap-1"><Lock className="w-3 h-3"/> Access Code</label>
+                 <input type="password" placeholder="PRO2025" className="w-full border rounded-lg p-3 mb-4 font-mono text-center tracking-widest" onChange={e => setContext({...context, accessCode: e.target.value})} />
+                 
+                 <div className="flex gap-3">
+                    <button onClick={() => setStep(2)} className="w-1/3 border py-3 rounded-lg font-bold text-gray-600">Back</button>
+                    <button onClick={generateRAMS} disabled={loading} className="w-2/3 bg-green-600 hover:bg-green-700 text-white py-3 rounded-lg font-bold flex justify-center gap-2 items-center shadow-lg">
+                        {loading ? <Loader2 className="animate-spin w-5 h-5"/> : <ShieldCheck className="w-5 h-5"/>} {loading ? "Generating..." : "Generate Document"}
+                    </button>
+                 </div>
+              </div>
+
+              {generated && (
+                <div className="bg-green-50 p-4 rounded-lg border border-green-200 flex items-center gap-3 text-green-800 animate-in zoom-in-95">
+                    <CheckCircle className="w-6 h-6"/> <div><p className="font-bold">Success!</p><p className="text-sm">Your PDF has been downloaded.</p></div>
+                </div>
+              )}
+            </div>
+          )}
+
         </div>
       </main>
     </div>
