@@ -29,29 +29,22 @@ export async function POST(req: Request) {
             ACT AS: Senior UK Health & Safety Consultant.
             TASK: Generate professional RAMS JSON Data.
             
-            PROJECT CONTEXT:
-            - Contractor: ${body.companyName} (Contact: ${body.contactName})
-            - Client: ${body.clientName}
-            - Site Address: ${body.siteAddress}
-            - Trade: ${body.trade}
-            - Job: ${body.jobType} (${body.jobDesc})
-            - Hazards: ${body.hazards.join(', ')}
-            - Specific Checks: ${answerList}
-            - Environment info: ${hazardInfo}
+            PROJECT: ${body.jobType} (${body.trade})
+            DESC: ${body.jobDesc}
+            HAZARDS: ${body.hazards.join(', ')}
+            CHECKS: ${answerList}
             
             INSTRUCTIONS:
-            1. Method Statement: Use headings: PRE-START, SITE SETUP, TASK EXECUTION, COMPLETION.
-            2. Risk Assessment: Provide Initial Risk (High/Med) and Residual Risk (Low) for all hazards.
-            3. COSHH: If hazards include dust, silica, chemicals, or asbestos, generate a 'coshh' array.
-            4. Return ONLY valid JSON.
+            1. Method Statement: Write a clear, professional, step-by-step guide. Use bullet points. NOT a JSON array, just a long string with line breaks.
+            2. Risks: Generate a table of specific risks.
+            3. Return ONLY valid JSON.
             
-            JSON STRUCTURE:
+            JSON FORMAT:
             {
-              "summary": "Executive summary of works...",
-              "risks": [{"hazard": "Name", "who": "Operatives", "initial_risk": "High", "control": "Measure...", "risk_rating": "Low"}],
-              "method_steps": ["PRE-START: Arrive...", "TASK: ..."],
-              "ppe": ["Safety Boots", "Gloves"],
-              "coshh": [{"substance": "Dust/Silica", "risk": "Inhalation", "control": "FFP3 Mask", "disposal": "Bagged"}]
+              "summary": "Executive summary...",
+              "risks": [{"hazard": "Name", "who": "Operatives", "control": "Measure...", "risk_rating": "Low"}],
+              "method_steps": ["Step 1...", "Step 2..."],
+              "ppe": ["Boots", "Gloves"]
             }
           `
         }]
