@@ -126,18 +126,18 @@ export default function Home() {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
-      createClinicalPDF(data);
+      createProfessionalPDF(data);
     } catch (e: any) { alert(e.message); } 
     finally { setLoading(false); }
   };
 
-  // --- THE "CLINICAL PROFESSIONAL" PDF ENGINE ---
-  const createClinicalPDF = (data: any) => {
+  // --- THE "TITAN" PDF ENGINE ---
+  const createProfessionalPDF = (data: any) => {
     const doc = new jsPDF();
     const totalPagesExp = "{total_pages_count_string}";
     const pageWidth = 210;
     const pageHeight = 297;
-    const margin = 20; // A4 Standard Margin (approx 2cm)
+    const margin = 15; // Slightly smaller margin to give tables more width
     const contentWidth = pageWidth - (margin * 2);
     let currentY = margin;
 
@@ -160,24 +160,29 @@ export default function Home() {
         doc.setFont("helvetica", "normal");
         doc.setFontSize(9);
         doc.setTextColor(0, 0, 0);
-        // Simple single line header
+        
+        // Company Name Left
         const headerText = `${formData.companyName.toUpperCase()} – RISK ASSESSMENT & METHOD STATEMENT`;
-        doc.text(headerText, margin, 12);
+        doc.text(headerText, margin, 10);
+        
         doc.setLineWidth(0.1);
-        doc.line(margin, 14, pageWidth - margin, 14); // Thin divider
+        doc.line(margin, 12, pageWidth - margin, 12); // Divider line
     };
 
     const drawFooter = (doc: any, pageNumber: number, totalPages: string) => {
         const ref = formData.projectRef || `RAMS-${new Date().getFullYear()}-001`;
-        const str = `Ref: ${ref} | ${formData.jobType.substring(0,30)}... | Page ${pageNumber} of ${totalPages}`;
+        // Ensure site address isn't too long for footer
+        const safeAddress = formData.siteAddress.length > 40 ? formData.siteAddress.substring(0, 40) + "..." : formData.siteAddress;
+        const str = `Ref: ${ref} | ${safeAddress} | Page ${pageNumber} of ${totalPages}`;
+        
         doc.setFontSize(8);
-        doc.setTextColor(0, 0, 0);
+        doc.setTextColor(80, 80, 80);
         doc.text(str, pageWidth / 2, pageHeight - 10, { align: "center" });
     };
 
     // --- 1. PROJECT & JOB DETAILS ---
     drawHeader(doc);
-    currentY = 25;
+    currentY = 20; // Start a bit lower
 
     doc.setFont("helvetica", "bold"); doc.setFontSize(12);
     doc.text("1. PROJECT & JOB DETAILS", margin, currentY);
@@ -202,12 +207,11 @@ export default function Home() {
             lineColor: [0,0,0], 
             lineWidth: 0.1, 
             textColor: [0,0,0],
-            font: "helvetica",
             valign: 'middle'
         },
         columnStyles: { 
-            0: { fontStyle: 'bold', cellWidth: 50 }, // Labels
-            1: { cellWidth: 'auto' } // Values
+            0: { fontStyle: 'bold', cellWidth: 50 }, 
+            1: { cellWidth: 'auto' } 
         }
     });
     // @ts-ignore
@@ -233,11 +237,11 @@ export default function Home() {
         currentY += 6;
 
         const checkRows = questions.map((q, index) => [
-            index + 1,
+            (index + 1).toString(), // Explicit string conversion
             q.label,
             answers[q.id] === "Yes" ? "Yes" : "",
             answers[q.id] === "No" ? "No" : "",
-            "" // N/A column empty
+            "" // N/A empty
         ]);
 
         autoTable(doc, {
@@ -248,11 +252,11 @@ export default function Home() {
             styles: { fontSize: 10, cellPadding: 3, lineColor: [0,0,0], lineWidth: 0.1, textColor: [0,0,0] },
             headStyles: { fillColor: [255,255,255], textColor: [0,0,0], fontStyle: 'bold', lineWidth: 0.1, lineColor: [0,0,0] },
             columnStyles: { 
-                0: { cellWidth: 10, halign: 'center' },
+                0: { cellWidth: 12, halign: 'center' },
                 1: { cellWidth: 'auto' },
-                2: { cellWidth: 12, halign: 'center' },
-                3: { cellWidth: 12, halign: 'center' },
-                4: { cellWidth: 12, halign: 'center' }
+                2: { cellWidth: 15, halign: 'center' }, // Widened to 15mm to prevent wrapping
+                3: { cellWidth: 15, halign: 'center' },
+                4: { cellWidth: 15, halign: 'center' }
             }
         });
         // @ts-ignore
@@ -260,7 +264,7 @@ export default function Home() {
     }
 
     // --- 4. RISK ASSESSMENT ---
-    addPageBreak(); // Always start Risk Assessment on fresh page
+    addPageBreak(); // Always start Risk on new page
     doc.setFont("helvetica", "bold"); doc.setFontSize(12);
     doc.text("4. RISK ASSESSMENT", margin, currentY);
     currentY += 6;
@@ -273,7 +277,7 @@ export default function Home() {
             hInfo.risk,
             "Operatives / Public",
             hInfo.initial_score.toUpperCase(),
-            hInfo.control, // Bullet points handled by cell wrapping
+            hInfo.control, 
             hInfo.residual_score.toUpperCase()
         ];
     });
@@ -284,7 +288,7 @@ export default function Home() {
         body: riskRows,
         theme: 'grid',
         styles: { 
-            fontSize: 8,  // REDUCED FONT SIZE TO FIT TEXT
+            fontSize: 8, // Small font to prevent wrapping
             cellPadding: 2, 
             lineColor: [0,0,0], 
             lineWidth: 0.1, 
@@ -294,12 +298,12 @@ export default function Home() {
         },
         headStyles: { fillColor: [255,255,255], textColor: [0,0,0], fontStyle: 'bold', lineWidth: 0.1, lineColor: [0,0,0] },
         columnStyles: {
-            0: { cellWidth: 30, fontStyle: 'bold' }, // Hazard (Widened slightly)
-            1: { cellWidth: 30 }, // Risk/Harm
-            2: { cellWidth: 20 }, // Who
-            3: { cellWidth: 15, halign: 'center' }, // Init (Widened to 15mm to stop wrapping)
-            4: { cellWidth: 'auto' }, // Controls (WIDEST)
-            5: { cellWidth: 15, halign: 'center' }  // Res (Widened to 15mm to stop wrapping)
+            0: { cellWidth: 25, fontStyle: 'bold' },
+            1: { cellWidth: 30 }, 
+            2: { cellWidth: 20 }, 
+            3: { cellWidth: 20, halign: 'center' }, // WIDENED to 20mm
+            4: { cellWidth: 'auto' }, // Controls take remaining space
+            5: { cellWidth: 20, halign: 'center' }  // WIDENED to 20mm
         }
     });
     // @ts-ignore
@@ -327,7 +331,6 @@ export default function Home() {
                 doc.setFont("helvetica", "normal"); doc.setFontSize(10);
             }
 
-            // Detect Heading vs Step
             const isHeader = step.toUpperCase() === step && step.length > 5;
             
             if (isHeader) {
@@ -347,14 +350,12 @@ export default function Home() {
     }
     currentY += 10;
 
-    // --- 6. PPE REQUIREMENTS ---
+    // --- 6. PPE ---
     checkSpace(50);
     doc.setFont("helvetica", "bold"); doc.setFontSize(12);
     doc.text("6. PPE REQUIREMENTS", margin, currentY);
     currentY += 6;
 
-    const ppeText = data.ppe ? data.ppe.join("\n") : "Safety Boots\nHi-Vis Vest\nHard Hat\nGloves";
-    
     autoTable(doc, {
         startY: currentY,
         head: [['Item', 'Requirement status']],
@@ -366,7 +367,7 @@ export default function Home() {
     // @ts-ignore
     currentY = doc.lastAutoTable.finalY + 10;
 
-    // --- 7. COSHH (If Relevant) ---
+    // --- 7. COSHH ---
     const coshhHazards = ["dust_fumes", "silica_dust", "chemical_coshh", "asbestos", "cement", "fumes"];
     if (hazards.some(h => coshhHazards.includes(h))) {
         checkSpace(50);
@@ -392,11 +393,11 @@ export default function Home() {
         doc.text("7. COSHH / SUBSTANCES", margin, currentY);
         currentY += 6;
         doc.setFont("helvetica", "normal"); doc.setFontSize(10);
-        doc.text("No significant COSHH substances are expected to be used for this task beyond standard construction materials.", margin, currentY);
+        doc.text("No significant COSHH substances are expected to be used for this task.", margin, currentY);
         currentY += 10;
     }
 
-    // --- 8. EMERGENCY ARRANGEMENTS ---
+    // --- 8. EMERGENCY ---
     checkSpace(50);
     doc.setFont("helvetica", "bold"); doc.setFontSize(12);
     doc.text("8. EMERGENCY ARRANGEMENTS", margin, currentY);
@@ -420,7 +421,7 @@ export default function Home() {
     doc.text(`${formData.fireAssembly || "As per site induction"}`, margin + 30, currentY);
     currentY += 12;
 
-    // --- 9. OPERATIVE BRIEFING REGISTER ---
+    // --- 9. REGISTER ---
     addPageBreak();
     doc.setFont("helvetica", "bold"); doc.setFontSize(12);
     doc.text("9. OPERATIVE BRIEFING REGISTER", margin, currentY);
@@ -428,7 +429,7 @@ export default function Home() {
 
     const registerRows = [];
     for(let i=1; i<=8; i++) {
-        registerRows.push([i, '', '', '', '']);
+        registerRows.push([i.toString(), '', '', '', '']);
     }
 
     autoTable(doc, {
@@ -438,14 +439,14 @@ export default function Home() {
         theme: 'grid',
         styles: { fontSize: 10, cellPadding: 4, lineColor: [0,0,0], lineWidth: 0.1, minCellHeight: 12, textColor: [0,0,0] },
         headStyles: { fillColor: [255,255,255], textColor: [0,0,0], fontStyle: 'bold', lineWidth: 0.1, lineColor: [0,0,0] },
-        columnStyles: { 0: { cellWidth: 10, halign: 'center' } }
+        columnStyles: { 0: { cellWidth: 12, halign: 'center' } }
     });
     // @ts-ignore
     currentY = doc.lastAutoTable.finalY + 15;
 
-    // --- 10. AUTHORISATION / SIGN-OFF (Keep Together Block) ---
-    // Check space for BOTH boxes (approx 80mm needed for bigger boxes)
-    if (currentY + 80 > pageHeight - margin) {
+    // --- 10. AUTHORISATION (Keep Together Block) ---
+    // Approx 100mm needed for big boxes
+    if (currentY + 100 > pageHeight - margin) {
         addPageBreak();
     }
 
@@ -453,42 +454,43 @@ export default function Home() {
     doc.text("10. AUTHORISATION", margin, currentY);
     currentY += 6;
 
-    // Box 1: Operative Acceptance Statement (INCREASED HEIGHT)
+    // BOX 1: Operative Statement (INCREASED TO 40mm)
     doc.setDrawColor(0); doc.setLineWidth(0.2);
-    doc.rect(margin, currentY, contentWidth, 35); // Increased from 25 to 35
+    doc.rect(margin, currentY, contentWidth, 40); 
+    
     doc.setFontSize(10); doc.setFont("helvetica", "normal");
-    doc.text("I confirm I have read and understood this RAMS, attended the briefing, and agree to work in accordance with it.", margin + 2, currentY + 6);
+    const declaration = "I confirm I have read and understood this RAMS, attended the briefing, and agree to work in accordance with it.";
+    const splitDecl = doc.splitTextToSize(declaration, contentWidth - 5); // Padding
+    doc.text(splitDecl, margin + 2, currentY + 6);
     
     doc.setFont("helvetica", "bold");
-    doc.text("Lead Operative / Supervisor Sign-off:", margin + 2, currentY + 20);
+    doc.text("Lead Operative / Supervisor Sign-off:", margin + 2, currentY + 25);
     doc.setFont("helvetica", "normal");
-    doc.text("Name: __________________________   Sig: __________________________   Date: ____________", margin + 2, currentY + 28);
+    doc.text("Name: __________________________   Sig: __________________________   Date: ____________", margin + 2, currentY + 33);
     
-    currentY += 40; // Gap between boxes
+    currentY += 45; // Move past box 1
 
-    // Box 2: Management Approval (INCREASED HEIGHT)
-    doc.rect(margin, currentY, contentWidth, 40); // Increased from 30 to 40
+    // BOX 2: Management Approval (INCREASED TO 50mm)
+    doc.rect(margin, currentY, contentWidth, 50);
     doc.setFont("helvetica", "bold");
-    doc.text("RAMS Prepared & Approved By (Management):", margin + 2, currentY + 6);
+    doc.text("RAMS Prepared & Approved By (Management):", margin + 2, currentY + 8);
     
     doc.setFont("helvetica", "normal");
-    doc.text(`Name: ${formData.contactName}`, margin + 2, currentY + 16);
-    doc.text("Position: Competent Person", margin + 80, currentY + 16);
+    doc.text(`Name: ${formData.contactName}`, margin + 2, currentY + 20);
+    doc.text("Position: Competent Person", margin + 90, currentY + 20);
     
-    doc.text("Signature: __________________________________", margin + 2, currentY + 30);
-    doc.text(`Date: ${formData.startDate}`, margin + 100, currentY + 30);
-
+    doc.text("Signature: __________________________________", margin + 2, currentY + 35);
+    doc.text(`Date: ${formData.startDate}`, margin + 110, currentY + 35);
 
     // -- FINALISE --
     if (typeof doc.putTotalPages === 'function') {
         doc.putTotalPages(totalPagesExp);
     }
 
-    // Add Headers/Footers to all pages
     const pageCount = doc.internal.pages.length - 1;
     for (let i = 1; i <= pageCount; i++) {
         doc.setPage(i);
-        drawHeader(doc); // Redraw header on every page
+        drawHeader(doc);
         drawFooter(doc, i, pageCount.toString());
     }
 
