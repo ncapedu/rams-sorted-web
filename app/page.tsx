@@ -3,35 +3,36 @@
 import React, { useState, useEffect } from "react";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
-import { TRADES, HAZARD_DATA, HazardKey } from "./lib/constants";
+// We import JobCluster to help TypeScript understand the data structure
+import { TRADES, HAZARD_DATA, JobCluster } from "./lib/constants";
 
-// --- TYPES ---
+// --- 1. TYPES & INTERFACES ---
+
 interface FormData {
   trade: keyof typeof TRADES;
   job: string;
   clientName: string;
   siteAddress: string;
   date: string;
-  // This is the field for the Description Box
-  customDescription: string; 
+  customDescription: string; // This feeds the "Method Notes" box
 }
 
-// Type for the Safety Check responses (dynamic keys)
+// Holds the Yes/No state for safety questions. Key = question ID, Value = "Yes" | "No"
 interface SafetyResponses {
-  [key: string]: string; // e.g., "q1": "Yes", "q2": "N/A"
+  [key: string]: string; 
 }
 
 export default function Home() {
-  // --- STATE MANAGEMENT ---
-  
-  // Wizard Step Control
+  // --- 2. STATE MANAGEMENT ---
+
+  // Controls which Wizard Step is visible (1, 2, or 3)
   const [step, setStep] = useState(1); 
   
-  // Loading States
+  // Loading & Status indicators for PDF generation
   const [isGenerating, setIsGenerating] = useState(false);
   const [status, setStatus] = useState("");
 
-  // Main Form Data
+  // Main Data State
   const [formData, setFormData] = useState<FormData>({
     trade: "Electrician", // Default start
     job: "",
@@ -41,12 +42,12 @@ export default function Home() {
     customDescription: "",
   });
 
-  // Safety Check Responses
+  // Safety Check State
   const [safetyResponses, setSafetyResponses] = useState<SafetyResponses>({});
 
-  // --- EFFECTS (THE LOGIC FIXES) ---
+  // --- 3. LOGIC & EFFECTS ---
 
-  // 1. Auto-select the first job when the Trade changes
+  // Effect A: Auto-select the first job when the Trade changes
   useEffect(() => {
     if (TRADES[formData.trade]) {
       const firstJob = TRADES[formData.trade].jobs[0].name;
@@ -54,34 +55,37 @@ export default function Home() {
     }
   }, [formData.trade]);
 
-  // 2. THE CRITICAL DESCRIPTION FIX
-  // When the Job changes, grab the description from the database and put it in the box.
+  // Effect B: THE CRITICAL FIX - Auto-fill Description & Reset Safety Checks
+  // This runs whenever Trade or Job changes to pull data from the Titan DB.
   useEffect(() => {
-    // Guard clause to prevent running if trade/job aren't set yet
+    // 1. Guard clauses
     if (!formData.trade || !formData.job) return;
-
     const currentTradeData = TRADES[formData.trade];
     if (!currentTradeData) return;
 
-    const cluster = currentTradeData.clusters[formData.job];
+    // 2. TYPE ASSERTION FIX: Tell TypeScript this object uses string keys
+    const clusters = currentTradeData.clusters as Record<string, JobCluster>;
+    const cluster = clusters[formData.job];
 
     if (cluster) {
-      // 1. Update the Description Box
+      // 3. Update the Description Box with Titan text
       setFormData((prev) => ({ 
         ...prev, 
         customDescription: cluster.desc || "" 
       }));
 
-      // 2. Reset Safety Checks to 'Yes' default
+      // 4. Reset Safety Checks to default (usually 'Yes')
       const newSafetyState: SafetyResponses = {};
-      cluster.questions.forEach((q) => {
-        newSafetyState[q.id] = "Yes";
-      });
+      if (cluster.questions) {
+        cluster.questions.forEach((q) => {
+          newSafetyState[q.id] = "Yes";
+        });
+      }
       setSafetyResponses(newSafetyState);
     }
   }, [formData.trade, formData.job]);
 
-  // --- EVENT HANDLERS ---
+  // --- 4. EVENT HANDLERS ---
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
@@ -95,10 +99,10 @@ export default function Home() {
   };
 
   const nextStep = () => {
-    // Simple validation
+    // Validation for Step 1
     if (step === 1) {
       if (!formData.clientName || !formData.siteAddress) {
-        alert("Please fill in Client Name and Site Address.");
+        alert("Please fill in the Client Name and Site Address to proceed.");
         return;
       }
     }
@@ -107,26 +111,27 @@ export default function Home() {
 
   const prevStep = () => setStep((prev) => prev - 1);
 
-  // --- PDF GENERATION ENGINE ---
+  // --- 5. PDF GENERATION ENGINE ---
   const generatePDF = async () => {
     setIsGenerating(true);
     setStatus("Initializing PDF Engine...");
 
     try {
-      // 1. Setup Document
+      // --- A. Document Setup ---
       const doc = new jsPDF();
       const pageWidth = doc.internal.pageSize.width;
       const pageHeight = doc.internal.pageSize.height;
       const margin = 14;
       let finalY = margin;
 
-      // 2. Header
+      // --- B. Header Section ---
       doc.setFontSize(18);
       doc.setFont("helvetica", "bold");
       doc.text("RISK ASSESSMENT & METHOD STATEMENT", pageWidth / 2, finalY, { align: "center" });
+      
       finalY += 15;
 
-      // 3. Project Details Table
+      // --- C. Project Details Table ---
       autoTable(doc, {
         startY: finalY,
         head: [['Project Details', '']],
@@ -154,11 +159,11 @@ export default function Home() {
         }
       });
 
-      // @ts-ignore
+      // @ts-ignore (AutoTable types hack)
       finalY = doc.lastAutoTable.finalY + 12;
 
-      // 4. Method Statement (Scope of Works)
-      // We use the text explicitly from the formData (which was populated by the DB)
+      // --- D. Method Statement (Scope of Works) ---
+      // We use the text explicitly from the text area (which was pre-filled)
       doc.setFontSize(12);
       doc.setFont("helvetica", "bold");
       doc.text("1. Method Statement & Scope of Works", margin, finalY);
@@ -167,14 +172,17 @@ export default function Home() {
       doc.setFontSize(10);
       doc.setFont("helvetica", "normal");
       
-      const textToPrint = formData.customDescription || "Standard works to be carried out in accordance with industry guidelines.";
+      const textToPrint = formData.customDescription || "Standard works to be carried out in accordance with industry guidelines and best practice.";
+      
+      // Split text to ensure it fits within margins
       const wrappedText = doc.splitTextToSize(textToPrint, pageWidth - (margin * 2));
       doc.text(wrappedText, margin, finalY);
       
+      // Calculate new Y position based on lines of text
       finalY += (wrappedText.length * 5) + 10;
 
-      // 5. Risk Assessment Table
-      // Check for page break
+      // --- E. Risk Assessment Table ---
+      // Check if we need a page break
       if (finalY > 200) { doc.addPage(); finalY = margin; }
 
       doc.setFontSize(12);
@@ -182,12 +190,14 @@ export default function Home() {
       doc.text("2. Risk Assessment", margin, finalY);
       finalY += 6;
 
-      // Retrieve Hazards from Database
-      const cluster = TRADES[formData.trade].clusters[formData.job];
+      // Retrieve Hazards from Database with TYPE ASSERTION
+      const tradeObj = TRADES[formData.trade];
+      const clusters = tradeObj.clusters as Record<string, JobCluster>;
+      const cluster = clusters[formData.job];
       const jobHazards = cluster ? cluster.hazards : [];
 
+      // Build table rows
       const riskTableBody = jobHazards.map((hKey) => {
-        // Safety lookup
         const hDef = HAZARD_DATA[hKey];
         if (!hDef) return null;
         return [
@@ -197,7 +207,7 @@ export default function Home() {
           hDef.control,
           hDef.residual_score
         ];
-      }).filter(Boolean); // Remove nulls
+      }).filter(Boolean); // Filter out any nulls
 
       autoTable(doc, {
         startY: finalY,
@@ -228,7 +238,7 @@ export default function Home() {
       // @ts-ignore
       finalY = doc.lastAutoTable.finalY + 12;
 
-      // 6. Safety Checks Table
+      // --- F. Pre-Start Safety Checks Table ---
       if (finalY > 220) { doc.addPage(); finalY = margin; }
 
       doc.setFontSize(12);
@@ -237,6 +247,8 @@ export default function Home() {
       finalY += 6;
 
       const questions = cluster ? cluster.questions : [];
+      
+      // Map questions to the user's responses
       const safetyTableBody = questions.map((q) => [
         q.label,
         safetyResponses[q.id] || "N/A"
@@ -248,8 +260,16 @@ export default function Home() {
           head: [['Checklist Item', 'Confirmation']],
           body: safetyTableBody,
           theme: 'grid',
-          styles: { fontSize: 9, textColor: [0,0,0], lineColor: [0,0,0], lineWidth: 0.1 },
-          headStyles: { fillColor: [220, 220, 220], textColor: [0,0,0] },
+          styles: { 
+            fontSize: 9, 
+            textColor: [0,0,0], 
+            lineColor: [0,0,0], 
+            lineWidth: 0.1 
+          },
+          headStyles: { 
+            fillColor: [220, 220, 220], 
+            textColor: [0,0,0] 
+          },
           columnStyles: {
             1: { cellWidth: 30, halign: 'center', fontStyle: 'bold' }
           }
@@ -261,21 +281,22 @@ export default function Home() {
         finalY += 10;
       }
 
-      // 7. Sign Off Section
+      // --- G. Sign Off Section ---
       doc.addPage();
       finalY = margin;
 
       doc.setFontSize(12);
       doc.setFont("helvetica", "bold");
-      doc.text("4. Operative Sign-Off", margin, finalY);
+      doc.text("4. Operative Acknowledgement & Sign-Off", margin, finalY);
       finalY += 10;
 
       doc.setFontSize(10);
       doc.setFont("helvetica", "normal");
       doc.text(
-        "By signing below, I confirm I have read and understood the method statement and risk assessment above. I agree to work in accordance with the control measures.",
+        "By signing below, I confirm I have read and understood the method statement and risk assessment above. I agree to work in accordance with the control measures outlined and permit safe working practices at all times.",
         margin,
-        finalY
+        finalY,
+        { maxWidth: pageWidth - (margin * 2) }
       );
       finalY += 15;
 
@@ -294,42 +315,43 @@ export default function Home() {
         headStyles: { fillColor: [220, 220, 220], textColor: [0,0,0] }
       });
 
-      // Save
-      const filename = `RAMS_${formData.clientName.replace(/[^a-z0-9]/gi, '_')}.pdf`;
-      doc.save(filename);
+      // --- H. Save File ---
+      const cleanClientName = formData.clientName.replace(/[^a-z0-9]/gi, '_');
+      doc.save(`RAMS_${cleanClientName}.pdf`);
       
       setStatus("Done!");
       setIsGenerating(false);
 
     } catch (error) {
-      console.error("PDF Error:", error);
-      setStatus("Error generating PDF. Check console.");
+      console.error("PDF Generation Error:", error);
+      setStatus("Error generating PDF. Please check inputs.");
       setIsGenerating(false);
     }
   };
 
-  // --- HELPERS ---
-  // Safe access to current cluster data for rendering UI
-  const currentTrade = TRADES[formData.trade];
-  const currentCluster = currentTrade ? currentTrade.clusters[formData.job] : null;
+  // --- 6. RENDER HELPERS ---
+  
+  // Helper to safely get questions for the current view
+  // Uses Type Assertion to avoid build errors
+  const currentTradeObj = TRADES[formData.trade];
+  const currentClusters = currentTradeObj ? (currentTradeObj.clusters as Record<string, JobCluster>) : null;
+  const currentCluster = currentClusters ? currentClusters[formData.job] : null;
   const currentQuestions = currentCluster ? currentCluster.questions : [];
 
   return (
     <main className="min-h-screen bg-gray-50 font-sans text-slate-900">
       
-      {/* Top Bar */}
+      {/* --- TOP NAVIGATION BAR --- */}
       <div className="bg-white border-b px-6 py-4 shadow-sm sticky top-0 z-10">
         <div className="max-w-5xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-2">
             <div className="bg-blue-600 text-white p-1.5 rounded-md">
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
+              <span className="text-lg font-bold">🛡️</span>
             </div>
             <span className="text-xl font-bold text-slate-800">RAMS Sorted</span>
           </div>
           
-          {/* Progress Indicators */}
+          {/* Step Indicator */}
           <div className="flex items-center gap-2">
             <div className={`h-2 w-8 rounded-full transition-colors ${step >= 1 ? 'bg-blue-600' : 'bg-gray-200'}`}></div>
             <div className={`h-2 w-8 rounded-full transition-colors ${step >= 2 ? 'bg-blue-600' : 'bg-gray-200'}`}></div>
@@ -340,7 +362,7 @@ export default function Home() {
 
       <div className="max-w-3xl mx-auto py-10 px-4">
         
-        {/* --- STEP 1: CLIENT DETAILS --- */}
+        {/* --- STEP 1: CLIENT & PROJECT DETAILS --- */}
         {step === 1 && (
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-500">
             <div className="bg-gray-50 px-8 py-6 border-b border-gray-100">
@@ -397,23 +419,23 @@ export default function Home() {
           </div>
         )}
 
-        {/* --- STEP 2: JOB & SAFETY CHECKS --- */}
+        {/* --- STEP 2: JOB SPECIFICS & SAFETY CHECKS --- */}
         {step === 2 && (
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-500">
             <div className="bg-gray-50 px-8 py-6 border-b border-gray-100">
-              <h2 className="text-xl font-bold text-slate-800">Job Specifics & Safety</h2>
-              <p className="text-slate-500 text-sm mt-1">Select the task and confirm safety checks.</p>
+              <h2 className="text-xl font-bold text-slate-800">Job Specifics</h2>
+              <p className="text-slate-500 text-sm mt-1">Select the task, review method statement, and confirm safety checks.</p>
             </div>
 
             <div className="p-8 space-y-8">
               
-              {/* Selectors */}
+              {/* Trade & Job Selectors */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <label className="block text-sm font-semibold text-slate-700 mb-2">Trade</label>
                   <select
                     name="trade"
-                    className="w-full p-3 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                    className="w-full p-3 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none cursor-pointer"
                     value={formData.trade}
                     onChange={handleChange}
                   >
@@ -426,7 +448,7 @@ export default function Home() {
                   <label className="block text-sm font-semibold text-slate-700 mb-2">Job Task</label>
                   <select
                     name="job"
-                    className="w-full p-3 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                    className="w-full p-3 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none cursor-pointer"
                     value={formData.job}
                     onChange={handleChange}
                   >
@@ -437,9 +459,11 @@ export default function Home() {
                 </div>
               </div>
 
-              {/* Safety Checks Area */}
+              {/* Pre-Start Safety Checks (Blue Box) */}
               <div className="bg-blue-50 border border-blue-100 rounded-xl p-6">
-                <h3 className="text-blue-900 font-bold text-sm mb-4">Pre-Start Safety Checks</h3>
+                <h3 className="text-blue-900 font-bold text-sm mb-4 flex items-center gap-2">
+                  <span>📋</span> Pre-Start Safety Checks
+                </h3>
                 
                 {currentQuestions.length === 0 ? (
                   <p className="text-sm text-blue-700 italic">No specific safety checks for this task.</p>
@@ -447,7 +471,7 @@ export default function Home() {
                   <div className="space-y-3">
                     {currentQuestions.map((q) => (
                       <div key={q.id} className="flex flex-col md:flex-row md:items-center justify-between bg-white p-3 rounded-lg border border-blue-100 shadow-sm">
-                        <span className="text-sm text-slate-700 font-medium flex-1 pr-4">{q.label}</span>
+                        <span className="text-sm text-slate-700 font-medium flex-1 pr-4 leading-relaxed">{q.label}</span>
                         <div className="flex gap-2 mt-2 md:mt-0 shrink-0">
                           <button
                             onClick={() => handleSafetyToggle(q.id, "Yes")}
@@ -476,7 +500,7 @@ export default function Home() {
                 )}
               </div>
 
-              {/* Description Box */}
+              {/* Method Statement Description Box */}
               <div>
                 <label className="block text-sm font-semibold text-slate-700 mb-2">
                   Specific Site Constraints / Method Notes
@@ -484,13 +508,17 @@ export default function Home() {
                 <textarea
                   name="customDescription"
                   rows={5}
-                  className="w-full p-3 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-sm text-slate-600 leading-relaxed"
+                  className="w-full p-3 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-sm text-slate-600 leading-relaxed resize-y"
                   value={formData.customDescription}
                   onChange={handleChange}
                   placeholder="e.g. Access via rear gate only. No noisy works between 1-2pm."
                 />
+                <p className="text-xs text-slate-400 mt-2">
+                  This text is automatically pre-filled based on the selected task. Feel free to edit it.
+                </p>
               </div>
 
+              {/* Navigation Buttons */}
               <div className="flex justify-between pt-4 border-t border-gray-100">
                 <button 
                   onClick={prevStep}
@@ -509,7 +537,7 @@ export default function Home() {
           </div>
         )}
 
-        {/* --- STEP 3: GENERATE --- */}
+        {/* --- STEP 3: GENERATE & DOWNLOAD --- */}
         {step === 3 && (
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-500">
             <div className="bg-gray-50 px-8 py-6 border-b border-gray-100">
@@ -517,14 +545,13 @@ export default function Home() {
             </div>
             
             <div className="p-10 text-center">
-              <div className="w-20 h-20 bg-blue-50 rounded-full flex items-center justify-center mx-auto mb-6">
+              <div className="w-20 h-20 bg-blue-50 rounded-full flex items-center justify-center mx-auto mb-6 shadow-sm border border-blue-100">
                 <span className="text-4xl">📄</span>
               </div>
               
-              <h3 className="text-2xl font-bold text-slate-900 mb-2">Your RAMS is Ready</h3>
+              <h3 className="text-2xl font-bold text-slate-900 mb-2">RAMS Ready</h3>
               <p className="text-slate-500 mb-8 max-w-md mx-auto">
-                We have captured the details for <strong>{formData.clientName}</strong>. 
-                Click below to generate the professional PDF document.
+                We have captured the details for <strong>{formData.clientName}</strong> and configured the specific risks for <strong>{formData.job}</strong>.
               </p>
 
               <button
@@ -536,21 +563,21 @@ export default function Home() {
                     : "bg-slate-900 text-white hover:bg-slate-800 hover:shadow-xl"
                 }`}
               >
-                {isGenerating ? "Generating..." : "Download PDF Now"}
+                {isGenerating ? "Generating Document..." : "Download Professional PDF"}
               </button>
 
               {status && (
-                <p className="mt-4 text-sm font-medium text-blue-600 animate-pulse">
+                <p className="mt-6 text-sm font-medium text-blue-600 animate-pulse">
                   {status}
                 </p>
               )}
 
-              <div className="mt-8 pt-6 border-t border-gray-100">
+              <div className="mt-10 pt-6 border-t border-gray-100">
                 <button 
                   onClick={prevStep} 
-                  className="text-sm text-slate-400 hover:text-slate-600 font-medium"
+                  className="text-sm text-slate-400 hover:text-slate-600 font-medium flex items-center justify-center gap-2 mx-auto"
                 >
-                  Need to change something? Go Back
+                  <span>←</span> Need to change something? Go Back
                 </button>
               </div>
             </div>
