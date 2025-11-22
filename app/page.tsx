@@ -3,21 +3,20 @@
 import { useState, useEffect } from "react";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
-import { Loader2, CheckCircle, ShieldCheck, ArrowRight, MapPin, Briefcase, AlertTriangle, Lock, Search, Info, FileText, Users, Ambulance, Flame, FileSignature } from "lucide-react";
+import { Loader2, CheckCircle, ShieldCheck, ArrowRight, MapPin, Briefcase, AlertTriangle, Lock, Info, FileText, Users, Ambulance, Flame } from "lucide-react";
 import { TRADES, HAZARD_GROUPS, HAZARD_DATA } from "./lib/constants";
 
-// --- UI: TOOLTIP ---
+// --- COMPONENTS ---
 const Tooltip = ({ text }: { text: string }) => (
   <div className="group relative inline-block ml-2">
-    <Info className="w-4 h-4 text-gray-500 cursor-help" />
-    <div className="invisible group-hover:visible absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-64 p-3 bg-black text-white text-xs rounded-md shadow-lg z-50 text-center leading-relaxed border border-gray-800">
+    <Info className="w-4 h-4 text-gray-400 hover:text-black cursor-help transition-colors" />
+    <div className="invisible group-hover:visible absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-64 p-3 bg-black text-white text-xs rounded-md shadow-xl z-50 text-center leading-relaxed border border-gray-800">
       {text}
       <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-black"></div>
     </div>
   </div>
 );
 
-// --- UI: ADDRESS SEARCH ---
 function AddressSearch({ label, value, onChange, tooltip, required }: any) {
   const [query, setQuery] = useState(value);
   const [results, setResults] = useState([]);
@@ -41,7 +40,7 @@ function AddressSearch({ label, value, onChange, tooltip, required }: any) {
       </label>
       <div className="relative">
         <input 
-          className="w-full border border-gray-300 rounded-md p-3 text-sm focus:ring-2 focus:ring-black focus:border-transparent outline-none transition-all shadow-sm group-hover:border-gray-400" 
+          className="w-full border border-gray-300 rounded-md p-3 text-sm focus:ring-2 focus:ring-black focus:border-transparent outline-none transition-all shadow-sm" 
           placeholder="Start typing address..." 
           value={query} 
           onChange={(e) => searchAddress(e.target.value)} 
@@ -61,13 +60,11 @@ function AddressSearch({ label, value, onChange, tooltip, required }: any) {
   );
 }
 
-// --- MAIN APPLICATION ---
 export default function Home() {
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const [generated, setGenerated] = useState(false);
   
-  // --- FORM STATE ---
   const [formData, setFormData] = useState({
     companyName: "", officeAddress: "", contactName: "", contactPhone: "",
     clientName: "", projectRef: "", siteAddress: "", startDate: new Date().toISOString().split('T')[0], duration: "1 Day", 
@@ -80,15 +77,13 @@ export default function Home() {
   const [questions, setQuestions] = useState<any[]>([]); 
   const [answers, setAnswers] = useState<Record<string, string>>({}); 
 
-  // --- LOGIC: LOAD QUESTIONS ---
   useEffect(() => {
     // @ts-ignore
     const tradeData = TRADES[formData.trade];
     if (tradeData && formData.jobType) {
       if (formData.jobType === "Other (Custom)") {
         setFormData(prev => ({ ...prev, jobDesc: "" })); 
-        setQuestions([]);
-        setHazards([]);
+        setQuestions([]); setHazards([]);
       } else {
         const jobObj = tradeData.jobs.find((j: any) => j.name === formData.jobType);
         if (jobObj) {
@@ -134,7 +129,6 @@ export default function Home() {
     finally { setLoading(false); }
   };
 
-  // --- PDF ENGINE: STRICT BLACK & WHITE ---
   const createPDF = (data: any) => {
     const doc = new jsPDF();
     const pageWidth = 210;
@@ -146,23 +140,17 @@ export default function Home() {
 
     const checkPageBreak = (needed: number) => {
       if (currentY + needed > pageHeight - margin) {
-        doc.addPage();
-        currentY = margin;
-        drawHeaderBlock(); 
-        return true;
+        doc.addPage(); currentY = margin; drawHeaderBlock(); return true;
       }
       return false;
     };
 
-    // --- CLEAN HEADER (NO BLOCK, JUST LINES) ---
     const drawHeaderBlock = () => {
       doc.setDrawColor(0); doc.setLineWidth(0.5);
       doc.setFont("helvetica", "bold"); doc.setFontSize(14);
       doc.text("RISK ASSESSMENT & METHOD STATEMENT", margin, currentY + 5);
-      
       doc.setFontSize(10); doc.setFont("helvetica", "normal");
       doc.text(formData.companyName.toUpperCase(), pageWidth - margin, currentY + 5, { align: 'right' });
-      
       currentY += 10;
       doc.line(margin, currentY, pageWidth - margin, currentY);
       currentY += 5;
@@ -174,11 +162,10 @@ export default function Home() {
         doc.text(`Page ${pageNumber}`, pageWidth - margin, pageHeight - 10, { align: 'right' });
     };
 
-    // --- DOC START ---
     drawHeaderBlock();
-
-    // 1. PROJECT DETAILS TABLE
     doc.setTextColor(0);
+
+    // 1. PROJECT DETAILS
     autoTable(doc, {
         startY: currentY,
         theme: 'grid',
@@ -214,7 +201,7 @@ export default function Home() {
     // @ts-ignore
     currentY = doc.lastAutoTable.finalY + 10;
 
-    // 3. SCOPE OF WORK
+    // 3. SCOPE TEXT
     doc.setFontSize(11); doc.setFont("helvetica", "bold");
     doc.text("1. SCOPE OF WORKS", margin, currentY); currentY += 5;
     doc.setFontSize(10); doc.setFont("helvetica", "normal");
@@ -222,12 +209,11 @@ export default function Home() {
     doc.text(scopeText, margin, currentY);
     currentY += (scopeText.length * 5) + 10;
 
-    // 4. SAFETY CHECKS (The Questions)
+    // 4. PRE-START CHECKS
     if (questions.length > 0) {
         checkPageBreak(60);
         doc.setFontSize(11); doc.setFont("helvetica", "bold");
-        doc.text("2. PRE-START SAFETY CHECKS", margin, currentY); currentY += 5;
-
+        doc.text("2. PRE-START SAFETY CHECKLIST", margin, currentY); currentY += 5;
         const checkRows = questions.map(q => [q.label, answers[q.id] === 'Yes' ? 'YES' : 'NO']);
         autoTable(doc, {
             startY: currentY,
@@ -246,15 +232,14 @@ export default function Home() {
     checkPageBreak(80);
     doc.setFontSize(11); doc.setFont("helvetica", "bold");
     doc.text("3. RISK ASSESSMENT", margin, currentY); currentY += 5;
-
     autoTable(doc, {
         startY: currentY,
-        head: [['Hazard', 'Who', 'Control Measures', 'Rating']],
-        body: data.risks ? data.risks.map((r: any) => [r.hazard, r.who, r.control, r.risk_rating]) : [],
+        head: [['Hazard', 'Who', 'Initial', 'Control Measures', 'Residual']],
+        body: data.risks ? data.risks.map((r: any) => [r.hazard, r.who, r.initial_risk, r.control, r.risk_rating]) : [],
         theme: 'grid',
         styles: { fontSize: 9, textColor: 0, lineColor: 0, lineWidth: 0.1, cellPadding: 3 },
-        headStyles: { fillColor: [50, 50, 50], textColor: 255, fontStyle: 'bold' }, // Dark Grey Header
-        columnStyles: { 2: { cellWidth: 90 } },
+        headStyles: { fillColor: [240, 240, 240], textColor: 0, fontStyle: 'bold' },
+        columnStyles: { 3: { cellWidth: 80 } },
         // @ts-ignore
         didDrawPage: (d) => { if(d.cursor) currentY = d.cursor.y; }
     });
@@ -264,82 +249,73 @@ export default function Home() {
     // 6. METHOD STATEMENT
     checkPageBreak(60);
     doc.setFontSize(11); doc.setFont("helvetica", "bold");
-    doc.text("4. METHOD STATEMENT", margin, currentY); currentY += 8;
-    
+    doc.text("4. METHOD STATEMENT", margin, currentY); currentY += 6;
     if(data.method_steps) {
         doc.setFontSize(10); doc.setFont("helvetica", "normal");
         let steps: string[] = Array.isArray(data.method_steps) ? data.method_steps : (typeof data.method_steps === 'string' ? data.method_steps.split('\n') : []);
-        
         steps.forEach((step: string) => {
             if (step.trim().length === 0) return;
             checkPageBreak(15);
-            
-            // Detect Headers (All Caps or Ends with :)
             const isHeader = step === step.toUpperCase() && step.length > 5 || step.trim().endsWith(":");
-            
             if (isHeader) {
-                currentY += 4;
-                doc.setFont("helvetica", "bold");
-                doc.text(step, margin, currentY);
-                doc.setFont("helvetica", "normal");
-                currentY += 6;
+                currentY += 4; doc.setFont("helvetica", "bold");
+                doc.text(step, margin, currentY); doc.setFont("helvetica", "normal"); currentY += 6;
             } else {
                 const text = doc.splitTextToSize(step, contentWidth);
-                doc.text(text, margin, currentY);
-                currentY += (text.length * 5) + 2;
+                doc.text(text, margin, currentY); currentY += (text.length * 5) + 2;
             }
         });
     }
     currentY += 10;
 
-    // 7. NOTES
-    if(formData.extraNotes) {
-        checkPageBreak(40);
-        doc.setFontSize(11); doc.setFont("helvetica", "bold");
-        doc.text("5. SPECIFIC SITE NOTES", margin, currentY); currentY += 6;
-        doc.setFontSize(10); doc.setFont("helvetica", "normal");
-        const notes = doc.splitTextToSize(formData.extraNotes, contentWidth);
-        doc.text(notes, margin, currentY);
-        currentY += (notes.length * 5) + 10;
+    // 7. PPE & COSHH
+    checkPageBreak(60);
+    doc.setFontSize(11); doc.setFont("helvetica", "bold");
+    doc.text("5. PPE & COSHH", margin, currentY); currentY += 6;
+    doc.setFontSize(10); doc.setFont("helvetica", "normal");
+    const ppeText = data.ppe ? data.ppe.join(", ") : "Standard Site PPE";
+    const splitPPE = doc.splitTextToSize(`PPE Required: ${ppeText}`, contentWidth);
+    doc.text(splitPPE, margin, currentY); currentY += (splitPPE.length * 5) + 10;
+    
+    if (hazards.some(h => ["dust_fumes", "silica_dust", "chemical_coshh"].includes(h))) {
+        autoTable(doc, {
+            startY: currentY,
+            head: [['Substance', 'Risk', 'Controls', 'Disposal']],
+            body: data.coshh ? data.coshh.map((c:any) => [c.substance, c.risk, c.control, c.disposal]) : [['Dust/Debris', 'Inhalation', 'Masks/Ventilation', 'Skip']],
+            theme: 'grid',
+            headStyles: { fillColor: [240, 240, 240], textColor: 0, fontStyle: 'bold' },
+            styles: { fontSize: 9, textColor: 0, lineColor: 0, lineWidth: 0.1 }
+        });
+        // @ts-ignore
+        currentY = doc.lastAutoTable.finalY + 15;
     }
 
-    // 8. SIGN-OFF PAGE
+    // 8. SIGN OFF
     doc.addPage(); drawHeaderBlock(); currentY = 40;
-    
     doc.setFontSize(11); doc.setFont("helvetica", "bold");
-    doc.text("6. OPERATIVE BRIEFING RECORD", margin, currentY); currentY += 8;
-    
-    doc.setFontSize(9); doc.setFont("helvetica", "normal");
-    doc.text("I confirm I have read and understood this RAMS. I agree to work in accordance with the control measures.", margin, currentY); currentY += 10;
+    doc.text("6. OPERATIVE BRIEFING & SIGN-OFF", margin, currentY); currentY += 8;
+    doc.setFontSize(10); doc.setFont("helvetica", "normal");
+    doc.text("I have read and understood this RAMS and agree to work safely.", margin, currentY); currentY += 10;
 
     autoTable(doc, {
         startY: currentY,
-        head: [['Name (Print)', 'Company', 'Signature', 'Date']],
-        body: [
-            ['', '', '', ''], ['', '', '', ''], ['', '', '', ''], 
-            ['', '', '', ''], ['', '', '', ''], ['', '', '', '']
-        ],
+        head: [['Print Name', 'Signature', 'Date']],
+        body: [['', '', ''], ['', '', ''], ['', '', ''], ['', '', ''], ['', '', '']],
         theme: 'grid',
-        headStyles: { fillColor: 255, textColor: 0, lineWidth: 0.1, lineColor: 0 },
-        styles: { minCellHeight: 12, lineColor: 0, lineWidth: 0.1 }
+        headStyles: { fillColor: 255, textColor: 0, lineWidth: 0.1 },
+        styles: { minCellHeight: 15, lineColor: 0, lineWidth: 0.1 }
     });
     // @ts-ignore
     currentY = doc.lastAutoTable.finalY + 20;
 
-    // AUTHORISATION BOX
-    doc.setDrawColor(0); doc.setLineWidth(0.2);
+    // AUTHORISATION
     doc.rect(margin, currentY, contentWidth, 35);
-    
-    doc.setFontSize(10); doc.setFont("helvetica", "bold");
-    doc.text("DOCUMENT AUTHORISATION", margin + 5, currentY + 8);
-    
-    doc.setFontSize(10); doc.setFont("helvetica", "normal");
+    doc.setFont("helvetica", "bold"); doc.text("AUTHORISATION", margin + 5, currentY + 8);
+    doc.setFont("helvetica", "normal");
     doc.text(`Name:  ${formData.contactName}`, margin + 5, currentY + 18);
-    doc.text(`Role:  Competent Person`, margin + 90, currentY + 18);
     doc.text("Signature: __________________________", margin + 5, currentY + 28);
-    doc.text(`Date:  ${formData.startDate}`, margin + 90, currentY + 28);
+    doc.text(`Date:  ${formData.startDate}`, margin + 100, currentY + 28);
 
-    // FOOTERS
     const pageCount = doc.internal.pages.length - 1;
     for (let i = 1; i <= pageCount; i++) { doc.setPage(i); drawFooter(doc, i); }
 
@@ -392,7 +368,6 @@ export default function Home() {
                  <select className="border p-3 rounded w-full" value={formData.jobType} onChange={e => handleInput("jobType", e.target.value)}><option value="">Select Job Type</option>{TRADES[formData.trade].jobs.map((j:any) => <option key={j.name}>{j.name}</option>)}</select>
               </div>
               
-              {/* DYNAMIC QUESTIONS */}
               {questions.length > 0 && (
                   <div className="bg-blue-50 p-4 rounded border border-blue-100">
                       <h4 className="font-bold text-sm text-blue-900 mb-3">Pre-Start Safety Checks</h4>
@@ -416,7 +391,6 @@ export default function Home() {
           {step === 3 && (
             <div className="space-y-6 animate-in fade-in">
               <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2"><AlertTriangle className="w-5 h-5"/> Safety & Hazards</h2>
-              
               <div className="grid grid-cols-2 gap-4 bg-gray-50 p-4 rounded border">
                  <input className="border p-2 rounded" placeholder="Supervisor Name" value={formData.supervisorName} onChange={e => handleInput("supervisorName", e.target.value)} />
                  <input className="border p-2 rounded" placeholder="First Aider" value={formData.firstAider} onChange={e => handleInput("firstAider", e.target.value)} />
