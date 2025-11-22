@@ -1,648 +1,420 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
-import { Loader2, ShieldCheck, MapPin, Briefcase, AlertTriangle, FileText, Info, HardHat, CheckSquare, Upload, CheckCircle } from "lucide-react";
-import { TRADES, HAZARD_GROUPS, HAZARD_DATA } from "./lib/constants";
+import { TRADES, HAZARD_DATA } from "./lib/constants";
 
-// --- CONSTANTS ---
-const STANDARD_PPE = [
-  "Safety Boots (BS EN ISO 20345)",
-  "Hi-Vis Vest (BS EN 471)",
-  "Hard Hat (BS EN 397)",
-  "Gloves (BS EN 388)"
-];
-
-const EXTRA_PPE_OPTIONS = [
-  "Eye Protection (Goggles)",
-  "FFP3 Dust Mask (Face Fit)",
-  "Ear Defenders",
-  "Safety Harness & Lanyard",
-  "Knee Pads",
-  "Disposable Overalls",
-  "Insulated Tools (VDE)",
-  "Face Shield"
-];
-
-// --- UI COMPONENTS ---
-const Tooltip = ({ text }: { text: string }) => (
-  <div className="group relative inline-block ml-2">
-    <Info className="w-4 h-4 text-gray-400 hover:text-black cursor-help transition-colors" />
-    <div className="invisible group-hover:visible absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-64 p-3 bg-black text-white text-xs rounded-md shadow-xl z-50 text-center leading-relaxed border border-gray-800">
-      {text}
-      <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-black"></div>
-    </div>
-  </div>
-);
-
-function AddressSearch({ label, value, onChange, tooltip, required }: any) {
-  const [query, setQuery] = useState(value);
-  const [results, setResults] = useState([]);
-  const [showDropdown, setShowDropdown] = useState(false);
-
-  const searchAddress = async (text: string) => {
-    setQuery(text); onChange(text);
-    if (text.length > 4) {
-      try {
-        const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${text}&countrycodes=gb&limit=5`);
-        const data = await res.json();
-        setResults(data); setShowDropdown(true);
-      } catch (e) { console.error(e); }
-    } else { setShowDropdown(false); }
-  };
-
-  return (
-    <div className="relative group">
-      <label className="flex items-center text-xs font-bold uppercase tracking-wider text-gray-700 mb-1.5">
-        {label} {required && <span className="text-red-600 ml-1">*</span>} <Tooltip text={tooltip} />
-      </label>
-      <div className="relative">
-        <input 
-          className="w-full border border-gray-300 rounded-md p-3 text-sm focus:ring-2 focus:ring-black focus:border-transparent outline-none transition-all shadow-sm" 
-          placeholder="Start typing address..." 
-          value={query} 
-          onChange={(e) => searchAddress(e.target.value)} 
-        />
-        <MapPin className="w-4 h-4 absolute right-3 top-3.5 text-gray-400" />
-      </div>
-      {showDropdown && results.length > 0 && (
-        <ul className="absolute z-50 w-full bg-white border border-gray-200 rounded-md shadow-2xl mt-1 max-h-60 overflow-auto">
-          {results.map((r: any, i) => (
-            <li key={i} onClick={() => { setQuery(r.display_name); onChange(r.display_name); setShowDropdown(false); }} className="p-3 hover:bg-gray-50 cursor-pointer text-xs border-b last:border-0 text-gray-700 leading-tight">
-              {r.display_name}
-            </li>
-          ))}
-        </ul>
-      )}
-    </div>
-  );
+// --- TYPES ---
+interface FormData {
+  trade: keyof typeof TRADES;
+  job: string;
+  clientName: string;
+  siteAddress: string;
+  date: string;
+  customDescription: string; // The "Method Notes" box
 }
 
-// --- MAIN APPLICATION ---
 export default function Home() {
-  const [step, setStep] = useState(1);
-  const [loading, setLoading] = useState(false);
-  
-  // --- FORM STATE ---
-  const [formData, setFormData] = useState({
-    companyName: "", officeAddress: "", contactName: "", contactPhone: "",
-    clientName: "", clientEmail: "", projectRef: "", siteAddress: "", 
-    startDate: new Date().toISOString().split('T')[0], duration: "1 Day", opertives: "1", 
-    trade: "Electrician", jobType: "", customJobType: "", jobDesc: "", methodNotes: "",
-    supervisorName: "", supervisorPhone: "", firstAider: "", hospital: "", fireAssembly: "As Inducted", firstAidLoc: "Site Vehicle",
-    welfare: "Client WC", extraNotes: "", accessCode: ""
+  // --- STATE ---
+  const [step, setStep] = useState(1); // 1 = Client Details, 2 = Job & Safety, 3 = Generate
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [status, setStatus] = useState("");
+
+  const [formData, setFormData] = useState<FormData>({
+    trade: "Electrician",
+    job: "",
+    clientName: "",
+    siteAddress: "",
+    date: new Date().toISOString().split("T")[0],
+    customDescription: "",
   });
-  
-  const [hazards, setHazards] = useState<string[]>([]);
-  const [selectedPPE, setSelectedPPE] = useState<string[]>([]);
-  const [questions, setQuestions] = useState<any[]>([]); 
-  const [answers, setAnswers] = useState<Record<string, string>>({}); 
-  const [logoBase64, setLogoBase64] = useState<string | null>(null);
+
+  // Store Yes/No responses for Safety Checks: { "q1": "Yes", "q2": "No" }
+  const [safetyResponses, setSafetyResponses] = useState<Record<string, string>>({});
+
+  // --- EFFECTS ---
+
+  // 1. Auto-select first job when Trade changes
+  useEffect(() => {
+    const firstJob = TRADES[formData.trade].jobs[0].name;
+    setFormData((prev) => ({ ...prev, job: firstJob }));
+  }, [formData.trade]);
+
+  // 2. THE FIX: Auto-fill Description & Reset Safety Checks when Job changes
+  useEffect(() => {
+    if (formData.trade && formData.job) {
+      const cluster = TRADES[formData.trade].clusters[formData.job];
+      
+      // Update Description Box
+      if (cluster && cluster.desc) {
+        setFormData((prev) => ({ ...prev, customDescription: cluster.desc }));
+      } else {
+        setFormData((prev) => ({ ...prev, customDescription: "" }));
+      }
+
+      // Reset Safety Checks to "Yes" by default (or empty if you prefer)
+      const initialChecks: Record<string, string> = {};
+      if (cluster && cluster.questions) {
+        cluster.questions.forEach(q => {
+          initialChecks[q.id] = "Yes";
+        });
+      }
+      setSafetyResponses(initialChecks);
+    }
+  }, [formData.trade, formData.job]);
 
   // --- HANDLERS ---
-  const handleInput = (field: string, value: string) => setFormData(prev => ({ ...prev, [field]: value }));
-  const toggleHazard = (h: string) => setHazards(prev => prev.includes(h) ? prev.filter(i => i !== h) : [...prev, h]);
-  const togglePPE = (item: string) => setSelectedPPE(prev => prev.includes(item) ? prev.filter(i => i !== item) : [...prev, item]);
 
-  const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => setLogoBase64(reader.result as string);
-      reader.readAsDataURL(file);
-    }
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
+  ) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  // --- FIX: "SEARCH EVERYWHERE" DATA LOADER ---
-  const handleJobChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const newJob = e.target.value;
-    let newDesc = "";
-    let newHazards: string[] = [];
-    let newQuestions: any[] = [];
-
-    // 1. Search ALL trades for this job name (Safety Net)
-    let foundCluster = null;
-    
-    // @ts-ignore
-    const allTrades = Object.values(TRADES);
-    
-    for (const trade of allTrades) {
-        // @ts-ignore
-        if (trade.clusters[newJob]) {
-            // @ts-ignore
-            foundCluster = trade.clusters[newJob];
-            break;
-        }
-    }
-
-    // 2. Apply Data if found
-    if (foundCluster) {
-        // @ts-ignore
-        newDesc = foundCluster.desc || "";
-        // @ts-ignore
-        newHazards = [...new Set([...(foundCluster.hazards || [])])];
-        // @ts-ignore
-        newQuestions = foundCluster.questions || [];
-    } 
-    
-    // 3. Special Case for Custom
-    if (newJob === "Other (Custom)") {
-        newDesc = "";
-        newHazards = [];
-        newQuestions = [];
-    }
-
-    // 4. Update State
-    setFormData(prev => ({ ...prev, jobType: newJob, jobDesc: newDesc }));
-    setHazards(newHazards);
-    setQuestions(newQuestions);
-    setAnswers({});
+  const handleSafetyToggle = (id: string, value: string) => {
+    setSafetyResponses(prev => ({ ...prev, [id]: value }));
   };
 
-  const handleTradeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const newTrade = e.target.value;
-    setFormData(prev => ({ ...prev, trade: newTrade, jobType: "", jobDesc: "" }));
-    setHazards([]);
-    setQuestions([]);
-    setAnswers({});
-  };
+  const nextStep = () => setStep((prev) => prev + 1);
+  const prevStep = () => setStep((prev) => prev - 1);
 
-  const nextStep = () => {
-    if (step === 1 && (!formData.companyName || !formData.officeAddress || !formData.contactName)) return alert("⚠️ Please fill in Company Details.");
-    if (step === 2) {
-        if (!formData.clientName || !formData.siteAddress) return alert("⚠️ Please fill in Project Details.");
-    }
-    setStep(step + 1);
-  };
+  // --- PDF GENERATION ENGINE ---
+  const generatePDF = async () => {
+    setIsGenerating(true);
+    setStatus("Initializing PDF Engine...");
 
-  const generateRAMS = async () => {
-    if (formData.accessCode !== "PRO2025") return alert("❌ Invalid Access Code.");
-    setLoading(true);
     try {
-      const res = await fetch("/api/generate", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...formData, hazards, answers, selectedPPE }),
+      const doc = new jsPDF();
+      const pageWidth = doc.internal.pageSize.width;
+      const margin = 14;
+      let finalY = margin;
+
+      // 1. HEADER
+      doc.setFontSize(18);
+      doc.setFont("helvetica", "bold");
+      doc.text("RISK ASSESSMENT & METHOD STATEMENT", pageWidth / 2, finalY, { align: "center" });
+      finalY += 15;
+
+      // 2. PROJECT DETAILS TABLE
+      autoTable(doc, {
+        startY: finalY,
+        head: [['Project Details', '']],
+        body: [
+          ['Client Name', formData.clientName],
+          ['Site Address', formData.siteAddress],
+          ['Contractor', formData.trade],
+          ['Task', formData.job],
+          ['Date', formData.date],
+        ],
+        theme: 'plain',
+        styles: { lineColor: [0, 0, 0], lineWidth: 0.1, textColor: [0, 0, 0] },
+        headStyles: { fillColor: [220, 220, 220], textColor: [0, 0, 0], fontStyle: 'bold' },
+        columnStyles: { 0: { fontStyle: 'bold', cellWidth: 50 } }
       });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error);
-      createPDF(data);
-    } catch (e: any) { alert(e.message); } 
-    finally { setLoading(false); }
+
+      // @ts-ignore
+      finalY = doc.lastAutoTable.finalY + 10;
+
+      // 3. METHOD STATEMENT / SCOPE (Using the Text Area Content)
+      doc.setFontSize(12);
+      doc.setFont("helvetica", "bold");
+      doc.text("1. Method Statement & Scope of Works", margin, finalY);
+      finalY += 6;
+
+      doc.setFontSize(10);
+      doc.setFont("helvetica", "normal");
+      const descText = formData.customDescription || "Standard works as per industry guidelines.";
+      const wrappedDesc = doc.splitTextToSize(descText, pageWidth - (margin * 2));
+      doc.text(wrappedDesc, margin, finalY);
+      finalY += (wrappedDesc.length * 5) + 10;
+
+      // 4. RISK ASSESSMENT
+      if (finalY > 240) { doc.addPage(); finalY = margin; }
+      doc.setFontSize(12);
+      doc.setFont("helvetica", "bold");
+      doc.text("2. Risk Assessment", margin, finalY);
+      finalY += 6;
+
+      const cluster = TRADES[formData.trade].clusters[formData.job];
+      const jobHazards = cluster ? cluster.hazards : [];
+      
+      const riskBody = jobHazards.map(k => {
+        const h = HAZARD_DATA[k];
+        return h ? [h.label, h.risk, h.initial_score, h.control, h.residual_score] : null;
+      }).filter(Boolean);
+
+      autoTable(doc, {
+        startY: finalY,
+        head: [['Hazard', 'Risk', 'Rating', 'Controls', 'Resid.']],
+        body: riskBody,
+        theme: 'grid',
+        styles: { fontSize: 8, textColor: [0,0,0], lineColor: [0,0,0], lineWidth: 0.1 },
+        headStyles: { fillColor: [50, 50, 50], textColor: [255,255,255] },
+        columnStyles: { 0: { fontStyle: 'bold', cellWidth: 30 }, 3: { cellWidth: 'auto' } }
+      });
+
+      // @ts-ignore
+      finalY = doc.lastAutoTable.finalY + 10;
+
+      // 5. SAFETY CHECKS (From the UI Toggles)
+      if (finalY > 240) { doc.addPage(); finalY = margin; }
+      doc.setFontSize(12);
+      doc.setFont("helvetica", "bold");
+      doc.text("3. Pre-Start Safety Checks", margin, finalY);
+      finalY += 6;
+
+      const questions = cluster ? cluster.questions : [];
+      const checkBody = questions.map(q => [
+        q.label, 
+        safetyResponses[q.id] || "N/A" // Uses the actual Yes/No clicked
+      ]);
+
+      if (checkBody.length > 0) {
+        autoTable(doc, {
+          startY: finalY,
+          head: [['Checklist Item', 'Confirmed']],
+          body: checkBody,
+          theme: 'grid',
+          styles: { fontSize: 9, textColor: [0,0,0], lineColor: [0,0,0], lineWidth: 0.1 },
+          headStyles: { fillColor: [220, 220, 220], textColor: [0,0,0] },
+          columnStyles: { 1: { cellWidth: 30, halign: 'center' } }
+        });
+      }
+
+      // 6. SIGN OFF
+      doc.addPage();
+      finalY = margin;
+      doc.setFontSize(12);
+      doc.setFont("helvetica", "bold");
+      doc.text("4. Sign-Off", margin, finalY);
+      finalY += 10;
+      doc.setFontSize(10);
+      doc.setFont("helvetica", "normal");
+      doc.text("I confirm I have read and understood this RAMS document.", margin, finalY);
+      finalY += 10;
+
+      autoTable(doc, {
+        startY: finalY,
+        head: [['Print Name', 'Signature', 'Date']],
+        body: [['', '', ''], ['', '', ''], ['', '', '']],
+        theme: 'grid',
+        styles: { minCellHeight: 15, lineColor: [0,0,0], lineWidth: 0.1 }
+      });
+
+      doc.save(`RAMS_${formData.clientName.replace(/\s+/g, '_')}.pdf`);
+      setStatus("Done!");
+      setIsGenerating(false);
+
+    } catch (e) {
+      console.error(e);
+      setStatus("Error generating PDF");
+      setIsGenerating(false);
+    }
   };
 
-  // --- PDF ENGINE ---
-  const createPDF = (data: any) => {
-    const doc = new jsPDF();
-    const totalPagesExp = "{total_pages_count_string}";
-    const pageWidth = 210;
-    const pageHeight = 297;
-    const margin = 15; 
-    const contentWidth = pageWidth - (margin * 2);
-    let currentY = margin;
-
-    const addPageBreak = () => { doc.addPage(); currentY = margin + 10; };
-    const checkSpace = (needed: number) => { if (currentY + needed > pageHeight - margin) { addPageBreak(); return true; } return false; };
-
-    const drawHeader = (doc: any) => {
-        doc.setFont("helvetica", "normal"); doc.setFontSize(9); doc.setTextColor(0, 0, 0);
-        if (logoBase64) {
-            doc.addImage(logoBase64, 'JPEG', pageWidth - margin - 25, 5, 25, 12);
-            doc.text(formData.companyName.toUpperCase(), margin, 12);
-        } else {
-            doc.text(`${formData.companyName.toUpperCase()} – RISK ASSESSMENT & METHOD STATEMENT`, margin, 10);
-        }
-        doc.setLineWidth(0.1); doc.line(margin, 18, pageWidth - margin, 18);
-    };
-
-    const drawFooter = (doc: any, pageNumber: number, totalPages: string) => {
-        const ref = formData.projectRef || `RAMS-${new Date().getFullYear()}-001`;
-        const safeAddress = formData.siteAddress.length > 40 ? formData.siteAddress.substring(0, 40) + "..." : formData.siteAddress;
-        const str = `Ref: ${ref} | ${safeAddress} | Page ${pageNumber} of ${totalPages}`;
-        doc.setFontSize(8); doc.setTextColor(80, 80, 80);
-        doc.text(str, pageWidth / 2, pageHeight - 10, { align: "center" });
-    };
-
-    // START DOCUMENT
-    drawHeader(doc); currentY = 25; 
-
-    // 1. PROJECT DETAILS
-    doc.setFont("helvetica", "bold"); doc.setFontSize(12);
-    doc.text("1. PROJECT & JOB DETAILS", margin, currentY);
-    currentY += 6;
-
-    autoTable(doc, {
-        startY: currentY,
-        body: [
-            ['Company', `${formData.companyName}\n${formData.officeAddress}`],
-            ['Prepared By', `${formData.contactName} (${formData.contactPhone})`],
-            ['Client', `${formData.clientName} (${formData.clientEmail || "No Email"})`],
-            ['Site Address', formData.siteAddress],
-            ['Scope', `${formData.trade} - ${formData.jobType}`],
-            ['Project Data', `Start: ${formData.startDate}  |  Duration: ${formData.duration}  |  Operatives: ${formData.opertives}`],
-        ],
-        theme: 'grid',
-        styles: { fontSize: 10, cellPadding: 3, lineColor: [0,0,0], lineWidth: 0.1, textColor: [0,0,0], valign: 'middle' },
-        columnStyles: { 0: { fontStyle: 'bold', cellWidth: 45 }, 1: { cellWidth: 'auto' } }
-    });
-    // @ts-ignore
-    currentY = doc.lastAutoTable.finalY + 10;
-
-    // 2. SCOPE
-    checkSpace(40);
-    doc.setFont("helvetica", "bold"); doc.setFontSize(12);
-    doc.text("2. SCOPE OF WORKS", margin, currentY);
-    currentY += 6;
-
-    doc.setFont("helvetica", "normal"); doc.setFontSize(10);
-    const summaryText = data.summary || formData.jobDesc || "Execution of trade works as defined by client instruction.";
-    const splitSummary = doc.splitTextToSize(summaryText, contentWidth);
-    doc.text(splitSummary, margin, currentY);
-    currentY += (splitSummary.length * 5) + 10;
-
-    // 3. CHECKLIST
-    if (questions.length > 0) {
-        checkSpace(60);
-        doc.setFont("helvetica", "bold"); doc.setFontSize(12);
-        doc.text("3. PRE-START SAFETY CHECKLIST", margin, currentY);
-        currentY += 6;
-
-        const checkRows = questions.map((q, index) => [
-            (index + 1).toString(),
-            q.label,
-            answers[q.id] === "Yes" ? "Yes" : "",
-            answers[q.id] === "No" ? "No" : "",
-            "" 
-        ]);
-
-        autoTable(doc, {
-            startY: currentY,
-            head: [['No.', 'Checklist Question', 'YES', 'NO', 'N/A']],
-            body: checkRows,
-            theme: 'grid',
-            styles: { fontSize: 10, cellPadding: 3, lineColor: [0,0,0], lineWidth: 0.1, textColor: [0,0,0] },
-            headStyles: { fillColor: [255,255,255], textColor: [0,0,0], fontStyle: 'bold', lineWidth: 0.1, lineColor: [0,0,0] },
-            columnStyles: { 0: { cellWidth: 16, halign: 'center' }, 1: { cellWidth: 'auto' }, 2: { cellWidth: 15, halign: 'center' }, 3: { cellWidth: 15, halign: 'center' }, 4: { cellWidth: 15, halign: 'center' } }
-        });
-        // @ts-ignore
-        currentY = doc.lastAutoTable.finalY + 10;
-    }
-
-    // 4. RISK ASSESSMENT
-    addPageBreak();
-    doc.setFont("helvetica", "bold"); doc.setFontSize(12);
-    doc.text("4. RISK ASSESSMENT", margin, currentY);
-    currentY += 6;
-
-    const riskRows = hazards.map(h => {
-        // @ts-ignore
-        const hInfo = HAZARD_DATA[h] || { label: h, risk: "General Risk", initial_score: "Med", control: "Standard controls.", residual_score: "Low" };
-        return [hInfo.label, hInfo.risk, "Operatives / Public", hInfo.initial_score.toUpperCase(), hInfo.control, hInfo.residual_score.toUpperCase()];
-    });
-
-    autoTable(doc, {
-        startY: currentY,
-        head: [['Hazard', 'Risk / Harm', 'Who', 'Init', 'Control Measures', 'Res']],
-        body: riskRows,
-        theme: 'grid',
-        styles: { fontSize: 8, cellPadding: 2, lineColor: [0,0,0], lineWidth: 0.1, textColor: [0,0,0], valign: 'top', overflow: 'linebreak' },
-        headStyles: { fillColor: [255,255,255], textColor: [0,0,0], fontStyle: 'bold', lineWidth: 0.1, lineColor: [0,0,0] },
-        columnStyles: { 0: { cellWidth: 25, fontStyle: 'bold' }, 1: { cellWidth: 30 }, 2: { cellWidth: 22 }, 3: { cellWidth: 18, halign: 'center' }, 4: { cellWidth: 'auto' }, 5: { cellWidth: 18, halign: 'center' } }
-    });
-    // @ts-ignore
-    currentY = doc.lastAutoTable.finalY + 10;
-
-    // 4.1 RISK MATRIX
-    if (checkSpace(35)) currentY += 5;
-    doc.setFont("helvetica", "bold"); doc.setFontSize(10);
-    doc.text("4.1 RISK MATRIX KEY (Standard 5x5)", margin, currentY);
-    currentY += 5;
-    
-    autoTable(doc, {
-        startY: currentY,
-        head: [['Score', 'Risk Level', 'Action Required']],
-        body: [
-            ['1 - 4', 'LOW', 'Monitor. Proceed with standard controls.'],
-            ['5 - 12', 'MEDIUM', 'Action required to reduce risk to ALARP.'],
-            ['15 - 25', 'HIGH', 'STOP WORK. Immediate control improvements required.'],
-        ],
-        theme: 'grid',
-        styles: { fontSize: 8, cellPadding: 2, lineColor: [0,0,0], lineWidth: 0.1, textColor: [0,0,0] },
-        headStyles: { fillColor: [245,245,245], textColor: [0,0,0], fontStyle: 'bold', lineWidth: 0.1, lineColor: [0,0,0] },
-        columnStyles: { 0: { cellWidth: 20, halign: 'center' }, 1: { cellWidth: 25, halign: 'center' } }
-    });
-    // @ts-ignore
-    currentY = doc.lastAutoTable.finalY + 15;
-
-    // 5. METHOD STATEMENT
-    checkSpace(60);
-    doc.setFont("helvetica", "bold"); doc.setFontSize(12);
-    doc.text("5. METHOD STATEMENT", margin, currentY);
-    currentY += 8;
-
-    if(data.method_steps) {
-        doc.setFont("helvetica", "normal"); doc.setFontSize(10);
-        const steps = Array.isArray(data.method_steps) ? data.method_steps : data.method_steps.split('\n');
-        let subHeadingCounter = 1;
-
-        steps.forEach((step: string) => {
-            if (!step.trim()) return;
-            if (checkSpace(15)) {
-                doc.setFont("helvetica", "bold"); doc.setFontSize(12);
-                doc.text("5. METHOD STATEMENT (Cont.)", margin, currentY);
-                currentY += 8;
-                doc.setFont("helvetica", "normal"); doc.setFontSize(10);
-            }
-
-            const isHeader = step.toUpperCase() === step && step.length > 5;
-            
-            if (isHeader) {
-                currentY += 2;
-                doc.setFont("helvetica", "bold");
-                doc.text(`5.${subHeadingCounter} ${step.replace(/:/g, '')}`, margin, currentY);
-                doc.setFont("helvetica", "normal");
-                currentY += 5;
-                subHeadingCounter++;
-            } else {
-                const cleanStep = step.replace(/^\d+\.\s*/, ''); 
-                const wrappedText = doc.splitTextToSize(`-  ${cleanStep}`, contentWidth);
-                doc.text(wrappedText, margin, currentY);
-                currentY += (wrappedText.length * 5) + 2;
-            }
-        });
-    }
-    currentY += 10;
-
-    // 6. PPE
-    checkSpace(50);
-    doc.setFont("helvetica", "bold"); doc.setFontSize(12);
-    doc.text("6. PPE REQUIREMENTS", margin, currentY);
-    currentY += 6;
-
-    const combinedPPE = [...new Set([...STANDARD_PPE, ...selectedPPE, ...(data.ppe || [])])];
-    const ppeBody = combinedPPE.map(p => [p, 'Mandatory']);
-
-    autoTable(doc, {
-        startY: currentY,
-        head: [['Item', 'Requirement status']],
-        body: ppeBody,
-        theme: 'grid',
-        styles: { fontSize: 10, cellPadding: 3, lineColor: [0,0,0], lineWidth: 0.1, textColor: [0,0,0] },
-        headStyles: { fillColor: [255,255,255], textColor: [0,0,0], fontStyle: 'bold', lineWidth: 0.1, lineColor: [0,0,0] }
-    });
-    // @ts-ignore
-    currentY = doc.lastAutoTable.finalY + 10;
-
-    // 7. COSHH
-    const coshhHazards = ["dust_fumes", "silica_dust", "chemical_coshh", "asbestos", "cement", "fumes"];
-    if (hazards.some(h => coshhHazards.includes(h))) {
-        checkSpace(50);
-        doc.setFont("helvetica", "bold"); doc.setFontSize(12);
-        doc.text("7. COSHH / SUBSTANCES", margin, currentY);
-        currentY += 6;
-
-        const coshhRows = data.coshh ? data.coshh.map((c:any) => [c.substance, c.risk, c.control, c.disposal]) : [['Dust', 'Inhalation', 'Mask P3', 'Skip']];
-
-        autoTable(doc, {
-            startY: currentY,
-            head: [['Substance', 'Risks', 'Controls / PPE', 'Disposal']],
-            body: coshhRows,
-            theme: 'grid',
-            styles: { fontSize: 9, cellPadding: 2, lineColor: [0,0,0], lineWidth: 0.1, textColor: [0,0,0] },
-            headStyles: { fillColor: [255,255,255], textColor: [0,0,0], fontStyle: 'bold', lineWidth: 0.1, lineColor: [0,0,0] }
-        });
-        // @ts-ignore
-        currentY = doc.lastAutoTable.finalY + 10;
-    }
-
-    // 8. EMERGENCY
-    checkSpace(50);
-    doc.setFont("helvetica", "bold"); doc.setFontSize(12);
-    doc.text("8. EMERGENCY ARRANGEMENTS", margin, currentY);
-    currentY += 6;
-
-    autoTable(doc, {
-        startY: currentY,
-        body: [
-            ['First Aid', `${formData.firstAider || "TBC"} (${formData.firstAidLoc || "Site Office"})`],
-            ['Hospital', formData.hospital || "Nearest A&E (Use Sat Nav)"],
-            ['Fire Point', formData.fireAssembly || "As per site induction"],
-            ['Supervisor', `${formData.supervisorName || "TBC"} (${formData.supervisorPhone || "No Number"})`]
-        ],
-        theme: 'grid',
-        styles: { fontSize: 10, cellPadding: 3, lineColor: [0,0,0], lineWidth: 0.1, textColor: [0,0,0] },
-        columnStyles: { 0: { fontStyle: 'bold', cellWidth: 40 }, 1: { cellWidth: 'auto' } }
-    });
-    // @ts-ignore
-    currentY = doc.lastAutoTable.finalY + 15;
-
-    // 9. REGISTER
-    addPageBreak();
-    doc.setFont("helvetica", "bold"); doc.setFontSize(12);
-    doc.text("9. OPERATIVE BRIEFING REGISTER", margin, currentY);
-    currentY += 8;
-
-    const registerRows = [];
-    for(let i=1; i<=10; i++) { 
-        registerRows.push([i.toString(), '', '', '', '']);
-    }
-
-    autoTable(doc, {
-        startY: currentY,
-        head: [['No.', 'Operative Name (Print)', 'Company', 'Signature', 'Date']],
-        body: registerRows,
-        theme: 'grid',
-        styles: { fontSize: 10, cellPadding: 4, lineColor: [0,0,0], lineWidth: 0.1, minCellHeight: 12, textColor: [0,0,0] },
-        headStyles: { fillColor: [255,255,255], textColor: [0,0,0], fontStyle: 'bold', lineWidth: 0.1, lineColor: [0,0,0] },
-        columnStyles: { 0: { cellWidth: 16, halign: 'center' } } 
-    });
-    // @ts-ignore
-    currentY = doc.lastAutoTable.finalY + 15;
-
-    // 10. AUTHORISATION
-    if (currentY + 110 > pageHeight - margin) {
-        addPageBreak();
-    }
-
-    doc.setFont("helvetica", "bold"); doc.setFontSize(12);
-    doc.text("10. AUTHORISATION", margin, currentY);
-    currentY += 6;
-
-    // BOX 1
-    doc.setDrawColor(0); doc.setLineWidth(0.2);
-    doc.rect(margin, currentY, contentWidth, 45); 
-    doc.setFontSize(10); doc.setFont("helvetica", "normal");
-    const declaration = "I confirm I have read and understood this RAMS, attended the briefing, and agree to work in accordance with it.";
-    const splitDecl = doc.splitTextToSize(declaration, contentWidth - 10); 
-    doc.text(splitDecl, margin + 5, currentY + 8);
-    doc.setFont("helvetica", "bold");
-    doc.text("Lead Operative / Supervisor Sign-off:", margin + 5, currentY + 30);
-    doc.setFont("helvetica", "normal");
-    doc.text("Name: __________________________   Sig: __________________________   Date: ____________", margin + 5, currentY + 38);
-    currentY += 50; 
-
-    // BOX 2
-    doc.rect(margin, currentY, contentWidth, 55);
-    doc.setFont("helvetica", "bold");
-    doc.text("RAMS Prepared & Approved By (Management):", margin + 5, currentY + 8);
-    doc.setFont("helvetica", "normal");
-    doc.text(`Name: ${formData.contactName}`, margin + 5, currentY + 20);
-    doc.text("Position: Competent Person", margin + 90, currentY + 20);
-    doc.text("Signature: __________________________________", margin + 5, currentY + 40);
-    doc.text(`Date: ${formData.startDate}`, margin + 110, currentY + 40);
-
-    if (typeof doc.putTotalPages === 'function') {
-        doc.putTotalPages(totalPagesExp);
-    }
-
-    const pageCount = doc.internal.pages.length - 1;
-    for (let i = 1; i <= pageCount; i++) {
-        doc.setPage(i);
-        drawHeader(doc);
-        drawFooter(doc, i, pageCount.toString());
-    }
-
-    doc.save(`RAMS_${formData.companyName.replace(/[^a-z0-9]/gi, '_')}.pdf`);
-  };
+  // --- RENDER HELPERS ---
+  const currentQuestions = formData.trade && formData.job 
+    ? TRADES[formData.trade].clusters[formData.job]?.questions || []
+    : [];
 
   return (
-    <div className="min-h-screen bg-gray-50 font-sans text-gray-900 pb-24">
-      {/* NAVBAR */}
-      <nav className="bg-white border-b border-gray-200 py-4 px-6 sticky top-0 z-50 flex justify-between items-center shadow-sm">
-        <div className="flex items-center gap-2 font-extrabold text-xl tracking-tight text-blue-900">
-          <ShieldCheck className="w-7 h-7 text-blue-700"/> RAMS Sorted
-        </div>
-        <div className="text-xs font-bold bg-blue-700 text-white px-4 py-1.5 rounded-full shadow-sm">Step {step} / 3</div>
-      </nav>
-
-      <main className="max-w-4xl mx-auto py-10 px-4 sm:px-6">
-        <div className="bg-white rounded-2xl shadow-xl border border-gray-200 overflow-hidden">
-          <div className="h-1.5 bg-gray-100 w-full">
-            <div className="h-full bg-blue-600 transition-all duration-500 ease-out" style={{ width: `${(step/3)*100}%` }}></div>
+    <main className="min-h-screen bg-gray-50 py-8 px-4 font-sans">
+      <div className="max-w-3xl mx-auto bg-white rounded-xl shadow-lg overflow-hidden border border-gray-200">
+        
+        {/* HEADER */}
+        <div className="bg-white border-b px-8 py-6 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <span className="text-blue-600 text-2xl">🛡️</span>
+            <h1 className="text-xl font-bold text-slate-900">RAMS Sorted</h1>
           </div>
+          <div className="text-sm font-medium text-slate-500">
+            Step {step} of 3
+          </div>
+        </div>
 
-          <div className="p-8">
-          {/* STEP 1: COMPANY */}
+        {/* PROGRESS BAR */}
+        <div className="w-full bg-gray-100 h-1.5">
+          <div 
+            className="bg-blue-600 h-1.5 transition-all duration-300" 
+            style={{ width: `${(step / 3) * 100}%` }}
+          ></div>
+        </div>
+
+        <div className="p-8">
+          
+          {/* --- STEP 1: CLIENT DETAILS --- */}
           {step === 1 && (
-            <div className="space-y-6 animate-in fade-in">
-              <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2"><Briefcase className="w-5 h-5"/> Company Details</h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <input className="border p-3 rounded w-full" placeholder="Company Name" value={formData.companyName} onChange={e => handleInput("companyName", e.target.value)} />
-                <input className="border p-3 rounded w-full" placeholder="Competent Person Name" value={formData.contactName} onChange={e => handleInput("contactName", e.target.value)} />
-                <AddressSearch label="Office Address" value={formData.officeAddress} onChange={(val:string) => handleInput("officeAddress", val)} />
-                <input className="border p-3 rounded w-full" placeholder="Your Phone Number" value={formData.contactPhone} onChange={e => handleInput("contactPhone", e.target.value)} />
-              </div>
-              <div className="bg-gray-50 p-4 rounded border mt-4 space-y-4">
-                 <h3 className="font-bold text-sm">Project Info</h3>
-                 <div className="grid grid-cols-2 gap-4">
-                    <input className="border p-3 rounded w-full" placeholder="Client Name" value={formData.clientName} onChange={e => handleInput("clientName", e.target.value)} />
-                    <input className="border p-3 rounded w-full" placeholder="Client Email (Optional)" value={formData.clientEmail} onChange={e => handleInput("clientEmail", e.target.value)} />
-                 </div>
-                 <div className="grid grid-cols-2 gap-4">
-                    <input className="border p-3 rounded w-full" placeholder="Job Ref (Optional)" value={formData.projectRef} onChange={e => handleInput("projectRef", e.target.value)} />
-                    <AddressSearch label="Site Address" value={formData.siteAddress} onChange={(val:string) => handleInput("siteAddress", val)} />
-                 </div>
-              </div>
+            <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+              <h2 className="text-lg font-semibold text-slate-900">Project Details</h2>
               
-              <div className="mt-4">
-                <label className="block text-sm font-bold mb-2">Company Logo (Optional)</label>
-                <div className="flex items-center gap-4">
-                    <label className="cursor-pointer bg-gray-100 hover:bg-gray-200 border border-gray-300 text-gray-700 py-2 px-4 rounded inline-flex items-center gap-2">
-                        <Upload className="w-4 h-4"/> Upload Logo
-                        <input type="file" accept="image/*" onChange={handleLogoUpload} className="hidden" />
-                    </label>
-                    {logoBase64 && <span className="text-green-600 text-xs font-bold flex items-center gap-1"><CheckCircle className="w-4 h-4"/> Logo Uploaded</span>}
+              <div className="grid grid-cols-1 gap-5">
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">Client Name</label>
+                  <input
+                    name="clientName"
+                    type="text"
+                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition"
+                    placeholder="e.g. Sarah Jones"
+                    value={formData.clientName}
+                    onChange={handleChange}
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">Site Address</label>
+                  <input
+                    name="siteAddress"
+                    type="text"
+                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                    placeholder="e.g. 14 Oak Road, Bristol"
+                    value={formData.siteAddress}
+                    onChange={handleChange}
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">Assessment Date</label>
+                  <input
+                    name="date"
+                    type="date"
+                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                    value={formData.date}
+                    onChange={handleChange}
+                  />
                 </div>
               </div>
 
-              <button onClick={nextStep} className="bg-black text-white w-full py-3 rounded font-bold mt-4">Next Step</button>
+              <div className="pt-4 flex justify-end">
+                <button
+                  onClick={nextStep}
+                  disabled={!formData.clientName || !formData.siteAddress}
+                  className="bg-slate-900 text-white px-6 py-3 rounded-lg font-medium hover:bg-slate-800 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                >
+                  Next Step &rarr;
+                </button>
+              </div>
             </div>
           )}
 
-          {/* STEP 2: SCOPE */}
+          {/* --- STEP 2: JOB & SAFETY CHECKS --- */}
           {step === 2 && (
-            <div className="space-y-6 animate-in fade-in">
-              <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2"><FileText className="w-5 h-5"/> Job Scope</h2>
-              <div className="grid grid-cols-2 gap-4">
-                 <select className="border p-3 rounded w-full" value={formData.trade} onChange={handleTradeChange}><option value="Electrician">Electrician</option><option value="Plumber">Plumber</option><option value="Roofer">Roofer</option><option value="Builder">Builder</option></select>
-                 {/* @ts-ignore */}
-                 <select className="border p-3 rounded w-full" value={formData.jobType} onChange={handleJobChange}><option value="">Select Job Type</option>{TRADES[formData.trade].jobs.map((j:any) => <option key={j.name}>{j.name}</option>)}<option>Other (Custom)</option></select>
-              </div>
+            <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
               
-              {questions.length > 0 && (
-                  <div className="bg-blue-50 p-4 rounded border border-blue-100">
-                      <h4 className="font-bold text-sm text-blue-900 mb-3">Pre-Start Safety Checks</h4>
-                      {questions.map((q:any) => (
-                          <div key={q.id} className="flex justify-between items-center mb-2 bg-white p-2 rounded border">
-                              <span className="text-sm">{q.label}</span>
-                              <div className="flex gap-2">
-                                  <button onClick={() => setAnswers({...answers, [q.id]: "Yes"})} className={`px-3 py-1 rounded text-xs font-bold ${answers[q.id] === "Yes" ? "bg-black text-white" : "bg-gray-100"}`}>Yes</button>
-                                  <button onClick={() => setAnswers({...answers, [q.id]: "No"})} className={`px-3 py-1 rounded text-xs font-bold ${answers[q.id] === "No" ? "bg-black text-white" : "bg-gray-100"}`}>No</button>
-                              </div>
-                          </div>
-                      ))}
+              {/* Job Selection */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">Trade</label>
+                  <select
+                    name="trade"
+                    className="w-full p-3 border border-gray-300 rounded-lg bg-white focus:ring-2 focus:ring-blue-500 outline-none"
+                    value={formData.trade}
+                    onChange={handleChange}
+                  >
+                    {Object.keys(TRADES).map((t) => <option key={t} value={t}>{t}</option>)}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">Job Task</label>
+                  <select
+                    name="job"
+                    className="w-full p-3 border border-gray-300 rounded-lg bg-white focus:ring-2 focus:ring-blue-500 outline-none"
+                    value={formData.job}
+                    onChange={handleChange}
+                  >
+                    {TRADES[formData.trade].jobs.map((j) => (
+                      <option key={j.name} value={j.name}>{j.name}</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              {/* Safety Checks (Interactive) */}
+              {currentQuestions.length > 0 && (
+                <div className="bg-blue-50 border border-blue-100 rounded-xl p-6">
+                  <h3 className="text-blue-900 font-semibold mb-4 flex items-center gap-2">
+                    <span>📋</span> Pre-Start Safety Checks
+                  </h3>
+                  <div className="space-y-4">
+                    {currentQuestions.map((q) => (
+                      <div key={q.id} className="flex flex-col sm:flex-row sm:items-center justify-between bg-white p-3 rounded-lg border border-blue-100 shadow-sm">
+                        <p className="text-sm text-slate-700 mb-2 sm:mb-0 flex-1 pr-4">{q.label}</p>
+                        <div className="flex gap-2 shrink-0">
+                          <button
+                            onClick={() => handleSafetyToggle(q.id, "Yes")}
+                            className={`px-3 py-1 rounded text-xs font-medium transition-colors border ${
+                              safetyResponses[q.id] === "Yes" 
+                                ? "bg-green-100 text-green-800 border-green-200" 
+                                : "bg-gray-50 text-gray-500 border-gray-200 hover:bg-gray-100"
+                            }`}
+                          >
+                            Yes
+                          </button>
+                          <button
+                            onClick={() => handleSafetyToggle(q.id, "No")}
+                            className={`px-3 py-1 rounded text-xs font-medium transition-colors border ${
+                              safetyResponses[q.id] === "No" 
+                                ? "bg-red-100 text-red-800 border-red-200" 
+                                : "bg-gray-50 text-gray-500 border-gray-200 hover:bg-gray-100"
+                            }`}
+                          >
+                            No
+                          </button>
+                        </div>
+                      </div>
+                    ))}
                   </div>
+                </div>
               )}
 
+              {/* Description Box (Auto-Filled) */}
               <div>
-                <label className="block text-sm font-bold mb-1">Specific Site Constraints / Method Notes</label>
-                <textarea className="w-full border p-3 rounded h-24 text-sm" placeholder="e.g. Access via rear gate only. No noisy works between 1-2pm. Parking in bay 4." value={formData.methodNotes} onChange={e => handleInput("methodNotes", e.target.value)} />
+                <label className="block text-sm font-medium text-slate-700 mb-1">
+                  Specific Site Constraints / Method Notes
+                </label>
+                <textarea
+                  name="customDescription"
+                  rows={5}
+                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-sm text-slate-600 leading-relaxed"
+                  value={formData.customDescription}
+                  onChange={handleChange}
+                  placeholder="e.g. Access via rear gate only..."
+                />
               </div>
 
-              <div className="flex gap-4"><button onClick={() => setStep(1)} className="w-1/3 border py-3 rounded">Back</button><button onClick={nextStep} className="w-2/3 bg-black text-white py-3 rounded font-bold">Next</button></div>
+              <div className="flex justify-between pt-4">
+                <button onClick={prevStep} className="text-slate-500 font-medium hover:text-slate-800">Back</button>
+                <button onClick={nextStep} className="bg-slate-900 text-white px-6 py-3 rounded-lg font-medium hover:bg-slate-800">Next &rarr;</button>
+              </div>
             </div>
           )}
 
-          {/* STEP 3: HAZARDS & PPE */}
+          {/* --- STEP 3: GENERATE --- */}
           {step === 3 && (
-            <div className="space-y-6 animate-in fade-in">
-              <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2"><AlertTriangle className="w-5 h-5"/> Safety & Hazards</h2>
+            <div className="text-center py-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+              <div className="mb-6 text-6xl">📄</div>
+              <h2 className="text-2xl font-bold text-slate-900 mb-2">Ready to Generate</h2>
+              <p className="text-slate-500 mb-8">
+                We have all the details needed to create your site-specific RAMS for <strong>{formData.clientName}</strong>.
+              </p>
               
-              <div className="grid grid-cols-2 gap-4 bg-gray-50 p-4 rounded border">
-                 <input className="border p-2 rounded" placeholder="Supervisor Name" value={formData.supervisorName} onChange={e => handleInput("supervisorName", e.target.value)} />
-                 <input className="border p-2 rounded" placeholder="Supervisor Phone" value={formData.supervisorPhone} onChange={e => handleInput("supervisorPhone", e.target.value)} />
-                 <input className="border p-2 rounded" placeholder="First Aider" value={formData.firstAider} onChange={e => handleInput("firstAider", e.target.value)} />
-                 <input className="border p-2 rounded" placeholder="Nearest Hospital" value={formData.hospital} onChange={e => handleInput("hospital", e.target.value)} />
-              </div>
+              <button
+                onClick={generatePDF}
+                disabled={isGenerating}
+                className="w-full max-w-md mx-auto bg-slate-900 text-white py-4 rounded-xl font-bold text-lg hover:bg-slate-800 hover:shadow-lg transition-all transform hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-wait"
+              >
+                {isGenerating ? "Generating Document..." : "Download Professional PDF"}
+              </button>
 
-              <div className="border p-4 rounded-lg">
-                  <h4 className="text-xs font-bold uppercase text-gray-500 mb-2 flex items-center gap-2"><HardHat className="w-4 h-4"/> Select Extra PPE Requirements</h4>
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-                      {EXTRA_PPE_OPTIONS.map(ppe => (
-                          <button key={ppe} onClick={() => togglePPE(ppe)} className={`text-xs p-2 rounded border flex items-center gap-2 ${selectedPPE.includes(ppe) ? 'bg-blue-900 text-white border-blue-900' : 'bg-white text-gray-700 hover:bg-gray-50'}`}>
-                            {selectedPPE.includes(ppe) ? <CheckSquare className="w-3 h-3"/> : <div className="w-3 h-3 border rounded-sm"/>}
-                            {ppe}
-                          </button>
-                      ))}
-                  </div>
-              </div>
+              {status && <p className="mt-4 text-sm text-slate-500">{status}</p>}
 
-              <div className="space-y-4">
-                 {Object.entries(HAZARD_GROUPS).map(([group, items]) => (
-                   <div key={group} className="border p-4 rounded-lg">
-                      <h4 className="text-xs font-bold uppercase text-gray-500 mb-2">{group}</h4>
-                      <div className="flex flex-wrap gap-2">
-                        {items.map(h => (
-                           <button key={h} onClick={() => toggleHazard(h)} className={`text-xs py-1 px-3 rounded border ${hazards.includes(h) ? 'bg-black text-white' : 'bg-white'}`}>
-                             {/* @ts-ignore */}
-                             {HAZARD_DATA[h]?.label || h}
-                           </button>
-                        ))}
-                      </div>
-                   </div>
-                 ))}
-              </div>
-              
-              <div className="mt-6 pt-6 border-t">
-                 <input type="password" placeholder="PRO2025" className="w-full border p-3 rounded text-center mb-4 tracking-widest font-mono" value={formData.accessCode} onChange={e => handleInput("accessCode", e.target.value)} />
-                 <div className="flex gap-4"><button onClick={() => setStep(2)} className="w-1/3 border py-3 rounded">Back</button><button onClick={generateRAMS} disabled={loading} className="w-2/3 bg-green-600 text-white py-3 rounded font-bold flex justify-center items-center gap-2">{loading ? <Loader2 className="animate-spin"/> : <ShieldCheck/>} Generate PDF Pack</button></div>
-              </div>
+              <button onClick={prevStep} className="mt-8 text-slate-400 hover:text-slate-600 text-sm">
+                Go Back and Edit
+              </button>
             </div>
           )}
-          </div>
+
         </div>
-      </main>
-    </div>
+      </div>
+    </main>
   );
 }
