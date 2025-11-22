@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
-import { Loader2, CheckCircle, ShieldCheck, ArrowRight, MapPin, Briefcase, AlertTriangle, Lock, Search, Info, FileText, Users, Ambulance, Flame } from "lucide-react";
+import { Loader2, CheckCircle, ShieldCheck, ArrowRight, MapPin, Briefcase, AlertTriangle, Lock, Search, Info, FileText, Users, Ambulance, Flame, FileSignature } from "lucide-react";
 import { TRADES, HAZARD_GROUPS, HAZARD_DATA } from "./lib/constants";
 
 // --- UI: TOOLTIP ---
@@ -103,10 +103,10 @@ export default function Home() {
   // --- VALIDATION ---
   const nextStep = () => {
     if (step === 1) {
-        if (!formData.companyName || !formData.officeAddress || !formData.contactName) return alert("⚠️ Please fill in Company Details.");
+        if (!formData.companyName || !formData.officeAddress || !formData.contactName) return alert("⚠️ Please fill in all Company Details.");
     }
     if (step === 2) {
-        if (!formData.clientName || !formData.siteAddress) return alert("⚠️ Please fill in Project Details.");
+        if (!formData.clientName || !formData.siteAddress || !formData.duration) return alert("⚠️ Please fill in Project Details.");
         if (formData.jobType === "Other (Custom)" && !formData.customJobType) return alert("⚠️ Please enter your Custom Job Title.");
         if (!formData.jobDesc) return alert("⚠️ Please enter a Job Description.");
     }
@@ -130,19 +130,23 @@ export default function Home() {
     finally { setLoading(false); }
   };
 
-  // --- PDF GENERATION (Classic Clean Style) ---
+  // --- PDF GENERATION (Classic Blue/Red Layout) ---
   const createPDF = (data: any) => {
     const doc = new jsPDF();
     
     const drawHeader = (doc: any) => {
+        // Header Block
         doc.setFillColor(0, 51, 102); // Royal Blue
         doc.rect(0, 0, 210, 30, 'F');
+        
         doc.setTextColor(255, 255, 255);
         doc.setFontSize(20); doc.setFont("helvetica", "bold");
         doc.text("RISK ASSESSMENT & METHOD STATEMENT", 14, 18);
+        
         doc.setFontSize(10); doc.setFont("helvetica", "normal");
         doc.text(`Ref: ${formData.projectRef || "N/A"} | Date: ${formData.startDate}`, 14, 25);
-        doc.setFontSize(9); 
+        
+        doc.setFontSize(10); 
         doc.text(formData.companyName.toUpperCase(), 195, 18, { align: 'right' });
     };
 
@@ -229,19 +233,25 @@ export default function Home() {
     doc.text("4. Method Statement", 14, y); y += 10;
     
     doc.setFontSize(10); doc.setFont("helvetica", "normal"); doc.setTextColor(0);
-    if(data.method_steps) {
-        data.method_steps.forEach((step: string) => {
-            if(y > 270) { doc.addPage(); drawHeader(doc); y=40; }
-            // Simple text block layout (Cleaner than JSON view)
-            const isHeading = step.toUpperCase() === step || step.trim().endsWith(":");
-            doc.setFont("helvetica", isHeading ? "bold" : "normal");
-            const text = doc.splitTextToSize(step, 180);
-            doc.text(text, 14, y);
-            y += text.length * 5 + 4;
-        });
+    
+    // CRASH FIX: Ensure method_steps is handled even if AI returns a string
+    let steps = [];
+    if (Array.isArray(data.method_steps)) {
+        steps = data.method_steps;
+    } else if (typeof data.method_steps === 'string') {
+        steps = data.method_steps.split('\n').filter((s:string) => s.trim().length > 0);
     }
 
-    // SIGN OFF
+    steps.forEach((step: string) => {
+        if(y > 270) { doc.addPage(); drawHeader(doc); y=40; }
+        const isHeading = step.toUpperCase() === step || step.trim().endsWith(":");
+        doc.setFont("helvetica", isHeading ? "bold" : "normal");
+        const text = doc.splitTextToSize(step, 180);
+        doc.text(text, 14, y);
+        y += text.length * 5 + 4;
+    });
+
+    // --- SIGN OFF ---
     doc.addPage(); drawHeader(doc); y = 40;
     doc.setFontSize(12); doc.setFont("helvetica", "bold"); doc.setTextColor(0, 51, 102);
     doc.text("5. Operative Acceptance & Sign-off", 14, y); y += 10;
@@ -307,22 +317,23 @@ export default function Home() {
           {step === 2 && (
             <div className="space-y-8 animate-in fade-in">
               <h2 className="text-2xl font-bold flex items-center gap-3 border-b pb-4 text-blue-900"><FileText className="w-6 h-6"/> Scope & Logistics</h2>
-              <div className="grid grid-cols-3 gap-4 bg-gray-50 p-4 rounded-xl border border-gray-200">
+              <div className="grid grid-cols-3 gap-6 bg-gray-50 p-6 rounded-xl border border-gray-200">
                 <div><label className="block text-xs font-bold uppercase text-gray-500 mb-1">Start Date</label><input type="date" className="w-full border-2 border-gray-200 rounded-lg p-3 bg-white" value={formData.startDate} onChange={e => handleInput("startDate", e.target.value)} /></div>
                 <div><label className="block text-xs font-bold uppercase text-gray-500 mb-1">Duration</label><input className="w-full border-2 border-gray-200 rounded-lg p-3 bg-white" placeholder="e.g. 2 Days" value={formData.duration} onChange={e => handleInput("duration", e.target.value)} /></div>
                 <div><label className="block text-xs font-bold uppercase text-gray-500 mb-1">Operatives</label><input type="number" className="w-full border-2 border-gray-200 rounded-lg p-3 bg-white" value={formData.operatives} onChange={e => handleInput("operatives", e.target.value)} /></div>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div><label className="block text-sm font-bold text-blue-900 mb-1">Trade</label><select className="w-full border-2 border-gray-200 rounded-lg p-3 bg-white text-lg" value={formData.trade} onChange={e => handleInput("trade", e.target.value)}>{Object.keys(TRADES).map(t => <option key={t}>{t}</option>)}</select></div>
+                  <div><label className="block text-sm font-bold text-blue-900 mb-1">Trade</label><select className="w-full border-2 border-gray-200 rounded-lg p-4 bg-white text-lg" value={formData.trade} onChange={e => handleInput("trade", e.target.value)}>{Object.keys(TRADES).map(t => <option key={t}>{t}</option>)}</select></div>
                   {/* @ts-ignore */}
-                  <div><label className="block text-sm font-bold text-blue-900 mb-1">Job Type</label><select className="w-full border-2 border-gray-200 rounded-lg p-3 bg-white text-lg" value={formData.jobType} onChange={e => handleInput("jobType", e.target.value)}><option value="">-- Select --</option>{TRADES[formData.trade].jobs.map((j:any) => <option key={j.name}>{j.name}</option>)}</select></div>
+                  <div><label className="block text-sm font-bold text-blue-900 mb-1">Job Type</label><select className="w-full border-2 border-gray-200 rounded-lg p-4 bg-white text-lg" value={formData.jobType} onChange={e => handleInput("jobType", e.target.value)}><option value="">-- Select --</option>{TRADES[formData.trade].jobs.map((j:any) => <option key={j.name}>{j.name}</option>)}</select></div>
               </div>
               {formData.jobType === "Other (Custom)" && (
-                <div className="animate-in fade-in"><label className="text-sm font-bold text-black">Custom Job Title</label><input className="w-full border-2 border-black rounded-lg p-3" placeholder="e.g. Jacuzzi Installation" value={formData.customJobType} onChange={e => handleInput("customJobType", e.target.value)} /></div>
+                <div className="animate-in fade-in"><label className="text-sm font-bold text-black">Custom Job Title</label><input className="w-full border-2 border-black rounded-lg p-4" placeholder="e.g. Jacuzzi Installation" value={formData.customJobType} onChange={e => handleInput("customJobType", e.target.value)} /></div>
               )}
-              {/* QUESTIONS */}
+              
+              {/* DYNAMIC QUESTIONS */}
               {questions.length > 0 && (
-                  <div className="bg-blue-50 p-5 rounded-xl border border-blue-200">
+                  <div className="bg-blue-50 p-6 rounded-xl border border-blue-200">
                       <h4 className="text-sm font-bold text-blue-900 uppercase tracking-wide mb-4">Safety Checks for this Job</h4>
                       {questions.map((q:any) => (
                           <div key={q.id} className="flex justify-between items-center mb-3 last:mb-0 bg-white p-3 rounded-lg border border-blue-100 shadow-sm">
@@ -335,7 +346,8 @@ export default function Home() {
                       ))}
                   </div>
               )}
-              <div><label className="block text-sm font-bold text-blue-900 mb-1">Detailed Description of Works (Auto-filled, Editable)</label><textarea className="w-full border-2 border-gray-200 rounded-lg p-3 h-32 focus:border-blue-600 outline-none" value={formData.jobDesc} onChange={e => handleInput("jobDesc", e.target.value)} /></div>
+              
+              <div><label className="block text-sm font-bold text-blue-900 mb-1">Detailed Description of Works (Auto-filled, Editable)</label><textarea className="w-full border-2 border-gray-200 rounded-lg p-4 h-32 focus:border-blue-600 outline-none" value={formData.jobDesc} onChange={e => handleInput("jobDesc", e.target.value)} /></div>
               <div className="flex gap-4 pt-4"><button onClick={() => setStep(1)} className="w-1/3 border-2 border-gray-200 text-gray-700 py-4 rounded-xl font-bold hover:bg-gray-50">Back</button><button onClick={nextStep} className="w-2/3 bg-blue-700 hover:bg-blue-800 text-white py-4 rounded-xl font-bold text-lg flex justify-center gap-2 items-center shadow-md">Next Step <ArrowRight className="w-5 h-5"/></button></div>
             </div>
           )}
