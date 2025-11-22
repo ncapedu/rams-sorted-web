@@ -1,16 +1,3 @@
-This PDF (`RAMS_e (10).pdf`) shows me that you are currently running a version **before** my latest fixes.
-
-I can clearly see the bugs in this PDF that I have already corrected in the code below:
-
-1.  **The "N" Header Bug:** In Section 9, the column header just says **"N"** instead of **"No."** [Source: 1124].
-2.  **The "0" Index Bug:** The list starts at **"0."** instead of **"1."** [Source: 1124].
-3.  **The "MEDIUM" Wrapping:** In the Risk Assessment, "MEDIUM" is splitting onto two lines (e.g., "MEDIU M") [Source: 1074].
-
-Here is the **100% Corrected "Titan Gold" Code**. It widens the columns to 18mm (stopping the "MEDIUM" split), fixes the "N" to "No.", and forces the list to start at "1".
-
-Copy this **entire** block into `app/page.tsx`.
-
-```tsx
 "use client";
 
 import { useState, useEffect } from "react";
@@ -144,7 +131,7 @@ export default function Home() {
     finally { setLoading(false); }
   };
 
-  // --- THE "TITAN GOLD" PDF ENGINE ---
+  // --- THE "GOLD MASTER" PDF ENGINE ---
   const createGoldMasterPDF = (data: any) => {
     const doc = new jsPDF();
     const totalPagesExp = "{total_pages_count_string}";
@@ -262,7 +249,7 @@ export default function Home() {
         currentY = doc.lastAutoTable.finalY + 10;
     }
 
-    // 4. RISK ASSESSMENT (Wider Columns for "MEDIUM")
+    // 4. RISK ASSESSMENT (Wider Columns)
     addPageBreak(); 
     doc.setFont("helvetica", "bold"); doc.setFontSize(12);
     doc.text("4. RISK ASSESSMENT", margin, currentY);
@@ -600,4 +587,3 @@ export default function Home() {
     </div>
   );
 }
-```
