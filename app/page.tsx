@@ -84,7 +84,7 @@ export default function Home() {
     setSafetyResponses((prev) => ({ ...prev, [id]: value }));
   };
 
-  // --- PDF ENGINE (MATCHING UPLOADED STRUCTURE) ---
+  // --- PDF ENGINE (FIXED & MATCHING STRUCTURE) ---
   const generatePDF = async () => {
     setIsGenerating(true);
     setStatus("Initializing PDF Engine...");
@@ -117,7 +117,7 @@ export default function Home() {
       autoTable(doc, {
         startY: finalY,
         body: [
-          ['Company Name', 'Your Company Name'], // Replace with dynamic if you add company field
+          ['Company Name', 'Your Company Name'], 
           ['Site Address', formData.siteAddress],
           ['Client', formData.clientName],
           ['Job / Task Title', `${formData.trade} - ${formData.job}`],
@@ -128,7 +128,7 @@ export default function Home() {
         theme: 'grid',
         styles: { 
           fontSize: 9, 
-          cellPadding: 3, // More space so words don't squash
+          cellPadding: 3, 
           lineColor: [0, 0, 0], 
           lineWidth: 0.1,
           textColor: [0,0,0]
@@ -157,7 +157,6 @@ export default function Home() {
       finalY += (wrappedScope.length * 5) + 10;
 
       // --- SECTION 3: PRE-START SAFETY CHECKLIST ---
-      // Check page break
       if (finalY > pageHeight - 50) { doc.addPage(); drawTitle(); finalY = 25; }
 
       doc.setFontSize(11);
@@ -215,7 +214,7 @@ export default function Home() {
         return [
           h.label,
           h.risk,
-          "Operatives / Public", // "Who" column from your PDF
+          "Operatives / Public",
           h.initial_score,
           h.control,
           h.residual_score
@@ -234,7 +233,7 @@ export default function Home() {
           lineColor: [0,0,0], 
           lineWidth: 0.1,
           textColor: [0,0,0],
-          overflow: 'linebreak' // Critical for "words don't go down"
+          overflow: 'linebreak' 
         },
         columnStyles: {
           0: { cellWidth: 25, fontStyle: 'bold' },
@@ -268,7 +267,6 @@ export default function Home() {
       ];
 
       methodSteps.forEach(step => {
-        // Check space
         if (finalY > pageHeight - 30) { doc.addPage(); drawTitle(); finalY = 25; }
         
         doc.setFont("helvetica", "bold");
@@ -399,7 +397,6 @@ export default function Home() {
       doc.text("I confirm I have read and understood this RAMS, attended the briefing, and agree to work in accordance with it.", margin, finalY);
       finalY += 10;
 
-      // Sign-off boxes
       doc.setDrawColor(0);
       doc.rect(margin, finalY, pageWidth - (margin*2), 40);
       
@@ -413,8 +410,8 @@ export default function Home() {
       doc.text("Signature: _________________________", margin + 5, finalY + 32);
       doc.text(`Date: ${formData.date}`, margin + 100, finalY + 32);
 
-      // --- FOOTER (Page Numbers) ---
-      const pageCount = doc.internal.getNumberOfPages();
+      // --- FOOTER (Page Numbers) - FIXED HERE ---
+      const pageCount = doc.internal.pages.length - 1; // The fix for your error
       for (let i = 1; i <= pageCount; i++) {
         doc.setPage(i);
         doc.setFontSize(8);
@@ -525,7 +522,7 @@ export default function Home() {
             </div>
           </div>
 
-          {/* 3. Pre-Start Safety Checks */}
+          {/* 3. Pre-Start Safety Checks (Interactive) */}
           {currentQuestions.length > 0 && (
             <div className="bg-blue-50 p-6 rounded-md border border-blue-100">
               <h3 className="text-sm font-bold text-blue-900 mb-4">Pre-Start Safety Checks</h3>
@@ -587,7 +584,7 @@ export default function Home() {
                   : 'bg-black hover:bg-slate-800'
                 } transition-colors duration-200`}
             >
-              {isGenerating ? "Generating Document..." : "Generate Professional RAMS PDF"}
+              {isGenerating ? "Generating Document..." : "Next"}
             </button>
 
             {status && (
