@@ -131,7 +131,7 @@ export default function Home() {
     finally { setLoading(false); }
   };
 
-  // --- TITAN PDF ENGINE (STRICT BLACK & WHITE) ---
+  // --- TITAN PDF ENGINE (FIXED TABLE WIDTHS) ---
   const createProfessionalPDF = (data: any) => {
     const doc = new jsPDF();
     const totalPagesExp = "{total_pages_count_string}";
@@ -280,7 +280,7 @@ export default function Home() {
         theme: 'grid',
         styles: { 
             fontSize: 9, 
-            cellPadding: 3, 
+            cellPadding: 2, // Reduced padding to help fit text
             lineColor: [0,0,0], 
             lineWidth: 0.1, 
             textColor: [0,0,0], 
@@ -288,11 +288,11 @@ export default function Home() {
         },
         headStyles: { fillColor: [240,240,240], textColor: [0,0,0], fontStyle: 'bold', lineWidth: 0.1, lineColor: [0,0,0] },
         columnStyles: {
-            0: { cellWidth: 35, fontStyle: 'bold' }, // Hazard Name
+            0: { cellWidth: 30, fontStyle: 'bold' }, // Hazard Name
             1: { cellWidth: 35 }, // Potential Risk
-            2: { cellWidth: 12, halign: 'center' }, // Init Score
+            2: { cellWidth: 18, halign: 'center', valign: 'middle' }, // Init Score (Widened to 18)
             3: { cellWidth: 'auto' }, // Control Measures (Takes remaining space)
-            4: { cellWidth: 12, halign: 'center' }  // Res Score
+            4: { cellWidth: 18, halign: 'center', valign: 'middle' }  // Res Score (Widened to 18)
         }
     });
     // @ts-ignore
@@ -567,7 +567,7 @@ export default function Home() {
               
               <div className="mt-6 pt-6 border-t">
                  <input type="password" placeholder="PRO2025" className="w-full border p-3 rounded text-center mb-4 tracking-widest font-mono" value={formData.accessCode} onChange={e => handleInput("accessCode", e.target.value)} />
-                 <div className="flex gap-4"><button onClick={() => setStep(2)} className="w-1/3 border py-3 rounded">Back</button><button onClick={generateRAMS} disabled={loading} className="w-2/3 bg-green-600 text-white py-3 rounded font-bold flex justify-center items-center gap-2">{loading ? <Loader2 className="animate-spin"/> : <ShieldCheck/>} Generate RAMS Pack</button></div>
+                 <div className="flex gap-4"><button onClick={() => setStep(2)} className="w-1/3 border py-3 rounded">Back</button><button onClick={generateRAMS} disabled={loading} className="w-2/3 bg-green-600 text-white py-3 rounded font-bold flex justify-center items-center gap-2">{loading ? <Loader2 className="animate-spin"/> : <ShieldCheck/>} Generate PDF Pack</button></div>
               </div>
             </div>
           )}
