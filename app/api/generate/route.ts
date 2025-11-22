@@ -2,7 +2,6 @@ import { NextResponse } from "next/server";
 import { HAZARD_DATA } from "../../lib/constants";
 
 // ⚡ FORCE DYNAMIC: This prevents Vercel from "caching" the error.
-// It forces the server to look for the API Key fresh every time you click.
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs'; 
 export const maxDuration = 60; 
@@ -12,13 +11,12 @@ export async function POST(req: Request) {
     const body = await req.json();
     const apiKey = process.env.GOOGLE_API_KEY;
 
-    // DEBUGGING: Check Vercel Logs to see this
     if (!apiKey) {
       console.error("CRITICAL: Google API Key is missing from environment variables.");
-      return NextResponse.json({ error: "Server Error: API Key Missing. Please redeploy on Vercel." }, { status: 500 });
+      return NextResponse.json({ error: "Server Error: API Key Missing." }, { status: 500 });
     }
 
-    // 1. Model Discovery (Finds the best model your key allows)
+    // 1. Model Discovery
     const listUrl = `https://generativelanguage.googleapis.com/v1beta/models?key=${apiKey}`;
     const listRes = await fetch(listUrl);
     const listData = await listRes.json();
@@ -36,71 +34,48 @@ export async function POST(req: Request) {
         .map(([k, v]) => `${k}: ${v}`)
         .join(", ");
         
-    // Safe Hazard Mapping
+    // Expand hazards to include the library definitions for better context
     // @ts-ignore
     const hazardInfo = (body.hazards || []).map(h => {
         // @ts-ignore
         const data = HAZARD_DATA[h];
-        return data ? `${data.label}: Risk of ${data.risk}. Control: ${data.control}` : h;
+        return data ? `${data.label}: (Standard Control: ${data.control})` : h;
     }).join("\n");
 
-    // 3. The Strict Prompt
+    // 3. The Titan Prompt
     const payload = {
       contents: [{
         parts: [{
           text: `
-            ACT AS: Senior UK Health & Safety Consultant (NEBOSH).
-            TASK: Generate a Site-Specific RAMS document.
-            
-            === PROJECT DETAILS ===
+            ACT AS: Senior UK Health & Safety Consultant (NEBOSH qualified).
+            TASK: Write the specific content for a professional Construction RAMS document.
+            TONE: Formal, technical, concise, legalistic. UK English.
+
+            === PROJECT INPUTS ===
             TRADE: ${body.trade}
-            JOB TYPE: ${body.jobType === 'Other (Custom)' ? body.customJobType : body.jobType}
+            TASK: ${body.jobType === 'Other (Custom)' ? body.customJobType : body.jobType}
             DESCRIPTION: ${body.jobDesc}
-            SITE ADDRESS: ${body.siteAddress}
-            CLIENT: ${body.clientName}
+            SITE CONTEXT: ${body.siteAddress} (Client: ${body.clientName})
             
-            === SAFETY CONTEXT ===
-            HAZARDS SELECTED: 
+            === HAZARDS IDENTIFIED ===
             ${hazardInfo}
             
-            SPECIFIC SAFETY CHECKS (YES/NO ANSWERS):
+            === SAFETY CHECKS (YES/NO) ===
             ${answerList}
             
-            EMERGENCY INFO:
-            First Aider: ${body.firstAider}
-            Hospital: ${body.hospital}
-            Fire Assembly: ${body.fireAssembly}
-            
-            EXTRA NOTES:
-            ${body.extraNotes}
-            
-            === INSTRUCTIONS ===
-            1. METHOD STATEMENT: Write a clear, numbered, step-by-step guide suitable for operatives.
-            2. RISK ASSESSMENT: Generate a row for each hazard. Calculate Initial Risk (High/Med) and Residual Risk (Low).
-            3. COSHH: If hazards include dust, chemicals, or asbestos, create a COSHH entry.
-            4. OUTPUT: Return ONLY valid JSON.
-            
-            === JSON STRUCTURE ===
-            {
-              "summary": "Executive summary of the works...",
-              "risks": [
-                {
-                  "hazard": "Name",
-                  "who": "Operatives / Public",
-                  "control": "Specific control measure...",
-                  "initial_risk": "High",
-                  "risk_rating": "Low"
-                }
-              ],
-              "method_steps": [
-                "1. Arrive on site and sign in...",
-                "2. Set up exclusion zone..."
-              ],
-              "ppe": ["Boots", "Gloves", "Hard Hat"],
-              "coshh": [
-                 {"substance": "Dust", "risk": "Inhalation", "control": "Mask", "disposal": "Skip"}
-              ]
-            }
+            === REQUIRED OUTPUT (JSON ONLY) ===
+            Return a valid JSON object with these exact keys:
+
+            1. "summary": A professional executive summary of the work (max 80 words).
+            2. "method_steps": An array of strings. Each string is a step. 
+               - Use UPPERCASE headers for phases (e.g. "PRE-START CHECKS:").
+               - Number the steps logically.
+               - Cover: Arrival, Setup, The Work Itself, Quality Check, Clear up.
+            3. "ppe": An array of strings listing specific PPE (e.g. "Safety Boots (BS EN ISO 20345)", "Hi-Vis Vest").
+            4. "coshh": An array of objects IF relevant (dust/chemicals). If none, return empty array.
+               Structure: { "substance": "Name", "risk": "Effect", "control": "Measure", "disposal": "Method" }
+
+            DO NOT return markdown formatting. Just the raw JSON string.
           `
         }]
       }]
