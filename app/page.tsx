@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import { Loader2, ShieldCheck, MapPin, Briefcase, AlertTriangle, FileText, Info, HardHat, CheckSquare, Upload, CheckCircle } from "lucide-react";
@@ -91,7 +91,7 @@ export default function Home() {
     startDate: new Date().toISOString().split('T')[0], duration: "1 Day", opertives: "1", 
     trade: "Electrician", jobType: "", customJobType: "", jobDesc: "", methodNotes: "",
     supervisorName: "", supervisorPhone: "", firstAider: "", hospital: "", fireAssembly: "As Inducted", firstAidLoc: "Site Vehicle",
-    welfare: "Client WC", accessCode: ""
+    welfare: "Client WC", extraNotes: "", accessCode: ""
   });
   
   const [hazards, setHazards] = useState<string[]>([]);
@@ -100,41 +100,7 @@ export default function Home() {
   const [answers, setAnswers] = useState<Record<string, string>>({}); 
   const [logoBase64, setLogoBase64] = useState<string | null>(null);
 
-  // --- LOGIC: LOAD QUESTIONS (THE FIX) ---
-  useEffect(() => {
-    // @ts-ignore
-    const tradeData = TRADES[formData.trade];
-    
-    if (!tradeData || !formData.jobType) return;
-
-    if (formData.jobType === "Other (Custom)") {
-      setFormData(prev => ({ ...prev, jobDesc: "" })); 
-      setQuestions([]);
-      setHazards([]);
-      return;
-    }
-
-    // 1. Try direct lookup first (Most reliable if keys match names)
-    // @ts-ignore
-    let clusterData = tradeData.clusters[formData.jobType];
-
-    // 2. If direct lookup fails, try finding via the jobs array (Fallback)
-    if (!clusterData) {
-        const jobObj = tradeData.jobs.find((j: any) => j.name === formData.jobType);
-        if (jobObj && jobObj.cluster) {
-            // @ts-ignore
-            clusterData = tradeData.clusters[jobObj.cluster];
-        }
-    }
-
-    // 3. Apply Data
-    if (clusterData) {
-      setFormData(prev => ({ ...prev, jobDesc: clusterData.desc }));
-      setHazards(prev => [...new Set([...prev, ...clusterData.hazards])]);
-      setQuestions(clusterData.questions || []);
-    }
-  }, [formData.jobType, formData.trade]);
-
+  // --- HANDLERS ---
   const handleInput = (field: string, value: string) => setFormData(prev => ({ ...prev, [field]: value }));
   const toggleHazard = (h: string) => setHazards(prev => prev.includes(h) ? prev.filter(i => i !== h) : [...prev, h]);
   const togglePPE = (item: string) => setSelectedPPE(prev => prev.includes(item) ? prev.filter(i => i !== item) : [...prev, item]);
@@ -146,6 +112,53 @@ export default function Home() {
       reader.onloadend = () => setLogoBase64(reader.result as string);
       reader.readAsDataURL(file);
     }
+  };
+
+  // --- NEW: ACTIVE DATA LOADER (This fixes the missing text) ---
+  const handleJobChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const newJob = e.target.value;
+    let newDesc = "";
+    let newHazards: string[] = [];
+    let newQuestions: any[] = [];
+
+    // @ts-ignore
+    const tradeData = TRADES[formData.trade];
+
+    if (tradeData && newJob && newJob !== "Other (Custom)") {
+        // 1. Try direct lookup (Cluster Key matches Job Name)
+        // @ts-ignore
+        let clusterData = tradeData.clusters[newJob];
+
+        // 2. Fallback: Find via job list
+        if (!clusterData) {
+            const jobObj = tradeData.jobs.find((j: any) => j.name === newJob);
+            if (jobObj && jobObj.cluster) {
+                // @ts-ignore
+                clusterData = tradeData.clusters[jobObj.cluster];
+            }
+        }
+
+        // 3. If found, populate data immediately
+        if (clusterData) {
+            newDesc = clusterData.desc;
+            newHazards = [...new Set([...clusterData.hazards])];
+            newQuestions = clusterData.questions || [];
+        }
+    }
+
+    // Update all states at once
+    setFormData(prev => ({ ...prev, jobType: newJob, jobDesc: newDesc }));
+    setHazards(newHazards);
+    setQuestions(newQuestions);
+    setAnswers({}); // Reset checklist answers
+  };
+
+  const handleTradeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const newTrade = e.target.value;
+    setFormData(prev => ({ ...prev, trade: newTrade, jobType: "", jobDesc: "" }));
+    setHazards([]);
+    setQuestions([]);
+    setAnswers({});
   };
 
   const nextStep = () => {
@@ -174,7 +187,7 @@ export default function Home() {
     finally { setLoading(false); }
   };
 
-  // --- THE "TITAN GOLD" PDF ENGINE ---
+  // --- THE "TITAN GOLD" PDF ENGINE (10/10 Layout) ---
   const createPDF = (data: any) => {
     const doc = new jsPDF();
     const totalPagesExp = "{total_pages_count_string}";
@@ -208,7 +221,7 @@ export default function Home() {
         doc.text(str, pageWidth / 2, pageHeight - 10, { align: "center" });
     };
 
-    // --- DOCUMENT CONTENT ---
+    // --- START DOCUMENT ---
     drawHeader(doc); currentY = 25; 
 
     // 1. PROJECT DETAILS
@@ -240,7 +253,7 @@ export default function Home() {
     currentY += 6;
 
     doc.setFont("helvetica", "normal"); doc.setFontSize(10);
-    const summaryText = data.summary || formData.jobDesc || "Execution of trade works.";
+    const summaryText = data.summary || formData.jobDesc || "Execution of trade works as defined by client instruction.";
     const splitSummary = doc.splitTextToSize(summaryText, contentWidth);
     doc.text(splitSummary, margin, currentY);
     currentY += (splitSummary.length * 5) + 10;
@@ -550,11 +563,12 @@ export default function Home() {
             <div className="space-y-6 animate-in fade-in">
               <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2"><FileText className="w-5 h-5"/> Job Scope</h2>
               <div className="grid grid-cols-2 gap-4">
-                 <select className="border p-3 rounded w-full" value={formData.trade} onChange={e => handleInput("trade", e.target.value)}>{Object.keys(TRADES).map(t => <option key={t}>{t}</option>)}</select>
+                 <select className="border p-3 rounded w-full" value={formData.trade} onChange={e => handleTradeChange}><option value="Electrician">Electrician</option><option value="Plumber">Plumber</option><option value="Roofer">Roofer</option><option value="Builder">Builder</option></select>
                  {/* @ts-ignore */}
-                 <select className="border p-3 rounded w-full" value={formData.jobType} onChange={e => handleInput("jobType", e.target.value)}><option value="">Select Job Type</option>{TRADES[formData.trade].jobs.map((j:any) => <option key={j.name}>{j.name}</option>)}</select>
+                 <select className="border p-3 rounded w-full" value={formData.jobType} onChange={handleJobChange}><option value="">Select Job Type</option>{TRADES[formData.trade].jobs.map((j:any) => <option key={j.name}>{j.name}</option>)}<option>Other (Custom)</option></select>
               </div>
               
+              {/* DYNAMIC QUESTIONS */}
               {questions.length > 0 && (
                   <div className="bg-blue-50 p-4 rounded border border-blue-100">
                       <h4 className="font-bold text-sm text-blue-900 mb-3">Pre-Start Safety Checks</h4>
