@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import { Loader2, ShieldCheck, MapPin, Briefcase, AlertTriangle, FileText, Info, HardHat, CheckSquare, Upload, CheckCircle } from "lucide-react";
@@ -114,37 +114,46 @@ export default function Home() {
     }
   };
 
-  // --- THE FIX: FORCE DATA LOAD ON SELECT ---
+  // --- FIX: "SEARCH EVERYWHERE" DATA LOADER ---
   const handleJobChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const newJob = e.target.value;
     let newDesc = "";
     let newHazards: string[] = [];
     let newQuestions: any[] = [];
 
+    // 1. Search ALL trades for this job name (Safety Net)
+    let foundCluster = null;
+    
     // @ts-ignore
-    const tradeData = TRADES[formData.trade];
-
-    if (tradeData && newJob && newJob !== "Other (Custom)") {
-        // 1. Try simple key lookup
+    const allTrades = Object.values(TRADES);
+    
+    for (const trade of allTrades) {
         // @ts-ignore
-        let clusterData = tradeData.clusters[newJob];
-
-        // 2. Fallback: Lookup via array find if key doesn't match exactly
-        if (!clusterData) {
-            const jobObj = tradeData.jobs.find((j: any) => j.name === newJob);
-            if (jobObj && jobObj.cluster) {
-                // @ts-ignore
-                clusterData = tradeData.clusters[jobObj.cluster];
-            }
-        }
-
-        if (clusterData) {
-            newDesc = clusterData.desc;
-            newHazards = [...new Set([...clusterData.hazards])];
-            newQuestions = clusterData.questions || [];
+        if (trade.clusters[newJob]) {
+            // @ts-ignore
+            foundCluster = trade.clusters[newJob];
+            break;
         }
     }
 
+    // 2. Apply Data if found
+    if (foundCluster) {
+        // @ts-ignore
+        newDesc = foundCluster.desc || "";
+        // @ts-ignore
+        newHazards = [...new Set([...(foundCluster.hazards || [])])];
+        // @ts-ignore
+        newQuestions = foundCluster.questions || [];
+    } 
+    
+    // 3. Special Case for Custom
+    if (newJob === "Other (Custom)") {
+        newDesc = "";
+        newHazards = [];
+        newQuestions = [];
+    }
+
+    // 4. Update State
     setFormData(prev => ({ ...prev, jobType: newJob, jobDesc: newDesc }));
     setHazards(newHazards);
     setQuestions(newQuestions);
@@ -163,8 +172,6 @@ export default function Home() {
     if (step === 1 && (!formData.companyName || !formData.officeAddress || !formData.contactName)) return alert("⚠️ Please fill in Company Details.");
     if (step === 2) {
         if (!formData.clientName || !formData.siteAddress) return alert("⚠️ Please fill in Project Details.");
-        const unanswered = questions.filter(q => !answers[q.id]);
-        if (unanswered.length > 0) return alert(`⚠️ Please answer all safety checks.`);
     }
     setStep(step + 1);
   };
@@ -185,7 +192,7 @@ export default function Home() {
     finally { setLoading(false); }
   };
 
-  // --- THE "10/10" PDF ENGINE ---
+  // --- PDF ENGINE ---
   const createPDF = (data: any) => {
     const doc = new jsPDF();
     const totalPagesExp = "{total_pages_count_string}";
@@ -217,7 +224,7 @@ export default function Home() {
         doc.text(str, pageWidth / 2, pageHeight - 10, { align: "center" });
     };
 
-    // START
+    // START DOCUMENT
     drawHeader(doc); currentY = 25; 
 
     // 1. PROJECT DETAILS
@@ -485,7 +492,6 @@ export default function Home() {
     doc.text("Signature: __________________________________", margin + 5, currentY + 40);
     doc.text(`Date: ${formData.startDate}`, margin + 110, currentY + 40);
 
-    // -- FINALISE --
     if (typeof doc.putTotalPages === 'function') {
         doc.putTotalPages(totalPagesExp);
     }
