@@ -1,4 +1,4 @@
-// app/lib/constants.ts - PART 1 OF 4
+// app/lib/constants.ts
 
 // ==========================================
 // 1. TYPE DEFINITIONS
@@ -61,18 +61,27 @@ export const HAZARD_DATA: Record<string, HazardDef> = {
   sharp_objects: { label: "Sharp Objects", risk: "Cuts, lacerations.", control: "Kevlar gloves, safe disposal of blades/sharps.", initial_score: "Medium (9)", residual_score: "Low (3)" },
   poor_lighting: { label: "Poor Lighting", risk: "Trips, mistakes, eye strain.", control: "Temporary task lighting provided. Torches carried by operatives.", initial_score: "Medium (8)", residual_score: "Low (3)" },
   lead_exposure: { label: "Lead Exposure", risk: "Poisoning.", control: "Gloves, hygiene, cold cutting.", initial_score: "Medium (10)", residual_score: "Low (3)" },
-  stored_energy: { label: "Stored Energy", risk: "Shock.", control: "Discharge time.", initial_score: "Medium (12)", residual_score: "Low (4)" }
+  stored_energy: { label: "Stored Energy", risk: "Shock.", control: "Discharge time.", initial_score: "Medium (12)", residual_score: "Low (4)" },
+  scaffold_safety: { label: "Scaffold Safety", risk: "Collapse, falls.", control: "Handover certificate, weekly inspections (Scafftag), load limits respected.", initial_score: "High (20)", residual_score: "Low (5)" },
+  glass_sharps: { label: "Glass & Glazing", risk: "Cuts, severance.", control: "Suction lifters, handling gloves, safety glass.", initial_score: "Medium (12)", residual_score: "Low (4)" },
+  cement: { label: "Wet Cement/Concrete", risk: "Burns, dermatitis.", control: "Impervious gloves, washing facilities, barrier cream.", initial_score: "Medium (10)", residual_score: "Low (3)" },
+  damp_proofing: { label: "Damp Proofing Chemicals", risk: "Inhalation, skin burns.", control: "Ventilation, specific PPE, COSHH data sheet compliance.", initial_score: "Medium (12)", residual_score: "Low (4)" },
+  security_risk: { label: "Security", risk: "Theft, unauthorized entry.", control: "Secure site perimeter, lockable storage, removal of valuables.", initial_score: "Medium (9)", residual_score: "Low (3)" },
+  heavy_plant: { label: "Heavy Plant", risk: "Crushing, impact.", control: "Banksman, exclusion zones, certified operators.", initial_score: "High (20)", residual_score: "Low (5)" },
+  structural_alteration: { label: "Structural Alteration", risk: "Collapse, movement.", control: "Propping, engineering design, sequence of work.", initial_score: "High (25)", residual_score: "Low (5)" },
+  power_tools: { label: "Power Tools", risk: "Cuts, vibration, noise.", control: "Guards in place, PAT tested, PPE used.", initial_score: "Medium (12)", residual_score: "Low (4)" },
+  services_isolation: { label: "Services Isolation", risk: "Electrocution, flood, gas leak.", control: "LOTO, identification, proving dead.", initial_score: "High (20)", residual_score: "Low (4)" }
 };
 
 export const HAZARD_GROUPS = {
-  "High Risk": ["live_electricity", "gas", "work_at_height", "confined_space", "structural_collapse", "fire_explosion", "excavation", "asbestos"],
-  "Health": ["dust_fumes", "silica_dust", "noise_vibration", "chemical_coshh", "biological", "lead_exposure"],
-  "Site": ["slips_trips", "moving_vehicles", "public_interface", "lone_working", "environmental_weather", "water_ingress", "poor_lighting", "falling_objects"],
-  "Physical": ["manual_handling", "plant_machinery", "underground_services", "sharp_objects", "stored_energy"]
+  "High Risk": ["live_electricity", "gas", "work_at_height", "confined_space", "structural_collapse", "fire_explosion", "excavation", "asbestos", "scaffold_safety", "heavy_plant"],
+  "Health": ["dust_fumes", "silica_dust", "noise_vibration", "chemical_coshh", "biological", "lead_exposure", "cement", "damp_proofing"],
+  "Site": ["slips_trips", "moving_vehicles", "public_interface", "lone_working", "environmental_weather", "water_ingress", "poor_lighting", "falling_objects", "security_risk"],
+  "Physical": ["manual_handling", "plant_machinery", "underground_services", "sharp_objects", "stored_energy", "glass_sharps", "power_tools", "services_isolation"]
 };
 
 // ==========================================
-// 3. JOB CLUSTERS (PART 1: ELECTRICIAN - 50 JOBS)
+// 3. JOB CLUSTERS (ELECTRICIAN)
 // ==========================================
 
 const ELECTRICIAN_CLUSTERS = {
@@ -641,11 +650,11 @@ const ELECTRICIAN_CLUSTERS = {
 
 // app/lib/constants.ts - PART 2 OF 4
 
-// --- 3. PLUMBER CLUSTERS (FULL 50 JOBS FROM FILE) ---
+// --- 3. PLUMBER CLUSTERS (FULL 50 JOBS) ---
 const PLUMBER_CLUSTERS = {
   "Boiler installation (gas)": {
     desc: "Boiler installation (gas) involves working on domestic wet heating systems to provide reliable space and water heating. The task typically includes isolating gas, water and electrical supplies, removing or modifying existing appliances or components, and connecting new equipment in line with design requirements. Flue routes, ventilation and condensate disposal must be checked to ensure they comply with current standards. On completion, the system is filled, purged and commissioned, with safety checks and settings documented for the householder.",
-    hazards: ["gas", "hot_work", "manual_handling", "chemical_coshh", "fumes"],
+    hazards: ["gas", "hot_work", "manual_handling", "chemical_coshh", "dust_fumes"],
     questions: [
       { id: "q1", label: "Have you confirmed that the existing flue and ventilation arrangements are suitable for the boiler installation (gas)?" },
       { id: "q2", label: "Will the gas, water and electrical supplies all be safely isolated before starting the boiler installation (gas)?" },
@@ -656,7 +665,7 @@ const PLUMBER_CLUSTERS = {
   },
   "Combi boiler swap": {
     desc: "Combi boiler swap involves working on domestic wet heating systems to provide reliable space and water heating. The task typically includes isolating gas, water and electrical supplies, removing or modifying existing appliances or components, and connecting new equipment in line with design requirements. Flue routes, ventilation and condensate disposal must be checked to ensure they comply with current standards. On completion, the system is filled, purged and commissioned, with safety checks and settings documented for the householder.",
-    hazards: ["gas", "hot_work", "manual_handling", "chemical_coshh", "fumes"],
+    hazards: ["gas", "hot_work", "manual_handling", "chemical_coshh", "dust_fumes"],
     questions: [
       { id: "q1", label: "Have you confirmed that the existing flue and ventilation arrangements are suitable for the combi boiler swap?" },
       { id: "q2", label: "Will the gas, water and electrical supplies all be safely isolated before starting the combi boiler swap?" },
@@ -667,7 +676,7 @@ const PLUMBER_CLUSTERS = {
   },
   "Boiler service": {
     desc: "Boiler service involves working on domestic wet heating systems to provide reliable space and water heating. The task typically includes isolating gas, water and electrical supplies, removing or modifying existing appliances or components, and connecting new equipment in line with design requirements. Flue routes, ventilation and condensate disposal must be checked to ensure they comply with current standards. On completion, the system is filled, purged and commissioned, with safety checks and settings documented for the householder.",
-    hazards: ["gas", "hot_work", "manual_handling", "chemical_coshh", "fumes"],
+    hazards: ["gas", "hot_work", "manual_handling", "chemical_coshh", "dust_fumes"],
     questions: [
       { id: "q1", label: "Have you confirmed that the existing flue and ventilation arrangements are suitable for the boiler service?" },
       { id: "q2", label: "Will the gas, water and electrical supplies all be safely isolated before starting the boiler service?" },
@@ -678,7 +687,7 @@ const PLUMBER_CLUSTERS = {
   },
   "Boiler repair": {
     desc: "Boiler repair involves working on domestic wet heating systems to provide reliable space and water heating. The task typically includes isolating gas, water and electrical supplies, removing or modifying existing appliances or components, and connecting new equipment in line with design requirements. Flue routes, ventilation and condensate disposal must be checked to ensure they comply with current standards. On completion, the system is filled, purged and commissioned, with safety checks and settings documented for the householder.",
-    hazards: ["gas", "hot_work", "manual_handling", "chemical_coshh", "fumes"],
+    hazards: ["gas", "hot_work", "manual_handling", "chemical_coshh", "dust_fumes"],
     questions: [
       { id: "q1", label: "Have you confirmed that the existing flue and ventilation arrangements are suitable for the boiler repair?" },
       { id: "q2", label: "Will the gas, water and electrical supplies all be safely isolated before starting the boiler repair?" },
@@ -1206,13 +1215,24 @@ const PLUMBER_CLUSTERS = {
   }
 };
 
+Here is **Part 3 of 4**. This section contains the complete `ROOFER_CLUSTERS` object.
+
+### Instructions
+
+1.  Ensure you are at the end of **Part 2** (after `PLUMBER_CLUSTERS`).
+2.  **Paste** the code below.
+3.  Press **Enter** twice at the end to prepare for Part 4.
+
+<!-- end list -->
+
+```typescript
 // app/lib/constants.ts - PART 3 OF 4
 
-// --- 4. ROOFER CLUSTERS (FULL 50 JOBS FROM FILE) ---
+// --- 4. ROOFER CLUSTERS (FULL 50 JOBS) ---
 const ROOFER_CLUSTERS = {
   "Pitched roof re-tile": {
     desc: "Pitched roof re-tile involves large-scale work on a pitched roof covering, often renewing all or most of the existing tiles or slates. The task typically includes stripping the old coverings, inspecting and repairing battens and underlay, and fixing new materials in accordance with manufacturer guidance. Careful setting-out and fixing patterns are required to ensure weather tightness and a uniform appearance. The work is normally carried out from scaffold or other fixed access with appropriate edge protection in place throughout.",
-    hazards: ["work_at_height", "falling_objects", "manual_handling", "fragile_surfaces"],
+    hazards: ["work_at_height", "falling_objects", "manual_handling", "fragile_surfaces", "dust_fumes"],
     questions: [
       { id: "q1", label: "Has full scaffold with suitable edge protection been installed for the pitched roof re-tile?" },
       { id: "q2", label: "Will all existing roof coverings be assessed for safe removal before starting the pitched roof re-tile?" },
@@ -1223,7 +1243,7 @@ const ROOFER_CLUSTERS = {
   },
   "Slate roof installation": {
     desc: "Slate roof installation involves large-scale work on a pitched roof covering, often renewing all or most of the existing tiles or slates. The task typically includes stripping the old coverings, inspecting and repairing battens and underlay, and fixing new materials in accordance with manufacturer guidance. Careful setting-out and fixing patterns are required to ensure weather tightness and a uniform appearance. The work is normally carried out from scaffold or other fixed access with appropriate edge protection in place throughout.",
-    hazards: ["work_at_height", "falling_objects", "manual_handling", "silica_dust"],
+    hazards: ["work_at_height", "falling_objects", "manual_handling", "silica_dust", "fragile_surfaces"],
     questions: [
       { id: "q1", label: "Has full scaffold with suitable edge protection been installed for the slate roof installation?" },
       { id: "q2", label: "Will all existing roof coverings be assessed for safe removal before starting the slate roof installation?" },
@@ -1234,7 +1254,7 @@ const ROOFER_CLUSTERS = {
   },
   "Flat roof (felt) install": {
     desc: "Flat roof (felt) install is centred on installing or fully renewing a flat roof waterproofing system using materials such as felt, GRP or EPDM. The process usually involves stripping existing coverings where necessary, preparing the deck, and applying insulation and membranes in layers to create a continuous weatherproof surface. Upstands, penetrations and edge details are formed carefully to prevent water ingress and meet fire and wind-uplift requirements. Safe access, hot works controls where relevant and weather monitoring are essential parts of planning this work.",
-    hazards: ["work_at_height", "hot_work", "fire_explosion", "fumes"],
+    hazards: ["work_at_height", "hot_work", "fire_explosion", "dust_fumes", "manual_handling"],
     questions: [
       { id: "q1", label: "Have you assessed the existing deck condition and load capacity prior to the flat roof (felt) install?" },
       { id: "q2", label: "Is a hot works permit required for any operations involved in the flat roof (felt) install?" },
@@ -1245,7 +1265,7 @@ const ROOFER_CLUSTERS = {
   },
   "Flat roof (GRP) install": {
     desc: "Flat roof (GRP) install is centred on installing or fully renewing a flat roof waterproofing system using materials such as felt, GRP or EPDM. The process usually involves stripping existing coverings where necessary, preparing the deck, and applying insulation and membranes in layers to create a continuous weatherproof surface. Upstands, penetrations and edge details are formed carefully to prevent water ingress and meet fire and wind-uplift requirements. Safe access, hot works controls where relevant and weather monitoring are essential parts of planning this work.",
-    hazards: ["work_at_height", "chemical_coshh", "fumes", "manual_handling"],
+    hazards: ["work_at_height", "chemical_coshh", "dust_fumes", "manual_handling", "fire_explosion"],
     questions: [
       { id: "q1", label: "Have you assessed the existing deck condition and load capacity prior to the flat roof (grp) install?" },
       { id: "q2", label: "Is a hot works permit required for any operations involved in the flat roof (grp) install?" },
@@ -1256,7 +1276,7 @@ const ROOFER_CLUSTERS = {
   },
   "Flat roof (EPDM) install": {
     desc: "Flat roof (EPDM) install is centred on installing or fully renewing a flat roof waterproofing system using materials such as felt, GRP or EPDM. The process usually involves stripping existing coverings where necessary, preparing the deck, and applying insulation and membranes in layers to create a continuous weatherproof surface. Upstands, penetrations and edge details are formed carefully to prevent water ingress and meet fire and wind-uplift requirements. Safe access, hot works controls where relevant and weather monitoring are essential parts of planning this work.",
-    hazards: ["work_at_height", "chemical_coshh", "manual_handling", "slips_trips"],
+    hazards: ["work_at_height", "chemical_coshh", "manual_handling", "slips_trips", "dust_fumes"],
     questions: [
       { id: "q1", label: "Have you assessed the existing deck condition and load capacity prior to the flat roof (epdm) install?" },
       { id: "q2", label: "Is a hot works permit required for any operations involved in the flat roof (epdm) install?" },
@@ -1267,7 +1287,7 @@ const ROOFER_CLUSTERS = {
   },
   "Lead flashing replacement": {
     desc: "Lead flashing replacement involves installing, adjusting or renewing lead or similar flashings at junctions between roof coverings and walls, chimneys, abutments or roof windows. The work includes cutting or chasing into masonry where required, forming soakers or aprons, and dressing the lead to shed water correctly. Consideration is given to thermal movement, jointing and fixing methods to avoid premature fatigue or failure. All debris is cleared from gutters and surfaces, and any exposed chases or fixings are sealed to maintain weathertightness.",
-    hazards: ["work_at_height", "lead_exposure", "manual_handling", "dust_fumes"],
+    hazards: ["work_at_height", "lead_exposure", "manual_handling", "dust_fumes", "silica_dust"],
     questions: [
       { id: "q1", label: "Have you confirmed that any masonry chasing required for the lead flashing replacement will not compromise structural stability?" },
       { id: "q2", label: "Will lead used in the lead flashing replacement be sized and detailed in accordance with current codes of practice?" },
@@ -1278,7 +1298,7 @@ const ROOFER_CLUSTERS = {
   },
   "Lead welding/leadwork": {
     desc: "Lead welding/leadwork involves installing, adjusting or renewing lead or similar flashings at junctions between roof coverings and walls, chimneys, abutments or roof windows. The work includes cutting or chasing into masonry where required, forming soakers or aprons, and dressing the lead to shed water correctly. Consideration is given to thermal movement, jointing and fixing methods to avoid premature fatigue or failure. All debris is cleared from gutters and surfaces, and any exposed chases or fixings are sealed to maintain weathertightness.",
-    hazards: ["work_at_height", "hot_work", "lead_exposure", "fumes"],
+    hazards: ["work_at_height", "hot_work", "lead_exposure", "dust_fumes", "manual_handling"],
     questions: [
       { id: "q1", label: "Have you confirmed that any masonry chasing required for the lead welding/leadwork will not compromise structural stability?" },
       { id: "q2", label: "Will lead used in the lead welding/leadwork be sized and detailed in accordance with current codes of practice?" },
@@ -1289,7 +1309,7 @@ const ROOFER_CLUSTERS = {
   },
   "Gutter installation": {
     desc: "Gutter installation is focused on the roof edge components that collect and direct water away from the building envelope. Typical tasks include installing, repairing or replacing gutters, downpipes, fascias, soffits or bargeboards along eaves and verges. Work is often carried out at height, requiring stable access and measures to prevent falling objects. Once completed, the alignment, joints and fixings are checked and water is run through the system where possible to confirm proper flow.",
-    hazards: ["work_at_height", "manual_handling", "slips_trips", "public_interface"],
+    hazards: ["work_at_height", "manual_handling", "slips_trips", "public_interface", "falling_objects"],
     questions: [
       { id: "q1", label: "Is the gutter installation being planned with stable working platforms or properly footed ladders?" },
       { id: "q2", label: "Will all old fixings and debris from the gutter installation be safely removed rather than left in gutters or on the ground?" },
@@ -1300,7 +1320,7 @@ const ROOFER_CLUSTERS = {
   },
   "Gutter repair": {
     desc: "Gutter repair is focused on the roof edge components that collect and direct water away from the building envelope. Typical tasks include installing, repairing or replacing gutters, downpipes, fascias, soffits or bargeboards along eaves and verges. Work is often carried out at height, requiring stable access and measures to prevent falling objects. Once completed, the alignment, joints and fixings are checked and water is run through the system where possible to confirm proper flow.",
-    hazards: ["work_at_height", "manual_handling", "slips_trips"],
+    hazards: ["work_at_height", "manual_handling", "slips_trips", "biological", "falling_objects"],
     questions: [
       { id: "q1", label: "Is the gutter repair being planned with stable working platforms or properly footed ladders?" },
       { id: "q2", label: "Will all old fixings and debris from the gutter repair be safely removed rather than left in gutters or on the ground?" },
@@ -1311,7 +1331,7 @@ const ROOFER_CLUSTERS = {
   },
   "Fascia & soffit replacement": {
     desc: "Fascia & soffit replacement is focused on the roof edge components that collect and direct water away from the building envelope. Typical tasks include installing, repairing or replacing gutters, downpipes, fascias, soffits or bargeboards along eaves and verges. Work is often carried out at height, requiring stable access and measures to prevent falling objects. Once completed, the alignment, joints and fixings are checked and water is run through the system where possible to confirm proper flow.",
-    hazards: ["work_at_height", "manual_handling", "asbestos", "dust_fumes"],
+    hazards: ["work_at_height", "manual_handling", "asbestos", "dust_fumes", "falling_objects"],
     questions: [
       { id: "q1", label: "Is the fascia & soffit replacement being planned with stable working platforms or properly footed ladders?" },
       { id: "q2", label: "Will all old fixings and debris from the fascia & soffit replacement be safely removed rather than left in gutters or on the ground?" },
@@ -1322,7 +1342,7 @@ const ROOFER_CLUSTERS = {
   },
   "Chimney repointing": {
     desc: "Chimney repointing relates to the structural and weathering elements of a chimney above the roof line. Activities can range from localised repointing to full rebuilds or removals, including working with brickwork, flaunching, pots and associated flashings. Stability of the stack must be assessed and maintained throughout the work, with suitable propping or staged dismantling where required. On completion, the chimney area is left in a condition that is both structurally sound and weathertight, with all loose material removed from the roof.",
-    hazards: ["work_at_height", "falling_objects", "dust_fumes", "structural_collapse"],
+    hazards: ["work_at_height", "falling_objects", "dust_fumes", "structural_collapse", "manual_handling"],
     questions: [
       { id: "q1", label: "Has the stability of the chimney been assessed before commencing the chimney repointing?" },
       { id: "q2", label: "Will the chimney repointing require temporary supports or staged dismantling to prevent collapse?" },
@@ -1377,7 +1397,7 @@ const ROOFER_CLUSTERS = {
   },
   "Moss removal": {
     desc: "Moss removal consists of removing organic growth, debris or surface contamination from roof coverings and associated components. Typical processes include manual scraping, brushing or controlled cleaning methods, taking care not to damage tiles, slates, membranes or fixings. Attention is given to protecting gutters, downpipes and surrounding areas from dislodged material. Once complete, the roof can be more easily inspected and continues to shed water as designed.",
-    hazards: ["work_at_height", "slips_trips", "environmental_weather", "biological"],
+    hazards: ["work_at_height", "slips_trips", "environmental_weather", "biological", "falling_objects"],
     questions: [
       { id: "q1", label: "Are you avoiding the use of high-pressure washing directly onto vulnerable coverings during the moss removal?" },
       { id: "q2", label: "Will the moss removal include measures to prevent dislodged material blocking gutters and downpipes?" },
@@ -1399,7 +1419,7 @@ const ROOFER_CLUSTERS = {
   },
   "Ridge tile repointing": {
     desc: "Ridge tile repointing focuses on localised adjustments or renewals to limited areas of a pitched roof. Activities may include lifting and relaying small sections of tiles or slates, addressing minor defects in bedding or fixings, and tying in repairs with the surrounding roof. Attention is paid to matching existing materials and maintaining correct overlaps and water shedding. Access is usually from scaffold, towers or ladders, with debris managed to prevent hazards to people below.",
-    hazards: ["work_at_height", "falling_objects", "manual_handling", "dust_fumes"],
+    hazards: ["work_at_height", "falling_objects", "manual_handling", "dust_fumes", "slips_trips"],
     questions: [
       { id: "q1", label: "Is access for the ridge tile repointing being arranged in a way that avoids overreaching from ladders?" },
       { id: "q2", label: "Have you checked that localised areas affected by the ridge tile repointing are structurally sound before stepping on them?" },
@@ -1410,7 +1430,7 @@ const ROOFER_CLUSTERS = {
   },
   "Valley replacement": {
     desc: "Valley replacement focuses on localised adjustments or renewals to limited areas of a pitched roof. Activities may include lifting and relaying small sections of tiles or slates, addressing minor defects in bedding or fixings, and tying in repairs with the surrounding roof. Attention is paid to matching existing materials and maintaining correct overlaps and water shedding. Access is usually from scaffold, towers or ladders, with debris managed to prevent hazards to people below.",
-    hazards: ["work_at_height", "falling_objects", "manual_handling", "water_ingress"],
+    hazards: ["work_at_height", "falling_objects", "manual_handling", "water_ingress", "slips_trips"],
     questions: [
       { id: "q1", label: "Is access for the valley replacement being arranged in a way that avoids overreaching from ladders?" },
       { id: "q2", label: "Have you checked that localised areas affected by the valley replacement are structurally sound before stepping on them?" },
@@ -1421,7 +1441,7 @@ const ROOFER_CLUSTERS = {
   },
   "Roof ventilation installation": {
     desc: "Roof ventilation installation addresses the provision or improvement of ventilation to roof spaces or coverings to manage condensation and moisture. The work can include fitting new vents at eaves, ridges or through the roof, and cutting or adapting roof coverings and linings accordingly. Care is taken to maintain weathering integrity while creating airflow paths in accordance with design guidance. After installation, the routes are checked to ensure they are unobstructed and compatible with insulation and other systems.",
-    hazards: ["work_at_height", "dust_fumes", "manual_handling", "environmental_weather"],
+    hazards: ["work_at_height", "dust_fumes", "manual_handling", "environmental_weather", "sharp_objects"],
     questions: [
       { id: "q1", label: "Have you checked for existing vents and their effectiveness before starting the roof ventilation installation?" },
       { id: "q2", label: "Will the roof ventilation installation maintain required levels of weather tightness while adding airflow paths?" },
@@ -1454,7 +1474,7 @@ const ROOFER_CLUSTERS = {
   },
   "Skylight replacement": {
     desc: "Skylight replacement involves creating or modifying openings in a roof to accommodate roof windows, skylights or similar glazed units. The task includes trimming existing structure, installing frames, integrating flashings and making good internal linings. Structural support and weathering around the opening must be carefully detailed to prevent movement and leaks. Final checks confirm smooth operation of the unit and effective drainage of water away from the junctions.",
-    hazards: ["work_at_height", "falling_objects", "fragile_surfaces", "manual_handling"],
+    hazards: ["work_at_height", "falling_objects", "fragile_surfaces", "manual_handling", "water_ingress"],
     questions: [
       { id: "q1", label: "Have you confirmed structural trimmers and supports needed for the skylight replacement are correctly sized?" },
       { id: "q2", label: "Will the skylight replacement be carried out with the opening temporarily weathered if works span multiple days?" },
@@ -1465,7 +1485,7 @@ const ROOFER_CLUSTERS = {
   },
   "Soffit ventilation upgrade": {
     desc: "Soffit ventilation upgrade addresses the provision or improvement of ventilation to roof spaces or coverings to manage condensation and moisture. The work can include fitting new vents at eaves, ridges or through the roof, and cutting or adapting roof coverings and linings accordingly. Care is taken to maintain weathering integrity while creating airflow paths in accordance with design guidance. After installation, the routes are checked to ensure they are unobstructed and compatible with insulation and other systems.",
-    hazards: ["work_at_height", "dust_fumes", "manual_handling", "environmental_weather"],
+    hazards: ["work_at_height", "dust_fumes", "manual_handling", "environmental_weather", "asbestos"],
     questions: [
       { id: "q1", label: "Have you checked for existing vents and their effectiveness before starting the soffit ventilation upgrade?" },
       { id: "q2", label: "Will the soffit ventilation upgrade maintain required levels of weather tightness while adding airflow paths?" },
@@ -1487,7 +1507,7 @@ const ROOFER_CLUSTERS = {
   },
   "Loft insulation": {
     desc: "Loft insulation is focused on improving the thermal performance of the roof or loft area by installing insulation materials. This can include placing insulation between and over rafters, or laying quilts or boards at ceiling level in roof voids. Ventilation openings, downlight clearances and access routes must be maintained to avoid condensation and overheating risks. On completion, the insulation is left evenly distributed and any hatches or walkways are reinstated safely.",
-    hazards: ["confined_space", "dust_fumes", "manual_handling", "heat_stress"],
+    hazards: ["confined_space", "dust_fumes", "manual_handling", "heat_stress", "fragile_surfaces"],
     questions: [
       { id: "q1", label: "Have you confirmed the type and thickness of insulation to be used in the loft insulation in line with design or regulations?" },
       { id: "q2", label: "Will the loft insulation ensure that ventilation paths are maintained and not blocked by new materials?" },
@@ -1520,7 +1540,7 @@ const ROOFER_CLUSTERS = {
   },
   "Soffit repair": {
     desc: "Soffit repair is focused on the roof edge components that collect and direct water away from the building envelope. Typical tasks include installing, repairing or replacing gutters, downpipes, fascias, soffits or bargeboards along eaves and verges. Work is often carried out at height, requiring stable access and measures to prevent falling objects. Once completed, the alignment, joints and fixings are checked and water is run through the system where possible to confirm proper flow.",
-    hazards: ["work_at_height", "manual_handling", "dust_fumes", "asbestos"],
+    hazards: ["work_at_height", "manual_handling", "dust_fumes", "asbestos", "falling_objects"],
     questions: [
       { id: "q1", label: "Is the soffit repair being planned with stable working platforms or properly footed ladders?" },
       { id: "q2", label: "Will all old fixings and debris from the soffit repair be safely removed rather than left in gutters or on the ground?" },
@@ -1531,7 +1551,7 @@ const ROOFER_CLUSTERS = {
   },
   "Roof coating/sealant": {
     desc: "Roof coating/sealant involves applying surface treatments to roof coverings to enhance weather resistance, extend service life or change appearance. The process normally starts with cleaning and preparing the roof, followed by application of liquid or film-forming products in accordance with manufacturer recommendations. Adjacent surfaces, gutters and ground areas must be protected from overspray or spills. Weather conditions are monitored to ensure that curing or drying occurs correctly and safely.",
-    hazards: ["work_at_height", "chemical_coshh", "fumes", "slips_trips", "environmental_weather"],
+    hazards: ["work_at_height", "chemical_coshh", "dust_fumes", "slips_trips", "environmental_weather"],
     questions: [
       { id: "q1", label: "Is the roof surface being properly cleaned and prepared before applying products for the roof coating/sealant?" },
       { id: "q2", label: "Have you checked that weather conditions during and after the roof coating/sealant are suitable for curing?" },
@@ -1542,7 +1562,7 @@ const ROOFER_CLUSTERS = {
   },
   "EPDM patch repair": {
     desc: "EPDM patch repair deals with targeted repairs to existing flat roof systems to rectify leaks or damage without full replacement. It often involves locating the source of water ingress, preparing the surrounding area and applying compatible patch materials or detailing. Surfaces must be cleaned and dried, and edges of the repair securely sealed to integrate with the original system. The success of the work is typically confirmed through visual checks and observation during subsequent rainfall.",
-    hazards: ["work_at_height", "chemical_coshh", "manual_handling", "slips_trips"],
+    hazards: ["work_at_height", "chemical_coshh", "manual_handling", "slips_trips", "water_ingress"],
     questions: [
       { id: "q1", label: "Have you identified the probable source area of water ingress before commencing the epdm patch repair?" },
       { id: "q2", label: "Is the roof surface for the epdm patch repair dry and clean enough to allow effective adhesion of repair materials?" },
@@ -1553,7 +1573,7 @@ const ROOFER_CLUSTERS = {
   },
   "GRP patch repair": {
     desc: "GRP patch repair deals with targeted repairs to existing flat roof systems to rectify leaks or damage without full replacement. It often involves locating the source of water ingress, preparing the surrounding area and applying compatible patch materials or detailing. Surfaces must be cleaned and dried, and edges of the repair securely sealed to integrate with the original system. The success of the work is typically confirmed through visual checks and observation during subsequent rainfall.",
-    hazards: ["work_at_height", "chemical_coshh", "fumes", "manual_handling", "slips_trips"],
+    hazards: ["work_at_height", "chemical_coshh", "dust_fumes", "manual_handling", "slips_trips"],
     questions: [
       { id: "q1", label: "Have you identified the probable source area of water ingress before commencing the grp patch repair?" },
       { id: "q2", label: "Is the roof surface for the grp patch repair dry and clean enough to allow effective adhesion of repair materials?" },
@@ -1564,7 +1584,7 @@ const ROOFER_CLUSTERS = {
   },
   "Pitched roof underlay replacement": {
     desc: "Pitched roof underlay replacement involves large-scale work on a pitched roof covering, often renewing all or most of the existing tiles or slates. The task typically includes stripping the old coverings, inspecting and repairing battens and underlay, and fixing new materials in accordance with manufacturer guidance. Careful setting-out and fixing patterns are required to ensure weather tightness and a uniform appearance. The work is normally carried out from scaffold or other fixed access with appropriate edge protection in place throughout.",
-    hazards: ["work_at_height", "falling_objects", "manual_handling", "fragile_surfaces"],
+    hazards: ["work_at_height", "falling_objects", "manual_handling", "fragile_surfaces", "environmental_weather"],
     questions: [
       { id: "q1", label: "Has full scaffold with suitable edge protection been installed for the pitched roof underlay replacement?" },
       { id: "q2", label: "Will all existing roof coverings be assessed for safe removal before starting the pitched roof underlay replacement?" },
@@ -1575,7 +1595,7 @@ const ROOFER_CLUSTERS = {
   },
   "Tile/Slate replacement (minor)": {
     desc: "Tile/Slate replacement (minor) focuses on localised adjustments or renewals to limited areas of a pitched roof. Activities may include lifting and relaying small sections of tiles or slates, addressing minor defects in bedding or fixings, and tying in repairs with the surrounding roof. Attention is paid to matching existing materials and maintaining correct overlaps and water shedding. Access is usually from scaffold, towers or ladders, with debris managed to prevent hazards to people below.",
-    hazards: ["work_at_height", "falling_objects", "manual_handling", "environmental_weather"],
+    hazards: ["work_at_height", "falling_objects", "manual_handling", "environmental_weather", "slips_trips"],
     questions: [
       { id: "q1", label: "Is access for the tile/slate replacement (minor) being arranged in a way that avoids overreaching from ladders?" },
       { id: "q2", label: "Have you checked that localised areas affected by the tile/slate replacement (minor) are structurally sound before stepping on them?" },
@@ -1586,7 +1606,7 @@ const ROOFER_CLUSTERS = {
   },
   "Roofline repair (bargeboards)": {
     desc: "Roofline repair (bargeboards) is focused on the roof edge components that collect and direct water away from the building envelope. Typical tasks include installing, repairing or replacing gutters, downpipes, fascias, soffits or bargeboards along eaves and verges. Work is often carried out at height, requiring stable access and measures to prevent falling objects. Once completed, the alignment, joints and fixings are checked and water is run through the system where possible to confirm proper flow.",
-    hazards: ["work_at_height", "manual_handling", "asbestos", "slips_trips"],
+    hazards: ["work_at_height", "manual_handling", "asbestos", "slips_trips", "falling_objects"],
     questions: [
       { id: "q1", label: "Is the roofline repair (bargeboards) being planned with stable working platforms or properly footed ladders?" },
       { id: "q2", label: "Will all old fixings and debris from the roofline repair (bargeboards) be safely removed rather than left in gutters or on the ground?" },
@@ -1597,7 +1617,7 @@ const ROOFER_CLUSTERS = {
   },
   "Verge repair/reconstruction": {
     desc: "Verge repair/reconstruction focuses on localised adjustments or renewals to limited areas of a pitched roof. Activities may include lifting and relaying small sections of tiles or slates, addressing minor defects in bedding or fixings, and tying in repairs with the surrounding roof. Attention is paid to matching existing materials and maintaining correct overlaps and water shedding. Access is usually from scaffold, towers or ladders, with debris managed to prevent hazards to people below.",
-    hazards: ["work_at_height", "falling_objects", "manual_handling", "environmental_weather"],
+    hazards: ["work_at_height", "falling_objects", "manual_handling", "environmental_weather", "cement"],
     questions: [
       { id: "q1", label: "Is access for the verge repair/reconstruction being arranged in a way that avoids overreaching from ladders?" },
       { id: "q2", label: "Have you checked that localised areas affected by the verge repair/reconstruction are structurally sound before stepping on them?" },
@@ -1619,7 +1639,7 @@ const ROOFER_CLUSTERS = {
   },
   "Bird proofing work": {
     desc: "Bird proofing work deals with installing systems to discourage birds from nesting or roosting on roofs, ledges or around chimney and solar installations. It may include fitting spikes, nets, mesh or bespoke barriers, often at exposed or awkward positions. The design must balance effectiveness with minimal impact on the building fabric and drainage paths. All fixings and materials are checked to ensure they are secure and do not introduce new hazards or maintenance issues.",
-    hazards: ["work_at_height", "biological", "manual_handling", "sharp_objects"],
+    hazards: ["work_at_height", "biological", "manual_handling", "sharp_objects", "slips_trips"],
     questions: [
       { id: "q1", label: "Have you assessed routes and methods for safe access to all locations involved in the bird proofing work?" },
       { id: "q2", label: "Is the bird proofing work designed to avoid trapping birds or other wildlife rather than just deterring them?" },
@@ -1630,7 +1650,7 @@ const ROOFER_CLUSTERS = {
   },
   "Solar panel roof mounting prep": {
     desc: "Solar panel roof mounting prep is associated with solar panel systems mounted on or above roof coverings, either preparing for or working around existing installations. The tasks can include fitting support rails, adjusting fixings, or temporarily removing and refitting panels to allow roof repairs. Coordination with electrical specialists is important, particularly in relation to live DC circuits and inverter equipment. All penetrations and fixings must be detailed so that the roof remains watertight once the work is finished.",
-    hazards: ["work_at_height", "manual_handling", "live_electricity", "falling_objects"],
+    hazards: ["work_at_height", "manual_handling", "live_electricity", "falling_objects", "slips_trips"],
     questions: [
       { id: "q1", label: "Have electrical isolation procedures been agreed with a competent person before the solar panel roof mounting prep?" },
       { id: "q2", label: "Will the solar panel roof mounting prep involve working around live DC circuits that require additional precautions?" },
@@ -1641,7 +1661,7 @@ const ROOFER_CLUSTERS = {
   },
   "Solar panel removal & reinstatement": {
     desc: "Solar panel removal & reinstatement is associated with solar panel systems mounted on or above roof coverings, either preparing for or working around existing installations. The tasks can include fitting support rails, adjusting fixings, or temporarily removing and refitting panels to allow roof repairs. Coordination with electrical specialists is important, particularly in relation to live DC circuits and inverter equipment. All penetrations and fixings must be detailed so that the roof remains watertight once the work is finished.",
-    hazards: ["work_at_height", "manual_handling", "live_electricity", "falling_objects"],
+    hazards: ["work_at_height", "manual_handling", "live_electricity", "falling_objects", "slips_trips"],
     questions: [
       { id: "q1", label: "Have electrical isolation procedures been agreed with a competent person before the solar panel removal & reinstatement?" },
       { id: "q2", label: "Will the solar panel removal & reinstatement involve working around live DC circuits that require additional precautions?" },
@@ -1652,7 +1672,7 @@ const ROOFER_CLUSTERS = {
   },
   "Parapet wall repair": {
     desc: "Parapet wall repair relates to the repair or improvement of parapet walls and their interfaces with adjacent roof coverings. Work often includes rebuilding damaged sections, renewing copings and improving flashings or upstands. Careful attention is paid to managing water runoff so that it does not pond or penetrate at the junctions. The completed parapet must be structurally sound and compatible with any membranes or coverings below.",
-    hazards: ["work_at_height", "falling_objects", "manual_handling", "environmental_weather"],
+    hazards: ["work_at_height", "falling_objects", "manual_handling", "environmental_weather", "dust_fumes"],
     questions: [
       { id: "q1", label: "Have you planned temporary edge protection or barriers for the parapet wall repair where parapet integrity is reduced?" },
       { id: "q2", label: "Will all coping and capping details disturbed by the parapet wall repair be reinstated or upgraded for improved weathering?" },
@@ -1663,7 +1683,7 @@ const ROOFER_CLUSTERS = {
   },
   "Flashing upgrade for roof windows": {
     desc: "Flashing upgrade for roof windows involves installing, adjusting or renewing lead or similar flashings at junctions between roof coverings and walls, chimneys, abutments or roof windows. The work includes cutting or chasing into masonry where required, forming soakers or aprons, and dressing the lead to shed water correctly. Consideration is given to thermal movement, jointing and fixing methods to avoid premature fatigue or failure. All debris is cleared from gutters and surfaces, and any exposed chases or fixings are sealed to maintain weathertightness.",
-    hazards: ["work_at_height", "manual_handling", "falling_objects", "water_ingress"],
+    hazards: ["work_at_height", "manual_handling", "falling_objects", "water_ingress", "lead_exposure"],
     questions: [
       { id: "q1", label: "Have you confirmed that any masonry chasing required for the flashing upgrade for roof windows will not compromise structural stability?" },
       { id: "q2", label: "Will lead used in the flashing upgrade for roof windows be sized and detailed in accordance with current codes of practice?" },
@@ -1674,7 +1694,7 @@ const ROOFER_CLUSTERS = {
   },
   "Slate hangers installation": {
     desc: "Slate hangers installation focuses on localised adjustments or renewals to limited areas of a pitched roof. Activities may include lifting and relaying small sections of tiles or slates, addressing minor defects in bedding or fixings, and tying in repairs with the surrounding roof. Attention is paid to matching existing materials and maintaining correct overlaps and water shedding. Access is usually from scaffold, towers or ladders, with debris managed to prevent hazards to people below.",
-    hazards: ["work_at_height", "falling_objects", "manual_handling", "environmental_weather"],
+    hazards: ["work_at_height", "falling_objects", "manual_handling", "environmental_weather", "slips_trips"],
     questions: [
       { id: "q1", label: "Is access for the slate hangers installation being arranged in a way that avoids overreaching from ladders?" },
       { id: "q2", label: "Have you checked that localised areas affected by the slate hangers installation are structurally sound before stepping on them?" },
@@ -1718,7 +1738,7 @@ const ROOFER_CLUSTERS = {
   },
   "Dormer roof waterproofing": {
     desc: "Dormer roof waterproofing covers constructing or waterproofing dormer structures that project from the main roof slope. Tasks may include framing, sheathing, installing windows, applying coverings and integrating flashings with the main roof. Structural support, thermal performance and weather tightness all need careful coordination at junctions. The finished dormer should provide durable accommodation while shedding water safely onto the surrounding roof.",
-    hazards: ["work_at_height", "manual_handling", "hot_work", "chemical_coshh"],
+    hazards: ["work_at_height", "manual_handling", "hot_work", "chemical_coshh", "dust_fumes"],
     questions: [
       { id: "q1", label: "Have structural alterations required for the dormer roof waterproofing been designed or approved by an engineer?" },
       { id: "q2", label: "Will the dormer roof waterproofing maintain adequate support for the existing roof around the dormer opening?" },
@@ -1729,7 +1749,7 @@ const ROOFER_CLUSTERS = {
   },
   "Green roof installation": {
     desc: "Green roof installation involves creating or maintaining green roof systems that support vegetation above a waterproofing layer. The build-up typically includes root barriers, drainage layers, growing medium and planting selected for the roof environment. Loadings, irrigation, drainage and edge restraint must all be designed and implemented in line with guidance. Ongoing maintenance access and safe working arrangements are important to preserve both the roof and the planting over time.",
-    hazards: ["work_at_height", "manual_handling", "slips_trips", "biological"],
+    hazards: ["work_at_height", "manual_handling", "slips_trips", "biological", "heavy_plant"],
     questions: [
       { id: "q1", label: "Has the structural capacity of the roof been checked for the saturated load associated with the green roof installation?" },
       { id: "q2", label: "Will the green roof installation include a root barrier and appropriate drainage layers above the waterproofing?" },
@@ -1740,7 +1760,7 @@ const ROOFER_CLUSTERS = {
   },
   "Gutter guard installation": {
     desc: "Gutter guard installation is focused on the roof edge components that collect and direct water away from the building envelope. Typical tasks include installing, repairing or replacing gutters, downpipes, fascias, soffits or bargeboards along eaves and verges. Work is often carried out at height, requiring stable access and measures to prevent falling objects. Once completed, the alignment, joints and fixings are checked and water is run through the system where possible to confirm proper flow.",
-    hazards: ["work_at_height", "manual_handling", "slips_trips"],
+    hazards: ["work_at_height", "manual_handling", "slips_trips", "falling_objects"],
     questions: [
       { id: "q1", label: "Is the gutter guard installation being planned with stable working platforms or properly footed ladders?" },
       { id: "q2", label: "Will all old fixings and debris from the gutter guard installation be safely removed rather than left in gutters or on the ground?" },
@@ -1751,7 +1771,7 @@ const ROOFER_CLUSTERS = {
   },
   "Roof membrane installation": {
     desc: "Roof membrane installation is centred on installing or fully renewing a flat roof waterproofing system using materials such as felt, GRP or EPDM. The process usually involves stripping existing coverings where necessary, preparing the deck, and applying insulation and membranes in layers to create a continuous weatherproof surface. Upstands, penetrations and edge details are formed carefully to prevent water ingress and meet fire and wind-uplift requirements. Safe access, hot works controls where relevant and weather monitoring are essential parts of planning this work.",
-    hazards: ["work_at_height", "hot_work", "chemical_coshh", "manual_handling"],
+    hazards: ["work_at_height", "hot_work", "chemical_coshh", "manual_handling", "slips_trips"],
     questions: [
       { id: "q1", label: "Have you assessed the existing deck condition and load capacity prior to the roof membrane installation?" },
       { id: "q2", label: "Is a hot works permit required for any operations involved in the roof membrane installation?" },
@@ -1772,10 +1792,11 @@ const ROOFER_CLUSTERS = {
     ]
   }
 };
+```
 
 // app/lib/constants.ts - PART 4 OF 4
 
-// --- 5. BUILDER CLUSTERS (FULL 50 JOBS FROM FILE) ---
+// --- 5. BUILDER CLUSTERS (FULL 50 JOBS) ---
 const BUILDER_CLUSTERS = {
   "Structural knock-through between rooms": {
     desc: "Structural knock-through between rooms involves altering or supporting parts of a building's primary structure, such as walls, beams or floors. The work typically follows an engineer's design, with temporary supports installed before any load-bearing elements are removed or modified. Close control of sequence, propping and load transfer is required to prevent unintended movement or collapse. On completion, new structural members are secured, checked and left ready for inspection and subsequent finishes.",
@@ -1889,7 +1910,7 @@ const BUILDER_CLUSTERS = {
   },
   "External sand and cement rendering": {
     desc: "External sand and cement rendering concerns the internal fabric of the building, including non-structural walls, linings and finishes. Work may involve installing or adjusting stud frameworks, fixing boards, applying plaster or creating new room layouts. Services such as electrical and plumbing routes are often coordinated within or behind the new construction. The finished surfaces are left plumb, level and ready for decoration or further fit-out.",
-    hazards: ["work_at_height", "chemical_coshh", "dust_fumes", "manual_handling"],
+    hazards: ["work_at_height", "cement", "dust_fumes", "manual_handling"],
     questions: [
       { id: "q1", label: "Have you confirmed that no load-bearing elements are being altered as part of the external sand and cement rendering?" },
       { id: "q2", label: "Will the external sand and cement rendering allow for service routes, access panels and fixings needed for other trades?" },
@@ -1988,7 +2009,7 @@ const BUILDER_CLUSTERS = {
   },
   "Patio paving installation": {
     desc: "Patio paving installation is centred on earthworks, external levels, hardstandings and subsurface drainage outside the main building envelope. Typical activities include excavation, compaction of sub-bases, laying pipes or channels, and installing paving or concrete finishes. Existing services, access routes and neighbouring properties must be protected throughout the work. Completed groundworks are left stable, properly drained and suitable for their intended use.",
-    hazards: ["manual_handling", "dust_fumes", "vibration", "slips_trips"],
+    hazards: ["manual_handling", "dust_fumes", "noise_vibration", "slips_trips"],
     questions: [
       { id: "q1", label: "Have underground services been located and marked out before starting the patio paving installation?" },
       { id: "q2", label: "Will excavations created during the patio paving installation be supported, battered back or fenced to prevent collapse and falls?" },
@@ -1999,7 +2020,7 @@ const BUILDER_CLUSTERS = {
   },
   "Block paved driveway installation": {
     desc: "Block paved driveway installation is centred on earthworks, external levels, hardstandings and subsurface drainage outside the main building envelope. Typical activities include excavation, compaction of sub-bases, laying pipes or channels, and installing paving or concrete finishes. Existing services, access routes and neighbouring properties must be protected throughout the work. Completed groundworks are left stable, properly drained and suitable for their intended use.",
-    hazards: ["manual_handling", "dust_fumes", "vibration", "plant_machinery", "public_interface"],
+    hazards: ["manual_handling", "dust_fumes", "noise_vibration", "plant_machinery", "public_interface"],
     questions: [
       { id: "q1", label: "Have underground services been located and marked out before starting the block paved driveway installation?" },
       { id: "q2", label: "Will excavations created during the block paved driveway installation be supported, battered back or fenced to prevent collapse and falls?" },
