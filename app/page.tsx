@@ -120,7 +120,6 @@ export default function Home() {
       // --- A. Document Setup ---
       const doc = new jsPDF();
       const pageWidth = doc.internal.pageSize.width;
-      const pageHeight = doc.internal.pageSize.height;
       const margin = 14;
       let finalY = margin;
 
@@ -196,7 +195,7 @@ export default function Home() {
       const cluster = clusters[formData.job];
       const jobHazards = cluster ? cluster.hazards : [];
 
-      // Build table rows
+      // Build table rows - FIXED TYPE PREDICATE HERE
       const riskTableBody = jobHazards.map((hKey) => {
         const hDef = HAZARD_DATA[hKey];
         if (!hDef) return null;
@@ -207,7 +206,7 @@ export default function Home() {
           hDef.control,
           hDef.residual_score
         ];
-      }).filter(Boolean); // Filter out any nulls
+      }).filter((row): row is string[] => row !== null); // Explicitly remove nulls
 
       autoTable(doc, {
         startY: finalY,
