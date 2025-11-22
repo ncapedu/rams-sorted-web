@@ -126,13 +126,13 @@ export default function Home() {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
-      createTenOutOfTenPDF(data);
+      createGoldMasterPDF(data);
     } catch (e: any) { alert(e.message); } 
     finally { setLoading(false); }
   };
 
-  // --- THE "10/10 DEFINITIVE" PDF ENGINE ---
-  const createTenOutOfTenPDF = (data: any) => {
+  // --- THE "GOLD MASTER" PDF ENGINE ---
+  const createGoldMasterPDF = (data: any) => {
     const doc = new jsPDF();
     const totalPagesExp = "{total_pages_count_string}";
     const pageWidth = 210;
@@ -249,7 +249,7 @@ export default function Home() {
         currentY = doc.lastAutoTable.finalY + 10;
     }
 
-    // 4. RISK ASSESSMENT (The 10/10 Layout)
+    // 4. RISK ASSESSMENT (Wider Columns)
     addPageBreak(); 
     doc.setFont("helvetica", "bold"); doc.setFontSize(12);
     doc.text("4. RISK ASSESSMENT", margin, currentY);
@@ -274,7 +274,7 @@ export default function Home() {
         body: riskRows,
         theme: 'grid',
         styles: { 
-            fontSize: 8, // Keeps it readable
+            fontSize: 8,
             cellPadding: 2, 
             lineColor: [0,0,0], 
             lineWidth: 0.1, 
@@ -286,10 +286,10 @@ export default function Home() {
         columnStyles: {
             0: { cellWidth: 25, fontStyle: 'bold' },
             1: { cellWidth: 30 }, 
-            2: { cellWidth: 22 }, // INCREASED to 22mm to fit "Operatives / Public"
-            3: { cellWidth: 14, halign: 'center' }, // 14mm is enough for HIGH (20)
+            2: { cellWidth: 20 }, 
+            3: { cellWidth: 18, halign: 'center' }, // Increased to 18mm for "MEDIUM"
             4: { cellWidth: 'auto' }, 
-            5: { cellWidth: 14, halign: 'center' }  // 14mm
+            5: { cellWidth: 18, halign: 'center' }  // Increased to 18mm
         }
     });
     // @ts-ignore
@@ -381,7 +381,7 @@ export default function Home() {
         currentY += 10;
     }
 
-    // 8. EMERGENCY (New Grid Layout)
+    // 8. EMERGENCY
     checkSpace(50);
     doc.setFont("helvetica", "bold"); doc.setFontSize(12);
     doc.text("8. EMERGENCY ARRANGEMENTS", margin, currentY);
@@ -402,14 +402,14 @@ export default function Home() {
     // @ts-ignore
     currentY = doc.lastAutoTable.finalY + 15;
 
-    // 9. REGISTER (Fixed Loop)
+    // 9. REGISTER (Fixed N -> No.)
     addPageBreak();
     doc.setFont("helvetica", "bold"); doc.setFontSize(12);
     doc.text("9. OPERATIVE BRIEFING REGISTER", margin, currentY);
     currentY += 8;
 
     const registerRows = [];
-    for(let i=1; i<=10; i++) { // Explicit 1-10
+    for(let i=1; i<=10; i++) { 
         registerRows.push([i.toString(), '', '', '', '']);
     }
 
@@ -425,8 +425,8 @@ export default function Home() {
     // @ts-ignore
     currentY = doc.lastAutoTable.finalY + 15;
 
-    // 10. AUTHORISATION (Big Boxes)
-    if (currentY + 100 > pageHeight - margin) {
+    // 10. AUTHORISATION (Extended Height)
+    if (currentY + 110 > pageHeight - margin) {
         addPageBreak();
     }
 
@@ -434,24 +434,24 @@ export default function Home() {
     doc.text("10. AUTHORISATION", margin, currentY);
     currentY += 6;
 
-    // BOX 1: Operative Statement (40mm)
+    // BOX 1: Operative Statement (45mm)
     doc.setDrawColor(0); doc.setLineWidth(0.2);
-    doc.rect(margin, currentY, contentWidth, 40); 
+    doc.rect(margin, currentY, contentWidth, 45); 
     
     doc.setFontSize(10); doc.setFont("helvetica", "normal");
     const declaration = "I confirm I have read and understood this RAMS, attended the briefing, and agree to work in accordance with it.";
-    const splitDecl = doc.splitTextToSize(declaration, contentWidth - 10); // -10 for padding
+    const splitDecl = doc.splitTextToSize(declaration, contentWidth - 10); 
     doc.text(splitDecl, margin + 5, currentY + 8);
     
     doc.setFont("helvetica", "bold");
-    doc.text("Lead Operative / Supervisor Sign-off:", margin + 5, currentY + 25);
+    doc.text("Lead Operative / Supervisor Sign-off:", margin + 5, currentY + 30);
     doc.setFont("helvetica", "normal");
-    doc.text("Name: __________________________   Sig: __________________________   Date: ____________", margin + 5, currentY + 33);
+    doc.text("Name: __________________________   Sig: __________________________   Date: ____________", margin + 5, currentY + 38);
     
-    currentY += 45; 
+    currentY += 50; 
 
-    // BOX 2: Management Approval (50mm)
-    doc.rect(margin, currentY, contentWidth, 50);
+    // BOX 2: Management Approval (55mm)
+    doc.rect(margin, currentY, contentWidth, 55);
     doc.setFont("helvetica", "bold");
     doc.text("RAMS Prepared & Approved By (Management):", margin + 5, currentY + 8);
     
@@ -459,8 +459,8 @@ export default function Home() {
     doc.text(`Name: ${formData.contactName}`, margin + 5, currentY + 20);
     doc.text("Position: Competent Person", margin + 90, currentY + 20);
     
-    doc.text("Signature: __________________________________", margin + 5, currentY + 35);
-    doc.text(`Date: ${formData.startDate}`, margin + 110, currentY + 35);
+    doc.text("Signature: __________________________________", margin + 5, currentY + 40);
+    doc.text(`Date: ${formData.startDate}`, margin + 110, currentY + 40);
 
     // -- FINALISE --
     if (typeof doc.putTotalPages === 'function') {
