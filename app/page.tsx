@@ -114,7 +114,7 @@ export default function Home() {
     }
   };
 
-  // --- NEW: ACTIVE DATA LOADER (This fixes the missing text) ---
+  // --- THE FIX: FORCE DATA LOAD ON SELECT ---
   const handleJobChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const newJob = e.target.value;
     let newDesc = "";
@@ -125,11 +125,11 @@ export default function Home() {
     const tradeData = TRADES[formData.trade];
 
     if (tradeData && newJob && newJob !== "Other (Custom)") {
-        // 1. Try direct lookup (Cluster Key matches Job Name)
+        // 1. Try simple key lookup
         // @ts-ignore
         let clusterData = tradeData.clusters[newJob];
 
-        // 2. Fallback: Find via job list
+        // 2. Fallback: Lookup via array find if key doesn't match exactly
         if (!clusterData) {
             const jobObj = tradeData.jobs.find((j: any) => j.name === newJob);
             if (jobObj && jobObj.cluster) {
@@ -138,7 +138,6 @@ export default function Home() {
             }
         }
 
-        // 3. If found, populate data immediately
         if (clusterData) {
             newDesc = clusterData.desc;
             newHazards = [...new Set([...clusterData.hazards])];
@@ -146,11 +145,10 @@ export default function Home() {
         }
     }
 
-    // Update all states at once
     setFormData(prev => ({ ...prev, jobType: newJob, jobDesc: newDesc }));
     setHazards(newHazards);
     setQuestions(newQuestions);
-    setAnswers({}); // Reset checklist answers
+    setAnswers({});
   };
 
   const handleTradeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -187,7 +185,7 @@ export default function Home() {
     finally { setLoading(false); }
   };
 
-  // --- THE "TITAN GOLD" PDF ENGINE (10/10 Layout) ---
+  // --- THE "10/10" PDF ENGINE ---
   const createPDF = (data: any) => {
     const doc = new jsPDF();
     const totalPagesExp = "{total_pages_count_string}";
@@ -202,14 +200,12 @@ export default function Home() {
 
     const drawHeader = (doc: any) => {
         doc.setFont("helvetica", "normal"); doc.setFontSize(9); doc.setTextColor(0, 0, 0);
-        
         if (logoBase64) {
             doc.addImage(logoBase64, 'JPEG', pageWidth - margin - 25, 5, 25, 12);
             doc.text(formData.companyName.toUpperCase(), margin, 12);
         } else {
             doc.text(`${formData.companyName.toUpperCase()} – RISK ASSESSMENT & METHOD STATEMENT`, margin, 10);
         }
-        
         doc.setLineWidth(0.1); doc.line(margin, 18, pageWidth - margin, 18);
     };
 
@@ -221,7 +217,7 @@ export default function Home() {
         doc.text(str, pageWidth / 2, pageHeight - 10, { align: "center" });
     };
 
-    // --- START DOCUMENT ---
+    // START
     drawHeader(doc); currentY = 25; 
 
     // 1. PROJECT DETAILS
@@ -563,12 +559,11 @@ export default function Home() {
             <div className="space-y-6 animate-in fade-in">
               <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2"><FileText className="w-5 h-5"/> Job Scope</h2>
               <div className="grid grid-cols-2 gap-4">
-                 <select className="border p-3 rounded w-full" value={formData.trade} onChange={e => handleTradeChange}><option value="Electrician">Electrician</option><option value="Plumber">Plumber</option><option value="Roofer">Roofer</option><option value="Builder">Builder</option></select>
+                 <select className="border p-3 rounded w-full" value={formData.trade} onChange={handleTradeChange}><option value="Electrician">Electrician</option><option value="Plumber">Plumber</option><option value="Roofer">Roofer</option><option value="Builder">Builder</option></select>
                  {/* @ts-ignore */}
                  <select className="border p-3 rounded w-full" value={formData.jobType} onChange={handleJobChange}><option value="">Select Job Type</option>{TRADES[formData.trade].jobs.map((j:any) => <option key={j.name}>{j.name}</option>)}<option>Other (Custom)</option></select>
               </div>
               
-              {/* DYNAMIC QUESTIONS */}
               {questions.length > 0 && (
                   <div className="bg-blue-50 p-4 rounded border border-blue-100">
                       <h4 className="font-bold text-sm text-blue-900 mb-3">Pre-Start Safety Checks</h4>
