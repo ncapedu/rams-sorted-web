@@ -84,7 +84,7 @@ export const HAZARD_GROUPS = {
 // 3. JOB CLUSTERS (ELECTRICIAN)
 // ==========================================
 
-const ELECTRICIAN_CLUSTERS = {
+const ELECTRICIAN_CLUSTERS: Record<string, JobCluster> = {
   "Consumer unit/fuse board replacement": {
     desc: "Consumer unit/fuse board replacement involves working on the main electrical distribution equipment that feeds multiple circuits. The task typically includes isolating the incoming supply, safely removing covers, and replacing or modifying protective devices and terminations. Care must be taken to maintain correct circuit identification, earthing, and segregation of conductors. On completion, all affected circuits are tested and the documentation updated to reflect the new arrangement.",
     hazards: ["live_electricity", "manual_handling", "fire_explosion", "public_interface"],
@@ -1215,21 +1215,11 @@ const PLUMBER_CLUSTERS = {
   }
 };
 
-Here is **Part 3 of 4**. This section contains the complete `ROOFER_CLUSTERS` object.
 
-### Instructions
-
-1.  Ensure you are at the end of **Part 2** (after `PLUMBER_CLUSTERS`).
-2.  **Paste** the code below.
-3.  Press **Enter** twice at the end to prepare for Part 4.
-
-<!-- end list -->
-
-```typescript
 // app/lib/constants.ts - PART 3 OF 4
 
 // --- 4. ROOFER CLUSTERS (FULL 50 JOBS) ---
-const ROOFER_CLUSTERS = {
+const ROOFER_CLUSTERS: Record<string, JobCluster> = {
   "Pitched roof re-tile": {
     desc: "Pitched roof re-tile involves large-scale work on a pitched roof covering, often renewing all or most of the existing tiles or slates. The task typically includes stripping the old coverings, inspecting and repairing battens and underlay, and fixing new materials in accordance with manufacturer guidance. Careful setting-out and fixing patterns are required to ensure weather tightness and a uniform appearance. The work is normally carried out from scaffold or other fixed access with appropriate edge protection in place throughout.",
     hazards: ["work_at_height", "falling_objects", "manual_handling", "fragile_surfaces", "dust_fumes"],
@@ -1792,12 +1782,11 @@ const ROOFER_CLUSTERS = {
     ]
   }
 };
-```
 
 // app/lib/constants.ts - PART 4 OF 4
 
 // --- 5. BUILDER CLUSTERS (FULL 50 JOBS) ---
-const BUILDER_CLUSTERS = {
+const BUILDER_CLUSTERS: Record<string, JobCluster> = {
   "Structural knock-through between rooms": {
     desc: "Structural knock-through between rooms involves altering or supporting parts of a building's primary structure, such as walls, beams or floors. The work typically follows an engineer's design, with temporary supports installed before any load-bearing elements are removed or modified. Close control of sequence, propping and load transfer is required to prevent unintended movement or collapse. On completion, new structural members are secured, checked and left ready for inspection and subsequent finishes.",
     hazards: ["structural_collapse", "dust_fumes", "noise_vibration", "manual_handling", "plant_machinery"],
