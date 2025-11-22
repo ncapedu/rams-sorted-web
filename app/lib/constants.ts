@@ -1,7 +1,7 @@
-// app/lib/constants.ts
+// app/lib/constants.ts - PART 1 OF 4
 
 // ==========================================
-// 1. TYPE DEFINITIONS & TYPESCRIPT INTERFACES
+// 1. TYPE DEFINITIONS
 // ==========================================
 
 export type HazardKey = string;
@@ -25,6 +25,7 @@ export interface JobCluster {
   hazards: string[];
   questions: QuestionDef[];
   ppe?: string[];
+  method_outline?: string[]; 
 }
 
 // ==========================================
@@ -55,23 +56,25 @@ export const HAZARD_DATA: Record<string, HazardDef> = {
   biological: { label: "Biological Hazards", risk: "Infection, Weil's disease, sickness.", control: "Good hygiene, gloves, cover wounds, welfare facilities.", initial_score: "High (15)", residual_score: "Low (5)" },
   falling_objects: { label: "Falling Objects", risk: "Head injury, impact.", control: "Hard hats, toe boards, exclusion zones, tool lanyards.", initial_score: "High (15)", residual_score: "Low (3)" },
   underground_services: { label: "Underground Services", risk: "Electrocution, gas strike, explosion.", control: "CAT scan, safe digging practice, review utility plans.", initial_score: "High (25)", residual_score: "Low (5)" },
+  fragile_surfaces: { label: "Fragile Surfaces", risk: "Falls through roof/skylights.", control: "Crawling boards, harnesses, nets.", initial_score: "High (25)", residual_score: "Medium (10)" },
   water_ingress: { label: "Water Ingress", risk: "Property damage, electrical short circuits, slips.", control: "Temporary sheeting, pump availability, isolation of water.", initial_score: "Medium (9)", residual_score: "Low (3)" },
   sharp_objects: { label: "Sharp Objects", risk: "Cuts, lacerations.", control: "Kevlar gloves, safe disposal of blades/sharps.", initial_score: "Medium (9)", residual_score: "Low (3)" },
-  poor_lighting: { label: "Poor Lighting", risk: "Trips, mistakes, eye strain.", control: "Temporary task lighting provided. Torches carried by operatives.", initial_score: "Medium (8)", residual_score: "Low (3)" }
+  poor_lighting: { label: "Poor Lighting", risk: "Trips, mistakes, eye strain.", control: "Temporary task lighting provided. Torches carried by operatives.", initial_score: "Medium (8)", residual_score: "Low (3)" },
+  lead_exposure: { label: "Lead Exposure", risk: "Poisoning.", control: "Gloves, hygiene, cold cutting.", initial_score: "Medium (10)", residual_score: "Low (3)" },
+  stored_energy: { label: "Stored Energy", risk: "Shock.", control: "Discharge time.", initial_score: "Medium (12)", residual_score: "Low (4)" }
 };
 
 export const HAZARD_GROUPS = {
   "High Risk": ["live_electricity", "gas", "work_at_height", "confined_space", "structural_collapse", "fire_explosion", "excavation", "asbestos"],
-  "Health": ["dust_fumes", "silica_dust", "noise_vibration", "chemical_coshh", "biological"],
+  "Health": ["dust_fumes", "silica_dust", "noise_vibration", "chemical_coshh", "biological", "lead_exposure"],
   "Site": ["slips_trips", "moving_vehicles", "public_interface", "lone_working", "environmental_weather", "water_ingress", "poor_lighting", "falling_objects"],
-  "Physical": ["manual_handling", "plant_machinery", "underground_services", "sharp_objects"]
+  "Physical": ["manual_handling", "plant_machinery", "underground_services", "sharp_objects", "stored_energy"]
 };
 
 // ==========================================
-// 3. JOB CLUSTERS (DETAILED PER FILE)
+// 3. JOB CLUSTERS (PART 1: ELECTRICIAN - 50 JOBS)
 // ==========================================
 
-// --- ELECTRICIAN CLUSTERS ---
 const ELECTRICIAN_CLUSTERS = {
   "Consumer unit/fuse board replacement": {
     desc: "Consumer unit/fuse board replacement involves working on the main electrical distribution equipment that feeds multiple circuits. The task typically includes isolating the incoming supply, safely removing covers, and replacing or modifying protective devices and terminations. Care must be taken to maintain correct circuit identification, earthing, and segregation of conductors. On completion, all affected circuits are tested and the documentation updated to reflect the new arrangement.",
@@ -82,8 +85,7 @@ const ELECTRICIAN_CLUSTERS = {
       { id: "q3", label: "Have you confirmed that all circuits affected by the consumer unit/fuse board replacement are clearly identified and labelled beforehand?" },
       { id: "q4", label: "Is there adequate lighting at the location of the consumer unit/fuse board replacement to safely work inside the enclosure?" },
       { id: "q5", label: "Will test results and circuit schedules be updated immediately after the consumer unit/fuse board replacement is completed?" }
-    ],
-    ppe: ["Safety Boots", "Arc Flash Visor (if commercial)", "Insulated Gloves", "Safety Glasses"]
+    ]
   },
   "Full house rewire": {
     desc: "Full house rewire involves replacing existing wiring within part or all of a property to bring the installation up to current standards. This usually includes stripping out obsolete cables, installing new routes in walls, floors or ceilings, and fitting new accessories. The work is often phased to keep disruption manageable for occupants and coordinated with other trades. A full set of tests is carried out at the end to verify safety, continuity and protective device performance.",
@@ -94,8 +96,7 @@ const ELECTRICIAN_CLUSTERS = {
       { id: "q3", label: "Is there a clear plan to separate and safely isolate all old wiring during the full house rewire?" },
       { id: "q4", label: "Will you ensure that new cable routes installed during the full house rewire follow recognised safe zones?" },
       { id: "q5", label: "Are arrangements in place to keep escape routes usable while the full house rewire is underway?" }
-    ],
-    ppe: ["Safety Boots", "Hi-Vis Vest", "Dust Mask (FFP3)", "Safety Glasses"]
+    ]
   },
   "Partial rewire": {
     desc: "Partial rewire involves replacing existing wiring within part or all of a property to bring the installation up to current standards. This usually includes stripping out obsolete cables, installing new routes in walls, floors or ceilings, and fitting new accessories. The work is often phased to keep disruption manageable for occupants and coordinated with other trades. A full set of tests is carried out at the end to verify safety, continuity and protective device performance.",
@@ -106,8 +107,7 @@ const ELECTRICIAN_CLUSTERS = {
       { id: "q3", label: "Is there a clear plan to separate and safely isolate all old wiring during the partial rewire?" },
       { id: "q4", label: "Will you ensure that new cable routes installed during the partial rewire follow recognised safe zones?" },
       { id: "q5", label: "Are arrangements in place to keep escape routes usable while the partial rewire is underway?" }
-    ],
-    ppe: ["Safety Boots", "Hi-Vis Vest", "Dust Mask (FFP3)", "Safety Glasses"]
+    ]
   },
   "New circuit installation": {
     desc: "New circuit installation is carried out within a domestic or small commercial environment to add or alter final circuits. The work typically involves isolating the relevant circuit at the consumer unit, removing any redundant accessories, and installing new cable routes and terminations. Attention is given to routing cables in safe zones, maintaining adequate mechanical protection and ensuring correct circuit ratings. The circuit is then tested for continuity, insulation resistance and earth fault loop impedance before being put back into service.",
@@ -118,8 +118,7 @@ const ELECTRICIAN_CLUSTERS = {
       { id: "q3", label: "Are you planning safe cable routes and fixing methods for the new circuit installation to avoid future damage from screws or nails?" },
       { id: "q4", label: "Is suitable test equipment available and calibrated to verify the safety of the new circuit installation on completion?" },
       { id: "q5", label: "Will all accessories involved in the new circuit installation be checked for secure mounting and correct polarity before energising?" }
-    ],
-    ppe: ["Safety Boots", "Safety Glasses", "Gloves"]
+    ]
   },
   "Additional sockets install": {
     desc: "Additional sockets install is carried out within a domestic or small commercial environment to add or alter final circuits. The work typically involves isolating the relevant circuit at the consumer unit, removing any redundant accessories, and installing new cable routes and terminations. Attention is given to routing cables in safe zones, maintaining adequate mechanical protection and ensuring correct circuit ratings. The circuit is then tested for continuity, insulation resistance and earth fault loop impedance before being put back into service.",
@@ -130,8 +129,7 @@ const ELECTRICIAN_CLUSTERS = {
       { id: "q3", label: "Are you planning safe cable routes and fixing methods for the additional sockets install to avoid future damage from screws or nails?" },
       { id: "q4", label: "Is suitable test equipment available and calibrated to verify the safety of the additional sockets install on completion?" },
       { id: "q5", label: "Will all accessories involved in the additional sockets install be checked for secure mounting and correct polarity before energising?" }
-    ],
-    ppe: ["Safety Boots", "Safety Glasses", "Gloves", "Dust Mask"]
+    ]
   },
   "Indoor lighting upgrade/replacement": {
     desc: "Indoor lighting upgrade/replacement is carried out within a domestic or small commercial environment to add or alter final circuits. The work typically involves isolating the relevant circuit at the consumer unit, removing any redundant accessories, and installing new cable routes and terminations. Attention is given to routing cables in safe zones, maintaining adequate mechanical protection and ensuring correct circuit ratings. The circuit is then tested for continuity, insulation resistance and earth fault loop impedance before being put back into service.",
@@ -142,8 +140,7 @@ const ELECTRICIAN_CLUSTERS = {
       { id: "q3", label: "Are you planning safe cable routes and fixing methods for the indoor lighting upgrade/replacement to avoid future damage from screws or nails?" },
       { id: "q4", label: "Is suitable test equipment available and calibrated to verify the safety of the indoor lighting upgrade/replacement on completion?" },
       { id: "q5", label: "Will all accessories involved in the indoor lighting upgrade/replacement be checked for secure mounting and correct polarity before energising?" }
-    ],
-    ppe: ["Safety Boots", "Safety Glasses", "Gloves"]
+    ]
   },
   "Outdoor/garden lighting install": {
     desc: "Outdoor/garden lighting install focuses on installing or upgrading external luminaires around a property or site. The work includes selecting suitable IP-rated fittings, running cables through appropriate containment or burial depths, and ensuring mechanical protection against damage. Special attention is paid to weatherproof connections, correct earthing and RCD protection for outdoor equipment. Once installed, the lighting is tested for safe operation and aimed or configured to meet the client's requirements.",
@@ -154,8 +151,7 @@ const ELECTRICIAN_CLUSTERS = {
       { id: "q3", label: "Are burial depths or protective conduits for any buried cables associated with the outdoor/garden lighting install in line with guidance?" },
       { id: "q4", label: "Will RCD protection be provided or confirmed for the circuits supplying the outdoor/garden lighting install?" },
       { id: "q5", label: "Is there a plan to test the outdoor/garden lighting install after dark or simulate night-time conditions to verify coverage and operation?" }
-    ],
-    ppe: ["Safety Boots", "Hard Hat", "Gloves", "Weather Gear"]
+    ]
   },
   "Fault finding & diagnostics": {
     desc: "Fault finding & diagnostics is a diagnostic task aimed at identifying and rectifying faults within an electrical installation or equipment. It involves gathering information from the client, visually inspecting the system and using test instruments to narrow down the fault location. Repairs may include replacing damaged components, tightening terminations or correcting wiring errors. After the fault is cleared, verification tests are performed to ensure the system is safe and operating normally.",
@@ -166,8 +162,7 @@ const ELECTRICIAN_CLUSTERS = {
       { id: "q3", label: "Do you have access to up-to-date drawings or circuit schedules to assist with the fault finding & diagnostics?" },
       { id: "q4", label: "Is there a clear agreement with the client about what level of intrusive work is acceptable during the fault finding & diagnostics?" },
       { id: "q5", label: "Will you document the cause and remedy identified during the fault finding & diagnostics for future reference?" }
-    ],
-    ppe: ["Safety Boots", "Safety Glasses", "Insulated Tools"]
+    ]
   },
   "EV charger installation": {
     desc: "EV charger installation involves installing or modifying equipment that interfaces with the electrical supply to deliver vehicle charging, renewable generation or standby power. The task typically includes assessing supply capacity, routing suitably sized cabling, and mounting specialist equipment such as charge points, inverters, batteries or generators. Coordination with the Distribution Network Operator and adherence to relevant standards is often required. Commissioning checks confirm correct operation, safe disconnection arrangements and integration with the existing installation.",
@@ -178,8 +173,7 @@ const ELECTRICIAN_CLUSTERS = {
       { id: "q3", label: "Will the equipment used in the ev charger installation be installed in locations with adequate ventilation and protection from damage?" },
       { id: "q4", label: "Are appropriate means of isolation clearly provided for both AC and DC sides where relevant to the ev charger installation?" },
       { id: "q5", label: "Will manufacturer commissioning procedures for the ev charger installation be followed and documented on completion?" }
-    ],
-    ppe: ["Safety Boots", "Safety Glasses", "Gloves", "Hi-Vis"]
+    ]
   },
   "EICR testing (domestic)": {
     desc: "EICR testing (domestic) is a primarily inspection-and-testing based task that evaluates the safety and condition of an existing electrical installation. The work generally combines visual checks with instrument tests such as continuity, insulation resistance, polarity, loop impedance and RCD operation. Depending on the environment, circuits may be isolated in sequence to minimise disruption while still obtaining accurate results. Findings are recorded in a formal report, with observations coded and recommendations made where remedial work is required.",
@@ -190,8 +184,7 @@ const ELECTRICIAN_CLUSTERS = {
       { id: "q3", label: "Are test instruments for the eicr testing (domestic) within calibration and suitable for the system voltage and fault levels?" },
       { id: "q4", label: "Will you record all findings from the eicr testing (domestic) using the appropriate report or certificate format?" },
       { id: "q5", label: "Have you arranged a safe system to prevent re-energisation of circuits under test during the eicr testing (domestic)?" }
-    ],
-    ppe: ["Safety Boots", "Safety Glasses"]
+    ]
   },
   "EICR testing (commercial)": {
     desc: "EICR testing (commercial) is a primarily inspection-and-testing based task that evaluates the safety and condition of an existing electrical installation. The work generally combines visual checks with instrument tests such as continuity, insulation resistance, polarity, loop impedance and RCD operation. Depending on the environment, circuits may be isolated in sequence to minimise disruption while still obtaining accurate results. Findings are recorded in a formal report, with observations coded and recommendations made where remedial work is required.",
@@ -202,8 +195,7 @@ const ELECTRICIAN_CLUSTERS = {
       { id: "q3", label: "Are test instruments for the eicr testing (commercial) within calibration and suitable for the system voltage and fault levels?" },
       { id: "q4", label: "Will you record all findings from the eicr testing (commercial) using the appropriate report or certificate format?" },
       { id: "q5", label: "Have you arranged a safe system to prevent re-energisation of circuits under test during the eicr testing (commercial)?" }
-    ],
-    ppe: ["Safety Boots", "Safety Glasses", "Hi-Vis"]
+    ]
   },
   "Smoke/heat alarm installation": {
     desc: "Smoke/heat alarm installation relates to low-voltage control, communication or safety systems rather than standard power circuits. The work usually involves running data or signal cables, installing devices such as detectors, cameras or user interfaces, and configuring control equipment. Care is taken to segregate extra-low-voltage wiring from mains circuits, follow manufacturer instructions and maintain network integrity. After installation, functional testing confirms that all devices operate correctly and that any alarms or notifications are delivered as intended.",
@@ -214,8 +206,7 @@ const ELECTRICIAN_CLUSTERS = {
       { id: "q3", label: "Are mounting positions for devices associated with the smoke/heat alarm installation chosen to avoid tampering and environmental damage?" },
       { id: "q4", label: "Is provision made for labelling all key components and cables linked to the smoke/heat alarm installation?" },
       { id: "q5", label: "Will a functional test of the smoke/heat alarm installation be carried out with the client present to verify performance and coverage?" }
-    ],
-    ppe: ["Safety Boots", "Safety Glasses", "Gloves"]
+    ]
   },
   "Fire alarm system installation": {
     desc: "Fire alarm system installation relates to low-voltage control, communication or safety systems rather than standard power circuits. The work usually involves running data or signal cables, installing devices such as detectors, cameras or user interfaces, and configuring control equipment. Care is taken to segregate extra-low-voltage wiring from mains circuits, follow manufacturer instructions and maintain network integrity. After installation, functional testing confirms that all devices operate correctly and that any alarms or notifications are delivered as intended.",
@@ -226,8 +217,7 @@ const ELECTRICIAN_CLUSTERS = {
       { id: "q3", label: "Are mounting positions for devices associated with the fire alarm system installation chosen to avoid tampering and environmental damage?" },
       { id: "q4", label: "Is provision made for labelling all key components and cables linked to the fire alarm system installation?" },
       { id: "q5", label: "Will a functional test of the fire alarm system installation be carried out with the client present to verify performance and coverage?" }
-    ],
-    ppe: ["Safety Boots", "Safety Glasses", "Gloves", "Hi-Vis"]
+    ]
   },
   "Emergency lighting installation": {
     desc: "Emergency lighting installation relates to low-voltage control, communication or safety systems rather than standard power circuits. The work usually involves running data or signal cables, installing devices such as detectors, cameras or user interfaces, and configuring control equipment. Care is taken to segregate extra-low-voltage wiring from mains circuits, follow manufacturer instructions and maintain network integrity. After installation, functional testing confirms that all devices operate correctly and that any alarms or notifications are delivered as intended.",
@@ -238,8 +228,7 @@ const ELECTRICIAN_CLUSTERS = {
       { id: "q3", label: "Are mounting positions for devices associated with the emergency lighting installation chosen to avoid tampering and environmental damage?" },
       { id: "q4", label: "Is provision made for labelling all key components and cables linked to the emergency lighting installation?" },
       { id: "q5", label: "Will a functional test of the emergency lighting installation be carried out with the client present to verify performance and coverage?" }
-    ],
-    ppe: ["Safety Boots", "Safety Glasses", "Gloves"]
+    ]
   },
   "Data cabling / ethernet": {
     desc: "Data cabling / ethernet relates to low-voltage control, communication or safety systems rather than standard power circuits. The work usually involves running data or signal cables, installing devices such as detectors, cameras or user interfaces, and configuring control equipment. Care is taken to segregate extra-low-voltage wiring from mains circuits, follow manufacturer instructions and maintain network integrity. After installation, functional testing confirms that all devices operate correctly and that any alarms or notifications are delivered as intended.",
@@ -250,8 +239,7 @@ const ELECTRICIAN_CLUSTERS = {
       { id: "q3", label: "Are mounting positions for devices associated with the data cabling / ethernet chosen to avoid tampering and environmental damage?" },
       { id: "q4", label: "Is provision made for labelling all key components and cables linked to the data cabling / ethernet?" },
       { id: "q5", label: "Will a functional test of the data cabling / ethernet be carried out with the client present to verify performance and coverage?" }
-    ],
-    ppe: ["Safety Boots", "Safety Glasses", "Gloves"]
+    ]
   },
   "CCTV system installation": {
     desc: "CCTV system installation relates to low-voltage control, communication or safety systems rather than standard power circuits. The work usually involves running data or signal cables, installing devices such as detectors, cameras or user interfaces, and configuring control equipment. Care is taken to segregate extra-low-voltage wiring from mains circuits, follow manufacturer instructions and maintain network integrity. After installation, functional testing confirms that all devices operate correctly and that any alarms or notifications are delivered as intended.",
@@ -262,8 +250,7 @@ const ELECTRICIAN_CLUSTERS = {
       { id: "q3", label: "Are mounting positions for devices associated with the cctv system installation chosen to avoid tampering and environmental damage?" },
       { id: "q4", label: "Is provision made for labelling all key components and cables linked to the cctv system installation?" },
       { id: "q5", label: "Will a functional test of the cctv system installation be carried out with the client present to verify performance and coverage?" }
-    ],
-    ppe: ["Safety Boots", "Safety Glasses", "Gloves"]
+    ]
   },
   "Door entry/Intercom system": {
     desc: "Door entry/Intercom system relates to low-voltage control, communication or safety systems rather than standard power circuits. The work usually involves running data or signal cables, installing devices such as detectors, cameras or user interfaces, and configuring control equipment. Care is taken to segregate extra-low-voltage wiring from mains circuits, follow manufacturer instructions and maintain network integrity. After installation, functional testing confirms that all devices operate correctly and that any alarms or notifications are delivered as intended.",
@@ -274,8 +261,7 @@ const ELECTRICIAN_CLUSTERS = {
       { id: "q3", label: "Are mounting positions for devices associated with the door entry/intercom system chosen to avoid tampering and environmental damage?" },
       { id: "q4", label: "Is provision made for labelling all key components and cables linked to the door entry/intercom system?" },
       { id: "q5", label: "Will a functional test of the door entry/intercom system be carried out with the client present to verify performance and coverage?" }
-    ],
-    ppe: ["Safety Boots", "Safety Glasses", "Gloves"]
+    ]
   },
   "Solar PV installation": {
     desc: "Solar PV installation involves installing or modifying equipment that interfaces with the electrical supply to deliver vehicle charging, renewable generation or standby power. The task typically includes assessing supply capacity, routing suitably sized cabling, and mounting specialist equipment such as charge points, inverters, batteries or generators. Coordination with the Distribution Network Operator and adherence to relevant standards is often required. Commissioning checks confirm correct operation, safe disconnection arrangements and integration with the existing installation.",
@@ -286,8 +272,7 @@ const ELECTRICIAN_CLUSTERS = {
       { id: "q3", label: "Will the equipment used in the solar pv installation be installed in locations with adequate ventilation and protection from damage?" },
       { id: "q4", label: "Are appropriate means of isolation clearly provided for both AC and DC sides where relevant to the solar pv installation?" },
       { id: "q5", label: "Will manufacturer commissioning procedures for the solar pv installation be followed and documented on completion?" }
-    ],
-    ppe: ["Safety Boots", "Safety Glasses", "Gloves", "Harness (if required)"]
+    ]
   },
   "Battery storage system installation": {
     desc: "Battery storage system installation involves installing or modifying equipment that interfaces with the electrical supply to deliver vehicle charging, renewable generation or standby power. The task typically includes assessing supply capacity, routing suitably sized cabling, and mounting specialist equipment such as charge points, inverters, batteries or generators. Coordination with the Distribution Network Operator and adherence to relevant standards is often required. Commissioning checks confirm correct operation, safe disconnection arrangements and integration with the existing installation.",
@@ -298,8 +283,7 @@ const ELECTRICIAN_CLUSTERS = {
       { id: "q3", label: "Will the equipment used in the battery storage system installation be installed in locations with adequate ventilation and protection from damage?" },
       { id: "q4", label: "Are appropriate means of isolation clearly provided for both AC and DC sides where relevant to the battery storage system installation?" },
       { id: "q5", label: "Will manufacturer commissioning procedures for the battery storage system installation be followed and documented on completion?" }
-    ],
-    ppe: ["Safety Boots", "Safety Glasses", "Gloves", "Arc Flash PPE"]
+    ]
   },
   "Generator installation": {
     desc: "Generator installation (backup power) involves installing or modifying equipment that interfaces with the electrical supply to deliver vehicle charging, renewable generation or standby power. The task typically includes assessing supply capacity, routing suitably sized cabling, and mounting specialist equipment such as charge points, inverters, batteries or generators. Coordination with the Distribution Network Operator and adherence to relevant standards is often required. Commissioning checks confirm correct operation, safe disconnection arrangements and integration with the existing installation.",
@@ -310,8 +294,7 @@ const ELECTRICIAN_CLUSTERS = {
       { id: "q3", label: "Will the equipment used in the generator installation (backup power) be installed in locations with adequate ventilation and protection from damage?" },
       { id: "q4", label: "Are appropriate means of isolation clearly provided for both AC and DC sides where relevant to the generator installation (backup power)?" },
       { id: "q5", label: "Will manufacturer commissioning procedures for the generator installation (backup power) be followed and documented on completion?" }
-    ],
-    ppe: ["Safety Boots", "Safety Glasses", "Gloves", "Ear Defenders"]
+    ]
   },
   "Temporary site electrics": {
     desc: "Temporary site electrics involves setting up temporary electrical supplies to support construction or maintenance activities on a site. The task includes installing site distribution boards, routing flexible cables to work areas and providing protected outlets for tools and equipment. The system must be robust enough to withstand site conditions while still allowing safe disconnection and inspection. Regular checks are required to ensure continued safety as the site layout and loading change over time.",
@@ -322,8 +305,7 @@ const ELECTRICIAN_CLUSTERS = {
       { id: "q3", label: "Are flexible leads used in the temporary site electrics routed to minimise trip hazards and mechanical damage?" },
       { id: "q4", label: "Is there a plan to carry out regular inspection and testing of the temporary site electrics while the site remains active?" },
       { id: "q5", label: "Have you identified a safe point to isolate the entire temporary site electrics in case of emergency or fault?" }
-    ],
-    ppe: ["Safety Boots", "Safety Glasses", "Gloves"]
+    ]
   },
   "Cooker/oven/hob wiring": {
     desc: "Cooker/oven/hob wiring is carried out within a domestic or small commercial environment to add or alter final circuits. The work typically involves isolating the relevant circuit at the consumer unit, removing any redundant accessories, and installing new cable routes and terminations. Attention is given to routing cables in safe zones, maintaining adequate mechanical protection and ensuring correct circuit ratings. The circuit is then tested for continuity, insulation resistance and earth fault loop impedance before being put back into service.",
@@ -334,8 +316,7 @@ const ELECTRICIAN_CLUSTERS = {
       { id: "q3", label: "Are you planning safe cable routes and fixing methods for the cooker/oven/hob wiring to avoid future damage from screws or nails?" },
       { id: "q4", label: "Is suitable test equipment available and calibrated to verify the safety of the cooker/oven/hob wiring on completion?" },
       { id: "q5", label: "Will all accessories involved in the cooker/oven/hob wiring be checked for secure mounting and correct polarity before energising?" }
-    ],
-    ppe: ["Safety Boots", "Safety Glasses", "Gloves"]
+    ]
   },
   "Electric shower circuit installation": {
     desc: "Electric shower circuit installation is carried out within a domestic or small commercial environment to add or alter final circuits. The work typically involves isolating the relevant circuit at the consumer unit, removing any redundant accessories, and installing new cable routes and terminations. Attention is given to routing cables in safe zones, maintaining adequate mechanical protection and ensuring correct circuit ratings. The circuit is then tested for continuity, insulation resistance and earth fault loop impedance before being put back into service.",
@@ -346,8 +327,7 @@ const ELECTRICIAN_CLUSTERS = {
       { id: "q3", label: "Are you planning safe cable routes and fixing methods for the electric shower circuit installation to avoid future damage from screws or nails?" },
       { id: "q4", label: "Is suitable test equipment available and calibrated to verify the safety of the electric shower circuit installation on completion?" },
       { id: "q5", label: "Will all accessories involved in the electric shower circuit installation be checked for secure mounting and correct polarity before energising?" }
-    ],
-    ppe: ["Safety Boots", "Safety Glasses", "Gloves"]
+    ]
   },
   "Loft wiring install": {
     desc: "Loft wiring install is carried out within a domestic or small commercial environment to add or alter final circuits. The work typically involves isolating the relevant circuit at the consumer unit, removing any redundant accessories, and installing new cable routes and terminations. Attention is given to routing cables in safe zones, maintaining adequate mechanical protection and ensuring correct circuit ratings. The circuit is then tested for continuity, insulation resistance and earth fault loop impedance before being put back into service.",
@@ -358,8 +338,7 @@ const ELECTRICIAN_CLUSTERS = {
       { id: "q3", label: "Are you planning safe cable routes and fixing methods for the loft wiring install to avoid future damage from screws or nails?" },
       { id: "q4", label: "Is suitable test equipment available and calibrated to verify the safety of the loft wiring install on completion?" },
       { id: "q5", label: "Will all accessories involved in the loft wiring install be checked for secure mounting and correct polarity before energising?" }
-    ],
-    ppe: ["Safety Boots", "Safety Glasses", "Gloves", "Dust Mask"]
+    ]
   },
   "Garage/outhouse electrics": {
     desc: "Garage/outhouse electrics is carried out within a domestic or small commercial environment to add or alter final circuits. The work typically involves isolating the relevant circuit at the consumer unit, removing any redundant accessories, and installing new cable routes and terminations. Attention is given to routing cables in safe zones, maintaining adequate mechanical protection and ensuring correct circuit ratings. The circuit is then tested for continuity, insulation resistance and earth fault loop impedance before being put back into service.",
@@ -370,8 +349,7 @@ const ELECTRICIAN_CLUSTERS = {
       { id: "q3", label: "Are you planning safe cable routes and fixing methods for the garage/outhouse electrics to avoid future damage from screws or nails?" },
       { id: "q4", label: "Is suitable test equipment available and calibrated to verify the safety of the garage/outhouse electrics on completion?" },
       { id: "q5", label: "Will all accessories involved in the garage/outhouse electrics be checked for secure mounting and correct polarity before energising?" }
-    ],
-    ppe: ["Safety Boots", "Safety Glasses", "Gloves"]
+    ]
   },
   "Extension/renovation first fix": {
     desc: "Extension/renovation first fix is carried out within a domestic or small commercial environment to add or alter final circuits. The work typically involves isolating the relevant circuit at the consumer unit, removing any redundant accessories, and installing new cable routes and terminations. Attention is given to routing cables in safe zones, maintaining adequate mechanical protection and ensuring correct circuit ratings. The circuit is then tested for continuity, insulation resistance and earth fault loop impedance before being put back into service.",
@@ -382,8 +360,7 @@ const ELECTRICIAN_CLUSTERS = {
       { id: "q3", label: "Are you planning safe cable routes and fixing methods for the extension/renovation first fix to avoid future damage from screws or nails?" },
       { id: "q4", label: "Is suitable test equipment available and calibrated to verify the safety of the extension/renovation first fix on completion?" },
       { id: "q5", label: "Will all accessories involved in the extension/renovation first fix be checked for secure mounting and correct polarity before energising?" }
-    ],
-    ppe: ["Safety Boots", "Safety Glasses", "Gloves", "Hi-Vis Vest"]
+    ]
   },
   "Extension/renovation second fix": {
     desc: "Extension/renovation second fix is carried out within a domestic or small commercial environment to add or alter final circuits. The work typically involves isolating the relevant circuit at the consumer unit, removing any redundant accessories, and installing new cable routes and terminations. Attention is given to routing cables in safe zones, maintaining adequate mechanical protection and ensuring correct circuit ratings. The circuit is then tested for continuity, insulation resistance and earth fault loop impedance before being put back into service.",
@@ -394,8 +371,7 @@ const ELECTRICIAN_CLUSTERS = {
       { id: "q3", label: "Are you planning safe cable routes and fixing methods for the extension/renovation second fix to avoid future damage from screws or nails?" },
       { id: "q4", label: "Is suitable test equipment available and calibrated to verify the safety of the extension/renovation second fix on completion?" },
       { id: "q5", label: "Will all accessories involved in the extension/renovation second fix be checked for secure mounting and correct polarity before energising?" }
-    ],
-    ppe: ["Safety Boots", "Safety Glasses", "Gloves"]
+    ]
   },
   "LED retrofit upgrade": {
     desc: "LED retrofit upgrade focuses on installing or upgrading lighting within commercial or industrial spaces such as offices, shops, warehouses or car parks. The work often involves working at height to access fittings, using appropriate access equipment and coordinating around ongoing operations. Load calculations, emergency coverage and lighting levels must be considered as part of the design. Once complete, the system is tested and any control gear or emergency functions are verified.",
@@ -406,8 +382,7 @@ const ELECTRICIAN_CLUSTERS = {
       { id: "q3", label: "Are suitable isolation points identified for the circuits being modified during the led retrofit upgrade?" },
       { id: "q4", label: "Will waste lamps and control gear from the led retrofit upgrade be disposed of in line with WEEE or local regulations?" },
       { id: "q5", label: "Have you scheduled the led retrofit upgrade to minimise disruption to building users and other trades?" }
-    ],
-    ppe: ["Safety Boots", "Safety Glasses", "Gloves"]
+    ]
   },
   "Commercial lighting upgrade": {
     desc: "Commercial lighting upgrade focuses on installing or upgrading lighting within commercial or industrial spaces such as offices, shops, warehouses or car parks. The work often involves working at height to access fittings, using appropriate access equipment and coordinating around ongoing operations. Load calculations, emergency coverage and lighting levels must be considered as part of the design. Once complete, the system is tested and any control gear or emergency functions are verified.",
@@ -418,8 +393,7 @@ const ELECTRICIAN_CLUSTERS = {
       { id: "q3", label: "Are suitable isolation points identified for the circuits being modified during the commercial lighting upgrade?" },
       { id: "q4", label: "Will waste lamps and control gear from the commercial lighting upgrade be disposed of in line with WEEE or local regulations?" },
       { id: "q5", label: "Have you scheduled the commercial lighting upgrade to minimise disruption to building users and other trades?" }
-    ],
-    ppe: ["Safety Boots", "Safety Glasses", "Gloves", "Hi-Vis Vest"]
+    ]
   },
   "Warehouse high-bay lighting": {
     desc: "Warehouse high-bay lighting focuses on installing or upgrading lighting within commercial or industrial spaces such as offices, shops, warehouses or car parks. The work often involves working at height to access fittings, using appropriate access equipment and coordinating around ongoing operations. Load calculations, emergency coverage and lighting levels must be considered as part of the design. Once complete, the system is tested and any control gear or emergency functions are verified.",
@@ -430,8 +404,7 @@ const ELECTRICIAN_CLUSTERS = {
       { id: "q3", label: "Are suitable isolation points identified for the circuits being modified during the warehouse high-bay lighting?" },
       { id: "q4", label: "Will waste lamps and control gear from the warehouse high-bay lighting be disposed of in line with WEEE or local regulations?" },
       { id: "q5", label: "Have you scheduled the warehouse high-bay lighting to minimise disruption to building users and other trades?" }
-    ],
-    ppe: ["Safety Boots", "Safety Glasses", "Gloves", "Hard Hat", "Hi-Vis Vest"]
+    ]
   },
   "PAT testing": {
     desc: "PAT testing is a primarily inspection-and-testing based task that evaluates the safety and condition of an existing electrical installation. The work generally combines visual checks with instrument tests such as continuity, insulation resistance, polarity, loop impedance and RCD operation. Depending on the environment, circuits may be isolated in sequence to minimise disruption while still obtaining accurate results. Findings are recorded in a formal report, with observations coded and recommendations made where remedial work is required.",
@@ -442,8 +415,7 @@ const ELECTRICIAN_CLUSTERS = {
       { id: "q3", label: "Are test instruments for the pat testing within calibration and suitable for the system voltage and fault levels?" },
       { id: "q4", label: "Will you record all findings from the pat testing using the appropriate report or certificate format?" },
       { id: "q5", label: "Have you arranged a safe system to prevent re-energisation of circuits under test during the pat testing?" }
-    ],
-    ppe: ["Safety Boots", "Safety Glasses"]
+    ]
   },
   "Landlord electrical safety pack": {
     desc: "Landlord electrical safety pack is a primarily inspection-and-testing based task that evaluates the safety and condition of an existing electrical installation. The work generally combines visual checks with instrument tests such as continuity, insulation resistance, polarity, loop impedance and RCD operation. Depending on the environment, circuits may be isolated in sequence to minimise disruption while still obtaining accurate results. Findings are recorded in a formal report, with observations coded and recommendations made where remedial work is required.",
@@ -454,8 +426,7 @@ const ELECTRICIAN_CLUSTERS = {
       { id: "q3", label: "Are test instruments for the landlord electrical safety pack within calibration and suitable for the system voltage and fault levels?" },
       { id: "q4", label: "Will you record all findings from the landlord electrical safety pack using the appropriate report or certificate format?" },
       { id: "q5", label: "Have you arranged a safe system to prevent re-energisation of circuits under test during the landlord electrical safety pack?" }
-    ],
-    ppe: ["Safety Boots", "Safety Glasses"]
+    ]
   },
   "RCD replacement/upgrade": {
     desc: "RCD replacement/upgrade involves working on the main electrical distribution equipment that feeds multiple circuits. The task typically includes isolating the incoming supply, safely removing covers, and replacing or modifying protective devices and terminations. Care must be taken to maintain correct circuit identification, earthing, and segregation of conductors. On completion, all affected circuits are tested and the documentation updated to reflect the new arrangement.",
@@ -466,8 +437,7 @@ const ELECTRICIAN_CLUSTERS = {
       { id: "q3", label: "Have you confirmed that all circuits affected by the rcd replacement/upgrade are clearly identified and labelled beforehand?" },
       { id: "q4", label: "Is there adequate lighting at the location of the rcd replacement/upgrade to safely work inside the enclosure?" },
       { id: "q5", label: "Will test results and circuit schedules be updated immediately after the rcd replacement/upgrade is completed?" }
-    ],
-    ppe: ["Safety Boots", "Safety Glasses", "Gloves"]
+    ]
   },
   "Fuse/breaker fault repair": {
     desc: "Fuse/breaker fault repair involves working on the main electrical distribution equipment that feeds multiple circuits. The task typically includes isolating the incoming supply, safely removing covers, and replacing or modifying protective devices and terminations. Care must be taken to maintain correct circuit identification, earthing, and segregation of conductors. On completion, all affected circuits are tested and the documentation updated to reflect the new arrangement.",
@@ -478,8 +448,7 @@ const ELECTRICIAN_CLUSTERS = {
       { id: "q3", label: "Have you confirmed that all circuits affected by the fuse/breaker fault repair are clearly identified and labelled beforehand?" },
       { id: "q4", label: "Is there adequate lighting at the location of the fuse/breaker fault repair to safely work inside the enclosure?" },
       { id: "q5", label: "Will test results and circuit schedules be updated immediately after the fuse/breaker fault repair is completed?" }
-    ],
-    ppe: ["Safety Boots", "Safety Glasses", "Gloves"]
+    ]
   },
   "Electrical heating system installation": {
     desc: "Electrical heating system installation involves installing or maintaining electric space heating equipment, often integrated within floors or fixed appliances. The work includes routing heating elements or cables, connecting them to dedicated circuits and fitting appropriate controls such as thermostats and timers. Special care is taken to prevent damage to elements during installation and to follow manufacturer limitations on coverings and insulation. Testing ensures correct resistance values, earth continuity and safe operation before the system is handed over.",
@@ -490,8 +459,7 @@ const ELECTRICIAN_CLUSTERS = {
       { id: "q3", label: "Are measures in place during the electrical heating system installation to prevent damage to heating elements or mats before final finishes go down?" },
       { id: "q4", label: "Have you confirmed that the controls for the electrical heating system installation are located where they can be easily and safely accessed?" },
       { id: "q5", label: "Will resistance and insulation readings for the electrical heating system installation be recorded before and after covering the elements?" }
-    ],
-    ppe: ["Safety Boots", "Safety Glasses", "Gloves"]
+    ]
   },
   "Underfloor electric heating install": {
     desc: "Underfloor electric heating install involves installing or maintaining electric space heating equipment, often integrated within floors or fixed appliances. The work includes routing heating elements or cables, connecting them to dedicated circuits and fitting appropriate controls such as thermostats and timers. Special care is taken to prevent damage to elements during installation and to follow manufacturer limitations on coverings and insulation. Testing ensures correct resistance values, earth continuity and safe operation before the system is handed over.",
@@ -502,8 +470,7 @@ const ELECTRICIAN_CLUSTERS = {
       { id: "q3", label: "Are measures in place during the underfloor electric heating install to prevent damage to heating elements or mats before final finishes go down?" },
       { id: "q4", label: "Have you confirmed that the controls for the underfloor electric heating install are located where they can be easily and safely accessed?" },
       { id: "q5", label: "Will resistance and insulation readings for the underfloor electric heating install be recorded before and after covering the elements?" }
-    ],
-    ppe: ["Safety Boots", "Safety Glasses", "Gloves", "Knee Pads"]
+    ]
   },
   "Immersion heater install/repair": {
     desc: "Immersion heater install/repair is carried out within a domestic or small commercial environment to add or alter final circuits. The work typically involves isolating the relevant circuit at the consumer unit, removing any redundant accessories, and installing new cable routes and terminations. Attention is given to routing cables in safe zones, maintaining adequate mechanical protection and ensuring correct circuit ratings. The circuit is then tested for continuity, insulation resistance and earth fault loop impedance before being put back into service.",
@@ -514,8 +481,7 @@ const ELECTRICIAN_CLUSTERS = {
       { id: "q3", label: "Are you planning safe cable routes and fixing methods for the immersion heater install/repair to avoid future damage from screws or nails?" },
       { id: "q4", label: "Is suitable test equipment available and calibrated to verify the safety of the immersion heater install/repair on completion?" },
       { id: "q5", label: "Will all accessories involved in the immersion heater install/repair be checked for secure mounting and correct polarity before energising?" }
-    ],
-    ppe: ["Safety Boots", "Safety Glasses", "Gloves", "Heat Resistant Gloves"]
+    ]
   },
   "Security lighting installation": {
     desc: "Security lighting installation focuses on installing or upgrading external luminaires around a property or site. The work includes selecting suitable IP-rated fittings, running cables through appropriate containment or burial depths, and ensuring mechanical protection against damage. Special attention is paid to weatherproof connections, correct earthing and RCD protection for outdoor equipment. Once installed, the lighting is tested for safe operation and aimed or configured to meet the client's requirements.",
@@ -526,8 +492,7 @@ const ELECTRICIAN_CLUSTERS = {
       { id: "q3", label: "Are burial depths or protective conduits for any buried cables associated with the security lighting installation in line with guidance?" },
       { id: "q4", label: "Will RCD protection be provided or confirmed for the circuits supplying the security lighting installation?" },
       { id: "q5", label: "Is there a plan to test the security lighting installation after dark or simulate night-time conditions to verify coverage and operation?" }
-    ],
-    ppe: ["Safety Boots", "Safety Glasses", "Gloves", "Hard Hat"]
+    ]
   },
   "Floodlight installation": {
     desc: "Floodlight installation focuses on installing or upgrading external luminaires around a property or site. The work includes selecting suitable IP-rated fittings, running cables through appropriate containment or burial depths, and ensuring mechanical protection against damage. Special attention is paid to weatherproof connections, correct earthing and RCD protection for outdoor equipment. Once installed, the lighting is tested for safe operation and aimed or configured to meet the client's requirements.",
@@ -538,8 +503,7 @@ const ELECTRICIAN_CLUSTERS = {
       { id: "q3", label: "Are burial depths or protective conduits for any buried cables associated with the floodlight installation in line with guidance?" },
       { id: "q4", label: "Will RCD protection be provided or confirmed for the circuits supplying the floodlight installation?" },
       { id: "q5", label: "Is there a plan to test the floodlight installation after dark or simulate night-time conditions to verify coverage and operation?" }
-    ],
-    ppe: ["Safety Boots", "Safety Glasses", "Gloves", "Hard Hat"]
+    ]
   },
   "Smart home automation system": {
     desc: "Smart home automation system relates to low-voltage control, communication or safety systems rather than standard power circuits. The work usually involves running data or signal cables, installing devices such as detectors, cameras or user interfaces, and configuring control equipment. Care is taken to segregate extra-low-voltage wiring from mains circuits, follow manufacturer instructions and maintain network integrity. After installation, functional testing confirms that all devices operate correctly and that any alarms or notifications are delivered as intended.",
@@ -550,8 +514,7 @@ const ELECTRICIAN_CLUSTERS = {
       { id: "q3", label: "Are mounting positions for devices associated with the smart home automation system chosen to avoid tampering and environmental damage?" },
       { id: "q4", label: "Is provision made for labelling all key components and cables linked to the smart home automation system?" },
       { id: "q5", label: "Will a functional test of the smart home automation system be carried out with the client present to verify performance and coverage?" }
-    ],
-    ppe: ["Safety Boots", "Safety Glasses", "Gloves"]
+    ]
   },
   "Thermostat installation (wired)": {
     desc: "Thermostat installation (wired) is carried out within a domestic or small commercial environment to add or alter final circuits. The work typically involves isolating the relevant circuit at the consumer unit, removing any redundant accessories, and installing new cable routes and terminations. Attention is given to routing cables in safe zones, maintaining adequate mechanical protection and ensuring correct circuit ratings. The circuit is then tested for continuity, insulation resistance and earth fault loop impedance before being put back into service.",
@@ -562,8 +525,7 @@ const ELECTRICIAN_CLUSTERS = {
       { id: "q3", label: "Are you planning safe cable routes and fixing methods for the thermostat installation (wired) to avoid future damage from screws or nails?" },
       { id: "q4", label: "Is suitable test equipment available and calibrated to verify the safety of the thermostat installation (wired) on completion?" },
       { id: "q5", label: "Will all accessories involved in the thermostat installation (wired) be checked for secure mounting and correct polarity before energising?" }
-    ],
-    ppe: ["Safety Boots", "Safety Glasses", "Gloves"]
+    ]
   },
   "Car park lighting installation": {
     desc: "Car park lighting installation focuses on installing or upgrading lighting within commercial or industrial spaces such as offices, shops, warehouses or car parks. The work often involves working at height to access fittings, using appropriate access equipment and coordinating around ongoing operations. Load calculations, emergency coverage and lighting levels must be considered as part of the design. Once complete, the system is tested and any control gear or emergency functions are verified.",
@@ -574,8 +536,7 @@ const ELECTRICIAN_CLUSTERS = {
       { id: "q3", label: "Are suitable isolation points identified for the circuits being modified during the car park lighting installation?" },
       { id: "q4", label: "Will waste lamps and control gear from the car park lighting installation be disposed of in line with WEEE or local regulations?" },
       { id: "q5", label: "Have you scheduled the car park lighting installation to minimise disruption to building users and other trades?" }
-    ],
-    ppe: ["Safety Boots", "Safety Glasses", "Gloves", "Hi-Vis Vest", "Hard Hat"]
+    ]
   },
   "Shop fit-out electrical works": {
     desc: "Shop fit-out electrical works focuses on installing or upgrading lighting within commercial or industrial spaces such as offices, shops, warehouses or car parks. The work often involves working at height to access fittings, using appropriate access equipment and coordinating around ongoing operations. Load calculations, emergency coverage and lighting levels must be considered as part of the design. Once complete, the system is tested and any control gear or emergency functions are verified.",
@@ -586,8 +547,7 @@ const ELECTRICIAN_CLUSTERS = {
       { id: "q3", label: "Are suitable isolation points identified for the circuits being modified during the shop fit-out electrical works?" },
       { id: "q4", label: "Will waste lamps and control gear from the shop fit-out electrical works be disposed of in line with WEEE or local regulations?" },
       { id: "q5", label: "Have you scheduled the shop fit-out electrical works to minimise disruption to building users and other trades?" }
-    ],
-    ppe: ["Safety Boots", "Safety Glasses", "Gloves", "Hard Hat"]
+    ]
   },
   "Electrical containment install": {
     desc: "Electrical containment install (trunking/conduit/trays) is focused on providing or improving the physical containment and management of electrical cables. This can include installing trunking, conduit, cable tray or basket systems, and reorganising existing wiring to reduce strain and improve safety. Proper support spacing, segregation and fixings are essential to achieve a neat and compliant installation. Once the work is completed, cables are labelled where appropriate and visually checked for damage or undue stress.",
@@ -598,8 +558,7 @@ const ELECTRICIAN_CLUSTERS = {
       { id: "q3", label: "Are you maintaining separation within the electrical containment install (trunking/conduit/trays) between mains, data and fire alarm cabling where required?" },
       { id: "q4", label: "Will any existing live circuits be adequately protected while undertaking the electrical containment install (trunking/conduit/trays)?" },
       { id: "q5", label: "Is there a final visual inspection step in the electrical containment install (trunking/conduit/trays) to confirm cables are tidy, undamaged and correctly labelled?" }
-    ],
-    ppe: ["Safety Boots", "Safety Glasses", "Gloves", "Hard Hat"]
+    ]
   },
   "Cable management upgrade": {
     desc: "Cable management upgrade is focused on providing or improving the physical containment and management of electrical cables. This can include installing trunking, conduit, cable tray or basket systems, and reorganising existing wiring to reduce strain and improve safety. Proper support spacing, segregation and fixings are essential to achieve a neat and compliant installation. Once the work is completed, cables are labelled where appropriate and visually checked for damage or undue stress.",
@@ -610,8 +569,7 @@ const ELECTRICIAN_CLUSTERS = {
       { id: "q3", label: "Are you maintaining separation within the cable management upgrade between mains, data and fire alarm cabling where required?" },
       { id: "q4", label: "Will any existing live circuits be adequately protected while undertaking the cable management upgrade?" },
       { id: "q5", label: "Is there a final visual inspection step in the cable management upgrade to confirm cables are tidy, undamaged and correctly labelled?" }
-    ],
-    ppe: ["Safety Boots", "Safety Glasses", "Gloves"]
+    ]
   },
   "Meter relocation": {
     desc: "Meter relocation (non-DNO) involves working on the main electrical distribution equipment that feeds multiple circuits. The task typically includes isolating the incoming supply, safely removing covers, and replacing or modifying protective devices and terminations. Care must be taken to maintain correct circuit identification, earthing, and segregation of conductors. On completion, all affected circuits are tested and the documentation updated to reflect the new arrangement.",
@@ -622,8 +580,7 @@ const ELECTRICIAN_CLUSTERS = {
       { id: "q3", label: "Have you confirmed that all circuits affected by the meter relocation (non-dno) are clearly identified and labelled beforehand?" },
       { id: "q4", label: "Is there adequate lighting at the location of the meter relocation (non-dno) to safely work inside the enclosure?" },
       { id: "q5", label: "Will test results and circuit schedules be updated immediately after the meter relocation (non-dno) is completed?" }
-    ],
-    ppe: ["Safety Boots", "Safety Glasses", "Gloves"]
+    ]
   },
   "Sub-main installation": {
     desc: "Sub-main installation involves working on the main electrical distribution equipment that feeds multiple circuits. The task typically includes isolating the incoming supply, safely removing covers, and replacing or modifying protective devices and terminations. Care must be taken to maintain correct circuit identification, earthing, and segregation of conductors. On completion, all affected circuits are tested and the documentation updated to reflect the new arrangement.",
@@ -634,8 +591,7 @@ const ELECTRICIAN_CLUSTERS = {
       { id: "q3", label: "Have you confirmed that all circuits affected by the sub-main installation are clearly identified and labelled beforehand?" },
       { id: "q4", label: "Is there adequate lighting at the location of the sub-main installation to safely work inside the enclosure?" },
       { id: "q5", label: "Will test results and circuit schedules be updated immediately after the sub-main installation is completed?" }
-    ],
-    ppe: ["Safety Boots", "Safety Glasses", "Gloves"]
+    ]
   },
   "Machinery wiring": {
     desc: "Small plant/machinery wiring involves providing electrical supplies to fixed or portable machinery in industrial or agricultural environments. The task may include installing new circuits, control gear, isolators and connection points rated for the duty and environmental conditions. Consideration is given to mechanical protection, emergency stop arrangements and coordination with mechanical installation teams. Final testing confirms correct rotation, control function and protective device performance.",
@@ -646,8 +602,7 @@ const ELECTRICIAN_CLUSTERS = {
       { id: "q3", label: "Are cable types and glands chosen for the small plant/machinery wiring suitable for vibration, moisture and chemical exposure?" },
       { id: "q4", label: "Is it necessary to coordinate the small plant/machinery wiring with production schedules to avoid unplanned downtime?" },
       { id: "q5", label: "Will functional testing after the small plant/machinery wiring include verifying emergency stops and interlocks operate correctly? " }
-    ],
-    ppe: ["Safety Boots", "Safety Glasses", "Gloves", "Ear Defenders"]
+    ]
   },
   "Agricultural electrics": {
     desc: "Agricultural/warehouse electrics involves providing electrical supplies to fixed or portable machinery in industrial or agricultural environments. The task may include installing new circuits, control gear, isolators and connection points rated for the duty and environmental conditions. Consideration is given to mechanical protection, emergency stop arrangements and coordination with mechanical installation teams. Final testing confirms correct rotation, control function and protective device performance.",
@@ -658,8 +613,7 @@ const ELECTRICIAN_CLUSTERS = {
       { id: "q3", label: "Are cable types and glands chosen for the agricultural/warehouse electrics suitable for vibration, moisture and chemical exposure?" },
       { id: "q4", label: "Is it necessary to coordinate the agricultural/warehouse electrics with production schedules to avoid unplanned downtime?" },
       { id: "q5", label: "Will functional testing after the agricultural/warehouse electrics include verifying emergency stops and interlocks operate correctly?" }
-    ],
-    ppe: ["Safety Boots", "Safety Glasses", "Gloves", "Respiratory Protection (if dust)"]
+    ]
   },
   "EV charging infrastructure (multi-bay)": {
     desc: "EV charging infrastructure (multi-bay) involves installing or modifying equipment that interfaces with the electrical supply to deliver vehicle charging, renewable generation or standby power. The task typically includes assessing supply capacity, routing suitably sized cabling, and mounting specialist equipment such as charge points, inverters, batteries or generators. Coordination with the Distribution Network Operator and adherence to relevant standards is often required. Commissioning checks confirm correct operation, safe disconnection arrangements and integration with the existing installation.",
@@ -670,8 +624,7 @@ const ELECTRICIAN_CLUSTERS = {
       { id: "q3", label: "Will the equipment used in the ev charging infrastructure (multi-bay) be installed in locations with adequate ventilation and protection from damage?" },
       { id: "q4", label: "Are appropriate means of isolation clearly provided for both AC and DC sides where relevant to the ev charging infrastructure (multi-bay)?" },
       { id: "q5", label: "Will manufacturer commissioning procedures for the ev charging infrastructure (multi-bay) be followed and documented on completion?" }
-    ],
-    ppe: ["Safety Boots", "Safety Glasses", "Gloves", "Hi-Vis Vest"]
+    ]
   },
   "Other (Custom)": {
     desc: "",
@@ -682,18 +635,17 @@ const ELECTRICIAN_CLUSTERS = {
       { id: "q3", label: "Has a dynamic risk assessment been carried out?" },
       { id: "q4", label: "Are you competent to undertake this specific custom task?" },
       { id: "q5", label: "Have you agreed the scope fully with the client?" }
-    ],
-    ppe: ["Safety Boots", "Gloves", "Safety Glasses"]
+    ]
   }
 };
-```
+
 // app/lib/constants.ts - PART 2 OF 4
 
-// --- 2. PLUMBER CLUSTERS (Exact Data from Upload) ---
+// --- 3. PLUMBER CLUSTERS (FULL 50 JOBS FROM FILE) ---
 const PLUMBER_CLUSTERS = {
   "Boiler installation (gas)": {
     desc: "Boiler installation (gas) involves working on domestic wet heating systems to provide reliable space and water heating. The task typically includes isolating gas, water and electrical supplies, removing or modifying existing appliances or components, and connecting new equipment in line with design requirements. Flue routes, ventilation and condensate disposal must be checked to ensure they comply with current standards. On completion, the system is filled, purged and commissioned, with safety checks and settings documented for the householder.",
-    hazards: ["gas", "hot_work", "manual_handling", "chemical_coshh", "fumes", "public_interface"],
+    hazards: ["gas", "hot_work", "manual_handling", "chemical_coshh", "fumes"],
     questions: [
       { id: "q1", label: "Have you confirmed that the existing flue and ventilation arrangements are suitable for the boiler installation (gas)?" },
       { id: "q2", label: "Will the gas, water and electrical supplies all be safely isolated before starting the boiler installation (gas)?" },
@@ -924,7 +876,7 @@ const PLUMBER_CLUSTERS = {
   },
   "Leak trace & repair": {
     desc: "Leak trace & repair is reactive work that tackles water losses or system failures within domestic or commercial pipework. The process generally starts with locating the source of the problem, which may involve inspection, testing or opening up building fabric. Once identified, the defective section is isolated, repaired or replaced using appropriate materials and techniques. The system is then reinstated and monitored to ensure the repair is sound and no further damage is occurring.",
-    hazards: ["water_ingress", "manual_handling", "slips_trips", "biological"],
+    hazards: ["water_ingress", "manual_handling", "slips_trips"],
     questions: [
       { id: "q1", label: "Will you carry out the leak trace & repair with suitable measures in place to protect surrounding finishes and belongings?" },
       { id: "q2", label: "Have you located and tested all isolation valves needed for the leak trace & repair?" },
@@ -1056,7 +1008,7 @@ const PLUMBER_CLUSTERS = {
   },
   "Sump pump installation": {
     desc: "Sump pump installation involves installing or maintaining pumps that move water or waste from one level or location to another. This can include sump pumps, lifting stations or shower pumps, often in confined or low-level spaces. Pipework, non-return valves and electrical supplies must be configured correctly to ensure reliable, safe operation. After installation, the pump is tested under realistic flow conditions to verify performance and automatic control functions.",
-    hazards: ["manual_handling", "water_ingress", "slips_trips", "biological", "electrical"],
+    hazards: ["manual_handling", "water_ingress", "slips_trips", "biological", "live_electricity"],
     questions: [
       { id: "q1", label: "Have you assessed the required duty and head to select the correct pump for the sump pump installation?" },
       { id: "q2", label: "Will non-return valves and isolation valves be incorporated into the pipework for the sump pump installation?" },
@@ -1067,7 +1019,7 @@ const PLUMBER_CLUSTERS = {
   },
   "Pumped shower installation": {
     desc: "Pumped shower installation involves installing or maintaining pumps that move water or waste from one level or location to another. This can include sump pumps, lifting stations or shower pumps, often in confined or low-level spaces. Pipework, non-return valves and electrical supplies must be configured correctly to ensure reliable, safe operation. After installation, the pump is tested under realistic flow conditions to verify performance and automatic control functions.",
-    hazards: ["manual_handling", "water_ingress", "slips_trips", "electrical"],
+    hazards: ["manual_handling", "water_ingress", "slips_trips", "live_electricity"],
     questions: [
       { id: "q1", label: "Have you assessed the required duty and head to select the correct pump for the pumped shower installation?" },
       { id: "q2", label: "Will non-return valves and isolation valves be incorporated into the pipework for the pumped shower installation?" },
@@ -1078,7 +1030,7 @@ const PLUMBER_CLUSTERS = {
   },
   "Macerator toilet installation": {
     desc: "Macerator toilet installation is focused on installing or upgrading sanitaryware and fittings within bathrooms, cloakrooms or kitchens. The task typically includes isolating local supplies, removing old fixtures, adjusting pipework and fixing new units securely in place. Waste connections, seals and waterproofing details must be carefully executed to avoid future leaks or water damage. Final checks confirm that all outlets drain freely, operate correctly and meet the client’s expectations for appearance and function.",
-    hazards: ["manual_handling", "water_ingress", "slips_trips", "biological", "electrical"],
+    hazards: ["manual_handling", "water_ingress", "slips_trips", "biological", "live_electricity"],
     questions: [
       { id: "q1", label: "Have you identified all isolation points needed to safely undertake the macerator toilet installation?" },
       { id: "q2", label: "Will surfaces and finishes around the work area be protected from damage and water ingress during the macerator toilet installation?" },
@@ -1133,7 +1085,7 @@ const PLUMBER_CLUSTERS = {
   },
   "Heating pump replacement": {
     desc: "Heating pump replacement involves working on domestic wet heating systems to provide reliable space and water heating. The task typically includes isolating gas, water and electrical supplies, removing or modifying existing appliances or components, and connecting new equipment in line with design requirements. Flue routes, ventilation and condensate disposal must be checked to ensure they comply with current standards. On completion, the system is filled, purged and commissioned, with safety checks and settings documented for the householder.",
-    hazards: ["manual_handling", "water_ingress", "electrical"],
+    hazards: ["manual_handling", "water_ingress", "live_electricity"],
     questions: [
       { id: "q1", label: "Have you confirmed that the existing flue and ventilation arrangements are suitable for the heating pump replacement?" },
       { id: "q2", label: "Will the gas, water and electrical supplies all be safely isolated before starting the heating pump replacement?" },
@@ -1241,7 +1193,7 @@ const PLUMBER_CLUSTERS = {
       { id: "q5", label: "Will you coordinate the commercial toilet/urinal install with other trades such as tilers, partition installers and electricians?" }
     ]
   },
-  "Other (Custom)": {
+   "Other (Custom)": {
     desc: "",
     hazards: [],
     questions: [
@@ -1253,13 +1205,14 @@ const PLUMBER_CLUSTERS = {
     ]
   }
 };
+
 // app/lib/constants.ts - PART 3 OF 4
 
-// --- 4. ROOFER CLUSTERS (FULL 50 JOBS - NO SHORTCUTS) ---
+// --- 4. ROOFER CLUSTERS (FULL 50 JOBS FROM FILE) ---
 const ROOFER_CLUSTERS = {
   "Pitched roof re-tile": {
     desc: "Pitched roof re-tile involves large-scale work on a pitched roof covering, often renewing all or most of the existing tiles or slates. The task typically includes stripping the old coverings, inspecting and repairing battens and underlay, and fixing new materials in accordance with manufacturer guidance. Careful setting-out and fixing patterns are required to ensure weather tightness and a uniform appearance. The work is normally carried out from scaffold or other fixed access with appropriate edge protection in place throughout.",
-    hazards: ["work_at_height", "falling_objects", "manual_handling", "environmental_weather", "fragile_surfaces"],
+    hazards: ["work_at_height", "falling_objects", "manual_handling", "fragile_surfaces"],
     questions: [
       { id: "q1", label: "Has full scaffold with suitable edge protection been installed for the pitched roof re-tile?" },
       { id: "q2", label: "Will all existing roof coverings be assessed for safe removal before starting the pitched roof re-tile?" },
@@ -1270,7 +1223,7 @@ const ROOFER_CLUSTERS = {
   },
   "Slate roof installation": {
     desc: "Slate roof installation involves large-scale work on a pitched roof covering, often renewing all or most of the existing tiles or slates. The task typically includes stripping the old coverings, inspecting and repairing battens and underlay, and fixing new materials in accordance with manufacturer guidance. Careful setting-out and fixing patterns are required to ensure weather tightness and a uniform appearance. The work is normally carried out from scaffold or other fixed access with appropriate edge protection in place throughout.",
-    hazards: ["work_at_height", "falling_objects", "manual_handling", "environmental_weather", "silica_dust"],
+    hazards: ["work_at_height", "falling_objects", "manual_handling", "silica_dust"],
     questions: [
       { id: "q1", label: "Has full scaffold with suitable edge protection been installed for the slate roof installation?" },
       { id: "q2", label: "Will all existing roof coverings be assessed for safe removal before starting the slate roof installation?" },
@@ -1281,7 +1234,7 @@ const ROOFER_CLUSTERS = {
   },
   "Flat roof (felt) install": {
     desc: "Flat roof (felt) install is centred on installing or fully renewing a flat roof waterproofing system using materials such as felt, GRP or EPDM. The process usually involves stripping existing coverings where necessary, preparing the deck, and applying insulation and membranes in layers to create a continuous weatherproof surface. Upstands, penetrations and edge details are formed carefully to prevent water ingress and meet fire and wind-uplift requirements. Safe access, hot works controls where relevant and weather monitoring are essential parts of planning this work.",
-    hazards: ["work_at_height", "hot_work", "fire_explosion", "fumes", "chemical_coshh"],
+    hazards: ["work_at_height", "hot_work", "fire_explosion", "fumes"],
     questions: [
       { id: "q1", label: "Have you assessed the existing deck condition and load capacity prior to the flat roof (felt) install?" },
       { id: "q2", label: "Is a hot works permit required for any operations involved in the flat roof (felt) install?" },
@@ -1325,7 +1278,7 @@ const ROOFER_CLUSTERS = {
   },
   "Lead welding/leadwork": {
     desc: "Lead welding/leadwork involves installing, adjusting or renewing lead or similar flashings at junctions between roof coverings and walls, chimneys, abutments or roof windows. The work includes cutting or chasing into masonry where required, forming soakers or aprons, and dressing the lead to shed water correctly. Consideration is given to thermal movement, jointing and fixing methods to avoid premature fatigue or failure. All debris is cleared from gutters and surfaces, and any exposed chases or fixings are sealed to maintain weathertightness.",
-    hazards: ["work_at_height", "hot_work", "lead_exposure", "fumes", "fire_explosion"],
+    hazards: ["work_at_height", "hot_work", "lead_exposure", "fumes"],
     questions: [
       { id: "q1", label: "Have you confirmed that any masonry chasing required for the lead welding/leadwork will not compromise structural stability?" },
       { id: "q2", label: "Will lead used in the lead welding/leadwork be sized and detailed in accordance with current codes of practice?" },
@@ -1819,6 +1772,7 @@ const ROOFER_CLUSTERS = {
     ]
   }
 };
+
 // app/lib/constants.ts - PART 4 OF 4
 
 // --- 5. BUILDER CLUSTERS (FULL 50 JOBS FROM FILE) ---
