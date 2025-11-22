@@ -6,6 +6,18 @@ import autoTable from "jspdf-autotable";
 import { Loader2, CheckCircle, ShieldCheck, ArrowRight, MapPin, Briefcase, AlertTriangle, Lock, Search, Info, FileText, Users, Ambulance, Flame } from "lucide-react";
 import { TRADES, HAZARD_GROUPS, HAZARD_DATA } from "./lib/constants";
 
+// --- UI: TOOLTIP ---
+const Tooltip = ({ text }: { text: string }) => (
+  <div className="group relative inline-block ml-2">
+    <Info className="w-4 h-4 text-blue-600 cursor-help" />
+    <div className="invisible group-hover:visible absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-56 p-3 bg-blue-900 text-white text-xs rounded-md shadow-lg z-50 text-center leading-relaxed">
+      {text}
+      <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-blue-900"></div>
+    </div>
+  </div>
+);
+
+// --- UI: ADDRESS SEARCH ---
 function AddressSearch({ label, value, onChange, tooltip, required }: any) {
   const [query, setQuery] = useState(value);
   const [results, setResults] = useState([]);
@@ -25,13 +37,7 @@ function AddressSearch({ label, value, onChange, tooltip, required }: any) {
   return (
     <div className="relative">
       <label className="flex items-center text-sm font-bold text-blue-900 mb-1">
-        {label} {required && <span className="text-red-600 ml-1">*</span>} 
-        <div className="group relative inline-block ml-2">
-            <Info className="w-4 h-4 text-blue-400 cursor-help" />
-            <div className="invisible group-hover:visible absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-48 p-2 bg-blue-900 text-white text-xs rounded shadow-lg z-50 text-center">
-                {tooltip}
-            </div>
-        </div>
+        {label} {required && <span className="text-red-600 ml-1">*</span>} <Tooltip text={tooltip} />
       </label>
       <div className="relative">
         <input className="w-full border-2 border-gray-200 rounded-lg p-3 focus:border-blue-600 outline-none transition-colors" placeholder="Start typing address..." value={query} onChange={(e) => searchAddress(e.target.value)} />
@@ -40,7 +46,7 @@ function AddressSearch({ label, value, onChange, tooltip, required }: any) {
       {showDropdown && results.length > 0 && (
         <ul className="absolute z-50 w-full bg-white border rounded-lg shadow-xl mt-1 max-h-60 overflow-auto">
           {results.map((r: any, i) => (
-            <li key={i} onClick={() => { setQuery(r.display_name); onChange(r.display_name); setShowDropdown(false); }} className="p-3 hover:bg-blue-50 cursor-pointer text-sm border-b text-gray-700">
+            <li key={i} onClick={() => { setQuery(r.display_name); onChange(r.display_name); setShowDropdown(false); }} className="p-3 hover:bg-blue-50 cursor-pointer text-sm border-b last:border-0 text-gray-700">
               {r.display_name}
             </li>
           ))}
@@ -67,11 +73,13 @@ export default function Home() {
   const [questions, setQuestions] = useState<any[]>([]);
   const [answers, setAnswers] = useState<Record<string, string>>({});
 
+  // --- AUTO-FILL LOGIC ---
   useEffect(() => {
     // @ts-ignore
     const tradeData = TRADES[formData.trade];
     if (tradeData && formData.jobType) {
       if (formData.jobType === "Other (Custom)") {
+        // Clear logic for "Other"
         setFormData(prev => ({ ...prev, jobDesc: "" })); 
         setQuestions([]);
         setHazards([]);
@@ -81,9 +89,9 @@ export default function Home() {
           // @ts-ignore
           const clusterData = tradeData.clusters[jobObj.cluster];
           if (clusterData) {
-            setFormData(prev => ({ ...prev, jobDesc: clusterData.desc || "" }));
-            setHazards(prev => [...new Set([...prev, ...clusterData.hazards])]);
-            setQuestions(clusterData.questions || []);
+            setFormData(prev => ({ ...prev, jobDesc: clusterData.desc })); // Auto-fill Description
+            setHazards(prev => [...new Set([...prev, ...clusterData.hazards])]); // Auto-fill Hazards
+            setQuestions(clusterData.questions || []); // Load Specific Questions
           }
         }
       }
@@ -93,9 +101,10 @@ export default function Home() {
   const handleInput = (field: string, value: string) => setFormData(prev => ({ ...prev, [field]: value }));
   const toggleHazard = (h: string) => setHazards(prev => prev.includes(h) ? prev.filter(i => i !== h) : [...prev, h]);
 
+  // --- VALIDATION ---
   const nextStep = () => {
     if (step === 1) {
-        if (!formData.companyName || !formData.officeAddress || !formData.contactName) return alert("⚠️ Please fill in Company Details.");
+        if (!formData.companyName || !formData.officeAddress || !formData.contactName) return alert("⚠️ Please fill in all Company Details.");
     }
     if (step === 2) {
         if (!formData.clientName || !formData.siteAddress || !formData.duration) return alert("⚠️ Please fill in Project Details.");
@@ -130,14 +139,18 @@ export default function Home() {
     const maxTextWidth = pageWidth - (margin * 2);
     
     const drawHeader = (doc: any) => {
+        // Header Block
         doc.setFillColor(0, 51, 102); // Royal Blue
         doc.rect(0, 0, 210, 30, 'F');
+        
         doc.setTextColor(255, 255, 255);
         doc.setFontSize(20); doc.setFont("helvetica", "bold");
         doc.text("RISK ASSESSMENT & METHOD STATEMENT", 14, 18);
+        
         doc.setFontSize(10); doc.setFont("helvetica", "normal");
         doc.text(`Ref: ${formData.projectRef || "N/A"} | Date: ${formData.startDate}`, 14, 25);
-        doc.setFontSize(9); 
+        
+        doc.setFontSize(10); 
         doc.text(formData.companyName.toUpperCase(), 195, 18, { align: 'right' });
     };
 
@@ -210,7 +223,7 @@ export default function Home() {
         head: [['Hazard', 'Who', 'Control Measures', 'Risk Rating']],
         body: data.risks ? data.risks.map((r: any) => [r.hazard, r.who, r.control, r.risk_rating]) : [],
         theme: 'grid',
-        headStyles: { fillColor: [204, 0, 0], textColor: 255 }, // RED HEADER
+        headStyles: { fillColor: [204, 0, 0], textColor: 255 }, // RED HEADER FOR RISKS
         styles: { fontSize: 9, cellPadding: 3 },
         columnStyles: { 2: { cellWidth: 80 } }
     });
@@ -272,6 +285,7 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-gray-50 font-sans text-slate-900 pb-20">
+      {/* NAVBAR */}
       <nav className="bg-white border-b border-gray-200 py-4 px-6 sticky top-0 z-50 flex justify-between items-center shadow-sm">
         <div className="flex items-center gap-2 font-bold text-xl tracking-tight text-blue-900"><ShieldCheck className="w-7 h-7"/> RAMS Sorted</div>
         <div className="text-xs font-bold bg-blue-600 text-white px-4 py-1.5 rounded-full uppercase tracking-wider">Step {step} / 3</div>
@@ -321,8 +335,8 @@ export default function Home() {
               {formData.jobType === "Other (Custom)" && (
                 <div className="animate-in fade-in"><label className="text-sm font-bold text-black">Custom Job Title</label><input className="w-full border-2 border-black rounded-lg p-4" placeholder="e.g. Jacuzzi Installation" value={formData.customJobType} onChange={e => handleInput("customJobType", e.target.value)} /></div>
               )}
-
-              {/* QUESTIONS (With new 5+ requirement) */}
+              
+              {/* DYNAMIC QUESTIONS */}
               {questions.length > 0 && (
                   <div className="bg-blue-50 p-6 rounded-xl border border-blue-200">
                       <h4 className="text-sm font-bold text-blue-900 uppercase tracking-wide mb-4">Safety Checks for this Job</h4>
@@ -337,8 +351,8 @@ export default function Home() {
                       ))}
                   </div>
               )}
-
-              <div><label className="block text-sm font-bold text-blue-900 mb-1">Detailed Description</label><textarea className="w-full border-2 border-gray-200 rounded-lg p-4 h-32 focus:border-blue-600 outline-none" value={formData.jobDesc} onChange={e => handleInput("jobDesc", e.target.value)} /></div>
+              
+              <div><label className="block text-sm font-bold text-blue-900 mb-1">Detailed Description (Auto-filled, Editable)</label><textarea className="w-full border-2 border-gray-200 rounded-lg p-4 h-32 focus:border-blue-600 outline-none" value={formData.jobDesc} onChange={e => handleInput("jobDesc", e.target.value)} /></div>
               <div className="flex gap-4 pt-4"><button onClick={() => setStep(1)} className="w-1/3 border-2 border-gray-200 text-gray-700 py-4 rounded-xl font-bold hover:bg-gray-50">Back</button><button onClick={nextStep} className="w-2/3 bg-blue-700 hover:bg-blue-800 text-white py-4 rounded-xl font-bold text-lg flex justify-center gap-2 items-center shadow-md">Next Step <ArrowRight className="w-5 h-5"/></button></div>
             </div>
           )}
