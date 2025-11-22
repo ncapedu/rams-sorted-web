@@ -126,18 +126,18 @@ export default function Home() {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
-      createProfessionalPDF(data);
+      createTenOutOfTenPDF(data);
     } catch (e: any) { alert(e.message); } 
     finally { setLoading(false); }
   };
 
-  // --- THE "TITAN" PDF ENGINE ---
-  const createProfessionalPDF = (data: any) => {
+  // --- THE "10/10 DEFINITIVE" PDF ENGINE ---
+  const createTenOutOfTenPDF = (data: any) => {
     const doc = new jsPDF();
     const totalPagesExp = "{total_pages_count_string}";
     const pageWidth = 210;
     const pageHeight = 297;
-    const margin = 15; // Slightly smaller margin to give tables more width
+    const margin = 15; 
     const contentWidth = pageWidth - (margin * 2);
     let currentY = margin;
 
@@ -160,30 +160,26 @@ export default function Home() {
         doc.setFont("helvetica", "normal");
         doc.setFontSize(9);
         doc.setTextColor(0, 0, 0);
-        
-        // Company Name Left
         const headerText = `${formData.companyName.toUpperCase()} – RISK ASSESSMENT & METHOD STATEMENT`;
         doc.text(headerText, margin, 10);
-        
         doc.setLineWidth(0.1);
-        doc.line(margin, 12, pageWidth - margin, 12); // Divider line
+        doc.line(margin, 12, pageWidth - margin, 12);
     };
 
     const drawFooter = (doc: any, pageNumber: number, totalPages: string) => {
         const ref = formData.projectRef || `RAMS-${new Date().getFullYear()}-001`;
-        // Ensure site address isn't too long for footer
         const safeAddress = formData.siteAddress.length > 40 ? formData.siteAddress.substring(0, 40) + "..." : formData.siteAddress;
         const str = `Ref: ${ref} | ${safeAddress} | Page ${pageNumber} of ${totalPages}`;
-        
         doc.setFontSize(8);
         doc.setTextColor(80, 80, 80);
         doc.text(str, pageWidth / 2, pageHeight - 10, { align: "center" });
     };
 
-    // --- 1. PROJECT & JOB DETAILS ---
+    // --- START DOCUMENT ---
     drawHeader(doc);
-    currentY = 20; // Start a bit lower
+    currentY = 20; 
 
+    // 1. PROJECT & JOB DETAILS
     doc.setFont("helvetica", "bold"); doc.setFontSize(12);
     doc.text("1. PROJECT & JOB DETAILS", margin, currentY);
     currentY += 6;
@@ -201,23 +197,13 @@ export default function Home() {
             ['Operatives', formData.operatives],
         ],
         theme: 'grid',
-        styles: { 
-            fontSize: 10, 
-            cellPadding: 3, 
-            lineColor: [0,0,0], 
-            lineWidth: 0.1, 
-            textColor: [0,0,0],
-            valign: 'middle'
-        },
-        columnStyles: { 
-            0: { fontStyle: 'bold', cellWidth: 50 }, 
-            1: { cellWidth: 'auto' } 
-        }
+        styles: { fontSize: 10, cellPadding: 3, lineColor: [0,0,0], lineWidth: 0.1, textColor: [0,0,0], valign: 'middle' },
+        columnStyles: { 0: { fontStyle: 'bold', cellWidth: 50 }, 1: { cellWidth: 'auto' } }
     });
     // @ts-ignore
     currentY = doc.lastAutoTable.finalY + 10;
 
-    // --- 2. SCOPE OF WORKS ---
+    // 2. SCOPE OF WORKS
     checkSpace(40);
     doc.setFont("helvetica", "bold"); doc.setFontSize(12);
     doc.text("2. SCOPE OF WORKS", margin, currentY);
@@ -229,7 +215,7 @@ export default function Home() {
     doc.text(splitScope, margin, currentY);
     currentY += (splitScope.length * 5) + 10;
 
-    // --- 3. PRE-START SAFETY CHECKLIST ---
+    // 3. PRE-START SAFETY CHECKLIST
     if (questions.length > 0) {
         checkSpace(60);
         doc.setFont("helvetica", "bold"); doc.setFontSize(12);
@@ -237,11 +223,11 @@ export default function Home() {
         currentY += 6;
 
         const checkRows = questions.map((q, index) => [
-            (index + 1).toString(), // Explicit string conversion
+            (index + 1).toString(),
             q.label,
             answers[q.id] === "Yes" ? "Yes" : "",
             answers[q.id] === "No" ? "No" : "",
-            "" // N/A empty
+            "" 
         ]);
 
         autoTable(doc, {
@@ -254,7 +240,7 @@ export default function Home() {
             columnStyles: { 
                 0: { cellWidth: 12, halign: 'center' },
                 1: { cellWidth: 'auto' },
-                2: { cellWidth: 15, halign: 'center' }, // Widened to 15mm to prevent wrapping
+                2: { cellWidth: 15, halign: 'center' }, 
                 3: { cellWidth: 15, halign: 'center' },
                 4: { cellWidth: 15, halign: 'center' }
             }
@@ -263,8 +249,8 @@ export default function Home() {
         currentY = doc.lastAutoTable.finalY + 10;
     }
 
-    // --- 4. RISK ASSESSMENT ---
-    addPageBreak(); // Always start Risk on new page
+    // 4. RISK ASSESSMENT (The 10/10 Layout)
+    addPageBreak(); 
     doc.setFont("helvetica", "bold"); doc.setFontSize(12);
     doc.text("4. RISK ASSESSMENT", margin, currentY);
     currentY += 6;
@@ -288,7 +274,7 @@ export default function Home() {
         body: riskRows,
         theme: 'grid',
         styles: { 
-            fontSize: 8, // Small font to prevent wrapping
+            fontSize: 8, // Keeps it readable
             cellPadding: 2, 
             lineColor: [0,0,0], 
             lineWidth: 0.1, 
@@ -300,16 +286,16 @@ export default function Home() {
         columnStyles: {
             0: { cellWidth: 25, fontStyle: 'bold' },
             1: { cellWidth: 30 }, 
-            2: { cellWidth: 20 }, 
-            3: { cellWidth: 20, halign: 'center' }, // WIDENED to 20mm
-            4: { cellWidth: 'auto' }, // Controls take remaining space
-            5: { cellWidth: 20, halign: 'center' }  // WIDENED to 20mm
+            2: { cellWidth: 22 }, // INCREASED to 22mm to fit "Operatives / Public"
+            3: { cellWidth: 14, halign: 'center' }, // 14mm is enough for HIGH (20)
+            4: { cellWidth: 'auto' }, 
+            5: { cellWidth: 14, halign: 'center' }  // 14mm
         }
     });
     // @ts-ignore
     currentY = doc.lastAutoTable.finalY + 10;
 
-    // --- 5. METHOD STATEMENT ---
+    // 5. METHOD STATEMENT
     checkSpace(60);
     doc.setFont("helvetica", "bold"); doc.setFontSize(12);
     doc.text("5. METHOD STATEMENT", margin, currentY);
@@ -318,12 +304,10 @@ export default function Home() {
     if(data.method_steps) {
         doc.setFont("helvetica", "normal"); doc.setFontSize(10);
         const steps = Array.isArray(data.method_steps) ? data.method_steps : data.method_steps.split('\n');
-        
         let subHeadingCounter = 1;
 
         steps.forEach((step: string) => {
             if (!step.trim()) return;
-            
             if (checkSpace(15)) {
                 doc.setFont("helvetica", "bold"); doc.setFontSize(12);
                 doc.text("5. METHOD STATEMENT (Cont.)", margin, currentY);
@@ -350,7 +334,7 @@ export default function Home() {
     }
     currentY += 10;
 
-    // --- 6. PPE ---
+    // 6. PPE
     checkSpace(50);
     doc.setFont("helvetica", "bold"); doc.setFontSize(12);
     doc.text("6. PPE REQUIREMENTS", margin, currentY);
@@ -367,7 +351,7 @@ export default function Home() {
     // @ts-ignore
     currentY = doc.lastAutoTable.finalY + 10;
 
-    // --- 7. COSHH ---
+    // 7. COSHH
     const coshhHazards = ["dust_fumes", "silica_dust", "chemical_coshh", "asbestos", "cement", "fumes"];
     if (hazards.some(h => coshhHazards.includes(h))) {
         checkSpace(50);
@@ -397,38 +381,35 @@ export default function Home() {
         currentY += 10;
     }
 
-    // --- 8. EMERGENCY ---
+    // 8. EMERGENCY (New Grid Layout)
     checkSpace(50);
     doc.setFont("helvetica", "bold"); doc.setFontSize(12);
     doc.text("8. EMERGENCY ARRANGEMENTS", margin, currentY);
     currentY += 6;
 
-    doc.setFont("helvetica", "bold"); doc.setFontSize(10);
-    doc.text("First Aid:", margin, currentY);
-    doc.setFont("helvetica", "normal");
-    doc.text(`${formData.firstAider || "TBC"} (Location: ${formData.firstAidLoc || "Site Office"})`, margin + 30, currentY);
-    currentY += 6;
+    autoTable(doc, {
+        startY: currentY,
+        body: [
+            ['First Aid', `${formData.firstAider || "TBC"} (${formData.firstAidLoc || "Site Office"})`],
+            ['Hospital', formData.hospital || "Nearest A&E (Use Sat Nav)"],
+            ['Fire Point', formData.fireAssembly || "As per site induction"],
+            ['Supervisor', formData.supervisorName || "TBC"]
+        ],
+        theme: 'grid',
+        styles: { fontSize: 10, cellPadding: 3, lineColor: [0,0,0], lineWidth: 0.1, textColor: [0,0,0] },
+        columnStyles: { 0: { fontStyle: 'bold', cellWidth: 40 }, 1: { cellWidth: 'auto' } }
+    });
+    // @ts-ignore
+    currentY = doc.lastAutoTable.finalY + 15;
 
-    doc.setFont("helvetica", "bold");
-    doc.text("Hospital:", margin, currentY);
-    doc.setFont("helvetica", "normal");
-    doc.text(`${formData.hospital || "Nearest A&E (Use Sat Nav)"}`, margin + 30, currentY);
-    currentY += 6;
-
-    doc.setFont("helvetica", "bold");
-    doc.text("Fire Point:", margin, currentY);
-    doc.setFont("helvetica", "normal");
-    doc.text(`${formData.fireAssembly || "As per site induction"}`, margin + 30, currentY);
-    currentY += 12;
-
-    // --- 9. REGISTER ---
+    // 9. REGISTER (Fixed Loop)
     addPageBreak();
     doc.setFont("helvetica", "bold"); doc.setFontSize(12);
     doc.text("9. OPERATIVE BRIEFING REGISTER", margin, currentY);
     currentY += 8;
 
     const registerRows = [];
-    for(let i=1; i<=8; i++) {
+    for(let i=1; i<=10; i++) { // Explicit 1-10
         registerRows.push([i.toString(), '', '', '', '']);
     }
 
@@ -444,8 +425,7 @@ export default function Home() {
     // @ts-ignore
     currentY = doc.lastAutoTable.finalY + 15;
 
-    // --- 10. AUTHORISATION (Keep Together Block) ---
-    // Approx 100mm needed for big boxes
+    // 10. AUTHORISATION (Big Boxes)
     if (currentY + 100 > pageHeight - margin) {
         addPageBreak();
     }
@@ -454,32 +434,32 @@ export default function Home() {
     doc.text("10. AUTHORISATION", margin, currentY);
     currentY += 6;
 
-    // BOX 1: Operative Statement (INCREASED TO 40mm)
+    // BOX 1: Operative Statement (40mm)
     doc.setDrawColor(0); doc.setLineWidth(0.2);
     doc.rect(margin, currentY, contentWidth, 40); 
     
     doc.setFontSize(10); doc.setFont("helvetica", "normal");
     const declaration = "I confirm I have read and understood this RAMS, attended the briefing, and agree to work in accordance with it.";
-    const splitDecl = doc.splitTextToSize(declaration, contentWidth - 5); // Padding
-    doc.text(splitDecl, margin + 2, currentY + 6);
+    const splitDecl = doc.splitTextToSize(declaration, contentWidth - 10); // -10 for padding
+    doc.text(splitDecl, margin + 5, currentY + 8);
     
     doc.setFont("helvetica", "bold");
-    doc.text("Lead Operative / Supervisor Sign-off:", margin + 2, currentY + 25);
+    doc.text("Lead Operative / Supervisor Sign-off:", margin + 5, currentY + 25);
     doc.setFont("helvetica", "normal");
-    doc.text("Name: __________________________   Sig: __________________________   Date: ____________", margin + 2, currentY + 33);
+    doc.text("Name: __________________________   Sig: __________________________   Date: ____________", margin + 5, currentY + 33);
     
-    currentY += 45; // Move past box 1
+    currentY += 45; 
 
-    // BOX 2: Management Approval (INCREASED TO 50mm)
+    // BOX 2: Management Approval (50mm)
     doc.rect(margin, currentY, contentWidth, 50);
     doc.setFont("helvetica", "bold");
-    doc.text("RAMS Prepared & Approved By (Management):", margin + 2, currentY + 8);
+    doc.text("RAMS Prepared & Approved By (Management):", margin + 5, currentY + 8);
     
     doc.setFont("helvetica", "normal");
-    doc.text(`Name: ${formData.contactName}`, margin + 2, currentY + 20);
+    doc.text(`Name: ${formData.contactName}`, margin + 5, currentY + 20);
     doc.text("Position: Competent Person", margin + 90, currentY + 20);
     
-    doc.text("Signature: __________________________________", margin + 2, currentY + 35);
+    doc.text("Signature: __________________________________", margin + 5, currentY + 35);
     doc.text(`Date: ${formData.startDate}`, margin + 110, currentY + 35);
 
     // -- FINALISE --
