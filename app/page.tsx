@@ -284,7 +284,7 @@ export default function Home() {
         body: riskRows,
         theme: 'grid',
         styles: { 
-            fontSize: 9, 
+            fontSize: 8,  // REDUCED FONT SIZE TO FIT TEXT
             cellPadding: 2, 
             lineColor: [0,0,0], 
             lineWidth: 0.1, 
@@ -294,12 +294,12 @@ export default function Home() {
         },
         headStyles: { fillColor: [255,255,255], textColor: [0,0,0], fontStyle: 'bold', lineWidth: 0.1, lineColor: [0,0,0] },
         columnStyles: {
-            0: { cellWidth: 25, fontStyle: 'bold' }, // Hazard
+            0: { cellWidth: 30, fontStyle: 'bold' }, // Hazard (Widened slightly)
             1: { cellWidth: 30 }, // Risk/Harm
             2: { cellWidth: 20 }, // Who
-            3: { cellWidth: 12, halign: 'center' }, // Init
+            3: { cellWidth: 15, halign: 'center' }, // Init (Widened to 15mm to stop wrapping)
             4: { cellWidth: 'auto' }, // Controls (WIDEST)
-            5: { cellWidth: 12, halign: 'center' }  // Res
+            5: { cellWidth: 15, halign: 'center' }  // Res (Widened to 15mm to stop wrapping)
         }
     });
     // @ts-ignore
@@ -328,7 +328,6 @@ export default function Home() {
             }
 
             // Detect Heading vs Step
-            // Backend is prompted to use "Phase:" or UPPERCASE headers
             const isHeader = step.toUpperCase() === step && step.length > 5;
             
             if (isHeader) {
@@ -339,7 +338,6 @@ export default function Home() {
                 currentY += 5;
                 subHeadingCounter++;
             } else {
-                // Format: 1. Step text
                 const cleanStep = step.replace(/^\d+\.\s*/, ''); 
                 const wrappedText = doc.splitTextToSize(`-  ${cleanStep}`, contentWidth);
                 doc.text(wrappedText, margin, currentY);
@@ -357,7 +355,6 @@ export default function Home() {
 
     const ppeText = data.ppe ? data.ppe.join("\n") : "Safety Boots\nHi-Vis Vest\nHard Hat\nGloves";
     
-    // Simple 2-col table for PPE
     autoTable(doc, {
         startY: currentY,
         head: [['Item', 'Requirement status']],
@@ -390,8 +387,6 @@ export default function Home() {
         // @ts-ignore
         currentY = doc.lastAutoTable.finalY + 10;
     } else {
-        // Add section heading even if empty, as per instructions to maintain structure, or omit? 
-        // Instructions say: "If no chemicals relevant... write single line".
         checkSpace(20);
         doc.setFont("helvetica", "bold"); doc.setFontSize(12);
         doc.text("7. COSHH / SUBSTANCES", margin, currentY);
@@ -449,8 +444,8 @@ export default function Home() {
     currentY = doc.lastAutoTable.finalY + 15;
 
     // --- 10. AUTHORISATION / SIGN-OFF (Keep Together Block) ---
-    // Check if there is enough space for two boxes (approx 70mm)
-    if (currentY + 70 > pageHeight - margin) {
+    // Check space for BOTH boxes (approx 80mm needed for bigger boxes)
+    if (currentY + 80 > pageHeight - margin) {
         addPageBreak();
     }
 
@@ -458,30 +453,30 @@ export default function Home() {
     doc.text("10. AUTHORISATION", margin, currentY);
     currentY += 6;
 
-    // Box 1: Operative Acceptance Statement
+    // Box 1: Operative Acceptance Statement (INCREASED HEIGHT)
     doc.setDrawColor(0); doc.setLineWidth(0.2);
-    doc.rect(margin, currentY, contentWidth, 25);
+    doc.rect(margin, currentY, contentWidth, 35); // Increased from 25 to 35
     doc.setFontSize(10); doc.setFont("helvetica", "normal");
     doc.text("I confirm I have read and understood this RAMS, attended the briefing, and agree to work in accordance with it.", margin + 2, currentY + 6);
     
     doc.setFont("helvetica", "bold");
-    doc.text("Lead Operative / Supervisor Sign-off:", margin + 2, currentY + 15);
+    doc.text("Lead Operative / Supervisor Sign-off:", margin + 2, currentY + 20);
     doc.setFont("helvetica", "normal");
-    doc.text("Name: __________________________   Sig: __________________________   Date: ____________", margin + 2, currentY + 22);
+    doc.text("Name: __________________________   Sig: __________________________   Date: ____________", margin + 2, currentY + 28);
     
-    currentY += 30;
+    currentY += 40; // Gap between boxes
 
-    // Box 2: Management Approval
-    doc.rect(margin, currentY, contentWidth, 30);
+    // Box 2: Management Approval (INCREASED HEIGHT)
+    doc.rect(margin, currentY, contentWidth, 40); // Increased from 30 to 40
     doc.setFont("helvetica", "bold");
     doc.text("RAMS Prepared & Approved By (Management):", margin + 2, currentY + 6);
     
     doc.setFont("helvetica", "normal");
-    doc.text(`Name: ${formData.contactName}`, margin + 2, currentY + 14);
-    doc.text("Position: Competent Person", margin + 80, currentY + 14);
+    doc.text(`Name: ${formData.contactName}`, margin + 2, currentY + 16);
+    doc.text("Position: Competent Person", margin + 80, currentY + 16);
     
-    doc.text("Signature: __________________________________", margin + 2, currentY + 24);
-    doc.text(`Date: ${formData.startDate}`, margin + 100, currentY + 24);
+    doc.text("Signature: __________________________________", margin + 2, currentY + 30);
+    doc.text(`Date: ${formData.startDate}`, margin + 100, currentY + 30);
 
 
     // -- FINALISE --
