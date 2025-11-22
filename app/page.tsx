@@ -3,8 +3,27 @@
 import { useState, useEffect } from "react";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
-import { Loader2, ShieldCheck, MapPin, Briefcase, AlertTriangle, FileText, Info } from "lucide-react";
+import { Loader2, ShieldCheck, MapPin, Briefcase, AlertTriangle, FileText, Info, HardHat, CheckSquare } from "lucide-react";
 import { TRADES, HAZARD_GROUPS, HAZARD_DATA } from "./lib/constants";
+
+// --- CONSTANTS ---
+const STANDARD_PPE = [
+  "Safety Boots (BS EN ISO 20345)",
+  "Hi-Vis Vest (BS EN 471)",
+  "Hard Hat (BS EN 397)",
+  "Gloves (BS EN 388)"
+];
+
+const EXTRA_PPE_OPTIONS = [
+  "Eye Protection (Goggles)",
+  "FFP3 Dust Mask (Face Fit)",
+  "Ear Defenders",
+  "Safety Harness & Lanyard",
+  "Knee Pads",
+  "Disposable Overalls",
+  "Insulated Tools (VDE)",
+  "Face Shield"
+];
 
 // --- UI COMPONENTS ---
 const Tooltip = ({ text }: { text: string }) => (
@@ -68,13 +87,15 @@ export default function Home() {
   // --- FORM STATE ---
   const [formData, setFormData] = useState({
     companyName: "", officeAddress: "", contactName: "", contactPhone: "",
-    clientName: "", projectRef: "", siteAddress: "", startDate: new Date().toISOString().split('T')[0], duration: "1 Day", 
-    operatives: "1", trade: "Electrician", jobType: "", customJobType: "", jobDesc: "",
-    supervisorName: "", firstAider: "", hospital: "", fireAssembly: "As Inducted", firstAidLoc: "Site Vehicle",
-    welfare: "Client WC", extraNotes: "", accessCode: ""
+    clientName: "", clientEmail: "", projectRef: "", siteAddress: "", 
+    startDate: new Date().toISOString().split('T')[0], duration: "1 Day", opertives: "1", 
+    trade: "Electrician", jobType: "", customJobType: "", jobDesc: "", methodNotes: "",
+    supervisorName: "", supervisorPhone: "", firstAider: "", hospital: "", fireAssembly: "As Inducted", firstAidLoc: "Site Vehicle",
+    welfare: "Client WC", accessCode: ""
   });
   
   const [hazards, setHazards] = useState<string[]>([]);
+  const [selectedPPE, setSelectedPPE] = useState<string[]>([]);
   const [questions, setQuestions] = useState<any[]>([]); 
   const [answers, setAnswers] = useState<Record<string, string>>({}); 
 
@@ -104,6 +125,7 @@ export default function Home() {
 
   const handleInput = (field: string, value: string) => setFormData(prev => ({ ...prev, [field]: value }));
   const toggleHazard = (h: string) => setHazards(prev => prev.includes(h) ? prev.filter(i => i !== h) : [...prev, h]);
+  const togglePPE = (item: string) => setSelectedPPE(prev => prev.includes(item) ? prev.filter(i => i !== item) : [...prev, item]);
 
   const nextStep = () => {
     if (step === 1 && (!formData.companyName || !formData.officeAddress || !formData.contactName)) return alert("⚠️ Please fill in Company Details.");
@@ -122,17 +144,18 @@ export default function Home() {
       const res = await fetch("/api/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...formData, hazards, answers }),
+        // Pass user inputs including methodNotes and selectedPPE to the API
+        body: JSON.stringify({ ...formData, hazards, answers, selectedPPE }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
-      createFinalPDF(data);
+      createPDF(data);
     } catch (e: any) { alert(e.message); } 
     finally { setLoading(false); }
   };
 
-  // --- THE "FINAL 10/10" PDF ENGINE ---
-  const createFinalPDF = (data: any) => {
+  // --- THE "TITAN GOLD" PDF ENGINE (10/10 Standard) ---
+  const createPDF = (data: any) => {
     const doc = new jsPDF();
     const totalPagesExp = "{total_pages_count_string}";
     const pageWidth = 210;
@@ -155,29 +178,23 @@ export default function Home() {
         return false;
     };
 
-    // -- HEADER & FOOTER --
     const drawHeader = (doc: any) => {
-        doc.setFont("helvetica", "normal");
-        doc.setFontSize(9);
-        doc.setTextColor(0, 0, 0);
+        doc.setFont("helvetica", "normal"); doc.setFontSize(9); doc.setTextColor(0, 0, 0);
         const headerText = `${formData.companyName.toUpperCase()} – RISK ASSESSMENT & METHOD STATEMENT`;
         doc.text(headerText, margin, 10);
-        doc.setLineWidth(0.1);
-        doc.line(margin, 12, pageWidth - margin, 12);
+        doc.setLineWidth(0.1); doc.line(margin, 12, pageWidth - margin, 12);
     };
 
     const drawFooter = (doc: any, pageNumber: number, totalPages: string) => {
         const ref = formData.projectRef || `RAMS-${new Date().getFullYear()}-001`;
         const safeAddress = formData.siteAddress.length > 40 ? formData.siteAddress.substring(0, 40) + "..." : formData.siteAddress;
         const str = `Ref: ${ref} | ${safeAddress} | Page ${pageNumber} of ${totalPages}`;
-        doc.setFontSize(8);
-        doc.setTextColor(80, 80, 80);
+        doc.setFontSize(8); doc.setTextColor(80, 80, 80);
         doc.text(str, pageWidth / 2, pageHeight - 10, { align: "center" });
     };
 
     // --- START DOCUMENT ---
-    drawHeader(doc);
-    currentY = 20; 
+    drawHeader(doc); currentY = 20; 
 
     // 1. PROJECT & JOB DETAILS
     doc.setFont("helvetica", "bold"); doc.setFontSize(12);
@@ -187,18 +204,16 @@ export default function Home() {
     autoTable(doc, {
         startY: currentY,
         body: [
-            ['Company Name', formData.companyName],
+            ['Company', `${formData.companyName}\n${formData.officeAddress}`],
+            ['Prepared By', `${formData.contactName} (${formData.contactPhone})`],
+            ['Client', `${formData.clientName} (${formData.clientEmail || "No Email"})`],
             ['Site Address', formData.siteAddress],
-            ['Client', formData.clientName],
-            ['Job / Task Title', `${formData.trade} - ${formData.jobType}`],
-            ['RAMS Reference', formData.projectRef || "TBC"],
-            ['Date of RAMS', formData.startDate],
-            ['Prepared By', `${formData.contactName} (Competent Person)`],
-            ['Operatives', formData.operatives],
+            ['Scope', `${formData.trade} - ${formData.jobType}`],
+            ['Project Data', `Start: ${formData.startDate}  |  Duration: ${formData.duration}  |  Operatives: ${formData.opertives}`],
         ],
         theme: 'grid',
         styles: { fontSize: 10, cellPadding: 3, lineColor: [0,0,0], lineWidth: 0.1, textColor: [0,0,0], valign: 'middle' },
-        columnStyles: { 0: { fontStyle: 'bold', cellWidth: 50 }, 1: { cellWidth: 'auto' } }
+        columnStyles: { 0: { fontStyle: 'bold', cellWidth: 45 }, 1: { cellWidth: 'auto' } }
     });
     // @ts-ignore
     currentY = doc.lastAutoTable.finalY + 10;
@@ -210,12 +225,12 @@ export default function Home() {
     currentY += 6;
 
     doc.setFont("helvetica", "normal"); doc.setFontSize(10);
-    const scopeText = data.summary || formData.jobDesc || "Execution of trade works as defined by client instruction.";
-    const splitScope = doc.splitTextToSize(scopeText, contentWidth);
-    doc.text(splitScope, margin, currentY);
-    currentY += (splitScope.length * 5) + 10;
+    const summaryText = data.summary || formData.jobDesc || "Execution of trade works as defined by client instruction.";
+    const splitSummary = doc.splitTextToSize(summaryText, contentWidth);
+    doc.text(splitSummary, margin, currentY);
+    currentY += (splitSummary.length * 5) + 10;
 
-    // 3. PRE-START SAFETY CHECKLIST
+    // 3. PRE-START CHECKLIST
     if (questions.length > 0) {
         checkSpace(60);
         doc.setFont("helvetica", "bold"); doc.setFontSize(12);
@@ -237,20 +252,14 @@ export default function Home() {
             theme: 'grid',
             styles: { fontSize: 10, cellPadding: 3, lineColor: [0,0,0], lineWidth: 0.1, textColor: [0,0,0] },
             headStyles: { fillColor: [255,255,255], textColor: [0,0,0], fontStyle: 'bold', lineWidth: 0.1, lineColor: [0,0,0] },
-            columnStyles: { 
-                0: { cellWidth: 16, halign: 'center' }, // INCREASED TO 16mm (Fixed wrapping)
-                1: { cellWidth: 'auto' },
-                2: { cellWidth: 15, halign: 'center' }, 
-                3: { cellWidth: 15, halign: 'center' },
-                4: { cellWidth: 15, halign: 'center' }
-            }
+            columnStyles: { 0: { cellWidth: 16, halign: 'center' }, 1: { cellWidth: 'auto' }, 2: { cellWidth: 15, halign: 'center' }, 3: { cellWidth: 15, halign: 'center' }, 4: { cellWidth: 15, halign: 'center' } }
         });
         // @ts-ignore
         currentY = doc.lastAutoTable.finalY + 10;
     }
 
     // 4. RISK ASSESSMENT
-    addPageBreak(); 
+    addPageBreak();
     doc.setFont("helvetica", "bold"); doc.setFontSize(12);
     doc.text("4. RISK ASSESSMENT", margin, currentY);
     currentY += 6;
@@ -273,27 +282,34 @@ export default function Home() {
         head: [['Hazard', 'Risk / Harm', 'Who', 'Init', 'Control Measures', 'Res']],
         body: riskRows,
         theme: 'grid',
-        styles: { 
-            fontSize: 8,
-            cellPadding: 2, 
-            lineColor: [0,0,0], 
-            lineWidth: 0.1, 
-            textColor: [0,0,0], 
-            valign: 'top',
-            overflow: 'linebreak'
-        },
+        styles: { fontSize: 8, cellPadding: 2, lineColor: [0,0,0], lineWidth: 0.1, textColor: [0,0,0], valign: 'top', overflow: 'linebreak' },
         headStyles: { fillColor: [255,255,255], textColor: [0,0,0], fontStyle: 'bold', lineWidth: 0.1, lineColor: [0,0,0] },
-        columnStyles: {
-            0: { cellWidth: 25, fontStyle: 'bold' },
-            1: { cellWidth: 30 }, 
-            2: { cellWidth: 22 }, 
-            3: { cellWidth: 18, halign: 'center' }, // 18mm for "MEDIUM (12)"
-            4: { cellWidth: 'auto' }, 
-            5: { cellWidth: 18, halign: 'center' }  // 18mm for "MEDIUM (12)"
-        }
+        columnStyles: { 0: { cellWidth: 25, fontStyle: 'bold' }, 1: { cellWidth: 30 }, 2: { cellWidth: 22 }, 3: { cellWidth: 18, halign: 'center' }, 4: { cellWidth: 'auto' }, 5: { cellWidth: 18, halign: 'center' } }
     });
     // @ts-ignore
     currentY = doc.lastAutoTable.finalY + 10;
+
+    // 4.1 RISK MATRIX (The 5x5 Key)
+    if (checkSpace(35)) currentY += 5;
+    doc.setFont("helvetica", "bold"); doc.setFontSize(10);
+    doc.text("4.1 RISK MATRIX KEY (Standard 5x5)", margin, currentY);
+    currentY += 5;
+    
+    autoTable(doc, {
+        startY: currentY,
+        head: [['Score', 'Risk Level', 'Action Required']],
+        body: [
+            ['1 - 4', 'LOW', 'Monitor. Proceed with standard controls.'],
+            ['5 - 12', 'MEDIUM', 'Action required to reduce risk to As Low As Reasonably Practicable.'],
+            ['15 - 25', 'HIGH', 'STOP WORK. Immediate control improvements required.'],
+        ],
+        theme: 'grid',
+        styles: { fontSize: 8, cellPadding: 2, lineColor: [0,0,0], lineWidth: 0.1, textColor: [0,0,0] },
+        headStyles: { fillColor: [245,245,245], textColor: [0,0,0], fontStyle: 'bold', lineWidth: 0.1, lineColor: [0,0,0] },
+        columnStyles: { 0: { cellWidth: 20, halign: 'center' }, 1: { cellWidth: 25, halign: 'center' } }
+    });
+    // @ts-ignore
+    currentY = doc.lastAutoTable.finalY + 15;
 
     // 5. METHOD STATEMENT
     checkSpace(60);
@@ -340,10 +356,14 @@ export default function Home() {
     doc.text("6. PPE REQUIREMENTS", margin, currentY);
     currentY += 6;
 
+    // Combine Standard + User Selected + AI generated (deduplicated)
+    const combinedPPE = [...new Set([...STANDARD_PPE, ...selectedPPE, ...(data.ppe || [])])];
+    const ppeBody = combinedPPE.map(p => [p, 'Mandatory']);
+
     autoTable(doc, {
         startY: currentY,
         head: [['Item', 'Requirement status']],
-        body: data.ppe ? data.ppe.map((p:string) => [p, 'Mandatory']) : [['Standard Site PPE', 'Mandatory']],
+        body: ppeBody,
         theme: 'grid',
         styles: { fontSize: 10, cellPadding: 3, lineColor: [0,0,0], lineWidth: 0.1, textColor: [0,0,0] },
         headStyles: { fillColor: [255,255,255], textColor: [0,0,0], fontStyle: 'bold', lineWidth: 0.1, lineColor: [0,0,0] }
@@ -371,14 +391,6 @@ export default function Home() {
         });
         // @ts-ignore
         currentY = doc.lastAutoTable.finalY + 10;
-    } else {
-        checkSpace(20);
-        doc.setFont("helvetica", "bold"); doc.setFontSize(12);
-        doc.text("7. COSHH / SUBSTANCES", margin, currentY);
-        currentY += 6;
-        doc.setFont("helvetica", "normal"); doc.setFontSize(10);
-        doc.text("No significant COSHH substances are expected to be used for this task.", margin, currentY);
-        currentY += 10;
     }
 
     // 8. EMERGENCY
@@ -393,7 +405,7 @@ export default function Home() {
             ['First Aid', `${formData.firstAider || "TBC"} (${formData.firstAidLoc || "Site Office"})`],
             ['Hospital', formData.hospital || "Nearest A&E (Use Sat Nav)"],
             ['Fire Point', formData.fireAssembly || "As per site induction"],
-            ['Supervisor', formData.supervisorName || "TBC"]
+            ['Supervisor', `${formData.supervisorName || "TBC"} (${formData.supervisorPhone || "No Number"})`]
         ],
         theme: 'grid',
         styles: { fontSize: 10, cellPadding: 3, lineColor: [0,0,0], lineWidth: 0.1, textColor: [0,0,0] },
@@ -420,7 +432,7 @@ export default function Home() {
         theme: 'grid',
         styles: { fontSize: 10, cellPadding: 4, lineColor: [0,0,0], lineWidth: 0.1, minCellHeight: 12, textColor: [0,0,0] },
         headStyles: { fillColor: [255,255,255], textColor: [0,0,0], fontStyle: 'bold', lineWidth: 0.1, lineColor: [0,0,0] },
-        columnStyles: { 0: { cellWidth: 16, halign: 'center' } } // INCREASED TO 16mm to fit "No."
+        columnStyles: { 0: { cellWidth: 16, halign: 'center' } } 
     });
     // @ts-ignore
     currentY = doc.lastAutoTable.finalY + 15;
@@ -502,15 +514,18 @@ export default function Home() {
                 <input className="border p-3 rounded w-full" placeholder="Company Name" value={formData.companyName} onChange={e => handleInput("companyName", e.target.value)} />
                 <input className="border p-3 rounded w-full" placeholder="Competent Person Name" value={formData.contactName} onChange={e => handleInput("contactName", e.target.value)} />
                 <AddressSearch label="Office Address" value={formData.officeAddress} onChange={(val:string) => handleInput("officeAddress", val)} />
-                <input className="border p-3 rounded w-full" placeholder="Phone Number" value={formData.contactPhone} onChange={e => handleInput("contactPhone", e.target.value)} />
+                <input className="border p-3 rounded w-full" placeholder="Your Phone Number" value={formData.contactPhone} onChange={e => handleInput("contactPhone", e.target.value)} />
               </div>
               <div className="bg-gray-50 p-4 rounded border mt-4 space-y-4">
                  <h3 className="font-bold text-sm">Project Info</h3>
                  <div className="grid grid-cols-2 gap-4">
                     <input className="border p-3 rounded w-full" placeholder="Client Name" value={formData.clientName} onChange={e => handleInput("clientName", e.target.value)} />
-                    <input className="border p-3 rounded w-full" placeholder="Job Ref (Optional)" value={formData.projectRef} onChange={e => handleInput("projectRef", e.target.value)} />
+                    <input className="border p-3 rounded w-full" placeholder="Client Email (Optional)" value={formData.clientEmail} onChange={e => handleInput("clientEmail", e.target.value)} />
                  </div>
-                 <AddressSearch label="Site Address" value={formData.siteAddress} onChange={(val:string) => handleInput("siteAddress", val)} />
+                 <div className="grid grid-cols-2 gap-4">
+                    <input className="border p-3 rounded w-full" placeholder="Job Ref (Optional)" value={formData.projectRef} onChange={e => handleInput("projectRef", e.target.value)} />
+                    <AddressSearch label="Site Address" value={formData.siteAddress} onChange={(val:string) => handleInput("siteAddress", val)} />
+                 </div>
               </div>
               <button onClick={nextStep} className="bg-black text-white w-full py-3 rounded font-bold mt-4">Next Step</button>
             </div>
@@ -542,21 +557,47 @@ export default function Home() {
                   </div>
               )}
 
-              <textarea className="w-full border p-3 rounded h-32" value={formData.jobDesc} onChange={e => handleInput("jobDesc", e.target.value)} />
+              <div>
+                <label className="block text-sm font-bold mb-1">Specific Site Constraints / Method Notes</label>
+                <textarea 
+                    className="w-full border p-3 rounded h-24 text-sm" 
+                    placeholder="e.g. Access via rear gate only. No noisy works between 1-2pm. Parking in bay 4."
+                    value={formData.methodNotes} 
+                    onChange={e => handleInput("methodNotes", e.target.value)} 
+                />
+              </div>
+
               <div className="flex gap-4"><button onClick={() => setStep(1)} className="w-1/3 border py-3 rounded">Back</button><button onClick={nextStep} className="w-2/3 bg-black text-white py-3 rounded font-bold">Next</button></div>
             </div>
           )}
 
-          {/* STEP 3: HAZARDS */}
+          {/* STEP 3: HAZARDS & PPE */}
           {step === 3 && (
             <div className="space-y-6 animate-in fade-in">
               <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2"><AlertTriangle className="w-5 h-5"/> Safety & Hazards</h2>
               
               <div className="grid grid-cols-2 gap-4 bg-gray-50 p-4 rounded border">
                  <input className="border p-2 rounded" placeholder="Supervisor Name" value={formData.supervisorName} onChange={e => handleInput("supervisorName", e.target.value)} />
+                 <input className="border p-2 rounded" placeholder="Supervisor Phone" value={formData.supervisorPhone} onChange={e => handleInput("supervisorPhone", e.target.value)} />
                  <input className="border p-2 rounded" placeholder="First Aider" value={formData.firstAider} onChange={e => handleInput("firstAider", e.target.value)} />
                  <input className="border p-2 rounded" placeholder="Nearest Hospital" value={formData.hospital} onChange={e => handleInput("hospital", e.target.value)} />
-                 <input className="border p-2 rounded" placeholder="Fire Assembly Point" value={formData.fireAssembly} onChange={e => handleInput("fireAssembly", e.target.value)} />
+              </div>
+
+              {/* PPE SELECTOR */}
+              <div className="border p-4 rounded-lg">
+                  <h4 className="text-xs font-bold uppercase text-gray-500 mb-2 flex items-center gap-2"><HardHat className="w-4 h-4"/> Select Extra PPE Requirements</h4>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+                      {EXTRA_PPE_OPTIONS.map(ppe => (
+                          <button 
+                            key={ppe} 
+                            onClick={() => togglePPE(ppe)} 
+                            className={`text-xs p-2 rounded border flex items-center gap-2 ${selectedPPE.includes(ppe) ? 'bg-blue-900 text-white border-blue-900' : 'bg-white text-gray-700 hover:bg-gray-50'}`}
+                          >
+                            {selectedPPE.includes(ppe) ? <CheckSquare className="w-3 h-3"/> : <div className="w-3 h-3 border rounded-sm"/>}
+                            {ppe}
+                          </button>
+                      ))}
+                  </div>
               </div>
 
               <div className="space-y-4">
