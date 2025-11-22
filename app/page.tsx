@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
-import { Loader2, ShieldCheck, MapPin, Briefcase, AlertTriangle, FileText, Info, HardHat, CheckSquare } from "lucide-react";
+import { Loader2, ShieldCheck, MapPin, Briefcase, AlertTriangle, FileText, Info, HardHat, CheckSquare, Upload, CheckCircle } from "lucide-react";
 import { TRADES, HAZARD_GROUPS, HAZARD_DATA } from "./lib/constants";
 
 // --- CONSTANTS ---
@@ -98,34 +98,55 @@ export default function Home() {
   const [selectedPPE, setSelectedPPE] = useState<string[]>([]);
   const [questions, setQuestions] = useState<any[]>([]); 
   const [answers, setAnswers] = useState<Record<string, string>>({}); 
+  const [logoBase64, setLogoBase64] = useState<string | null>(null);
 
-  // --- LOGIC: LOAD QUESTIONS ---
+  // --- LOGIC: LOAD QUESTIONS (THE FIX) ---
   useEffect(() => {
     // @ts-ignore
     const tradeData = TRADES[formData.trade];
-    if (tradeData && formData.jobType) {
-      if (formData.jobType === "Other (Custom)") {
-        setFormData(prev => ({ ...prev, jobDesc: "" })); 
-        setQuestions([]);
-        setHazards([]);
-      } else {
+    
+    if (!tradeData || !formData.jobType) return;
+
+    if (formData.jobType === "Other (Custom)") {
+      setFormData(prev => ({ ...prev, jobDesc: "" })); 
+      setQuestions([]);
+      setHazards([]);
+      return;
+    }
+
+    // 1. Try direct lookup first (Most reliable if keys match names)
+    // @ts-ignore
+    let clusterData = tradeData.clusters[formData.jobType];
+
+    // 2. If direct lookup fails, try finding via the jobs array (Fallback)
+    if (!clusterData) {
         const jobObj = tradeData.jobs.find((j: any) => j.name === formData.jobType);
-        if (jobObj) {
-          // @ts-ignore
-          const clusterData = tradeData.clusters[jobObj.cluster];
-          if (clusterData) {
-            setFormData(prev => ({ ...prev, jobDesc: clusterData.desc }));
-            setHazards(prev => [...new Set([...prev, ...clusterData.hazards])]);
-            setQuestions(clusterData.questions || []);
-          }
+        if (jobObj && jobObj.cluster) {
+            // @ts-ignore
+            clusterData = tradeData.clusters[jobObj.cluster];
         }
-      }
+    }
+
+    // 3. Apply Data
+    if (clusterData) {
+      setFormData(prev => ({ ...prev, jobDesc: clusterData.desc }));
+      setHazards(prev => [...new Set([...prev, ...clusterData.hazards])]);
+      setQuestions(clusterData.questions || []);
     }
   }, [formData.jobType, formData.trade]);
 
   const handleInput = (field: string, value: string) => setFormData(prev => ({ ...prev, [field]: value }));
   const toggleHazard = (h: string) => setHazards(prev => prev.includes(h) ? prev.filter(i => i !== h) : [...prev, h]);
   const togglePPE = (item: string) => setSelectedPPE(prev => prev.includes(item) ? prev.filter(i => i !== item) : [...prev, item]);
+
+  const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => setLogoBase64(reader.result as string);
+      reader.readAsDataURL(file);
+    }
+  };
 
   const nextStep = () => {
     if (step === 1 && (!formData.companyName || !formData.officeAddress || !formData.contactName)) return alert("⚠️ Please fill in Company Details.");
@@ -144,7 +165,6 @@ export default function Home() {
       const res = await fetch("/api/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        // Pass user inputs including methodNotes and selectedPPE to the API
         body: JSON.stringify({ ...formData, hazards, answers, selectedPPE }),
       });
       const data = await res.json();
@@ -154,7 +174,7 @@ export default function Home() {
     finally { setLoading(false); }
   };
 
-  // --- THE "TITAN GOLD" PDF ENGINE (10/10 Standard) ---
+  // --- THE "TITAN GOLD" PDF ENGINE ---
   const createPDF = (data: any) => {
     const doc = new jsPDF();
     const totalPagesExp = "{total_pages_count_string}";
@@ -164,25 +184,20 @@ export default function Home() {
     const contentWidth = pageWidth - (margin * 2);
     let currentY = margin;
 
-    // -- HELPERS --
-    const addPageBreak = () => {
-        doc.addPage();
-        currentY = margin + 10;
-    };
-
-    const checkSpace = (needed: number) => {
-        if (currentY + needed > pageHeight - margin) {
-            addPageBreak();
-            return true;
-        }
-        return false;
-    };
+    const addPageBreak = () => { doc.addPage(); currentY = margin + 10; };
+    const checkSpace = (needed: number) => { if (currentY + needed > pageHeight - margin) { addPageBreak(); return true; } return false; };
 
     const drawHeader = (doc: any) => {
         doc.setFont("helvetica", "normal"); doc.setFontSize(9); doc.setTextColor(0, 0, 0);
-        const headerText = `${formData.companyName.toUpperCase()} – RISK ASSESSMENT & METHOD STATEMENT`;
-        doc.text(headerText, margin, 10);
-        doc.setLineWidth(0.1); doc.line(margin, 12, pageWidth - margin, 12);
+        
+        if (logoBase64) {
+            doc.addImage(logoBase64, 'JPEG', pageWidth - margin - 25, 5, 25, 12);
+            doc.text(formData.companyName.toUpperCase(), margin, 12);
+        } else {
+            doc.text(`${formData.companyName.toUpperCase()} – RISK ASSESSMENT & METHOD STATEMENT`, margin, 10);
+        }
+        
+        doc.setLineWidth(0.1); doc.line(margin, 18, pageWidth - margin, 18);
     };
 
     const drawFooter = (doc: any, pageNumber: number, totalPages: string) => {
@@ -193,10 +208,10 @@ export default function Home() {
         doc.text(str, pageWidth / 2, pageHeight - 10, { align: "center" });
     };
 
-    // --- START DOCUMENT ---
-    drawHeader(doc); currentY = 20; 
+    // --- DOCUMENT CONTENT ---
+    drawHeader(doc); currentY = 25; 
 
-    // 1. PROJECT & JOB DETAILS
+    // 1. PROJECT DETAILS
     doc.setFont("helvetica", "bold"); doc.setFontSize(12);
     doc.text("1. PROJECT & JOB DETAILS", margin, currentY);
     currentY += 6;
@@ -218,19 +233,19 @@ export default function Home() {
     // @ts-ignore
     currentY = doc.lastAutoTable.finalY + 10;
 
-    // 2. SCOPE OF WORKS
+    // 2. SCOPE
     checkSpace(40);
     doc.setFont("helvetica", "bold"); doc.setFontSize(12);
     doc.text("2. SCOPE OF WORKS", margin, currentY);
     currentY += 6;
 
     doc.setFont("helvetica", "normal"); doc.setFontSize(10);
-    const summaryText = data.summary || formData.jobDesc || "Execution of trade works as defined by client instruction.";
+    const summaryText = data.summary || formData.jobDesc || "Execution of trade works.";
     const splitSummary = doc.splitTextToSize(summaryText, contentWidth);
     doc.text(splitSummary, margin, currentY);
     currentY += (splitSummary.length * 5) + 10;
 
-    // 3. PRE-START CHECKLIST
+    // 3. CHECKLIST
     if (questions.length > 0) {
         checkSpace(60);
         doc.setFont("helvetica", "bold"); doc.setFontSize(12);
@@ -266,15 +281,8 @@ export default function Home() {
 
     const riskRows = hazards.map(h => {
         // @ts-ignore
-        const hInfo = HAZARD_DATA[h] || { label: h, risk: "General Injury", initial_score: "Med", control: "Standard site controls.", residual_score: "Low" };
-        return [
-            hInfo.label,
-            hInfo.risk,
-            "Operatives / Public",
-            hInfo.initial_score.toUpperCase(),
-            hInfo.control, 
-            hInfo.residual_score.toUpperCase()
-        ];
+        const hInfo = HAZARD_DATA[h] || { label: h, risk: "General Risk", initial_score: "Med", control: "Standard controls.", residual_score: "Low" };
+        return [hInfo.label, hInfo.risk, "Operatives / Public", hInfo.initial_score.toUpperCase(), hInfo.control, hInfo.residual_score.toUpperCase()];
     });
 
     autoTable(doc, {
@@ -289,7 +297,7 @@ export default function Home() {
     // @ts-ignore
     currentY = doc.lastAutoTable.finalY + 10;
 
-    // 4.1 RISK MATRIX (The 5x5 Key)
+    // 4.1 RISK MATRIX
     if (checkSpace(35)) currentY += 5;
     doc.setFont("helvetica", "bold"); doc.setFontSize(10);
     doc.text("4.1 RISK MATRIX KEY (Standard 5x5)", margin, currentY);
@@ -300,7 +308,7 @@ export default function Home() {
         head: [['Score', 'Risk Level', 'Action Required']],
         body: [
             ['1 - 4', 'LOW', 'Monitor. Proceed with standard controls.'],
-            ['5 - 12', 'MEDIUM', 'Action required to reduce risk to As Low As Reasonably Practicable.'],
+            ['5 - 12', 'MEDIUM', 'Action required to reduce risk to ALARP.'],
             ['15 - 25', 'HIGH', 'STOP WORK. Immediate control improvements required.'],
         ],
         theme: 'grid',
@@ -356,7 +364,6 @@ export default function Home() {
     doc.text("6. PPE REQUIREMENTS", margin, currentY);
     currentY += 6;
 
-    // Combine Standard + User Selected + AI generated (deduplicated)
     const combinedPPE = [...new Set([...STANDARD_PPE, ...selectedPPE, ...(data.ppe || [])])];
     const ppeBody = combinedPPE.map(p => [p, 'Mandatory']);
 
@@ -446,31 +453,26 @@ export default function Home() {
     doc.text("10. AUTHORISATION", margin, currentY);
     currentY += 6;
 
-    // BOX 1 (45mm)
+    // BOX 1
     doc.setDrawColor(0); doc.setLineWidth(0.2);
     doc.rect(margin, currentY, contentWidth, 45); 
-    
     doc.setFontSize(10); doc.setFont("helvetica", "normal");
     const declaration = "I confirm I have read and understood this RAMS, attended the briefing, and agree to work in accordance with it.";
     const splitDecl = doc.splitTextToSize(declaration, contentWidth - 10); 
     doc.text(splitDecl, margin + 5, currentY + 8);
-    
     doc.setFont("helvetica", "bold");
     doc.text("Lead Operative / Supervisor Sign-off:", margin + 5, currentY + 30);
     doc.setFont("helvetica", "normal");
     doc.text("Name: __________________________   Sig: __________________________   Date: ____________", margin + 5, currentY + 38);
-    
     currentY += 50; 
 
-    // BOX 2 (55mm)
+    // BOX 2
     doc.rect(margin, currentY, contentWidth, 55);
     doc.setFont("helvetica", "bold");
     doc.text("RAMS Prepared & Approved By (Management):", margin + 5, currentY + 8);
-    
     doc.setFont("helvetica", "normal");
     doc.text(`Name: ${formData.contactName}`, margin + 5, currentY + 20);
     doc.text("Position: Competent Person", margin + 90, currentY + 20);
-    
     doc.text("Signature: __________________________________", margin + 5, currentY + 40);
     doc.text(`Date: ${formData.startDate}`, margin + 110, currentY + 40);
 
@@ -527,6 +529,18 @@ export default function Home() {
                     <AddressSearch label="Site Address" value={formData.siteAddress} onChange={(val:string) => handleInput("siteAddress", val)} />
                  </div>
               </div>
+              
+              <div className="mt-4">
+                <label className="block text-sm font-bold mb-2">Company Logo (Optional)</label>
+                <div className="flex items-center gap-4">
+                    <label className="cursor-pointer bg-gray-100 hover:bg-gray-200 border border-gray-300 text-gray-700 py-2 px-4 rounded inline-flex items-center gap-2">
+                        <Upload className="w-4 h-4"/> Upload Logo
+                        <input type="file" accept="image/*" onChange={handleLogoUpload} className="hidden" />
+                    </label>
+                    {logoBase64 && <span className="text-green-600 text-xs font-bold flex items-center gap-1"><CheckCircle className="w-4 h-4"/> Logo Uploaded</span>}
+                </div>
+              </div>
+
               <button onClick={nextStep} className="bg-black text-white w-full py-3 rounded font-bold mt-4">Next Step</button>
             </div>
           )}
@@ -541,7 +555,6 @@ export default function Home() {
                  <select className="border p-3 rounded w-full" value={formData.jobType} onChange={e => handleInput("jobType", e.target.value)}><option value="">Select Job Type</option>{TRADES[formData.trade].jobs.map((j:any) => <option key={j.name}>{j.name}</option>)}</select>
               </div>
               
-              {/* DYNAMIC QUESTIONS */}
               {questions.length > 0 && (
                   <div className="bg-blue-50 p-4 rounded border border-blue-100">
                       <h4 className="font-bold text-sm text-blue-900 mb-3">Pre-Start Safety Checks</h4>
@@ -559,12 +572,7 @@ export default function Home() {
 
               <div>
                 <label className="block text-sm font-bold mb-1">Specific Site Constraints / Method Notes</label>
-                <textarea 
-                    className="w-full border p-3 rounded h-24 text-sm" 
-                    placeholder="e.g. Access via rear gate only. No noisy works between 1-2pm. Parking in bay 4."
-                    value={formData.methodNotes} 
-                    onChange={e => handleInput("methodNotes", e.target.value)} 
-                />
+                <textarea className="w-full border p-3 rounded h-24 text-sm" placeholder="e.g. Access via rear gate only. No noisy works between 1-2pm. Parking in bay 4." value={formData.methodNotes} onChange={e => handleInput("methodNotes", e.target.value)} />
               </div>
 
               <div className="flex gap-4"><button onClick={() => setStep(1)} className="w-1/3 border py-3 rounded">Back</button><button onClick={nextStep} className="w-2/3 bg-black text-white py-3 rounded font-bold">Next</button></div>
@@ -583,16 +591,11 @@ export default function Home() {
                  <input className="border p-2 rounded" placeholder="Nearest Hospital" value={formData.hospital} onChange={e => handleInput("hospital", e.target.value)} />
               </div>
 
-              {/* PPE SELECTOR */}
               <div className="border p-4 rounded-lg">
                   <h4 className="text-xs font-bold uppercase text-gray-500 mb-2 flex items-center gap-2"><HardHat className="w-4 h-4"/> Select Extra PPE Requirements</h4>
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
                       {EXTRA_PPE_OPTIONS.map(ppe => (
-                          <button 
-                            key={ppe} 
-                            onClick={() => togglePPE(ppe)} 
-                            className={`text-xs p-2 rounded border flex items-center gap-2 ${selectedPPE.includes(ppe) ? 'bg-blue-900 text-white border-blue-900' : 'bg-white text-gray-700 hover:bg-gray-50'}`}
-                          >
+                          <button key={ppe} onClick={() => togglePPE(ppe)} className={`text-xs p-2 rounded border flex items-center gap-2 ${selectedPPE.includes(ppe) ? 'bg-blue-900 text-white border-blue-900' : 'bg-white text-gray-700 hover:bg-gray-50'}`}>
                             {selectedPPE.includes(ppe) ? <CheckSquare className="w-3 h-3"/> : <div className="w-3 h-3 border rounded-sm"/>}
                             {ppe}
                           </button>
