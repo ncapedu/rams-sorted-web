@@ -126,13 +126,13 @@ export default function Home() {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
-      createGoldMasterPDF(data);
+      createFinalPDF(data);
     } catch (e: any) { alert(e.message); } 
     finally { setLoading(false); }
   };
 
-  // --- THE "GOLD MASTER" PDF ENGINE ---
-  const createGoldMasterPDF = (data: any) => {
+  // --- THE "FINAL 10/10" PDF ENGINE ---
+  const createFinalPDF = (data: any) => {
     const doc = new jsPDF();
     const totalPagesExp = "{total_pages_count_string}";
     const pageWidth = 210;
@@ -238,7 +238,7 @@ export default function Home() {
             styles: { fontSize: 10, cellPadding: 3, lineColor: [0,0,0], lineWidth: 0.1, textColor: [0,0,0] },
             headStyles: { fillColor: [255,255,255], textColor: [0,0,0], fontStyle: 'bold', lineWidth: 0.1, lineColor: [0,0,0] },
             columnStyles: { 
-                0: { cellWidth: 12, halign: 'center' },
+                0: { cellWidth: 16, halign: 'center' }, // INCREASED TO 16mm (Fixed wrapping)
                 1: { cellWidth: 'auto' },
                 2: { cellWidth: 15, halign: 'center' }, 
                 3: { cellWidth: 15, halign: 'center' },
@@ -249,7 +249,7 @@ export default function Home() {
         currentY = doc.lastAutoTable.finalY + 10;
     }
 
-    // 4. RISK ASSESSMENT (Wider Columns)
+    // 4. RISK ASSESSMENT
     addPageBreak(); 
     doc.setFont("helvetica", "bold"); doc.setFontSize(12);
     doc.text("4. RISK ASSESSMENT", margin, currentY);
@@ -286,10 +286,10 @@ export default function Home() {
         columnStyles: {
             0: { cellWidth: 25, fontStyle: 'bold' },
             1: { cellWidth: 30 }, 
-            2: { cellWidth: 20 }, 
-            3: { cellWidth: 18, halign: 'center' }, // WIDE ENOUGH FOR "MEDIUM (12)"
+            2: { cellWidth: 22 }, 
+            3: { cellWidth: 18, halign: 'center' }, // 18mm for "MEDIUM (12)"
             4: { cellWidth: 'auto' }, 
-            5: { cellWidth: 18, halign: 'center' }  // WIDE ENOUGH FOR "MEDIUM (12)"
+            5: { cellWidth: 18, halign: 'center' }  // 18mm for "MEDIUM (12)"
         }
     });
     // @ts-ignore
@@ -402,7 +402,7 @@ export default function Home() {
     // @ts-ignore
     currentY = doc.lastAutoTable.finalY + 15;
 
-    // 9. REGISTER (Fixed N -> No., Fixed 0 -> 1)
+    // 9. REGISTER
     addPageBreak();
     doc.setFont("helvetica", "bold"); doc.setFontSize(12);
     doc.text("9. OPERATIVE BRIEFING REGISTER", margin, currentY);
@@ -420,12 +420,12 @@ export default function Home() {
         theme: 'grid',
         styles: { fontSize: 10, cellPadding: 4, lineColor: [0,0,0], lineWidth: 0.1, minCellHeight: 12, textColor: [0,0,0] },
         headStyles: { fillColor: [255,255,255], textColor: [0,0,0], fontStyle: 'bold', lineWidth: 0.1, lineColor: [0,0,0] },
-        columnStyles: { 0: { cellWidth: 12, halign: 'center' } }
+        columnStyles: { 0: { cellWidth: 16, halign: 'center' } } // INCREASED TO 16mm to fit "No."
     });
     // @ts-ignore
     currentY = doc.lastAutoTable.finalY + 15;
 
-    // 10. AUTHORISATION (Extended Boxes)
+    // 10. AUTHORISATION
     if (currentY + 110 > pageHeight - margin) {
         addPageBreak();
     }
@@ -434,7 +434,7 @@ export default function Home() {
     doc.text("10. AUTHORISATION", margin, currentY);
     currentY += 6;
 
-    // BOX 1: Operative Statement (45mm height)
+    // BOX 1 (45mm)
     doc.setDrawColor(0); doc.setLineWidth(0.2);
     doc.rect(margin, currentY, contentWidth, 45); 
     
@@ -450,7 +450,7 @@ export default function Home() {
     
     currentY += 50; 
 
-    // BOX 2: Management Approval (55mm height)
+    // BOX 2 (55mm)
     doc.rect(margin, currentY, contentWidth, 55);
     doc.setFont("helvetica", "bold");
     doc.text("RAMS Prepared & Approved By (Management):", margin + 5, currentY + 8);
