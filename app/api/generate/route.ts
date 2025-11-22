@@ -34,7 +34,7 @@ export async function POST(req: Request) {
         .map(([k, v]) => `${k}: ${v}`)
         .join(", ");
         
-    // Expand hazards to include the library definitions for better context
+    // Expand hazards to include the library definitions
     // @ts-ignore
     const hazardInfo = (body.hazards || []).map(h => {
         // @ts-ignore
@@ -42,7 +42,7 @@ export async function POST(req: Request) {
         return data ? `${data.label}: (Standard Control: ${data.control})` : h;
     }).join("\n");
 
-    // 3. The Titan Prompt
+    // 3. The Prompt
     const payload = {
       contents: [{
         parts: [{
@@ -67,10 +67,17 @@ export async function POST(req: Request) {
             Return a valid JSON object with these exact keys:
 
             1. "summary": A professional executive summary of the work (max 80 words).
-            2. "method_steps": An array of strings. Each string is a step. 
-               - Use UPPERCASE headers for phases (e.g. "PRE-START CHECKS:").
-               - Number the steps logically.
-               - Cover: Arrival, Setup, The Work Itself, Quality Check, Clear up.
+            2. "method_steps": An array of strings. Each string is a step.
+               - CRITICAL: Group steps into phases using UPPERCASE HEADERS.
+               - Example format:
+                 "PREPARATION:"
+                 "1. Arrive on site..."
+                 "2. Check tools..."
+                 "EXECUTION:"
+                 "3. Isolate power..."
+                 "4. Install unit..."
+                 "COMPLETION:"
+                 "5. Test system..."
             3. "ppe": An array of strings listing specific PPE (e.g. "Safety Boots (BS EN ISO 20345)", "Hi-Vis Vest").
             4. "coshh": An array of objects IF relevant (dust/chemicals). If none, return empty array.
                Structure: { "substance": "Name", "risk": "Effect", "control": "Measure", "disposal": "Method" }
