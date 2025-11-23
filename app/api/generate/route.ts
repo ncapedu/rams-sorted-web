@@ -6,6 +6,8 @@ import { NextResponse } from "next/server";
 const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY || "");
 
 export async function POST(req: Request) {
+  console.log(">> API HIT: Starting AI Generation..."); // Visual confirmation in terminal
+
   try {
     // 1. Parse Data from Frontend
     const body = await req.json();
@@ -15,40 +17,51 @@ export async function POST(req: Request) {
       jobDesc, 
       hazards, 
       clientName, 
-      siteAddress 
+      siteAddress,
+      customDescription 
     } = body;
 
     // 2. Check API Key
     if (!process.env.GOOGLE_API_KEY) {
-      console.error("Missing GOOGLE_API_KEY");
-      // Return a 200 with fallback data so the UI doesn't crash, but logs error
+      console.error("!! ERROR: Missing GOOGLE_API_KEY in .env.local");
+      // Return generic data so the app doesn't crash, but log the error
       return NextResponse.json({ 
-        summary: jobDesc, 
-        method_steps: null // Triggers local fallback
+        summary: jobDesc || "Standard works.", 
+        method_steps: null 
       });
     }
 
-    // 3. Construct the Prompt
+    // 3. Construct the Prompt (Forces Specificity)
     const prompt = `
-      ACT AS: A Senior Health & Safety Consultant (UK Construction).
-      TASK: Write specific RAMS content for a ${trade} doing "${jobType}".
-      CLIENT: ${clientName}
-      SITE: ${siteAddress}
-      CONTEXT: ${jobDesc || "Standard industry practice"}
-      HAZARDS IDENTIFIED: ${hazards.join(", ")}
+      ACT AS: A Chartered Health & Safety Consultant (CMIOSH) for the UK Construction Industry.
+      
+      TASK: Write the specific content for a Risk Assessment & Method Statement (RAMS).
+      
+      PROJECT DETAILS:
+      - Trade: ${trade}
+      - Task: ${jobType}
+      - Client: ${clientName}
+      - Site Address: ${siteAddress}
+      - Specific Notes: ${customDescription || "None"}
+      - Key Hazards: ${hazards ? hazards.join(", ") : "Standard risks"}
 
-      OUTPUT JSON ONLY. STRICT FORMAT:
+      INSTRUCTIONS:
+      1. The "Method Statement" must be site-specific. DO NOT just say "Arrive on site". Say "Arrive at ${siteAddress} and report to ${clientName}."
+      2. Keep it professional, concise, and strictly relevant to the task.
+      3. Return ONLY valid JSON. No markdown, no code blocks.
+
+      REQUIRED JSON STRUCTURE:
       {
-        "summary": "2-3 professional sentences summarizing the specific scope of works at this site.",
+        "summary": "A 2-sentence professional summary of the scope of works at ${siteAddress}.",
         "method_steps": [
-          "5.1 PRE-START: Specific setup steps...",
-          "5.2 SAFETY: Specific isolation or safety steps...",
-          "5.3 EXECUTION: 3-4 detailed steps on how ${jobType} is actually performed...",
-          "5.4 COMPLETION: Site clearance and handover steps..."
+          { "t": "5.1 PRE-START & SETUP", "d": "Specific arrival and setup instructions for this site..." },
+          { "t": "5.2 SAFETY & ISOLATION", "d": "Specific safety measures for ${jobType}..." },
+          { "t": "5.3 EXECUTION OF WORKS", "d": "Step-by-step technical process for ${jobType}..." },
+          { "t": "5.4 COMPLETION", "d": "Handover and clearing up instructions..." }
         ],
-        "ppe": ["List", "Specific", "PPE", "For", "Task"],
+        "ppe": ["List", "Specific", "PPE", "Required"],
         "coshh": [
-          { "substance": "Name", "risk": "Risk", "control": "Control", "disposal": "Disposal" }
+          { "substance": "Material Name", "risk": "Primary Risk", "control": "Specific Control", "disposal": "Disposal Method" }
         ]
       }
     `;
@@ -60,15 +73,18 @@ export async function POST(req: Request) {
     const text = response.text();
 
     // 5. Clean & Parse JSON
-    // Gemini sometimes wraps JSON in markdown ```json ... ``` blocks
+    // Remove any markdown formatting Gemini might add
     const cleanedText = text.replace(/```json/g, "").replace(/```/g, "").trim();
     const data = JSON.parse(cleanedText);
 
+    console.log(">> SUCCESS: AI Generation Complete.");
     return NextResponse.json(data);
 
   } catch (error) {
-    console.error("AI Generation Failed:", error);
-    // Return error status so frontend falls back to local data gracefully
-    return NextResponse.json({ error: "AI Generation Failed" }, { status: 500 });
+    console.error("!! AI GENERATION FAILED:", error);
+    return NextResponse.json(
+      { error: "AI Generation Failed", details: String(error) },
+      { status: 500 }
+    );
   }
 }
