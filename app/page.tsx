@@ -4,7 +4,8 @@ import { useState, useEffect } from "react";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import { Loader2, ShieldCheck, MapPin, Briefcase, AlertTriangle, Info, FileText } from "lucide-react";
-import { TRADES, HAZARD_GROUPS, HAZARD_DATA } from "./lib/constants";
+// Ensure these are exported from your constants file
+import { TRADES, HAZARD_GROUPS, HAZARD_DATA, JobCluster } from "./lib/constants";
 
 // --- UI COMPONENTS ---
 const Tooltip = ({ text }: { text: string }) => (
@@ -63,7 +64,7 @@ function AddressSearch({ label, value, onChange, tooltip, required }: any) {
 // --- MAIN APPLICATION ---
 export default function Home() {
   const [step, setStep] = useState(1);
-  const [loading, setLoading] = useState(false);
+  const [isGenerating, setIsGenerating] = useState(false); // Corrected State Name
   const [generated, setGenerated] = useState(false);
   
   // --- FORM STATE ---
@@ -72,7 +73,7 @@ export default function Home() {
     clientName: "", projectRef: "", siteAddress: "", startDate: new Date().toISOString().split('T')[0], duration: "1 Day", 
     operatives: "1", trade: "Electrician", jobType: "", customJobType: "", jobDesc: "",
     supervisorName: "", firstAider: "", hospital: "", fireAssembly: "As Inducted", firstAidLoc: "Site Vehicle",
-    welfare: "Client WC", extraNotes: "", accessCode: ""
+    welfare: "Client WC", extraNotes: "", accessCode: "", customDescription: ""
   });
   
   const [hazards, setHazards] = useState<string[]>([]);
@@ -81,32 +82,33 @@ export default function Home() {
 
   // --- LOGIC: LOAD QUESTIONS ---
   useEffect(() => {
-    // @ts-ignore
-    const tradeData = TRADES[formData.trade];
-    if (tradeData && formData.jobType) {
+    // Type Safe Lookup
+    const currentTrade = TRADES[formData.trade as keyof typeof TRADES];
+    
+    if (currentTrade && formData.jobType) {
       if (formData.jobType === "Other (Custom)") {
-        setFormData(prev => ({ ...prev, jobDesc: "" })); 
+        if (!formData.customDescription) setFormData(prev => ({ ...prev, customDescription: "" })); 
         setQuestions([]);
         setHazards([]);
       } else {
-        // @ts-ignore
-        const jobObj = tradeData.jobs.find((j: any) => j.name === formData.jobType);
-        if (jobObj) {
-          // @ts-ignore
-          const clusterData = tradeData.clusters[jobObj.cluster];
-          if (clusterData) {
-            setFormData(prev => ({ ...prev, jobDesc: clusterData.desc }));
-            setHazards(prev => [...new Set([...prev, ...clusterData.hazards])]);
-            setQuestions(clusterData.questions || []);
-            
-            // Pre-fill answers to Yes by default for smoother UX
-            const defaults: Record<string, string> = {};
-            if (clusterData.questions) {
-                // @ts-ignore
-                clusterData.questions.forEach(q => defaults[q.id] = "Yes");
-            }
-            setAnswers(defaults);
+        // Safe Cluster Lookup
+        const clusters = currentTrade.clusters as Record<string, JobCluster>;
+        const clusterData = clusters[formData.jobType];
+
+        if (clusterData) {
+          // Pre-fill description
+          setFormData(prev => ({ ...prev, customDescription: clusterData.desc || "" }));
+          // Add Hazards
+          setHazards(prev => [...new Set([...prev, ...clusterData.hazards])]);
+          // Set Questions
+          setQuestions(clusterData.questions || []);
+          
+          // Pre-set answers to Yes
+          const defaults: Record<string, string> = {};
+          if(clusterData.questions) {
+            clusterData.questions.forEach(q => defaults[q.id] = "Yes");
           }
+          setAnswers(defaults);
         }
       }
     }
@@ -119,22 +121,25 @@ export default function Home() {
     if (step === 1 && (!formData.companyName || !formData.officeAddress || !formData.contactName)) return alert("⚠️ Please fill in Company Details.");
     if (step === 2) {
         if (!formData.clientName || !formData.siteAddress) return alert("⚠️ Please fill in Project Details.");
-        // Optional: Check if all questions answered
-        // const unanswered = questions.filter(q => !answers[q.id]);
-        // if (unanswered.length > 0) return alert(`⚠️ Please answer all safety checks.`);
     }
     setStep(step + 1);
   };
 
+  // --- API HANDLER ---
   const generateRAMS = async () => {
-    // if (formData.accessCode !== "PRO2025") return alert("❌ Invalid Access Code.");
-    setLoading(true);
+    setIsGenerating(true);
     try {
+      // 1. Call API
       const res = await fetch("/api/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        // Pass 'jobDesc' as 'customDescription' so the API picks it up
-        body: JSON.stringify({ ...formData, hazards, answers, customDescription: formData.jobDesc }),
+        body: JSON.stringify({ 
+            ...formData, 
+            hazards, 
+            answers,
+            // Send correct description field
+            customDescription: formData.customDescription 
+        }),
       });
       
       let apiData = {};
@@ -143,18 +148,20 @@ export default function Home() {
       } else {
         console.warn("API Error, using local fallback");
       }
-
-      createPDF(apiData);
+      
+      // 2. Generate PDF
+      createPDF(apiData); 
       setGenerated(true);
+      
     } catch (e: any) { 
         console.error(e);
         createPDF({}); // Fallback
     } 
-    finally { setLoading(false); }
+    finally { setIsGenerating(false); }
   };
 
-  // --- PROFESSIONAL CONSULTANT-GRADE PDF ENGINE (10 Sections, B&W) ---
-  const createPDF = (data: any) => {
+  // --- PROFESSIONAL PDF ENGINE (FIXED WIDTHS & 10 SECTIONS) ---
+  const createPDF = (apiData: any) => {
     const doc = new jsPDF();
     const pageWidth = 210;
     const pageHeight = 297;
@@ -210,35 +217,40 @@ export default function Home() {
         startY: currentY,
         theme: 'grid',
         body: [
-            ['Contractor', `${formData.companyName}\n${formData.officeAddress}\nLead: ${formData.contactName} (${formData.contactPhone})`],
-            ['Client / Site', `${formData.clientName}\n${formData.siteAddress}`],
-            ['Work Scope', `${formData.trade} - ${toTitleCase(formData.jobType)}`],
-            ['Project Data', `Start: ${formData.startDate}  |  Duration: ${formData.duration}  |  Operatives: ${formData.operatives}`],
-            ['Emergency', `First Aider: ${formData.firstAider}\nHospital: ${formData.hospital}\nAssembly: ${formData.fireAssembly}`],
+            ['Company Name', formData.companyName],
+            ['Site Address', formData.siteAddress],
+            ['Client', formData.clientName],
+            ['Job / Task Title', `${formData.trade} - ${toTitleCase(formData.jobType)}`],
+            ['RAMS Reference', formData.projectRef || `${formData.clientName.substring(0,3).toUpperCase()}-001`],
+            ['Date of RAMS', formData.startDate],
+            ['Prepared By', `${formData.contactName} (Competent Person)`],
+            ['Operatives', formData.operatives],
         ],
-        styles: { fontSize: 9, cellPadding: 3, textColor: 0, lineColor: 0, lineWidth: 0.1 },
-        headStyles: { fillColor: [240, 240, 240], textColor: 0, fontStyle: 'bold', lineWidth: 0.1, lineColor: 0 },
-        columnStyles: { 0: { fontStyle: 'bold', cellWidth: 40 } }
+        styles: { fontSize: 9, cellPadding: 3, textColor: 0, lineColor: 0, lineWidth: 0.1, overflow: 'linebreak' },
+        headStyles: { fillColor: [230, 230, 230], textColor: 0, fontStyle: 'bold' },
+        columnStyles: { 0: { fontStyle: 'bold', cellWidth: 50, fillColor: [245, 245, 245] }, 1: { cellWidth: 'auto' } }
     });
     // @ts-ignore
-    currentY = doc.lastAutoTable.finalY + 10;
+    currentY = doc.lastAutoTable.finalY + 12;
 
-    // 2. SCOPE OF WORKS
+    // 2. SCOPE
     doc.setFontSize(11); doc.setFont("helvetica", "bold");
     doc.text("2. SCOPE OF WORKS", margin, currentY); currentY += 6;
     
     doc.setFontSize(10); doc.setFont("helvetica", "normal");
-    const scopeText = doc.splitTextToSize(data.summary || formData.jobDesc || "Standard works as per industry guidelines.", contentWidth);
+    // Prefer API summary, then custom desc, then fallback
+    const scopeText = doc.splitTextToSize(apiData.summary || formData.customDescription || "Standard works as per industry guidelines.", contentWidth);
     doc.text(scopeText, margin, currentY);
-    currentY += (scopeText.length * 5) + 10;
+    currentY += (scopeText.length * 5) + 12;
 
-    // 3. PRE-START SAFETY CHECKLIST
+    // 3. SAFETY CHECKS
     if (questions.length > 0) {
         checkPageBreak(60);
         doc.setFontSize(11); doc.setFont("helvetica", "bold");
         doc.text("3. PRE-START SAFETY CHECKLIST", margin, currentY); currentY += 6;
 
-        const checkRows = questions.map(q => [
+        const checkRows = questions.map((q, i) => [
+            (i+1).toString(),
             q.label, 
             answers[q.id] === 'Yes' ? 'Yes' : '', 
             answers[q.id] === 'No' ? 'No' : '', 
@@ -247,72 +259,88 @@ export default function Home() {
 
         autoTable(doc, {
             startY: currentY,
-            head: [['Safety Check / Question', 'YES', 'NO', 'N/A']],
+            head: [['No.', 'Checklist Question', 'YES', 'NO', 'N/A']],
             body: checkRows,
             theme: 'grid',
-            styles: { fontSize: 9, textColor: 0, lineColor: 0, lineWidth: 0.1, cellPadding: 2 },
+            styles: { fontSize: 9, textColor: 0, lineColor: 0, lineWidth: 0.1, cellPadding: 2, overflow: 'linebreak' },
             headStyles: { fillColor: [230, 230, 230], textColor: 0, fontStyle: 'bold', lineColor: 0 },
-            columnStyles: { 1: { halign: 'center', cellWidth: 15 }, 2: { halign: 'center', cellWidth: 15 }, 3: { halign: 'center', cellWidth: 15 } }
+            columnStyles: { 0: { cellWidth: 10, halign: 'center' }, 2: { halign: 'center', cellWidth: 15 }, 3: { halign: 'center', cellWidth: 15 }, 4: { halign: 'center', cellWidth: 15 } }
         });
         // @ts-ignore
-        currentY = doc.lastAutoTable.finalY + 10;
+        currentY = doc.lastAutoTable.finalY + 12;
     }
 
-    // 4. RISK ASSESSMENT
+    // 4. RISK ASSESSMENT (Wider columns for scores)
     checkPageBreak(80);
     doc.setFontSize(11); doc.setFont("helvetica", "bold");
     doc.text("4. RISK ASSESSMENT", margin, currentY); currentY += 6;
 
-    // Risk Key
     doc.setFontSize(8); doc.setFont("helvetica", "italic");
     doc.text("Risk Key: High (15-25), Medium (8-12), Low (1-6)", margin, currentY);
     currentY += 4;
 
-    const hazardRows = hazards.map(h => {
-        // @ts-ignore
-        const lib = HAZARD_DATA[h] || { label: h, risk: "General Risk", control: "Standard site controls applied.", initial_score: "Med", residual_score: "Low" };
-        // Added "Who" column
-        return [lib.label, lib.risk, "Ops/Public", lib.initial_score, lib.control, lib.residual_score];
-    });
+    const hazardRows = hazards.map(hKey => {
+        const lib = HAZARD_DATA[hKey];
+        if (!lib) return null;
+        return [
+          lib.label, 
+          lib.risk, 
+          "Ops/Public", 
+          lib.initial_score, 
+          lib.control, 
+          lib.residual_score
+        ];
+    }).filter((row): row is string[] => row !== null);
 
     autoTable(doc, {
         startY: currentY,
         head: [['Hazard', 'Risk / Harm', 'Who', 'Init', 'Control Measures', 'Res']],
         body: hazardRows,
         theme: 'grid',
-        styles: { fontSize: 8, textColor: 0, lineColor: 0, lineWidth: 0.1, cellPadding: 2, valign: 'top', overflow: 'linebreak' },
+        styles: { 
+            fontSize: 8, 
+            textColor: 0, 
+            lineColor: 0, 
+            lineWidth: 0.1, 
+            cellPadding: 2, // Reduced padding
+            valign: 'top', 
+            overflow: 'linebreak' 
+        },
         headStyles: { fillColor: [230, 230, 230], textColor: 0, fontStyle: 'bold' },
-        // Fixed widths to stop "Medium" from wrapping
         columnStyles: { 
             0: { cellWidth: 25, fontStyle: 'bold' }, 
             1: { cellWidth: 35 }, 
-            3: { cellWidth: 20, halign: 'center' }, // WIDER
-            5: { cellWidth: 20, halign: 'center' }  // WIDER
+            2: { cellWidth: 20 }, 
+            // Increased width to 20 to fit "MEDIUM (12)"
+            3: { cellWidth: 20, halign: 'center' }, 
+            4: { cellWidth: 'auto' }, 
+            // Increased width to 20 to fit "LOW (4)"
+            5: { cellWidth: 20, halign: 'center' } 
         },
         // @ts-ignore
         didDrawPage: (d) => { if(d.cursor) currentY = d.cursor.y; }
     });
     // @ts-ignore
-    currentY = doc.lastAutoTable.finalY + 10;
+    currentY = doc.lastAutoTable.finalY + 12;
 
     // 5. METHOD STATEMENT
     checkPageBreak(60);
     doc.setFontSize(11); doc.setFont("helvetica", "bold");
     doc.text("5. METHOD STATEMENT", margin, currentY); currentY += 8;
     
-    const methodSteps = data.method_steps || [
-        { t: "5.1 PRE-COMMENCEMENT", d: "Arrive on site, sign in. Review RAMS with operatives. Establish exclusion zones." },
+    const methodSteps = apiData.method_steps || [
+        { t: "5.1 PRE-COMMENCEMENT", d: "Arrive on site, sign in, and conduct a dynamic risk assessment. Establish exclusion zones." },
         { t: "5.2 SAFE ISOLATION", d: "Identify circuits/pipes. Isolate at source. Lock-Off & Tag-Out (LOTO). Prove dead/empty." },
-        { t: "5.3 EXECUTION", d: `Carry out works in accordance with scope.\n${formData.extraNotes || ''}` },
+        { t: "5.3 EXECUTION", d: `Carry out works in accordance with the scope defined in Section 2.\n${formData.extraNotes || ''}` },
         { t: "5.4 COMPLETION", d: "Inspect installation. Perform testing. Tidy area. Handover to client." }
     ];
 
-    const finalMethods = Array.isArray(methodSteps) && typeof methodSteps[0] === 'string'
+    const finalMethods = Array.isArray(methodSteps) && typeof methodSteps[0] === 'string' 
        ? methodSteps.map((s: string, i: number) => ({ t: `Step ${i+1}`, d: s }))
        : methodSteps;
 
     finalMethods.forEach((step: any) => {
-        checkPageBreak(20);
+        checkPageBreak(25); 
         doc.setFont("helvetica", "bold");
         doc.text(step.t || "Step", margin, currentY);
         currentY += 5;
@@ -327,7 +355,7 @@ export default function Home() {
     checkPageBreak(60);
     doc.setFontSize(11); doc.setFont("helvetica", "bold");
     doc.text("6. PPE REQUIREMENTS", margin, currentY); currentY += 6;
-    
+
     autoTable(doc, {
         startY: currentY,
         head: [['Item', 'Requirement Status']],
@@ -344,27 +372,27 @@ export default function Home() {
         columnStyles: { 0: { cellWidth: 100 }, 1: { fontStyle: 'bold' } }
     });
     // @ts-ignore
-    currentY = doc.lastAutoTable.finalY + 10;
+    currentY = doc.lastAutoTable.finalY + 12;
 
     // 7. COSHH
     checkPageBreak(60);
     doc.setFontSize(11); doc.setFont("helvetica", "bold");
     doc.text("7. COSHH / SUBSTANCES", margin, currentY); currentY += 6;
 
-    const coshhRows = data.coshh || [
-        ['Construction Dust (Silica)', 'Inhalation', 'LEV / FFP3 Mask', 'Bagged & Sealed']
+    const coshhRows = apiData.coshh || [
+        ['Construction Dust (Silica)', 'Inhalation/Irritation', 'LEV / FFP3 Mask', 'Bagged & Sealed']
     ];
 
     autoTable(doc, {
-        startY: currentY,
-        head: [['Substance', 'Risks', 'Controls/PPE', 'Disposal']],
-        body: Array.isArray(coshhRows[0]) ? coshhRows : coshhRows.map((c:any) => [c.substance, c.risk, c.control, c.disposal]),
-        theme: 'grid',
-        headStyles: { fillColor: [230, 230, 230], textColor: 0 },
-        styles: { fontSize: 8, textColor: 0, lineColor: 0, lineWidth: 0.1 },
+      startY: currentY,
+      head: [['Substance', 'Risks', 'Controls/PPE', 'Disposal']],
+      body: Array.isArray(coshhRows[0]) ? coshhRows : coshhRows.map((c:any) => [c.substance, c.risk, c.control, c.disposal]),
+      theme: 'grid',
+      headStyles: { fillColor: [230, 230, 230], textColor: 0 },
+      styles: { fontSize: 8, textColor: 0, lineColor: 0, lineWidth: 0.1, overflow: 'linebreak' },
     });
     // @ts-ignore
-    currentY = doc.lastAutoTable.finalY + 10;
+    currentY = doc.lastAutoTable.finalY + 12;
 
     // 8. EMERGENCY
     checkPageBreak(50);
@@ -372,19 +400,19 @@ export default function Home() {
     doc.text("8. EMERGENCY ARRANGEMENTS", margin, currentY); currentY += 6;
 
     autoTable(doc, {
-        startY: currentY,
-        body: [
-            ['First Aid', formData.firstAider || 'TBC (Site Vehicle)'],
-            ['Hospital', formData.hospital || 'Nearest A&E (Use Sat Nav)'],
-            ['Fire Point', formData.fireAssembly || 'As Inducted'],
-            ['Supervisor', formData.supervisorName || formData.contactName || 'TBC']
-        ],
-        theme: 'grid',
-        styles: { fontSize: 9, cellPadding: 3, lineColor: 0, lineWidth: 0.1 },
-        columnStyles: { 0: { fontStyle: 'bold', cellWidth: 50, fillColor: [245,245,245] } }
+      startY: currentY,
+      body: [
+        ['First Aid', formData.firstAider || 'TBC (Site Vehicle)'],
+        ['Hospital', formData.hospital || 'Nearest A&E (Use Sat Nav)'],
+        ['Fire Point', formData.fireAssembly || 'As Inducted'],
+        ['Supervisor', formData.supervisorName || formData.contactName || "TBC"]
+      ],
+      theme: 'grid',
+      styles: { fontSize: 9, cellPadding: 3, lineColor: 0, lineWidth: 0.1, textColor: 0 },
+      columnStyles: { 0: { fontStyle: 'bold', cellWidth: 50, fillColor: [245,245,245] } }
     });
     // @ts-ignore
-    currentY = doc.lastAutoTable.finalY + 10;
+    currentY = doc.lastAutoTable.finalY + 12;
 
     // 9. BRIEFING
     doc.addPage(); drawHeader(doc); currentY = 25;
@@ -403,7 +431,7 @@ export default function Home() {
             ['5', '', '', '', ''],
         ],
         theme: 'grid',
-        styles: { minCellHeight: 12, lineColor: 0, lineWidth: 0.1 },
+        styles: { minCellHeight: 12, lineColor: 0, lineWidth: 0.1, textColor: 0 },
         headStyles: { fillColor: [230, 230, 230], textColor: 0 },
         columnStyles: { 0: { cellWidth: 10, halign: 'center' } }
     });
@@ -418,19 +446,26 @@ export default function Home() {
     doc.text("I confirm I have read and understood this RAMS, attended the briefing, and agree to work in accordance with it.", margin, currentY);
     currentY += 10;
 
-    doc.setDrawColor(0); doc.rect(margin, currentY, contentWidth, 40);
+    // Authorisation Box
+    doc.setDrawColor(0); doc.rect(margin, currentY, contentWidth, 45);
     doc.setFont("helvetica", "bold"); doc.text("RAMS Prepared & Approved By (Management):", margin + 5, currentY + 8);
+    
     doc.setFont("helvetica", "normal");
-    doc.text(`Name:  ${formData.contactName}`, margin + 5, currentY + 18);
-    doc.text(`Position:  Competent Person`, margin + 100, currentY + 18);
-    doc.text("Signature: __________________________", margin + 5, currentY + 28);
-    doc.text(`Date:  ${formData.startDate}`, margin + 100, currentY + 28);
+    doc.text(`Name: ${formData.contactName}`, margin + 5, currentY + 18);
+    doc.text(`Position: Competent Person`, margin + 100, currentY + 18);
+    
+    doc.text("Signature: _________________________", margin + 5, currentY + 35);
+    doc.text(`Date: ${formData.startDate}`, margin + 100, currentY + 35);
 
-    // Page Numbers
+    // ADD PAGE NUMBERS
     const pageCount = doc.internal.pages.length - 1;
-    for (let i = 1; i <= pageCount; i++) { doc.setPage(i); drawFooter(doc, i, pageCount); }
+    for (let i = 1; i <= pageCount; i++) { 
+        doc.setPage(i); 
+        drawFooter(doc, i, pageCount); 
+    }
 
     doc.save(`RAMS_${formData.companyName.replace(/ /g,'_')}.pdf`);
+    setIsGenerating(false);
   };
 
   return (
@@ -498,7 +533,7 @@ export default function Home() {
                   </div>
               )}
 
-              <textarea className="w-full border p-3 rounded h-32" value={formData.jobDesc} onChange={e => handleInput("jobDesc", e.target.value)} />
+              <textarea className="w-full border p-3 rounded h-32" value={formData.customDescription} onChange={e => handleInput("customDescription", e.target.value)} />
               <div className="flex gap-4"><button onClick={() => setStep(1)} className="w-1/3 border py-3 rounded">Back</button><button onClick={nextStep} className="w-2/3 bg-black text-white py-3 rounded font-bold">Next</button></div>
             </div>
           )}
@@ -532,7 +567,7 @@ export default function Home() {
               </div>
               
               <div className="mt-6 pt-6 border-t">
-                 <div className="flex gap-4"><button onClick={() => setStep(2)} className="w-1/3 border py-3 rounded">Back</button><button onClick={generateRAMS} disabled={loading} className="w-2/3 bg-green-600 text-white py-3 rounded font-bold flex justify-center items-center gap-2">{loading ? <Loader2 className="animate-spin"/> : <ShieldCheck/>} Generate PDF Pack</button></div>
+                 <div className="flex gap-4"><button onClick={() => setStep(2)} className="w-1/3 border py-3 rounded">Back</button><button onClick={generateRAMS} disabled={isGenerating} className="w-2/3 bg-green-600 text-white py-3 rounded font-bold flex justify-center items-center gap-2">{isGenerating ? <Loader2 className="animate-spin"/> : <ShieldCheck/>} Generate PDF Pack</button></div>
               </div>
             </div>
           )}
