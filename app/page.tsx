@@ -4,7 +4,6 @@ import { useState, useEffect } from "react";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import { Loader2, ShieldCheck, MapPin, Briefcase, AlertTriangle, Info, FileText } from "lucide-react";
-// Ensure these are exported from your constants file
 import { TRADES, HAZARD_GROUPS, HAZARD_DATA, JobCluster } from "./lib/constants";
 
 // --- UI COMPONENTS ---
@@ -81,7 +80,6 @@ export default function Home() {
 
   // --- LOGIC: LOAD QUESTIONS & DESCRIPTION ---
   useEffect(() => {
-    // Type Safe Lookup
     const currentTrade = TRADES[formData.trade as keyof typeof TRADES];
     
     if (currentTrade && formData.jobType) {
@@ -90,19 +88,14 @@ export default function Home() {
         setQuestions([]);
         setHazards([]);
       } else {
-        // Safe Cluster Lookup
         const clusters = currentTrade.clusters as Record<string, JobCluster>;
         const clusterData = clusters[formData.jobType];
 
         if (clusterData) {
-          // Pre-fill description
           setFormData(prev => ({ ...prev, jobDesc: clusterData.desc || "" }));
-          // Add Hazards
           setHazards(prev => [...new Set([...prev, ...clusterData.hazards])]);
-          // Set Questions
           setQuestions(clusterData.questions || []);
           
-          // Pre-set answers to Yes
           const defaults: Record<string, string> = {};
           if(clusterData.questions) {
             clusterData.questions.forEach(q => defaults[q.id] = "Yes");
@@ -127,7 +120,6 @@ export default function Home() {
   const generateRAMS = async () => {
     setLoading(true);
     try {
-      // 1. Attempt API Call
       const res = await fetch("/api/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -140,23 +132,21 @@ export default function Home() {
       } else {
         console.warn("API Error/Timeout, using local fallback data.");
       }
-      
-      // 2. Generate PDF (API data takes precedence)
       createPDF(apiData); 
       
     } catch (e: any) { 
         console.error(e);
-        createPDF({}); // Fallback
+        createPDF({}); 
     } 
     finally { setLoading(false); }
   };
 
-  // --- PROFESSIONAL B&W PDF ENGINE ---
+  // --- PROFESSIONAL B&W PDF ENGINE (FIXED HEADER & OVERLAP) ---
   const createPDF = (apiData: any) => {
     const doc = new jsPDF();
     const pageWidth = 210;
     const pageHeight = 297;
-    const margin = 14; 
+    const margin = 15; 
     const contentWidth = pageWidth - (margin * 2);
     
     let currentY = margin;
@@ -176,23 +166,28 @@ export default function Home() {
         return str.replace(/\w\S*/g, (txt) => txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase());
     };
 
-    // --- HEADER ---
+    // --- HEADER (FIXED: NO OVERLAP) ---
     const drawHeader = (doc: any) => {
-        doc.setDrawColor(0); doc.setLineWidth(0.2);
-        doc.setFont("helvetica", "bold"); doc.setFontSize(14);
-        doc.setTextColor(0, 0, 0); // Black
-        doc.text("E-RISK ASSESSMENT & METHOD STATEMENT", pageWidth / 2, 12, { align: "center" });
+        doc.setDrawColor(0); doc.setLineWidth(0.2); // Black line
         
-        doc.setFontSize(9); doc.setFont("helvetica", "normal");
-        const rightText = `Ref: ${formData.projectRef || "RAMS-001"} | Date: ${formData.startDate}`;
-        doc.text(rightText, pageWidth - margin, 12, { align: "right" });
+        // Left: Title (Small & Professional)
+        doc.setFont("helvetica", "bold"); 
+        doc.setFontSize(11);
+        doc.setTextColor(0, 0, 0);
+        doc.text("RISK ASSESSMENT & METHOD STATEMENT", margin, 12);
         
-        doc.line(margin, 16, pageWidth - margin, 16); // Black Line
+        // Right: Reference (Far Right)
+        doc.setFont("helvetica", "normal"); 
+        doc.setFontSize(9);
+        const refString = `Ref: ${formData.projectRef || "N/A"}`;
+        doc.text(refString, pageWidth - margin, 12, { align: "right" });
+        
+        doc.line(margin, 16, pageWidth - margin, 16);
     };
 
     // --- FOOTER ---
     const drawFooter = (doc: any, pageNumber: number, totalPages: number) => {
-        doc.setFontSize(8); doc.setTextColor(0, 0, 0); // Black
+        doc.setFontSize(8); doc.setTextColor(0, 0, 0);
         doc.text(`Site: ${formData.siteAddress}`, margin, pageHeight - 8);
         doc.text(`Page ${pageNumber} of ${totalPages}`, pageWidth - margin, pageHeight - 8, { align: 'right' });
     };
@@ -208,7 +203,7 @@ export default function Home() {
     
     autoTable(doc, {
         startY: currentY,
-        theme: 'grid', // Enforces borders
+        theme: 'grid',
         body: [
             ['Company Name', formData.companyName],
             ['Site Address', formData.siteAddress],
@@ -222,20 +217,20 @@ export default function Home() {
         styles: { 
             fontSize: 9, 
             cellPadding: 3, 
-            textColor: [0, 0, 0], // Black Text
-            lineColor: [0, 0, 0], // Black Lines
+            textColor: [0, 0, 0], 
+            lineColor: [0, 0, 0], 
             lineWidth: 0.1,
-            overflow: 'linebreak' // Wrap text
+            overflow: 'linebreak' 
         },
         headStyles: { 
-            fillColor: [230, 230, 230], // Very Light Grey Header
+            fillColor: [230, 230, 230], 
             textColor: [0, 0, 0], 
             fontStyle: 'bold',
             lineWidth: 0.1,
             lineColor: [0, 0, 0]
         },
         columnStyles: { 
-            0: { fontStyle: 'bold', cellWidth: 50, fillColor: [245, 245, 245] }, // Light grey label col
+            0: { fontStyle: 'bold', cellWidth: 50, fillColor: [245, 245, 245] }, 
             1: { cellWidth: 'auto' } 
         }
     });
@@ -247,7 +242,6 @@ export default function Home() {
     doc.text("2. SCOPE OF WORKS", margin, currentY); currentY += 6;
     
     doc.setFontSize(10); doc.setFont("helvetica", "normal");
-    // Use API summary if available, otherwise local description
     const scopeText = doc.splitTextToSize(apiData.summary || formData.jobDesc || "Standard works as per industry guidelines.", contentWidth);
     doc.text(scopeText, margin, currentY);
     currentY += (scopeText.length * 5) + 12;
@@ -302,7 +296,7 @@ export default function Home() {
     doc.setFontSize(11); doc.setFont("helvetica", "bold");
     doc.text("4. RISK ASSESSMENT", margin, currentY); currentY += 6;
 
-    // Risk Matrix Key
+    // Key
     doc.setFontSize(8); doc.setFont("helvetica", "italic");
     doc.text("Risk Key: High (15-25), Medium (8-12), Low (1-6)", margin, currentY);
     currentY += 4;
@@ -331,7 +325,7 @@ export default function Home() {
             lineColor: [0, 0, 0], 
             lineWidth: 0.1, 
             cellPadding: 3, 
-            overflow: 'linebreak', // Wraps text inside cells
+            overflow: 'linebreak', 
             valign: 'top' 
         },
         headStyles: { 
@@ -346,7 +340,7 @@ export default function Home() {
           1: { cellWidth: 35 }, 
           2: { cellWidth: 20 },
           3: { cellWidth: 15, halign: 'center' }, 
-          4: { cellWidth: 'auto' }, // Auto allows Control Measures to expand freely
+          4: { cellWidth: 'auto' }, 
           5: { cellWidth: 15, halign: 'center' } 
         },
         // @ts-ignore
@@ -360,11 +354,10 @@ export default function Home() {
     doc.setFontSize(11); doc.setFont("helvetica", "bold");
     doc.text("5. METHOD STATEMENT", margin, currentY); currentY += 8;
     
-    // Prefer API method steps
     const methodSteps = apiData.method_steps || [
         { t: "5.1 PRE-COMMENCEMENT", d: "Arrive on site, sign in, and conduct a dynamic risk assessment. Establish exclusion zones." },
         { t: "5.2 SAFE ISOLATION", d: "Identify circuits/pipes. Isolate at source. Lock-Off & Tag-Out (LOTO). Prove dead/empty." },
-        { t: "5.3 EXECUTION", d: `Carry out ${formData.jobType} in accordance with industry standards. \n${formData.extraNotes || ''} \nEnsure safe access and housekeeping.` },
+        { t: "5.3 EXECUTION", d: `Carry out ${formData.jobType} in accordance with industry standards. \n${formData.extraNotes || ''}` },
         { t: "5.4 COMPLETION", d: "Inspect installation. Perform testing. Tidy area. Handover to client." }
     ];
 
@@ -373,7 +366,7 @@ export default function Home() {
        : methodSteps;
 
     finalMethods.forEach((step: any) => {
-        checkPageBreak(25); // Ensure space for block
+        checkPageBreak(25); 
         
         doc.setFont("helvetica", "bold");
         doc.text(step.t || "Step", margin, currentY);
@@ -383,7 +376,7 @@ export default function Home() {
         const text = doc.splitTextToSize(step.d || step, contentWidth);
         doc.text(text, margin, currentY);
         
-        currentY += (text.length * 5) + 8; // Spacing between steps
+        currentY += (text.length * 5) + 8; 
     });
     
     // 6. PPE
@@ -481,7 +474,6 @@ export default function Home() {
     doc.text("I confirm I have read and understood this RAMS, attended the briefing, and agree to work in accordance with it.", margin, currentY);
     currentY += 10;
 
-    // Authorisation Box
     doc.setDrawColor(0); doc.rect(margin, currentY, contentWidth, 45);
     doc.setFont("helvetica", "bold"); doc.text("RAMS Prepared & Approved By (Management):", margin + 5, currentY + 8);
     
