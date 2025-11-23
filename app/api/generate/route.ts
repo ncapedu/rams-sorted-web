@@ -1,96 +1,85 @@
 import OpenAI from "openai";
 import { NextResponse } from "next/server";
 
-// 1. VERCEL CONFIGURATION (CRITICAL)
-// This allows the AI to run for up to 60 seconds (fixing the timeout crash)
-export const maxDuration = 60; 
+// 1. Force Vercel to run this dynamic (Fixes "Cached/Old" responses)
 export const dynamic = 'force-dynamic';
+export const maxDuration = 60; // Give AI 60 seconds to think
+
+// 2. Initialize OpenAI
+const apiKey = process.env.OPENAI_API_KEY;
+const openai = new OpenAI({
+  apiKey: apiKey || "dummy-key", // Prevents build-time crash
+});
 
 export async function POST(req: Request) {
   try {
-    // 2. Initialize OpenAI
-    // We do this inside the function to prevent build-time crashes
-    const apiKey = process.env.OPENAI_API_KEY;
-    
+    // 3. Check Key on Request (Runtime Check)
     if (!apiKey) {
-      console.error(">> [VERCEL LOG] CRITICAL: OPENAI_API_KEY is missing from Settings!");
-      // We return a specific error so you can see it in the browser network tab
-      return NextResponse.json(
-        { error: "Server Error: API Key Not Configured" }, 
-        { status: 500 }
-      );
+      console.error("CRITICAL: OPENAI_API_KEY is missing.");
+      return NextResponse.json({ error: "Server Config Error" }, { status: 500 });
     }
 
-    const openai = new OpenAI({ apiKey: apiKey });
-
-    // 3. Parse Data
     const body = await req.json();
-    const { 
-      trade, jobType, jobDesc, hazards, 
-      clientName, siteAddress, customDescription 
-    } = body;
+    const { jobType, hazards, clientName, siteAddress, customDescription } = body;
 
-    console.log(`>> [VERCEL LOG] Starting AI Generation for: ${jobType}`);
+    console.log(`>> OpenAI generating for: ${jobType}`);
 
     // 4. The "Chartered Engineer" Prompt
     const systemPrompt = `
-      You are a Chartered Health & Safety Consultant (CMIOSH) for the UK Construction Industry.
-      Your task is to write the specific content for a Risk Assessment & Method Statement (RAMS).
-      Output strictly valid JSON. No markdown, no conversation.
+      You are a Chartered Health & Safety Consultant (CMIOSH) for UK Construction.
+      Output strictly valid JSON.
     `;
 
     const userPrompt = `
-      PROJECT DETAILS:
-      - Activity: ${jobType} (${trade})
+      TASK: Write specific RAMS content.
+      
+      CONTEXT:
+      - Task: ${jobType}
       - Client: ${clientName}
       - Site: ${siteAddress}
-      - Standard Process: ${jobDesc}
-      - Specific Site Constraints: ${customDescription || "None provided"}
-      - Hazards: ${hazards ? hazards.join(", ") : "General site risks"}
+      - Notes: ${customDescription || "Standard Scope"}
+      - Hazards: ${hazards ? hazards.join(", ") : "General"}
 
-      INSTRUCTIONS:
-      1. **Method Statement:** Write 4 distinct, technical paragraphs (5.1 - 5.4).
-         - Step 5.1 (Pre-Start): MUST explicitly state "Arrive at ${siteAddress} and report to ${clientName}."
-         - Step 5.3 (Execution): MUST incorporate the "Specific Site Constraints" into the technical procedure.
-      2. **COSHH:** Identify the specific hazardous substance for this task (e.g. Silica for drilling, Solder for plumbing).
-      3. **Tone:** Professional, authoritative, UK English.
-
-      REQUIRED JSON STRUCTURE:
+      REQUIREMENTS:
+      1. Method Statement: 4 distinct steps (5.1-5.4).
+         - Step 5.1 MUST say "Arrive at ${siteAddress}..."
+         - Step 5.3 MUST incorporate user notes: "${customDescription}".
+      2. COSHH: Identify the 1 main substance risks.
+      
+      OUTPUT FORMAT (JSON):
       {
-        "summary": "A robust 2-3 sentence executive summary of the work...",
+        "summary": "Professional summary...",
         "method_steps": [
-           "5.1 PRE-COMMENCEMENT & SITE SETUP: [Detailed paragraph...]",
-           "5.2 SAFE ISOLATION & PERMITS: [Detailed paragraph...]",
-           "5.3 EXECUTION OF WORKS: [Detailed paragraph...]",
-           "5.4 COMPLETION & HANDOVER: [Detailed paragraph...]"
+           "5.1 PRE-START: Detailed arrival instructions...",
+           "5.2 SAFETY: Isolation and safety setup...",
+           "5.3 EXECUTION: Technical steps...",
+           "5.4 COMPLETION: Handover instructions..."
         ],
         "coshh": [
-           { "substance": "Name", "risk": "Health Risk", "control": "Control Measure", "disposal": "Disposal Route" }
+           { "substance": "Name", "risk": "Risk", "control": "Control", "disposal": "Disposal" }
         ]
       }
     `;
 
-    // 5. Call OpenAI (GPT-4o-mini is best for speed/cost/quality balance)
+    // 5. Execute OpenAI
     const completion = await openai.chat.completions.create({
-      model: "gpt-4o-mini",
+      model: "gpt-4o-mini", 
       messages: [
         { role: "system", content: systemPrompt },
         { role: "user", content: userPrompt },
       ],
-      response_format: { type: "json_object" }, // Guarantees JSON won't break
+      response_format: { type: "json_object" }, 
     });
 
     const content = completion.choices[0].message.content;
-    if (!content) throw new Error("Empty response from AI");
+    if (!content) throw new Error("Empty AI Response");
 
     const data = JSON.parse(content);
-    console.log(">> [VERCEL LOG] AI Generation Successful");
-    
     return NextResponse.json(data);
 
   } catch (error: any) {
-    console.error(">> [VERCEL LOG] AI Failed:", error.message);
-    // Return error to frontend so it knows to use fallback (but logs the error here)
-    return NextResponse.json({ error: "AI Generation Failed", details: error.message }, { status: 500 });
+    console.error("AI Failed:", error);
+    // Return 500 so Frontend knows to use fallback, but logs the error
+    return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
