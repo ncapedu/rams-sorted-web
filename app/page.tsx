@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import { Loader2, ShieldCheck, MapPin, Briefcase, AlertTriangle, Info, FileText } from "lucide-react";
+// Ensure these are exported from your constants file
 import { TRADES, HAZARD_GROUPS, HAZARD_DATA, JobCluster } from "./lib/constants";
 
 // --- UI COMPONENTS ---
@@ -64,6 +65,7 @@ function AddressSearch({ label, value, onChange, tooltip, required }: any) {
 export default function Home() {
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
+  const [generated, setGenerated] = useState(false);
   
   // --- FORM STATE ---
   const [formData, setFormData] = useState({
@@ -80,22 +82,29 @@ export default function Home() {
 
   // --- LOGIC: LOAD QUESTIONS & DESCRIPTION ---
   useEffect(() => {
+    // Type Safe Lookup
     const currentTrade = TRADES[formData.trade as keyof typeof TRADES];
     
     if (currentTrade && formData.jobType) {
       if (formData.jobType === "Other (Custom)") {
+        // Don't clear description if user typed custom text
         if (!formData.jobDesc) setFormData(prev => ({ ...prev, jobDesc: "" })); 
         setQuestions([]);
         setHazards([]);
       } else {
+        // Safe Cluster Lookup
         const clusters = currentTrade.clusters as Record<string, JobCluster>;
         const clusterData = clusters[formData.jobType];
 
         if (clusterData) {
+          // Pre-fill description
           setFormData(prev => ({ ...prev, jobDesc: clusterData.desc || "" }));
+          // Add Hazards
           setHazards(prev => [...new Set([...prev, ...clusterData.hazards])]);
+          // Set Questions
           setQuestions(clusterData.questions || []);
           
+          // Pre-set answers to Yes
           const defaults: Record<string, string> = {};
           if(clusterData.questions) {
             clusterData.questions.forEach(q => defaults[q.id] = "Yes");
@@ -117,55 +126,52 @@ export default function Home() {
     setStep(step + 1);
   };
 
-  // --- API HANDLER (Ensures Real AI Data) ---
+  // --- API CONNECTION (UPDATED TO USE NEW ROUTE) ---
   const generateRAMS = async () => {
     setLoading(true);
     try {
-      console.log("Calling AI API...");
-      
-      const res = await fetch("/api/generate", {
+      // 1. Attempt API Call to your NEW route (File 2)
+      const res = await fetch("/api/create-rams", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ 
             ...formData, 
             hazards, 
             answers,
-            // Send the text box content as the specific context
+            // IMPORTANT: We map your UI field 'jobDesc' to what the API expects 'customDescription'
             customDescription: formData.jobDesc 
         }),
       });
       
       let apiData = {};
       if (res.ok) {
-        const json = await res.json();
-        // Only use if valid data came back
-        if (json.method_steps) {
-            console.log("AI Data Received Successfully");
-            apiData = json;
-        }
+        apiData = await res.json();
       } else {
         console.warn("API Error, using local fallback");
       }
       
+      // 2. Generate PDF
       createPDF(apiData); 
+      setGenerated(true);
       
     } catch (e: any) { 
-        console.error("Generation Failed:", e);
+        console.error(e);
         createPDF({}); // Fallback
     } 
     finally { setLoading(false); }
   };
 
-  // --- PDF ENGINE (FIXED WIDTHS FOR "MEDIUM") ---
+  // --- PROFESSIONAL PDF ENGINE (MATCHING UPLOADED FILE STRUCTURE) ---
   const createPDF = (apiData: any) => {
     const doc = new jsPDF();
     const pageWidth = 210;
     const pageHeight = 297;
-    const margin = 14; 
+    const margin = 15; 
     const contentWidth = pageWidth - (margin * 2);
     
     let currentY = margin;
 
+    // --- HELPERS ---
     const checkPageBreak = (needed: number) => {
       if (currentY + needed > pageHeight - margin) {
         doc.addPage();
@@ -180,21 +186,21 @@ export default function Home() {
         return str.replace(/\w\S*/g, (txt) => txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase());
     };
 
-    // --- HEADER ---
+    // --- HEADER & FOOTER ---
     const drawHeader = (doc: any) => {
         doc.setDrawColor(0); doc.setLineWidth(0.1);
         doc.setFont("helvetica", "bold"); doc.setFontSize(11);
-        doc.text("RISK ASSESSMENT & METHOD STATEMENT", margin, 12);
+        doc.text("RISK ASSESSMENT & METHOD STATEMENT", margin, 12); // Top Left
         
         doc.setFontSize(9); doc.setFont("helvetica", "normal");
         const rightText = `Ref: ${formData.projectRef || "N/A"} | Date: ${formData.startDate}`;
-        doc.text(rightText, pageWidth - margin, 12, { align: "right" });
+        doc.text(rightText, pageWidth - margin, 12, { align: "right" }); // Top Right
         
         doc.line(margin, 15, pageWidth - margin, 15);
     };
 
     const drawFooter = (doc: any, pageNumber: number, totalPages: number) => {
-        doc.setFontSize(8); doc.setTextColor(0);
+        doc.setFontSize(8); doc.setTextColor(100);
         doc.text(`Site: ${formData.siteAddress}`, margin, pageHeight - 10);
         doc.text(`Page ${pageNumber} of ${totalPages}`, pageWidth - margin, pageHeight - 10, { align: 'right' });
     };
@@ -204,7 +210,7 @@ export default function Home() {
     currentY = 25;
     doc.setTextColor(0);
 
-    // 1. DETAILS
+    // 1. PROJECT DETAILS TABLE
     doc.setFontSize(11); doc.setFont("helvetica", "bold"); 
     doc.text("1. PROJECT & JOB DETAILS", margin, currentY); currentY += 6;
     
@@ -222,22 +228,23 @@ export default function Home() {
             ['Operatives', formData.operatives],
         ],
         styles: { fontSize: 9, cellPadding: 3, textColor: 0, lineColor: 0, lineWidth: 0.1, overflow: 'linebreak' },
-        headStyles: { fillColor: [230, 230, 230], textColor: 0, fontStyle: 'bold' },
-        columnStyles: { 0: { fontStyle: 'bold', cellWidth: 50, fillColor: [245, 245, 245] }, 1: { cellWidth: 'auto' } }
+        headStyles: { fillColor: [240, 240, 240], textColor: 0, fontStyle: 'bold', lineWidth: 0.1, lineColor: 0 },
+        columnStyles: { 0: { fontStyle: 'bold', cellWidth: 50, fillColor: [245, 245, 245] } }
     });
     // @ts-ignore
     currentY = doc.lastAutoTable.finalY + 12;
 
-    // 2. SCOPE
+    // 2. SCOPE OF WORKS
     doc.setFontSize(11); doc.setFont("helvetica", "bold");
     doc.text("2. SCOPE OF WORKS", margin, currentY); currentY += 6;
     
     doc.setFontSize(10); doc.setFont("helvetica", "normal");
+    // Use API summary if valid, otherwise form data
     const scopeText = doc.splitTextToSize(apiData.summary || formData.jobDesc || "Standard works as per industry guidelines.", contentWidth);
     doc.text(scopeText, margin, currentY);
     currentY += (scopeText.length * 5) + 12;
 
-    // 3. SAFETY CHECKS
+    // 3. PRE-START SAFETY CHECKLIST
     if (questions.length > 0) {
         checkPageBreak(60);
         doc.setFontSize(11); doc.setFont("helvetica", "bold");
@@ -256,7 +263,7 @@ export default function Home() {
             head: [['No.', 'Checklist Question', 'YES', 'NO', 'N/A']],
             body: checkRows,
             theme: 'grid',
-            styles: { fontSize: 9, textColor: 0, lineColor: 0, lineWidth: 0.1, cellPadding: 2 },
+            styles: { fontSize: 9, textColor: 0, lineColor: 0, lineWidth: 0.1, cellPadding: 2, overflow: 'linebreak' },
             headStyles: { fillColor: [230, 230, 230], textColor: 0, fontStyle: 'bold', lineColor: 0 },
             columnStyles: { 0: { cellWidth: 10, halign: 'center' }, 2: { halign: 'center', cellWidth: 15 }, 3: { halign: 'center', cellWidth: 15 }, 4: { halign: 'center', cellWidth: 15 } }
         });
@@ -264,11 +271,12 @@ export default function Home() {
         currentY = doc.lastAutoTable.finalY + 12;
     }
 
-    // 4. RISK ASSESSMENT (FIXED COLUMN WIDTHS)
+    // 4. RISK ASSESSMENT
     checkPageBreak(80);
     doc.setFontSize(11); doc.setFont("helvetica", "bold");
     doc.text("4. RISK ASSESSMENT", margin, currentY); currentY += 6;
 
+    // Risk Matrix Key
     doc.setFontSize(8); doc.setFont("helvetica", "italic");
     doc.text("Risk Key: High (15-25), Medium (8-12), Low (1-6)", margin, currentY);
     currentY += 4;
@@ -291,24 +299,9 @@ export default function Home() {
         head: [['Hazard', 'Risk / Harm', 'Who', 'Init', 'Control Measures', 'Res']],
         body: hazardRows,
         theme: 'grid',
-        styles: { 
-          fontSize: 8, 
-          textColor: 0, 
-          lineColor: 0, 
-          lineWidth: 0.1, 
-          cellPadding: 2, // Reduced padding to save space
-          valign: 'top', 
-          overflow: 'linebreak' 
-        },
+        styles: { fontSize: 8, textColor: 0, lineColor: 0, lineWidth: 0.1, cellPadding: 3, valign: 'top', overflow: 'linebreak' },
         headStyles: { fillColor: [230, 230, 230], textColor: 0, fontStyle: 'bold' },
-        columnStyles: { 
-          0: { cellWidth: 25, fontStyle: 'bold' }, // Hazard
-          1: { cellWidth: 35 }, // Risk
-          2: { cellWidth: 18 }, // Who
-          3: { cellWidth: 20, halign: 'center' }, // Init (Increased width)
-          4: { cellWidth: 'auto' }, // Controls
-          5: { cellWidth: 20, halign: 'center' }  // Res (Increased width)
-        },
+        columnStyles: { 0: { cellWidth: 25, fontStyle: 'bold' }, 3: { cellWidth: 15, halign: 'center' }, 5: { cellWidth: 15, halign: 'center' } },
         // @ts-ignore
         didDrawPage: (d) => { if(d.cursor) currentY = d.cursor.y; }
     });
@@ -323,7 +316,7 @@ export default function Home() {
     const methodSteps = apiData.method_steps || [
         { t: "5.1 PRE-COMMENCEMENT", d: "Arrive on site, sign in, and conduct a dynamic risk assessment. Establish exclusion zones." },
         { t: "5.2 SAFE ISOLATION", d: "Identify circuits/pipes. Isolate at source. Lock-Off & Tag-Out (LOTO). Prove dead/empty." },
-        { t: "5.3 EXECUTION", d: `Carry out ${formData.jobType} in accordance with industry standards. \n${formData.extraNotes || ''}` },
+        { t: "5.3 EXECUTION", d: `Carry out works in accordance with the scope defined in Section 2.\n${formData.extraNotes || ''}` },
         { t: "5.4 COMPLETION", d: "Inspect installation. Perform testing. Tidy area. Handover to client." }
     ];
 
