@@ -64,8 +64,8 @@ function AddressSearch({ label, value, onChange, tooltip, required }: any) {
 // --- MAIN APPLICATION ---
 export default function Home() {
   const [step, setStep] = useState(1);
-  // FIXED: We are using isGenerating instead of loading
-  const [isGenerating, setIsGenerating] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [generated, setGenerated] = useState(false);
   
   // --- FORM STATE ---
   const [formData, setFormData] = useState({
@@ -87,6 +87,7 @@ export default function Home() {
     
     if (currentTrade && formData.jobType) {
       if (formData.jobType === "Other (Custom)") {
+        // Don't clear description if user typed custom text
         if (!formData.jobDesc) setFormData(prev => ({ ...prev, jobDesc: "" })); 
         setQuestions([]);
         setHazards([]);
@@ -121,12 +122,15 @@ export default function Home() {
     if (step === 1 && (!formData.companyName || !formData.officeAddress || !formData.contactName)) return alert("⚠️ Please fill in Company Details.");
     if (step === 2) {
         if (!formData.clientName || !formData.siteAddress) return alert("⚠️ Please fill in Project Details.");
+        // Removed validation block to allow user to skip if needed, uncomment if strictness required
+        // const unanswered = questions.filter(q => !answers[q.id]);
+        // if (unanswered.length > 0) return alert(`⚠️ Please answer all safety checks.`);
     }
     setStep(step + 1);
   };
 
   const generateRAMS = async () => {
-    setIsGenerating(true);
+    setLoading(true);
     try {
       // 1. Attempt API Call
       const res = await fetch("/api/generate", {
@@ -144,20 +148,21 @@ export default function Home() {
       
       // 2. Generate PDF
       createPDF(apiData); 
+      setGenerated(true);
       
     } catch (e: any) { 
         console.error(e);
         createPDF({}); // Fallback
     } 
-    finally { setIsGenerating(false); }
+    finally { setLoading(false); }
   };
 
-  // --- PROFESSIONAL PDF ENGINE ---
+  // --- PROFESSIONAL PDF ENGINE (MATCHING UPLOADED FILE STRUCTURE) ---
   const createPDF = (apiData: any) => {
     const doc = new jsPDF();
     const pageWidth = 210;
     const pageHeight = 297;
-    const margin = 14; 
+    const margin = 15; 
     const contentWidth = pageWidth - (margin * 2);
     
     let currentY = margin;
@@ -177,7 +182,7 @@ export default function Home() {
         return str.replace(/\w\S*/g, (txt) => txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase());
     };
 
-    // --- HEADER ---
+    // --- HEADER & FOOTER ---
     const drawHeader = (doc: any) => {
         doc.setDrawColor(0); doc.setLineWidth(0.1);
         doc.setFont("helvetica", "bold"); doc.setFontSize(11);
@@ -190,9 +195,8 @@ export default function Home() {
         doc.line(margin, 15, pageWidth - margin, 15);
     };
 
-    // --- FOOTER ---
     const drawFooter = (doc: any, pageNumber: number, totalPages: number) => {
-        doc.setFontSize(8); doc.setTextColor(0);
+        doc.setFontSize(8); doc.setTextColor(100);
         doc.text(`Site: ${formData.siteAddress}`, margin, pageHeight - 10);
         doc.text(`Page ${pageNumber} of ${totalPages}`, pageWidth - margin, pageHeight - 10, { align: 'right' });
     };
@@ -220,7 +224,7 @@ export default function Home() {
             ['Operatives', formData.operatives],
         ],
         styles: { fontSize: 9, cellPadding: 3, textColor: 0, lineColor: 0, lineWidth: 0.1 },
-        headStyles: { fillColor: [230, 230, 230], textColor: 0, fontStyle: 'bold' },
+        headStyles: { fillColor: [240, 240, 240], textColor: 0, fontStyle: 'bold', lineWidth: 0.1, lineColor: 0 },
         columnStyles: { 0: { fontStyle: 'bold', cellWidth: 50, fillColor: [245, 245, 245] } }
     });
     // @ts-ignore
@@ -267,11 +271,7 @@ export default function Home() {
     doc.setFontSize(11); doc.setFont("helvetica", "bold");
     doc.text("4. RISK ASSESSMENT", margin, currentY); currentY += 6;
 
-    // Risk Matrix Key
-    doc.setFontSize(8); doc.setFont("helvetica", "italic");
-    doc.text("Risk Key: High (15-25), Medium (8-12), Low (1-6)", margin, currentY);
-    currentY += 4;
-
+    // Safe Hazard Mapping
     const hazardRows = hazards.map(hKey => {
         const lib = HAZARD_DATA[hKey];
         if (!lib) return null;
@@ -284,7 +284,7 @@ export default function Home() {
         body: hazardRows,
         theme: 'grid',
         styles: { fontSize: 8, textColor: 0, lineColor: 0, lineWidth: 0.1, cellPadding: 3, valign: 'top', overflow: 'linebreak' },
-        headStyles: { fillColor: [230, 230, 230], textColor: 0, fontStyle: 'bold' },
+        headStyles: { fillColor: [50, 50, 50], textColor: 255, fontStyle: 'bold' },
         columnStyles: { 0: { cellWidth: 25, fontStyle: 'bold' }, 3: { cellWidth: 15, halign: 'center' }, 5: { cellWidth: 15, halign: 'center' } },
         // @ts-ignore
         didDrawPage: (d) => { if(d.cursor) currentY = d.cursor.y; }
@@ -304,7 +304,7 @@ export default function Home() {
         { t: "5.4 COMPLETION", d: "Inspect installation. Perform testing. Tidy area. Handover to client." }
     ];
 
-    const finalMethods = Array.isArray(methodSteps) && typeof methodSteps[0] === 'string'
+    const finalMethods = Array.isArray(methodSteps) && typeof methodSteps[0] === 'string' 
        ? methodSteps.map((s: string, i: number) => ({ t: `Step ${i+1}`, d: s }))
        : methodSteps;
 
@@ -336,7 +336,7 @@ export default function Home() {
             ['Dust Mask (FFP3)', 'Task Dependent']
         ],
         theme: 'grid',
-        headStyles: { fillColor: [230, 230, 230], textColor: 0 },
+        headStyles: { fillColor: [50, 50, 50], textColor: 255 },
         styles: { fontSize: 9, textColor: 0, lineColor: 0, lineWidth: 0.1 },
         columnStyles: { 0: { cellWidth: 100 }, 1: { fontStyle: 'bold' } }
     });
@@ -349,7 +349,7 @@ export default function Home() {
     doc.text("7. COSHH / SUBSTANCES", margin, currentY); currentY += 6;
 
     const coshhRows = apiData.coshh || [
-        ['Construction Dust (Silica)', 'Inhalation', 'LEV / FFP3 Mask', 'Bagged & Sealed']
+        ['Construction Dust (Silica)', 'Inhalation/Irritation', 'LEV / FFP3 Mask', 'Bagged & Sealed']
     ];
 
     autoTable(doc, {
@@ -401,7 +401,7 @@ export default function Home() {
         ],
         theme: 'grid',
         styles: { minCellHeight: 12, lineColor: 0, lineWidth: 0.1, textColor: 0 },
-        headStyles: { fillColor: [230, 230, 230], textColor: 0 },
+        headStyles: { fillColor: [50, 50, 50] },
         columnStyles: { 0: { cellWidth: 10, halign: 'center' } }
     });
     // @ts-ignore
@@ -420,8 +420,8 @@ export default function Home() {
     doc.setFont("helvetica", "bold"); doc.text("RAMS Prepared & Approved By (Management):", margin + 5, currentY + 8);
     
     doc.setFont("helvetica", "normal");
-    doc.text(`Name: ${formData.contactName || "Competent Person"}`, margin + 5, currentY + 18);
-    doc.text(`Position: Supervisor / Manager`, margin + 100, currentY + 18);
+    doc.text(`Name: ${formData.contactName}`, margin + 5, currentY + 18);
+    doc.text(`Position: Competent Person`, margin + 100, currentY + 18);
     
     doc.text("Signature: _________________________", margin + 5, currentY + 35);
     doc.text(`Date: ${formData.startDate}`, margin + 100, currentY + 35);
@@ -536,7 +536,7 @@ export default function Home() {
               </div>
               
               <div className="mt-6 pt-6 border-t">
-                 <div className="flex gap-4"><button onClick={() => setStep(2)} className="w-1/3 border py-3 rounded">Back</button><button onClick={generateRAMS} disabled={isGenerating} className="w-2/3 bg-green-600 text-white py-3 rounded font-bold flex justify-center items-center gap-2">{isGenerating ? <Loader2 className="animate-spin"/> : <ShieldCheck/>} Generate PDF Pack</button></div>
+                 <div className="flex gap-4"><button onClick={() => setStep(2)} className="w-1/3 border py-3 rounded">Back</button><button onClick={generateRAMS} disabled={loading} className="w-2/3 bg-green-600 text-white py-3 rounded font-bold flex justify-center items-center gap-2">{loading ? <Loader2 className="animate-spin"/> : <ShieldCheck/>} Generate PDF Pack</button></div>
               </div>
             </div>
           )}
