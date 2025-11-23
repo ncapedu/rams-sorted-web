@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import { Loader2, ShieldCheck, MapPin, Briefcase, AlertTriangle, Info, FileText } from "lucide-react";
+// Ensure these are exported from your constants file
 import { TRADES, HAZARD_GROUPS, HAZARD_DATA, JobCluster } from "./lib/constants";
 
 // --- UI COMPONENTS ---
@@ -85,7 +86,6 @@ export default function Home() {
     
     if (currentTrade && formData.jobType) {
       if (formData.jobType === "Other (Custom)") {
-        // Don't clear description if user typed custom text
         if (!formData.jobDesc) setFormData(prev => ({ ...prev, jobDesc: "" })); 
         setQuestions([]);
         setHazards([]);
@@ -138,10 +138,10 @@ export default function Home() {
       if (res.ok) {
         apiData = await res.json();
       } else {
-        console.warn("API Error, using local fallback");
+        console.warn("API Error/Timeout, using local fallback data.");
       }
       
-      // 2. Generate PDF
+      // 2. Generate PDF (API data takes precedence)
       createPDF(apiData); 
       
     } catch (e: any) { 
@@ -151,12 +151,12 @@ export default function Home() {
     finally { setLoading(false); }
   };
 
-  // --- PROFESSIONAL PDF ENGINE (MATCHING UPLOADED FILE STRUCTURE) ---
+  // --- PROFESSIONAL B&W PDF ENGINE ---
   const createPDF = (apiData: any) => {
     const doc = new jsPDF();
     const pageWidth = 210;
     const pageHeight = 297;
-    const margin = 15; 
+    const margin = 14; 
     const contentWidth = pageWidth - (margin * 2);
     
     let currentY = margin;
@@ -176,29 +176,31 @@ export default function Home() {
         return str.replace(/\w\S*/g, (txt) => txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase());
     };
 
-    // --- HEADER & FOOTER ---
+    // --- HEADER ---
     const drawHeader = (doc: any) => {
-        doc.setDrawColor(0); doc.setLineWidth(0.1);
-        doc.setFont("helvetica", "bold"); doc.setFontSize(12);
+        doc.setDrawColor(0); doc.setLineWidth(0.2);
+        doc.setFont("helvetica", "bold"); doc.setFontSize(14);
+        doc.setTextColor(0, 0, 0); // Black
         doc.text("E-RISK ASSESSMENT & METHOD STATEMENT", pageWidth / 2, 12, { align: "center" });
         
-        doc.setFontSize(8); doc.setFont("helvetica", "normal");
-        const rightText = `Ref: ${formData.projectRef || "N/A"} | Date: ${formData.startDate}`;
+        doc.setFontSize(9); doc.setFont("helvetica", "normal");
+        const rightText = `Ref: ${formData.projectRef || "RAMS-001"} | Date: ${formData.startDate}`;
         doc.text(rightText, pageWidth - margin, 12, { align: "right" });
         
-        doc.line(margin, 15, pageWidth - margin, 15);
+        doc.line(margin, 16, pageWidth - margin, 16); // Black Line
     };
 
+    // --- FOOTER ---
     const drawFooter = (doc: any, pageNumber: number, totalPages: number) => {
-        doc.setFontSize(8); doc.setTextColor(100);
-        doc.text(`Site: ${formData.siteAddress}`, margin, pageHeight - 10);
-        doc.text(`Page ${pageNumber} of ${totalPages}`, pageWidth - margin, pageHeight - 10, { align: 'right' });
+        doc.setFontSize(8); doc.setTextColor(0, 0, 0); // Black
+        doc.text(`Site: ${formData.siteAddress}`, margin, pageHeight - 8);
+        doc.text(`Page ${pageNumber} of ${totalPages}`, pageWidth - margin, pageHeight - 8, { align: 'right' });
     };
 
     // --- PAGE 1 START ---
     drawHeader(doc);
     currentY = 25;
-    doc.setTextColor(0);
+    doc.setTextColor(0, 0, 0);
 
     // 1. PROJECT & JOB DETAILS
     doc.setFontSize(11); doc.setFont("helvetica", "bold"); 
@@ -206,7 +208,7 @@ export default function Home() {
     
     autoTable(doc, {
         startY: currentY,
-        theme: 'grid',
+        theme: 'grid', // Enforces borders
         body: [
             ['Company Name', formData.companyName],
             ['Site Address', formData.siteAddress],
@@ -217,9 +219,25 @@ export default function Home() {
             ['Prepared By', `${formData.contactName} (Competent Person)`],
             ['Operatives', formData.operatives],
         ],
-        styles: { fontSize: 9, cellPadding: 3, textColor: 0, lineColor: 0, lineWidth: 0.1 },
-        headStyles: { fillColor: [240, 240, 240], textColor: 0, fontStyle: 'bold', lineWidth: 0.1, lineColor: 0 },
-        columnStyles: { 0: { fontStyle: 'bold', cellWidth: 50, fillColor: [245, 245, 245] } }
+        styles: { 
+            fontSize: 9, 
+            cellPadding: 3, 
+            textColor: [0, 0, 0], // Black Text
+            lineColor: [0, 0, 0], // Black Lines
+            lineWidth: 0.1,
+            overflow: 'linebreak' // Wrap text
+        },
+        headStyles: { 
+            fillColor: [230, 230, 230], // Very Light Grey Header
+            textColor: [0, 0, 0], 
+            fontStyle: 'bold',
+            lineWidth: 0.1,
+            lineColor: [0, 0, 0]
+        },
+        columnStyles: { 
+            0: { fontStyle: 'bold', cellWidth: 50, fillColor: [245, 245, 245] }, // Light grey label col
+            1: { cellWidth: 'auto' } 
+        }
     });
     // @ts-ignore
     currentY = doc.lastAutoTable.finalY + 12;
@@ -229,7 +247,7 @@ export default function Home() {
     doc.text("2. SCOPE OF WORKS", margin, currentY); currentY += 6;
     
     doc.setFontSize(10); doc.setFont("helvetica", "normal");
-    // Use API summary if valid, otherwise form data
+    // Use API summary if available, otherwise local description
     const scopeText = doc.splitTextToSize(apiData.summary || formData.jobDesc || "Standard works as per industry guidelines.", contentWidth);
     doc.text(scopeText, margin, currentY);
     currentY += (scopeText.length * 5) + 12;
@@ -241,7 +259,7 @@ export default function Home() {
         doc.text("3. PRE-START SAFETY CHECKLIST", margin, currentY); currentY += 6;
 
         const checkRows = questions.map((q, i) => [
-            (i+1).toString(),
+            (i + 1).toString(),
             q.label, 
             answers[q.id] === 'Yes' ? 'Yes' : '', 
             answers[q.id] === 'No' ? 'No' : '', 
@@ -253,9 +271,27 @@ export default function Home() {
             head: [['No.', 'Checklist Question', 'YES', 'NO', 'N/A']],
             body: checkRows,
             theme: 'grid',
-            styles: { fontSize: 9, textColor: 0, lineColor: 0, lineWidth: 0.1, cellPadding: 2 },
-            headStyles: { fillColor: [50, 50, 50], textColor: 255, fontStyle: 'bold', lineColor: 0 },
-            columnStyles: { 0: { cellWidth: 10, halign: 'center' }, 2: { halign: 'center', cellWidth: 15 }, 3: { halign: 'center', cellWidth: 15 }, 4: { halign: 'center', cellWidth: 15 } }
+            styles: { 
+                fontSize: 9, 
+                textColor: [0, 0, 0], 
+                lineColor: [0, 0, 0], 
+                lineWidth: 0.1, 
+                cellPadding: 2,
+                overflow: 'linebreak'
+            },
+            headStyles: { 
+                fillColor: [230, 230, 230], 
+                textColor: [0, 0, 0], 
+                fontStyle: 'bold', 
+                lineColor: [0, 0, 0],
+                lineWidth: 0.1
+            },
+            columnStyles: { 
+                0: { cellWidth: 10, halign: 'center' }, 
+                2: { halign: 'center', cellWidth: 15 }, 
+                3: { halign: 'center', cellWidth: 15 }, 
+                4: { halign: 'center', cellWidth: 15 } 
+            }
         });
         // @ts-ignore
         currentY = doc.lastAutoTable.finalY + 12;
@@ -266,11 +302,22 @@ export default function Home() {
     doc.setFontSize(11); doc.setFont("helvetica", "bold");
     doc.text("4. RISK ASSESSMENT", margin, currentY); currentY += 6;
 
-    // Safe Hazard Mapping
+    // Risk Matrix Key
+    doc.setFontSize(8); doc.setFont("helvetica", "italic");
+    doc.text("Risk Key: High (15-25), Medium (8-12), Low (1-6)", margin, currentY);
+    currentY += 4;
+
     const hazardRows = hazards.map(hKey => {
         const lib = HAZARD_DATA[hKey];
         if (!lib) return null;
-        return [lib.label, lib.risk, "Ops/Public", lib.initial_score, lib.control, lib.residual_score];
+        return [
+          lib.label, 
+          lib.risk, 
+          "Ops/Public", 
+          lib.initial_score, 
+          lib.control, 
+          lib.residual_score
+        ];
     }).filter((row): row is string[] => row !== null);
 
     autoTable(doc, {
@@ -278,9 +325,30 @@ export default function Home() {
         head: [['Hazard', 'Risk / Harm', 'Who', 'Init', 'Control Measures', 'Res']],
         body: hazardRows,
         theme: 'grid',
-        styles: { fontSize: 8, textColor: 0, lineColor: 0, lineWidth: 0.1, cellPadding: 3, valign: 'top', overflow: 'linebreak' },
-        headStyles: { fillColor: [50, 50, 50], textColor: 255, fontStyle: 'bold' },
-        columnStyles: { 0: { cellWidth: 25, fontStyle: 'bold' }, 3: { cellWidth: 15, halign: 'center' }, 5: { cellWidth: 15, halign: 'center' } },
+        styles: { 
+            fontSize: 8, 
+            textColor: [0, 0, 0], 
+            lineColor: [0, 0, 0], 
+            lineWidth: 0.1, 
+            cellPadding: 3, 
+            overflow: 'linebreak', // Wraps text inside cells
+            valign: 'top' 
+        },
+        headStyles: { 
+            fillColor: [230, 230, 230], 
+            textColor: [0, 0, 0], 
+            fontStyle: 'bold',
+            lineColor: [0, 0, 0],
+            lineWidth: 0.1
+        },
+        columnStyles: { 
+          0: { cellWidth: 25, fontStyle: 'bold' }, 
+          1: { cellWidth: 35 }, 
+          2: { cellWidth: 20 },
+          3: { cellWidth: 15, halign: 'center' }, 
+          4: { cellWidth: 'auto' }, // Auto allows Control Measures to expand freely
+          5: { cellWidth: 15, halign: 'center' } 
+        },
         // @ts-ignore
         didDrawPage: (d) => { if(d.cursor) currentY = d.cursor.y; }
     });
@@ -292,31 +360,32 @@ export default function Home() {
     doc.setFontSize(11); doc.setFont("helvetica", "bold");
     doc.text("5. METHOD STATEMENT", margin, currentY); currentY += 8;
     
-    // Prefer API method steps, else default
+    // Prefer API method steps
     const methodSteps = apiData.method_steps || [
         { t: "5.1 PRE-COMMENCEMENT", d: "Arrive on site, sign in, and conduct a dynamic risk assessment. Establish exclusion zones." },
         { t: "5.2 SAFE ISOLATION", d: "Identify circuits/pipes. Isolate at source. Lock-Off & Tag-Out (LOTO). Prove dead/empty." },
-        { t: "5.3 EXECUTION", d: `Carry out works in accordance with the scope defined in Section 2.\n${formData.extraNotes || ''}` },
+        { t: "5.3 EXECUTION", d: `Carry out ${formData.jobType} in accordance with industry standards. \n${formData.extraNotes || ''} \nEnsure safe access and housekeeping.` },
         { t: "5.4 COMPLETION", d: "Inspect installation. Perform testing. Tidy area. Handover to client." }
     ];
 
-    // Handle array of strings vs objects
-    const finalMethods = Array.isArray(methodSteps) && typeof methodSteps[0] === 'string'
+    const finalMethods = Array.isArray(methodSteps) && typeof methodSteps[0] === 'string' 
        ? methodSteps.map((s: string, i: number) => ({ t: `Step ${i+1}`, d: s }))
        : methodSteps;
 
     finalMethods.forEach((step: any) => {
-        checkPageBreak(20);
+        checkPageBreak(25); // Ensure space for block
+        
         doc.setFont("helvetica", "bold");
         doc.text(step.t || "Step", margin, currentY);
         currentY += 5;
+        
         doc.setFont("helvetica", "normal");
         const text = doc.splitTextToSize(step.d || step, contentWidth);
         doc.text(text, margin, currentY);
-        currentY += (text.length * 5) + 5;
+        
+        currentY += (text.length * 5) + 8; // Spacing between steps
     });
-    currentY += 5;
-
+    
     // 6. PPE
     checkPageBreak(60);
     doc.setFontSize(11); doc.setFont("helvetica", "bold");
@@ -333,8 +402,8 @@ export default function Home() {
             ['Dust Mask (FFP3)', 'Task Dependent']
         ],
         theme: 'grid',
-        headStyles: { fillColor: [50, 50, 50], textColor: 255 },
-        styles: { fontSize: 9, textColor: 0, lineColor: 0, lineWidth: 0.1 },
+        headStyles: { fillColor: [230, 230, 230], textColor: [0,0,0], lineColor: [0,0,0], lineWidth: 0.1 },
+        styles: { fontSize: 9, textColor: [0,0,0], lineColor: [0,0,0], lineWidth: 0.1 },
         columnStyles: { 0: { cellWidth: 100 }, 1: { fontStyle: 'bold' } }
     });
     // @ts-ignore
@@ -352,11 +421,10 @@ export default function Home() {
     autoTable(doc, {
       startY: currentY,
       head: [['Substance', 'Risks', 'Controls/PPE', 'Disposal']],
-      // Handle object vs array
       body: Array.isArray(coshhRows[0]) ? coshhRows : coshhRows.map((c:any) => [c.substance, c.risk, c.control, c.disposal]),
       theme: 'grid',
-      headStyles: { fillColor: [50, 50, 50], textColor: 255 },
-      styles: { fontSize: 8, textColor: 0, lineColor: 0, lineWidth: 0.1, overflow: 'linebreak' },
+      headStyles: { fillColor: [230, 230, 230], textColor: [0,0,0], lineColor: [0,0,0], lineWidth: 0.1 },
+      styles: { fontSize: 8, textColor: [0,0,0], lineColor: [0,0,0], lineWidth: 0.1, overflow: 'linebreak' },
     });
     // @ts-ignore
     currentY = doc.lastAutoTable.finalY + 12;
@@ -375,7 +443,7 @@ export default function Home() {
         ['Supervisor', formData.supervisorName || formData.contactName]
       ],
       theme: 'grid',
-      styles: { fontSize: 9, cellPadding: 3, lineColor: 0, lineWidth: 0.1 },
+      styles: { fontSize: 9, cellPadding: 3, lineColor: [0,0,0], lineWidth: 0.1, textColor: [0,0,0] },
       columnStyles: { 0: { fontStyle: 'bold', cellWidth: 50, fillColor: [245,245,245] } }
     });
     // @ts-ignore
@@ -398,8 +466,8 @@ export default function Home() {
             ['5', '', '', '', ''],
         ],
         theme: 'grid',
-        styles: { minCellHeight: 12, lineColor: 0, lineWidth: 0.1 },
-        headStyles: { fillColor: [50, 50, 50] },
+        styles: { minCellHeight: 12, lineColor: [0,0,0], lineWidth: 0.1, textColor: [0,0,0] },
+        headStyles: { fillColor: [230, 230, 230], textColor: [0,0,0], lineColor: [0,0,0], lineWidth: 0.1 },
         columnStyles: { 0: { cellWidth: 10, halign: 'center' } }
     });
     // @ts-ignore
