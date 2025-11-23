@@ -11,6 +11,8 @@ export async function generateRamsContent(data: any) {
     throw new Error("API Key Missing");
   }
 
+  console.log(">> AI SERVICE: Generating content for", data.jobType);
+
   // 2. The Super-Prompt
   const prompt = `
     ACT AS: A Chartered Health & Safety Consultant (CMIOSH).
@@ -28,7 +30,7 @@ export async function generateRamsContent(data: any) {
     1. Method Statement: Write 4 specific steps (5.1 to 5.4).
     2. CRITICAL: You MUST include the phrase "at ${data.siteAddress}" in Step 5.1.
     3. CRITICAL: You MUST mention "${data.clientName}" in Step 5.4.
-    4. COSHH: Select the most relevant hazardous substance for ${data.jobType}.
+    4. COSHH: Select the most relevant hazardous substance for ${data.jobType} (e.g. Silica for drilling, Solder for plumbing).
 
     OUTPUT JSON ONLY (No Markdown):
     {
