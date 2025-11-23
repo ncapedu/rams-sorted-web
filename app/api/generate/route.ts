@@ -1,110 +1,74 @@
+// app/api/generate/route.ts
+import { GoogleGenerativeAI } from "@google/generative-ai";
 import { NextResponse } from "next/server";
-import { HAZARD_DATA } from "../../lib/constants";
 
-// ⚡ FORCE DYNAMIC: This prevents Vercel from "caching" the error.
-export const dynamic = 'force-dynamic';
-export const runtime = 'nodejs'; 
-export const maxDuration = 60; 
+// Initialize Gemini
+const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY || "");
 
 export async function POST(req: Request) {
   try {
+    // 1. Parse Data from Frontend
     const body = await req.json();
-    const apiKey = process.env.GOOGLE_API_KEY;
+    const { 
+      trade, 
+      jobType, 
+      jobDesc, 
+      hazards, 
+      clientName, 
+      siteAddress 
+    } = body;
 
-    if (!apiKey) {
-      console.error("CRITICAL: Google API Key is missing from environment variables.");
-      return NextResponse.json({ error: "Server Error: API Key Missing." }, { status: 500 });
+    // 2. Check API Key
+    if (!process.env.GOOGLE_API_KEY) {
+      console.error("Missing GOOGLE_API_KEY");
+      // Return a 200 with fallback data so the UI doesn't crash, but logs error
+      return NextResponse.json({ 
+        summary: jobDesc, 
+        method_steps: null // Triggers local fallback
+      });
     }
 
-    // 1. Model Discovery
-    const listUrl = `https://generativelanguage.googleapis.com/v1beta/models?key=${apiKey}`;
-    const listRes = await fetch(listUrl);
-    const listData = await listRes.json();
-    
-    const validModel = listData.models?.find((m: any) => 
-        m.supportedGenerationMethods?.includes("generateContent") && 
-        !m.name.includes("vision")
-    );
-    
-    const modelName = validModel ? validModel.name.replace("models/", "") : "gemini-pro";
-    const generateUrl = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${apiKey}`;
+    // 3. Construct the Prompt
+    const prompt = `
+      ACT AS: A Senior Health & Safety Consultant (UK Construction).
+      TASK: Write specific RAMS content for a ${trade} doing "${jobType}".
+      CLIENT: ${clientName}
+      SITE: ${siteAddress}
+      CONTEXT: ${jobDesc || "Standard industry practice"}
+      HAZARDS IDENTIFIED: ${hazards.join(", ")}
 
-    // 2. Prepare Data for AI
-    const answerList = Object.entries(body.answers || {})
-        .map(([k, v]) => `${k}: ${v}`)
-        .join(", ");
-        
-    // Expand hazards to include the library definitions
-    // @ts-ignore
-    const hazardInfo = (body.hazards || []).map(h => {
-        // @ts-ignore
-        const data = HAZARD_DATA[h];
-        return data ? `${data.label}: (Standard Control: ${data.control})` : h;
-    }).join("\n");
+      OUTPUT JSON ONLY. STRICT FORMAT:
+      {
+        "summary": "2-3 professional sentences summarizing the specific scope of works at this site.",
+        "method_steps": [
+          "5.1 PRE-START: Specific setup steps...",
+          "5.2 SAFETY: Specific isolation or safety steps...",
+          "5.3 EXECUTION: 3-4 detailed steps on how ${jobType} is actually performed...",
+          "5.4 COMPLETION: Site clearance and handover steps..."
+        ],
+        "ppe": ["List", "Specific", "PPE", "For", "Task"],
+        "coshh": [
+          { "substance": "Name", "risk": "Risk", "control": "Control", "disposal": "Disposal" }
+        ]
+      }
+    `;
 
-    // 3. The Prompt
-    const payload = {
-      contents: [{
-        parts: [{
-          text: `
-            ACT AS: Senior UK Health & Safety Consultant (NEBOSH qualified).
-            TASK: Write the specific content for a professional Construction RAMS document.
-            TONE: Formal, technical, concise, legalistic. UK English.
+    // 4. Call Gemini
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+    const result = await model.generateContent(prompt);
+    const response = await result.response;
+    const text = response.text();
 
-            === PROJECT INPUTS ===
-            TRADE: ${body.trade}
-            TASK: ${body.jobType === 'Other (Custom)' ? body.customJobType : body.jobType}
-            DESCRIPTION: ${body.jobDesc}
-            SITE CONTEXT: ${body.siteAddress} (Client: ${body.clientName})
-            
-            === HAZARDS IDENTIFIED ===
-            ${hazardInfo}
-            
-            === SAFETY CHECKS (YES/NO) ===
-            ${answerList}
-            
-            === REQUIRED OUTPUT (JSON ONLY) ===
-            Return a valid JSON object with these exact keys:
+    // 5. Clean & Parse JSON
+    // Gemini sometimes wraps JSON in markdown ```json ... ``` blocks
+    const cleanedText = text.replace(/```json/g, "").replace(/```/g, "").trim();
+    const data = JSON.parse(cleanedText);
 
-            1. "summary": A professional executive summary of the work (max 80 words).
-            2. "method_steps": An array of strings. Each string is a step.
-               - CRITICAL: Group steps into phases using UPPERCASE HEADERS.
-               - Example format:
-                 "PREPARATION:"
-                 "1. Arrive on site..."
-                 "2. Check tools..."
-                 "EXECUTION:"
-                 "3. Isolate power..."
-                 "4. Install unit..."
-                 "COMPLETION:"
-                 "5. Test system..."
-            3. "ppe": An array of strings listing specific PPE (e.g. "Safety Boots (BS EN ISO 20345)", "Hi-Vis Vest").
-            4. "coshh": An array of objects IF relevant (dust/chemicals). If none, return empty array.
-               Structure: { "substance": "Name", "risk": "Effect", "control": "Measure", "disposal": "Method" }
+    return NextResponse.json(data);
 
-            DO NOT return markdown formatting. Just the raw JSON string.
-          `
-        }]
-      }]
-    };
-
-    const response = await fetch(generateUrl, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
-    });
-
-    const data = await response.json();
-    if (!response.ok) throw new Error(data.error?.message || "Google Error");
-
-    let text = data.candidates?.[0]?.content?.parts?.[0]?.text;
-    // Clean Markdown if AI adds it
-    text = text.replace(/```json/g, "").replace(/```/g, "").trim();
-
-    return NextResponse.json(JSON.parse(text));
-
-  } catch (error: any) {
-    console.error("Backend Error:", error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+  } catch (error) {
+    console.error("AI Generation Failed:", error);
+    // Return error status so frontend falls back to local data gracefully
+    return NextResponse.json({ error: "AI Generation Failed" }, { status: 500 });
   }
 }
