@@ -72,7 +72,7 @@ export default function Home() {
     clientName: "", projectRef: "", siteAddress: "", startDate: new Date().toISOString().split('T')[0], duration: "1 Day", 
     operatives: "1", trade: "Electrician", jobType: "", customJobType: "", jobDesc: "",
     supervisorName: "", firstAider: "", hospital: "", fireAssembly: "As Inducted", firstAidLoc: "Site Vehicle",
-    welfare: "Client WC", extraNotes: "", accessCode: "", customDescription: ""
+    welfare: "Client WC", extraNotes: "", accessCode: ""
   });
   
   const [hazards, setHazards] = useState<string[]>([]);
@@ -81,29 +81,23 @@ export default function Home() {
 
   // --- LOGIC: LOAD QUESTIONS & DESCRIPTION ---
   useEffect(() => {
-    // Type Safe Lookup
     const currentTrade = TRADES[formData.trade as keyof typeof TRADES];
     
     if (currentTrade && formData.jobType) {
       if (formData.jobType === "Other (Custom)") {
-        // Clear description if custom
-        if (!formData.customDescription) setFormData(prev => ({ ...prev, customDescription: "" })); 
+        if (!formData.jobDesc) setFormData(prev => ({ ...prev, jobDesc: "" })); 
         setQuestions([]);
         setHazards([]);
       } else {
-        // Safe Cluster Lookup
         const clusters = currentTrade.clusters as Record<string, JobCluster>;
         const clusterData = clusters[formData.jobType];
 
         if (clusterData) {
-          // Pre-fill description
-          setFormData(prev => ({ ...prev, customDescription: clusterData.desc || "" }));
-          // Add Hazards
+          // Use 'jobDesc' for the text box
+          setFormData(prev => ({ ...prev, jobDesc: clusterData.desc || "" }));
           setHazards(prev => [...new Set([...prev, ...clusterData.hazards])]);
-          // Set Questions
           setQuestions(clusterData.questions || []);
           
-          // Pre-set answers to Yes
           const defaults: Record<string, string> = {};
           if(clusterData.questions) {
             clusterData.questions.forEach(q => defaults[q.id] = "Yes");
@@ -119,7 +113,9 @@ export default function Home() {
 
   const nextStep = () => {
     if (step === 1 && (!formData.companyName || !formData.officeAddress || !formData.contactName)) return alert("⚠️ Please fill in Company Details.");
-    if (step === 2 && (!formData.clientName || !formData.siteAddress)) return alert("⚠️ Please fill in Project Details.");
+    if (step === 2) {
+        if (!formData.clientName || !formData.siteAddress) return alert("⚠️ Please fill in Project Details.");
+    }
     setStep(step + 1);
   };
 
@@ -127,7 +123,8 @@ export default function Home() {
   const generateRAMS = async () => {
     setIsGenerating(true);
     try {
-      // 1. Call API
+      console.log("Calling Modular AI API...");
+      
       const res = await fetch("/api/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -135,32 +132,32 @@ export default function Home() {
             ...formData, 
             hazards, 
             answers,
-            // Send the text area content (customDescription) to the API
-            customDescription: formData.customDescription 
+            // Send 'jobDesc' (the UI text box) as 'customDescription' to the AI
+            customDescription: formData.jobDesc 
         }),
       });
       
       let apiData = {};
+      
       if (res.ok) {
-        const json = await res.json();
-        if (json.method_steps) {
-            apiData = json;
-        }
+        apiData = await res.json();
+        console.log("AI Generation Successful:", apiData);
       } else {
-        console.warn("API Error, using local fallback");
+        // If API fails (e.g., no key), we use local data so the user still gets a PDF
+        console.warn("AI Service unavailable. Using local data.");
       }
       
-      // 2. Generate PDF
+      // Generate PDF
       createPDF(apiData); 
       
     } catch (e: any) { 
-        console.error(e);
+        console.error("Critical Error:", e);
         createPDF({}); // Fallback
     } 
     finally { setIsGenerating(false); }
   };
 
-  // --- PROFESSIONAL PDF ENGINE ---
+  // --- PROFESSIONAL PDF ENGINE (10 SECTIONS) ---
   const createPDF = (apiData: any) => {
     const doc = new jsPDF();
     const pageWidth = 210;
@@ -202,8 +199,12 @@ export default function Home() {
         doc.text(`Page ${pageNumber} of ${totalPages}`, pageWidth - margin, pageHeight - 10, { align: 'right' });
     };
 
+    // PAGE 1 START
+    drawHeader(doc);
+    currentY = 25;
+    doc.setTextColor(0);
+
     // 1. DETAILS
-    drawHeader(doc); currentY = 25; doc.setTextColor(0);
     doc.setFontSize(11); doc.setFont("helvetica", "bold"); 
     doc.text("1. PROJECT & JOB DETAILS", margin, currentY); currentY += 6;
     
@@ -232,7 +233,8 @@ export default function Home() {
     doc.text("2. SCOPE OF WORKS", margin, currentY); currentY += 6;
     
     doc.setFontSize(10); doc.setFont("helvetica", "normal");
-    const scopeText = doc.splitTextToSize(apiData.summary || formData.customDescription || "Standard works as per industry guidelines.", contentWidth);
+    // Prefer AI Summary -> Then User's Text -> Then Fallback
+    const scopeText = doc.splitTextToSize(apiData.summary || formData.jobDesc || "Standard works as per industry guidelines.", contentWidth);
     doc.text(scopeText, margin, currentY);
     currentY += (scopeText.length * 5) + 12;
 
@@ -263,7 +265,7 @@ export default function Home() {
         currentY = doc.lastAutoTable.finalY + 12;
     }
 
-    // 4. RISK ASSESSMENT
+    // 4. RISK ASSESSMENT (Correct Widths)
     checkPageBreak(80);
     doc.setFontSize(11); doc.setFont("helvetica", "bold");
     doc.text("4. RISK ASSESSMENT", margin, currentY); currentY += 6;
@@ -290,15 +292,23 @@ export default function Home() {
         head: [['Hazard', 'Risk / Harm', 'Who', 'Init', 'Control Measures', 'Res']],
         body: hazardRows,
         theme: 'grid',
-        styles: { fontSize: 8, textColor: 0, lineColor: 0, lineWidth: 0.1, cellPadding: 2, valign: 'top', overflow: 'linebreak' },
+        styles: { 
+            fontSize: 8, 
+            textColor: 0, 
+            lineColor: 0, 
+            lineWidth: 0.1, 
+            cellPadding: 2, 
+            valign: 'top', 
+            overflow: 'linebreak' 
+        },
         headStyles: { fillColor: [230, 230, 230], textColor: 0, fontStyle: 'bold' },
         columnStyles: { 
             0: { cellWidth: 25, fontStyle: 'bold' }, 
             1: { cellWidth: 35 }, 
             2: { cellWidth: 20 }, 
-            3: { cellWidth: 20, halign: 'center' }, // Wider for Medium
+            3: { cellWidth: 20, halign: 'center' }, // 20 width for Init (Fits "Medium")
             4: { cellWidth: 'auto' }, 
-            5: { cellWidth: 20, halign: 'center' } 
+            5: { cellWidth: 20, halign: 'center' } // 20 width for Res
         },
         // @ts-ignore
         didDrawPage: (d) => { if(d.cursor) currentY = d.cursor.y; }
@@ -311,10 +321,11 @@ export default function Home() {
     doc.setFontSize(11); doc.setFont("helvetica", "bold");
     doc.text("5. METHOD STATEMENT", margin, currentY); currentY += 8;
     
+    // Use API steps if available
     const methodSteps = apiData.method_steps || [
-        { t: "5.1 PRE-COMMENCEMENT", d: "Arrive on site, sign in, and conduct a dynamic risk assessment. Establish exclusion zones." },
+        { t: "5.1 PRE-COMMENCEMENT", d: "Arrive on site, sign in. Review RAMS with operatives. Establish exclusion zones." },
         { t: "5.2 SAFE ISOLATION", d: "Identify circuits/pipes. Isolate at source. Lock-Off & Tag-Out (LOTO). Prove dead/empty." },
-        { t: "5.3 EXECUTION", d: `Carry out works in accordance with the scope defined in Section 2.\n${formData.extraNotes || ''}` },
+        { t: "5.3 EXECUTION", d: `Carry out works in accordance with scope.\n${formData.extraNotes || ''}` },
         { t: "5.4 COMPLETION", d: "Inspect installation. Perform testing. Tidy area. Handover to client." }
     ];
 
@@ -363,7 +374,7 @@ export default function Home() {
     doc.text("7. COSHH / SUBSTANCES", margin, currentY); currentY += 6;
 
     const coshhRows = apiData.coshh || [
-        ['Construction Dust (Silica)', 'Inhalation/Irritation', 'LEV / FFP3 Mask', 'Bagged & Sealed']
+        ['Construction Dust (Silica)', 'Inhalation', 'LEV / FFP3 Mask', 'Bagged & Sealed']
     ];
 
     autoTable(doc, {
@@ -448,7 +459,6 @@ export default function Home() {
     }
 
     doc.save(`RAMS_${formData.companyName.replace(/ /g,'_')}.pdf`);
-    setIsGenerating(false);
   };
 
   return (
@@ -516,12 +526,7 @@ export default function Home() {
                   </div>
               )}
 
-              {/* BINDING TO customDescription SO EDITS WORK */}
-              <textarea 
-                className="w-full border p-3 rounded h-32" 
-                value={formData.customDescription} 
-                onChange={e => handleInput("customDescription", e.target.value)} 
-              />
+              <textarea className="w-full border p-3 rounded h-32" value={formData.jobDesc} onChange={e => handleInput("jobDesc", e.target.value)} />
               <div className="flex gap-4"><button onClick={() => setStep(1)} className="w-1/3 border py-3 rounded">Back</button><button onClick={nextStep} className="w-2/3 bg-black text-white py-3 rounded font-bold">Next</button></div>
             </div>
           )}
