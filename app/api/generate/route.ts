@@ -4,10 +4,6 @@ import { NextResponse } from "next/server";
 // Force Vercel to not cache this route
 export const dynamic = 'force-dynamic';
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
-
 export async function POST(req: Request) {
   try {
     // 1. Parse Data
@@ -15,21 +11,27 @@ export async function POST(req: Request) {
     const { 
       trade, 
       jobType, 
-      jobDesc, // Standard description
+      jobDesc, 
       hazards, 
       clientName, 
       siteAddress, 
-      customDescription // User's specific notes
+      customDescription 
     } = body;
 
-    if (!process.env.OPENAI_API_KEY) {
+    // 2. Initialize OpenAI INSIDE the function (Prevents Build Crash)
+    const apiKey = process.env.OPENAI_API_KEY;
+    
+    if (!apiKey) {
       console.error("SERVER ERROR: Missing OPENAI_API_KEY");
-      return NextResponse.json({ error: "Server Config Error" }, { status: 500 });
+      // Return a specific error so the frontend handles it gracefully
+      return NextResponse.json({ error: "Server Config Error: Missing API Key" }, { status: 500 });
     }
+
+    const openai = new OpenAI({ apiKey: apiKey });
 
     console.log(`>> OpenAI Generating for: ${jobType} at ${siteAddress}`);
 
-    // 2. The Prompt
+    // 3. The Prompt
     const systemPrompt = `
       You are a Chartered Health & Safety Consultant (CMIOSH) for the UK Construction Industry.
       You must generate a valid JSON object for a Risk Assessment & Method Statement (RAMS) document.
@@ -62,17 +64,17 @@ export async function POST(req: Request) {
       }
     `;
 
-    // 3. Call OpenAI with JSON Mode Enforced
+    // 4. Call OpenAI with JSON Mode
     const completion = await openai.chat.completions.create({
-      model: "gpt-4o-mini", // or "gpt-3.5-turbo" (Cheaper) or "gpt-4o" (Best)
+      model: "gpt-4o-mini", // Fast & cheap
       messages: [
         { role: "system", content: systemPrompt },
         { role: "user", content: userPrompt },
       ],
-      response_format: { type: "json_object" }, // <--- THIS GUARANTEES SUCCESS
+      response_format: { type: "json_object" },
     });
 
-    // 4. Parse Response
+    // 5. Parse Response
     const rawContent = completion.choices[0].message.content;
     
     if (!rawContent) {
