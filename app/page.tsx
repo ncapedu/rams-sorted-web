@@ -92,12 +92,12 @@ export default function Home() {
         setQuestions([]);
         setHazards([]);
       } else {
-        // Safe Cluster Lookup
+        // Safe Cluster Lookup via Cast
         const clusters = currentTrade.clusters as Record<string, JobCluster>;
         const clusterData = clusters[formData.jobType];
 
         if (clusterData) {
-          // Pre-fill description
+          // Pre-fill description from Database
           setFormData(prev => ({ ...prev, jobDesc: clusterData.desc || "" }));
           // Add Hazards
           setHazards(prev => [...new Set([...prev, ...clusterData.hazards])]);
@@ -122,21 +122,25 @@ export default function Home() {
     if (step === 1 && (!formData.companyName || !formData.officeAddress || !formData.contactName)) return alert("⚠️ Please fill in Company Details.");
     if (step === 2) {
         if (!formData.clientName || !formData.siteAddress) return alert("⚠️ Please fill in Project Details.");
-        // Removed validation block to allow user to skip if needed, uncomment if strictness required
-        // const unanswered = questions.filter(q => !answers[q.id]);
-        // if (unanswered.length > 0) return alert(`⚠️ Please answer all safety checks.`);
     }
     setStep(step + 1);
   };
 
+  // --- API HANDLER ---
   const generateRAMS = async () => {
     setLoading(true);
     try {
       // 1. Attempt API Call
+      // We explicitly map 'jobDesc' (UI field) to 'customDescription' (Backend field) to fix the AI
       const res = await fetch("/api/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...formData, hazards, answers }),
+        body: JSON.stringify({ 
+          ...formData, 
+          hazards, 
+          answers,
+          customDescription: formData.jobDesc // CRITICAL FIX: Send the text box content to AI
+        }),
       });
       
       let apiData = {};
@@ -186,17 +190,17 @@ export default function Home() {
     const drawHeader = (doc: any) => {
         doc.setDrawColor(0); doc.setLineWidth(0.1);
         doc.setFont("helvetica", "bold"); doc.setFontSize(11);
-        doc.text("RISK ASSESSMENT & METHOD STATEMENT", margin, 12);
+        doc.text("RISK ASSESSMENT & METHOD STATEMENT", margin, 12); // Top Left
         
         doc.setFontSize(9); doc.setFont("helvetica", "normal");
         const rightText = `Ref: ${formData.projectRef || "N/A"} | Date: ${formData.startDate}`;
-        doc.text(rightText, pageWidth - margin, 12, { align: "right" });
+        doc.text(rightText, pageWidth - margin, 12, { align: "right" }); // Top Right
         
         doc.line(margin, 15, pageWidth - margin, 15);
     };
 
     const drawFooter = (doc: any, pageNumber: number, totalPages: number) => {
-        doc.setFontSize(8); doc.setTextColor(100);
+        doc.setFontSize(8); doc.setTextColor(0);
         doc.text(`Site: ${formData.siteAddress}`, margin, pageHeight - 10);
         doc.text(`Page ${pageNumber} of ${totalPages}`, pageWidth - margin, pageHeight - 10, { align: 'right' });
     };
@@ -206,7 +210,7 @@ export default function Home() {
     currentY = 25;
     doc.setTextColor(0);
 
-    // 1. PROJECT & JOB DETAILS
+    // 1. PROJECT DETAILS
     doc.setFontSize(11); doc.setFont("helvetica", "bold"); 
     doc.text("1. PROJECT & JOB DETAILS", margin, currentY); currentY += 6;
     
@@ -223,9 +227,9 @@ export default function Home() {
             ['Prepared By', `${formData.contactName} (Competent Person)`],
             ['Operatives', formData.operatives],
         ],
-        styles: { fontSize: 9, cellPadding: 3, textColor: 0, lineColor: 0, lineWidth: 0.1 },
-        headStyles: { fillColor: [240, 240, 240], textColor: 0, fontStyle: 'bold', lineWidth: 0.1, lineColor: 0 },
-        columnStyles: { 0: { fontStyle: 'bold', cellWidth: 50, fillColor: [245, 245, 245] } }
+        styles: { fontSize: 9, cellPadding: 3, textColor: 0, lineColor: 0, lineWidth: 0.1, overflow: 'linebreak' },
+        headStyles: { fillColor: [230, 230, 230], textColor: 0, fontStyle: 'bold', lineWidth: 0.1, lineColor: 0 },
+        columnStyles: { 0: { fontStyle: 'bold', cellWidth: 50, fillColor: [245, 245, 245] }, 1: { cellWidth: 'auto' } }
     });
     // @ts-ignore
     currentY = doc.lastAutoTable.finalY + 12;
@@ -235,6 +239,7 @@ export default function Home() {
     doc.text("2. SCOPE OF WORKS", margin, currentY); currentY += 6;
     
     doc.setFontSize(10); doc.setFont("helvetica", "normal");
+    // Use API summary if valid, otherwise form data
     const scopeText = doc.splitTextToSize(apiData.summary || formData.jobDesc || "Standard works as per industry guidelines.", contentWidth);
     doc.text(scopeText, margin, currentY);
     currentY += (scopeText.length * 5) + 12;
@@ -258,7 +263,7 @@ export default function Home() {
             head: [['No.', 'Checklist Question', 'YES', 'NO', 'N/A']],
             body: checkRows,
             theme: 'grid',
-            styles: { fontSize: 9, textColor: 0, lineColor: 0, lineWidth: 0.1, cellPadding: 2 },
+            styles: { fontSize: 9, textColor: 0, lineColor: 0, lineWidth: 0.1, cellPadding: 2, overflow: 'linebreak' },
             headStyles: { fillColor: [230, 230, 230], textColor: 0, fontStyle: 'bold', lineColor: 0 },
             columnStyles: { 0: { cellWidth: 10, halign: 'center' }, 2: { halign: 'center', cellWidth: 15 }, 3: { halign: 'center', cellWidth: 15 }, 4: { halign: 'center', cellWidth: 15 } }
         });
@@ -271,11 +276,22 @@ export default function Home() {
     doc.setFontSize(11); doc.setFont("helvetica", "bold");
     doc.text("4. RISK ASSESSMENT", margin, currentY); currentY += 6;
 
-    // Safe Hazard Mapping
+    // Risk Matrix Key
+    doc.setFontSize(8); doc.setFont("helvetica", "italic");
+    doc.text("Risk Key: High (15-25), Medium (8-12), Low (1-6)", margin, currentY);
+    currentY += 4;
+
     const hazardRows = hazards.map(hKey => {
         const lib = HAZARD_DATA[hKey];
         if (!lib) return null;
-        return [lib.label, lib.risk, "Ops/Public", lib.initial_score, lib.control, lib.residual_score];
+        return [
+          lib.label, 
+          lib.risk, 
+          "Ops/Public", 
+          lib.initial_score, 
+          lib.control, 
+          lib.residual_score
+        ];
     }).filter((row): row is string[] => row !== null);
 
     autoTable(doc, {
@@ -284,7 +300,7 @@ export default function Home() {
         body: hazardRows,
         theme: 'grid',
         styles: { fontSize: 8, textColor: 0, lineColor: 0, lineWidth: 0.1, cellPadding: 3, valign: 'top', overflow: 'linebreak' },
-        headStyles: { fillColor: [50, 50, 50], textColor: 255, fontStyle: 'bold' },
+        headStyles: { fillColor: [230, 230, 230], textColor: 0, fontStyle: 'bold' },
         columnStyles: { 0: { cellWidth: 25, fontStyle: 'bold' }, 3: { cellWidth: 15, halign: 'center' }, 5: { cellWidth: 15, halign: 'center' } },
         // @ts-ignore
         didDrawPage: (d) => { if(d.cursor) currentY = d.cursor.y; }
@@ -336,7 +352,7 @@ export default function Home() {
             ['Dust Mask (FFP3)', 'Task Dependent']
         ],
         theme: 'grid',
-        headStyles: { fillColor: [50, 50, 50], textColor: 255 },
+        headStyles: { fillColor: [230, 230, 230], textColor: 0 },
         styles: { fontSize: 9, textColor: 0, lineColor: 0, lineWidth: 0.1 },
         columnStyles: { 0: { cellWidth: 100 }, 1: { fontStyle: 'bold' } }
     });
@@ -401,7 +417,7 @@ export default function Home() {
         ],
         theme: 'grid',
         styles: { minCellHeight: 12, lineColor: 0, lineWidth: 0.1, textColor: 0 },
-        headStyles: { fillColor: [50, 50, 50] },
+        headStyles: { fillColor: [230, 230, 230], textColor: 0 },
         columnStyles: { 0: { cellWidth: 10, halign: 'center' } }
     });
     // @ts-ignore
@@ -434,7 +450,6 @@ export default function Home() {
     }
 
     doc.save(`RAMS_${formData.companyName.replace(/ /g,'_')}.pdf`);
-    setIsGenerating(false);
   };
 
   return (
