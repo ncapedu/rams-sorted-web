@@ -4,7 +4,6 @@ import { useState, useEffect } from "react";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import { Loader2, ShieldCheck, MapPin, Briefcase, AlertTriangle, Info, FileText } from "lucide-react";
-// Ensure these are exported from your constants file
 import { TRADES, HAZARD_GROUPS, HAZARD_DATA, JobCluster } from "./lib/constants";
 
 // --- UI COMPONENTS ---
@@ -86,6 +85,7 @@ export default function Home() {
     
     if (currentTrade && formData.jobType) {
       if (formData.jobType === "Other (Custom)") {
+        // Don't clear description if user typed custom text
         if (!formData.jobDesc) setFormData(prev => ({ ...prev, jobDesc: "" })); 
         setQuestions([]);
         setHazards([]);
@@ -124,36 +124,34 @@ export default function Home() {
     setStep(step + 1);
   };
 
-  // --- API HANDLER ---
   const generateRAMS = async () => {
     setLoading(true);
     try {
-      // 1. Attempt to call the backend API
+      // 1. Attempt API Call
       const res = await fetch("/api/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ ...formData, hazards, answers }),
       });
-
-      let apiData = null;
+      
+      let apiData = {};
       if (res.ok) {
         apiData = await res.json();
       } else {
-        console.warn("API not responsive, using local fallback mode.");
+        console.warn("API Error, using local fallback");
       }
-
-      // 2. Generate PDF using API data OR fallback to local state
-      createPDF(apiData || {}); 
+      
+      // 2. Generate PDF
+      createPDF(apiData); 
       
     } catch (e: any) { 
-      console.error("Generation Error:", e);
-      // Fallback on error
-      createPDF({});
+        console.error(e);
+        createPDF({}); // Fallback
     } 
     finally { setLoading(false); }
   };
 
-  // --- PROFESSIONAL PDF ENGINE (B&W, 10 SECTIONS) ---
+  // --- PROFESSIONAL PDF ENGINE (MATCHING UPLOADED FILE STRUCTURE) ---
   const createPDF = (apiData: any) => {
     const doc = new jsPDF();
     const pageWidth = 210;
@@ -174,23 +172,27 @@ export default function Home() {
       return false;
     };
 
-    // --- HEADER ---
-    const drawHeader = (doc: any) => {
-        doc.setDrawColor(0); doc.setLineWidth(0.2);
-        doc.setFont("helvetica", "bold"); doc.setFontSize(14);
-        doc.text("E-RISK ASSESSMENT & METHOD STATEMENT", pageWidth / 2, 12, { align: "center" });
-        
-        doc.setFontSize(9); doc.setFont("helvetica", "normal");
-        const rightText = `Ref: ${formData.projectRef || "RAMS-001"} | Date: ${formData.startDate}`;
-        doc.text(rightText, pageWidth - margin, 12, { align: "right" });
-        doc.line(margin, 16, pageWidth - margin, 16);
+    const toTitleCase = (str: string) => {
+        return str.replace(/\w\S*/g, (txt) => txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase());
     };
 
-    // --- FOOTER ---
+    // --- HEADER & FOOTER ---
+    const drawHeader = (doc: any) => {
+        doc.setDrawColor(0); doc.setLineWidth(0.1);
+        doc.setFont("helvetica", "bold"); doc.setFontSize(12);
+        doc.text("E-RISK ASSESSMENT & METHOD STATEMENT", pageWidth / 2, 12, { align: "center" });
+        
+        doc.setFontSize(8); doc.setFont("helvetica", "normal");
+        const rightText = `Ref: ${formData.projectRef || "N/A"} | Date: ${formData.startDate}`;
+        doc.text(rightText, pageWidth - margin, 12, { align: "right" });
+        
+        doc.line(margin, 15, pageWidth - margin, 15);
+    };
+
     const drawFooter = (doc: any, pageNumber: number, totalPages: number) => {
-        doc.setFontSize(8); doc.setTextColor(50);
-        doc.text(`Site: ${formData.siteAddress}`, margin, pageHeight - 8);
-        doc.text(`Page ${pageNumber} of ${totalPages}`, pageWidth - margin, pageHeight - 8, { align: 'right' });
+        doc.setFontSize(8); doc.setTextColor(100);
+        doc.text(`Site: ${formData.siteAddress}`, margin, pageHeight - 10);
+        doc.text(`Page ${pageNumber} of ${totalPages}`, pageWidth - margin, pageHeight - 10, { align: 'right' });
     };
 
     // --- PAGE 1 START ---
@@ -198,7 +200,7 @@ export default function Home() {
     currentY = 25;
     doc.setTextColor(0);
 
-    // 1. PROJECT & JOB DETAILS (Grid Theme, Grey Header)
+    // 1. PROJECT & JOB DETAILS
     doc.setFontSize(11); doc.setFont("helvetica", "bold"); 
     doc.text("1. PROJECT & JOB DETAILS", margin, currentY); currentY += 6;
     
@@ -209,14 +211,14 @@ export default function Home() {
             ['Company Name', formData.companyName],
             ['Site Address', formData.siteAddress],
             ['Client', formData.clientName],
-            ['Job / Task Title', `${formData.trade} - ${formData.jobType}`],
+            ['Job / Task Title', `${formData.trade} - ${toTitleCase(formData.jobType)}`],
             ['RAMS Reference', formData.projectRef || `${formData.clientName.substring(0,3).toUpperCase()}-001`],
             ['Date of RAMS', formData.startDate],
             ['Prepared By', `${formData.contactName} (Competent Person)`],
             ['Operatives', formData.operatives],
         ],
         styles: { fontSize: 9, cellPadding: 3, textColor: 0, lineColor: 0, lineWidth: 0.1 },
-        headStyles: { fillColor: [240, 240, 240], textColor: 0, fontStyle: 'bold', lineWidth: 0.1 },
+        headStyles: { fillColor: [240, 240, 240], textColor: 0, fontStyle: 'bold', lineWidth: 0.1, lineColor: 0 },
         columnStyles: { 0: { fontStyle: 'bold', cellWidth: 50, fillColor: [245, 245, 245] } }
     });
     // @ts-ignore
@@ -227,7 +229,7 @@ export default function Home() {
     doc.text("2. SCOPE OF WORKS", margin, currentY); currentY += 6;
     
     doc.setFontSize(10); doc.setFont("helvetica", "normal");
-    // Use API summary if available, otherwise local description
+    // Use API summary if valid, otherwise form data
     const scopeText = doc.splitTextToSize(apiData.summary || formData.jobDesc || "Standard works as per industry guidelines.", contentWidth);
     doc.text(scopeText, margin, currentY);
     currentY += (scopeText.length * 5) + 12;
@@ -239,7 +241,7 @@ export default function Home() {
         doc.text("3. PRE-START SAFETY CHECKLIST", margin, currentY); currentY += 6;
 
         const checkRows = questions.map((q, i) => [
-            (i + 1).toString(),
+            (i+1).toString(),
             q.label, 
             answers[q.id] === 'Yes' ? 'Yes' : '', 
             answers[q.id] === 'No' ? 'No' : '', 
@@ -252,7 +254,7 @@ export default function Home() {
             body: checkRows,
             theme: 'grid',
             styles: { fontSize: 9, textColor: 0, lineColor: 0, lineWidth: 0.1, cellPadding: 2 },
-            headStyles: { fillColor: [230, 230, 230], textColor: 0, fontStyle: 'bold', lineColor: 0 },
+            headStyles: { fillColor: [50, 50, 50], textColor: 255, fontStyle: 'bold', lineColor: 0 },
             columnStyles: { 0: { cellWidth: 10, halign: 'center' }, 2: { halign: 'center', cellWidth: 15 }, 3: { halign: 'center', cellWidth: 15 }, 4: { halign: 'center', cellWidth: 15 } }
         });
         // @ts-ignore
@@ -264,24 +266,11 @@ export default function Home() {
     doc.setFontSize(11); doc.setFont("helvetica", "bold");
     doc.text("4. RISK ASSESSMENT", margin, currentY); currentY += 6;
 
-    // Risk Matrix Key (Small)
-    doc.setFontSize(8); doc.setFont("helvetica", "italic");
-    doc.text("Risk Key: High (15-25), Medium (8-12), Low (1-6)", margin, currentY);
-    currentY += 4;
-
-    // Get hazards from API or Local
-    const hazardList = hazards; 
-    const hazardRows = hazardList.map(hKey => {
+    // Safe Hazard Mapping
+    const hazardRows = hazards.map(hKey => {
         const lib = HAZARD_DATA[hKey];
         if (!lib) return null;
-        return [
-          lib.label, 
-          lib.risk, 
-          "Ops/Public", 
-          lib.initial_score, 
-          lib.control, 
-          lib.residual_score
-        ];
+        return [lib.label, lib.risk, "Ops/Public", lib.initial_score, lib.control, lib.residual_score];
     }).filter((row): row is string[] => row !== null);
 
     autoTable(doc, {
@@ -289,13 +278,9 @@ export default function Home() {
         head: [['Hazard', 'Risk / Harm', 'Who', 'Init', 'Control Measures', 'Res']],
         body: hazardRows,
         theme: 'grid',
-        styles: { fontSize: 8, textColor: 0, lineColor: 0, lineWidth: 0.1, cellPadding: 3, overflow: 'linebreak' },
-        headStyles: { fillColor: [230, 230, 230], textColor: 0, fontStyle: 'bold' },
-        columnStyles: { 
-          0: { cellWidth: 25, fontStyle: 'bold' }, 
-          3: { cellWidth: 12, halign: 'center' }, 
-          5: { cellWidth: 12, halign: 'center' } 
-        },
+        styles: { fontSize: 8, textColor: 0, lineColor: 0, lineWidth: 0.1, cellPadding: 3, valign: 'top', overflow: 'linebreak' },
+        headStyles: { fillColor: [50, 50, 50], textColor: 255, fontStyle: 'bold' },
+        columnStyles: { 0: { cellWidth: 25, fontStyle: 'bold' }, 3: { cellWidth: 15, halign: 'center' }, 5: { cellWidth: 15, halign: 'center' } },
         // @ts-ignore
         didDrawPage: (d) => { if(d.cursor) currentY = d.cursor.y; }
     });
@@ -307,20 +292,20 @@ export default function Home() {
     doc.setFontSize(11); doc.setFont("helvetica", "bold");
     doc.text("5. METHOD STATEMENT", margin, currentY); currentY += 8;
     
-    // Use API steps if available, otherwise defaults
-    const methodContent = apiData.method_steps || [
-        { t: "5.1 PRE-COMMENCEMENT", d: "Arrive on site, sign in. Review RAMS with operatives. Establish exclusion zones." },
+    // Prefer API method steps, else default
+    const methodSteps = apiData.method_steps || [
+        { t: "5.1 PRE-COMMENCEMENT", d: "Arrive on site, sign in, and conduct a dynamic risk assessment. Establish exclusion zones." },
         { t: "5.2 SAFE ISOLATION", d: "Identify circuits/pipes. Isolate at source. Lock-Off & Tag-Out (LOTO). Prove dead/empty." },
-        { t: "5.3 EXECUTION", d: `Carry out ${formData.jobType} in accordance with industry standards. \n${formData.extraNotes || ''} \nEnsure safe access and housekeeping.` },
+        { t: "5.3 EXECUTION", d: `Carry out works in accordance with the scope defined in Section 2.\n${formData.extraNotes || ''}` },
         { t: "5.4 COMPLETION", d: "Inspect installation. Perform testing. Tidy area. Handover to client." }
     ];
 
-    // Handle if API returns array of strings vs objects
-    const formattedMethods = Array.isArray(methodContent) && typeof methodContent[0] === 'string' 
-      ? methodContent.map((s: string, i: number) => ({ t: `Step ${i+1}`, d: s }))
-      : methodContent;
+    // Handle array of strings vs objects
+    const finalMethods = Array.isArray(methodSteps) && typeof methodSteps[0] === 'string'
+       ? methodSteps.map((s: string, i: number) => ({ t: `Step ${i+1}`, d: s }))
+       : methodSteps;
 
-    formattedMethods.forEach((step: any) => {
+    finalMethods.forEach((step: any) => {
         checkPageBreak(20);
         doc.setFont("helvetica", "bold");
         doc.text(step.t || "Step", margin, currentY);
@@ -348,7 +333,7 @@ export default function Home() {
             ['Dust Mask (FFP3)', 'Task Dependent']
         ],
         theme: 'grid',
-        headStyles: { fillColor: [230, 230, 230], textColor: 0 },
+        headStyles: { fillColor: [50, 50, 50], textColor: 255 },
         styles: { fontSize: 9, textColor: 0, lineColor: 0, lineWidth: 0.1 },
         columnStyles: { 0: { cellWidth: 100 }, 1: { fontStyle: 'bold' } }
     });
@@ -359,19 +344,19 @@ export default function Home() {
     checkPageBreak(60);
     doc.setFontSize(11); doc.setFont("helvetica", "bold");
     doc.text("7. COSHH / SUBSTANCES", margin, currentY); currentY += 6;
-    
-    // API data for COSHH or fallback
-    const coshhData = apiData.coshh || [
-      ['Construction Dust (Silica, Wood)', 'Inhalation (Silicosis). Eye Irritation.', 'LEV Extraction. Water Suppression. FFP3 Mask.', 'Bagged & Sealed.']
+
+    const coshhRows = apiData.coshh || [
+        ['Construction Dust (Silica)', 'Inhalation/Irritation', 'LEV / FFP3 Mask', 'Bagged & Sealed']
     ];
 
     autoTable(doc, {
       startY: currentY,
       head: [['Substance', 'Risks', 'Controls/PPE', 'Disposal']],
-      body: Array.isArray(coshhData[0]) ? coshhData : coshhData.map((c:any) => [c.substance, c.risk, c.control, c.disposal]),
+      // Handle object vs array
+      body: Array.isArray(coshhRows[0]) ? coshhRows : coshhRows.map((c:any) => [c.substance, c.risk, c.control, c.disposal]),
       theme: 'grid',
-      headStyles: { fillColor: [230, 230, 230], textColor: 0 },
-      styles: { fontSize: 8, textColor: 0, lineColor: 0, lineWidth: 0.1 },
+      headStyles: { fillColor: [50, 50, 50], textColor: 255 },
+      styles: { fontSize: 8, textColor: 0, lineColor: 0, lineWidth: 0.1, overflow: 'linebreak' },
     });
     // @ts-ignore
     currentY = doc.lastAutoTable.finalY + 12;
@@ -393,15 +378,13 @@ export default function Home() {
       styles: { fontSize: 9, cellPadding: 3, lineColor: 0, lineWidth: 0.1 },
       columnStyles: { 0: { fontStyle: 'bold', cellWidth: 50, fillColor: [245,245,245] } }
     });
-
-    // --- NEW PAGE FOR SIGNATURES ---
-    doc.addPage();
-    drawHeader(doc);
-    currentY = 25;
+    // @ts-ignore
+    currentY = doc.lastAutoTable.finalY + 12;
 
     // 9. OPERATIVE BRIEFING
-    doc.setFontSize(11);
-    doc.setFont("helvetica", "bold");
+    doc.addPage(); drawHeader(doc); currentY = 25;
+    
+    doc.setFontSize(11); doc.setFont("helvetica", "bold"); 
     doc.text("9. OPERATIVE BRIEFING REGISTER", margin, currentY); currentY += 6;
 
     autoTable(doc, {
@@ -416,7 +399,7 @@ export default function Home() {
         ],
         theme: 'grid',
         styles: { minCellHeight: 12, lineColor: 0, lineWidth: 0.1 },
-        headStyles: { fillColor: [230, 230, 230], textColor: 0 },
+        headStyles: { fillColor: [50, 50, 50] },
         columnStyles: { 0: { cellWidth: 10, halign: 'center' } }
     });
     // @ts-ignore
@@ -441,7 +424,7 @@ export default function Home() {
     doc.text("Signature: _________________________", margin + 5, currentY + 35);
     doc.text(`Date: ${formData.startDate}`, margin + 100, currentY + 35);
 
-    // ADD PAGE NUMBERS (TypeScript Safe)
+    // ADD PAGE NUMBERS
     const pageCount = doc.internal.pages.length - 1;
     for (let i = 1; i <= pageCount; i++) { 
         doc.setPage(i); 
