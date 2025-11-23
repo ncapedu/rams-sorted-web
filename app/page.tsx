@@ -4,7 +4,6 @@ import { useState, useEffect } from "react";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import { Loader2, ShieldCheck, MapPin, Briefcase, AlertTriangle, Info, FileText } from "lucide-react";
-// Ensure these are exported from your constants file
 import { TRADES, HAZARD_GROUPS, HAZARD_DATA, JobCluster } from "./lib/constants";
 
 // --- UI COMPONENTS ---
@@ -64,8 +63,7 @@ function AddressSearch({ label, value, onChange, tooltip, required }: any) {
 // --- MAIN APPLICATION ---
 export default function Home() {
   const [step, setStep] = useState(1);
-  const [loading, setLoading] = useState(false);
-  const [generated, setGenerated] = useState(false);
+  const [isGenerating, setIsGenerating] = useState(false); // Fixed Variable Name
   
   // --- FORM STATE ---
   const [formData, setFormData] = useState({
@@ -82,29 +80,22 @@ export default function Home() {
 
   // --- LOGIC: LOAD QUESTIONS & DESCRIPTION ---
   useEffect(() => {
-    // Type Safe Lookup
     const currentTrade = TRADES[formData.trade as keyof typeof TRADES];
     
     if (currentTrade && formData.jobType) {
       if (formData.jobType === "Other (Custom)") {
-        // Don't clear description if user typed custom text
         if (!formData.jobDesc) setFormData(prev => ({ ...prev, jobDesc: "" })); 
         setQuestions([]);
         setHazards([]);
       } else {
-        // Safe Cluster Lookup
         const clusters = currentTrade.clusters as Record<string, JobCluster>;
         const clusterData = clusters[formData.jobType];
 
         if (clusterData) {
-          // Pre-fill description
           setFormData(prev => ({ ...prev, jobDesc: clusterData.desc || "" }));
-          // Add Hazards
           setHazards(prev => [...new Set([...prev, ...clusterData.hazards])]);
-          // Set Questions
           setQuestions(clusterData.questions || []);
           
-          // Pre-set answers to Yes
           const defaults: Record<string, string> = {};
           if(clusterData.questions) {
             clusterData.questions.forEach(q => defaults[q.id] = "Yes");
@@ -126,20 +117,19 @@ export default function Home() {
     setStep(step + 1);
   };
 
-  // --- API CONNECTION (UPDATED TO USE NEW ROUTE) ---
+  // --- API HANDLER ---
   const generateRAMS = async () => {
-    setLoading(true);
+    setIsGenerating(true);
     try {
-      // 1. Attempt API Call to your NEW route (File 2)
-      const res = await fetch("/api/create-rams", {
+      // Call API
+      const res = await fetch("/api/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ 
             ...formData, 
             hazards, 
             answers,
-            // IMPORTANT: We map your UI field 'jobDesc' to what the API expects 'customDescription'
-            customDescription: formData.jobDesc 
+            customDescription: formData.jobDesc // Passes text box content
         }),
       });
       
@@ -150,18 +140,17 @@ export default function Home() {
         console.warn("API Error, using local fallback");
       }
       
-      // 2. Generate PDF
+      // Generate PDF
       createPDF(apiData); 
-      setGenerated(true);
       
     } catch (e: any) { 
         console.error(e);
         createPDF({}); // Fallback
     } 
-    finally { setLoading(false); }
+    finally { setIsGenerating(false); }
   };
 
-  // --- PROFESSIONAL PDF ENGINE (MATCHING UPLOADED FILE STRUCTURE) ---
+  // --- PROFESSIONAL PDF ENGINE ---
   const createPDF = (apiData: any) => {
     const doc = new jsPDF();
     const pageWidth = 210;
@@ -171,7 +160,6 @@ export default function Home() {
     
     let currentY = margin;
 
-    // --- HELPERS ---
     const checkPageBreak = (needed: number) => {
       if (currentY + needed > pageHeight - margin) {
         doc.addPage();
@@ -186,31 +174,30 @@ export default function Home() {
         return str.replace(/\w\S*/g, (txt) => txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase());
     };
 
-    // --- HEADER & FOOTER ---
     const drawHeader = (doc: any) => {
         doc.setDrawColor(0); doc.setLineWidth(0.1);
         doc.setFont("helvetica", "bold"); doc.setFontSize(11);
-        doc.text("RISK ASSESSMENT & METHOD STATEMENT", margin, 12); // Top Left
+        doc.text("RISK ASSESSMENT & METHOD STATEMENT", margin, 12);
         
         doc.setFontSize(9); doc.setFont("helvetica", "normal");
         const rightText = `Ref: ${formData.projectRef || "N/A"} | Date: ${formData.startDate}`;
-        doc.text(rightText, pageWidth - margin, 12, { align: "right" }); // Top Right
+        doc.text(rightText, pageWidth - margin, 12, { align: "right" });
         
         doc.line(margin, 15, pageWidth - margin, 15);
     };
 
     const drawFooter = (doc: any, pageNumber: number, totalPages: number) => {
-        doc.setFontSize(8); doc.setTextColor(100);
+        doc.setFontSize(8); doc.setTextColor(0);
         doc.text(`Site: ${formData.siteAddress}`, margin, pageHeight - 10);
         doc.text(`Page ${pageNumber} of ${totalPages}`, pageWidth - margin, pageHeight - 10, { align: 'right' });
     };
 
-    // --- PAGE 1 START ---
+    // PAGE 1 START
     drawHeader(doc);
     currentY = 25;
     doc.setTextColor(0);
 
-    // 1. PROJECT DETAILS TABLE
+    // 1. DETAILS
     doc.setFontSize(11); doc.setFont("helvetica", "bold"); 
     doc.text("1. PROJECT & JOB DETAILS", margin, currentY); currentY += 6;
     
@@ -228,23 +215,22 @@ export default function Home() {
             ['Operatives', formData.operatives],
         ],
         styles: { fontSize: 9, cellPadding: 3, textColor: 0, lineColor: 0, lineWidth: 0.1, overflow: 'linebreak' },
-        headStyles: { fillColor: [240, 240, 240], textColor: 0, fontStyle: 'bold', lineWidth: 0.1, lineColor: 0 },
-        columnStyles: { 0: { fontStyle: 'bold', cellWidth: 50, fillColor: [245, 245, 245] } }
+        headStyles: { fillColor: [230, 230, 230], textColor: 0, fontStyle: 'bold', lineWidth: 0.1, lineColor: 0 },
+        columnStyles: { 0: { fontStyle: 'bold', cellWidth: 50, fillColor: [245, 245, 245] }, 1: { cellWidth: 'auto' } }
     });
     // @ts-ignore
     currentY = doc.lastAutoTable.finalY + 12;
 
-    // 2. SCOPE OF WORKS
+    // 2. SCOPE
     doc.setFontSize(11); doc.setFont("helvetica", "bold");
     doc.text("2. SCOPE OF WORKS", margin, currentY); currentY += 6;
     
     doc.setFontSize(10); doc.setFont("helvetica", "normal");
-    // Use API summary if valid, otherwise form data
     const scopeText = doc.splitTextToSize(apiData.summary || formData.jobDesc || "Standard works as per industry guidelines.", contentWidth);
     doc.text(scopeText, margin, currentY);
     currentY += (scopeText.length * 5) + 12;
 
-    // 3. PRE-START SAFETY CHECKLIST
+    // 3. SAFETY CHECKS
     if (questions.length > 0) {
         checkPageBreak(60);
         doc.setFontSize(11); doc.setFont("helvetica", "bold");
@@ -276,7 +262,6 @@ export default function Home() {
     doc.setFontSize(11); doc.setFont("helvetica", "bold");
     doc.text("4. RISK ASSESSMENT", margin, currentY); currentY += 6;
 
-    // Risk Matrix Key
     doc.setFontSize(8); doc.setFont("helvetica", "italic");
     doc.text("Risk Key: High (15-25), Medium (8-12), Low (1-6)", margin, currentY);
     currentY += 4;
@@ -379,7 +364,7 @@ export default function Home() {
     // @ts-ignore
     currentY = doc.lastAutoTable.finalY + 12;
 
-    // 8. EMERGENCY ARRANGEMENTS
+    // 8. EMERGENCY
     checkPageBreak(50);
     doc.setFontSize(11); doc.setFont("helvetica", "bold");
     doc.text("8. EMERGENCY ARRANGEMENTS", margin, currentY); currentY += 6;
@@ -399,7 +384,7 @@ export default function Home() {
     // @ts-ignore
     currentY = doc.lastAutoTable.finalY + 12;
 
-    // 9. OPERATIVE BRIEFING
+    // 9. BRIEFING
     doc.addPage(); drawHeader(doc); currentY = 25;
     
     doc.setFontSize(11); doc.setFont("helvetica", "bold"); 
@@ -431,7 +416,6 @@ export default function Home() {
     doc.text("I confirm I have read and understood this RAMS, attended the briefing, and agree to work in accordance with it.", margin, currentY);
     currentY += 10;
 
-    // Authorisation Box
     doc.setDrawColor(0); doc.rect(margin, currentY, contentWidth, 45);
     doc.setFont("helvetica", "bold"); doc.text("RAMS Prepared & Approved By (Management):", margin + 5, currentY + 8);
     
@@ -442,7 +426,7 @@ export default function Home() {
     doc.text("Signature: _________________________", margin + 5, currentY + 35);
     doc.text(`Date: ${formData.startDate}`, margin + 100, currentY + 35);
 
-    // ADD PAGE NUMBERS
+    // PAGE NUMBERS
     const pageCount = doc.internal.pages.length - 1;
     for (let i = 1; i <= pageCount; i++) { 
         doc.setPage(i); 
@@ -450,6 +434,7 @@ export default function Home() {
     }
 
     doc.save(`RAMS_${formData.companyName.replace(/ /g,'_')}.pdf`);
+    setIsGenerating(false);
   };
 
   return (
@@ -551,7 +536,7 @@ export default function Home() {
               </div>
               
               <div className="mt-6 pt-6 border-t">
-                 <div className="flex gap-4"><button onClick={() => setStep(2)} className="w-1/3 border py-3 rounded">Back</button><button onClick={generateRAMS} disabled={loading} className="w-2/3 bg-green-600 text-white py-3 rounded font-bold flex justify-center items-center gap-2">{loading ? <Loader2 className="animate-spin"/> : <ShieldCheck/>} Generate PDF Pack</button></div>
+                 <div className="flex gap-4"><button onClick={() => setStep(2)} className="w-1/3 border py-3 rounded">Back</button><button onClick={generateRAMS} disabled={isGenerating} className="w-2/3 bg-green-600 text-white py-3 rounded font-bold flex justify-center items-center gap-2">{isGenerating ? <Loader2 className="animate-spin"/> : <ShieldCheck/>} Generate PDF Pack</button></div>
               </div>
             </div>
           )}
