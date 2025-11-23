@@ -1,9 +1,9 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
-import { ShieldCheck, MapPin, Briefcase, AlertTriangle, Info, FileText, Loader2 } from "lucide-react";
+import { Loader2, ShieldCheck, MapPin, Briefcase, AlertTriangle, Info, FileText } from "lucide-react";
 // Ensure these are exported from your constants file
 import { TRADES, HAZARD_GROUPS, HAZARD_DATA, JobCluster } from "./lib/constants";
 
@@ -64,10 +64,8 @@ function AddressSearch({ label, value, onChange, tooltip, required }: any) {
 // --- MAIN APPLICATION ---
 export default function Home() {
   const [step, setStep] = useState(1);
-  
-  // FIXED: State variable matched to usage below
+  // FIXED: We are using isGenerating instead of loading
   const [isGenerating, setIsGenerating] = useState(false);
-  const [status, setStatus] = useState("");
   
   // --- FORM STATE ---
   const [formData, setFormData] = useState({
@@ -89,7 +87,6 @@ export default function Home() {
     
     if (currentTrade && formData.jobType) {
       if (formData.jobType === "Other (Custom)") {
-        // Don't clear description if user typed custom text
         if (!formData.jobDesc) setFormData(prev => ({ ...prev, jobDesc: "" })); 
         setQuestions([]);
         setHazards([]);
@@ -128,36 +125,31 @@ export default function Home() {
     setStep(step + 1);
   };
 
-  // --- API HANDLER (FIXED) ---
   const generateRAMS = async () => {
-    setIsGenerating(true); // FIXED: Replaced setLoading with setIsGenerating
-    setStatus("Consulting AI Model...");
-
+    setIsGenerating(true);
     try {
-      // 1. Attempt to call the backend API
+      // 1. Attempt API Call
       const res = await fetch("/api/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ ...formData, hazards, answers }),
       });
-
+      
       let apiData = {};
       if (res.ok) {
         apiData = await res.json();
-        setStatus("AI Data Received. Building PDF...");
       } else {
         console.warn("API Error, using local fallback");
-        setStatus("Using Standard Template...");
       }
-
-      // 2. Generate PDF using API data OR fallback to local state
-      createPDF(apiData || {}); 
+      
+      // 2. Generate PDF
+      createPDF(apiData); 
       
     } catch (e: any) { 
-      console.error("Generation Error:", e);
-      createPDF({}); // Fallback
+        console.error(e);
+        createPDF({}); // Fallback
     } 
-    finally { setIsGenerating(false); } // FIXED: Replaced setLoading with setIsGenerating
+    finally { setIsGenerating(false); }
   };
 
   // --- PROFESSIONAL PDF ENGINE ---
@@ -189,11 +181,11 @@ export default function Home() {
     const drawHeader = (doc: any) => {
         doc.setDrawColor(0); doc.setLineWidth(0.1);
         doc.setFont("helvetica", "bold"); doc.setFontSize(11);
-        doc.text("RISK ASSESSMENT & METHOD STATEMENT", margin, 12); // Top Left
+        doc.text("RISK ASSESSMENT & METHOD STATEMENT", margin, 12);
         
         doc.setFontSize(9); doc.setFont("helvetica", "normal");
         const rightText = `Ref: ${formData.projectRef || "N/A"} | Date: ${formData.startDate}`;
-        doc.text(rightText, pageWidth - margin, 12, { align: "right" }); // Top Right
+        doc.text(rightText, pageWidth - margin, 12, { align: "right" });
         
         doc.line(margin, 15, pageWidth - margin, 15);
     };
@@ -227,9 +219,9 @@ export default function Home() {
             ['Prepared By', `${formData.contactName} (Competent Person)`],
             ['Operatives', formData.operatives],
         ],
-        styles: { fontSize: 9, cellPadding: 3, textColor: 0, lineColor: 0, lineWidth: 0.1, overflow: 'linebreak' },
-        headStyles: { fillColor: [230, 230, 230], textColor: 0, fontStyle: 'bold', lineWidth: 0.1, lineColor: 0 },
-        columnStyles: { 0: { fontStyle: 'bold', cellWidth: 50, fillColor: [245, 245, 245] }, 1: { cellWidth: 'auto' } }
+        styles: { fontSize: 9, cellPadding: 3, textColor: 0, lineColor: 0, lineWidth: 0.1 },
+        headStyles: { fillColor: [230, 230, 230], textColor: 0, fontStyle: 'bold' },
+        columnStyles: { 0: { fontStyle: 'bold', cellWidth: 50, fillColor: [245, 245, 245] } }
     });
     // @ts-ignore
     currentY = doc.lastAutoTable.finalY + 12;
@@ -262,7 +254,7 @@ export default function Home() {
             head: [['No.', 'Checklist Question', 'YES', 'NO', 'N/A']],
             body: checkRows,
             theme: 'grid',
-            styles: { fontSize: 9, textColor: 0, lineColor: 0, lineWidth: 0.1, cellPadding: 2, overflow: 'linebreak' },
+            styles: { fontSize: 9, textColor: 0, lineColor: 0, lineWidth: 0.1, cellPadding: 2 },
             headStyles: { fillColor: [230, 230, 230], textColor: 0, fontStyle: 'bold', lineColor: 0 },
             columnStyles: { 0: { cellWidth: 10, halign: 'center' }, 2: { halign: 'center', cellWidth: 15 }, 3: { halign: 'center', cellWidth: 15 }, 4: { halign: 'center', cellWidth: 15 } }
         });
@@ -275,7 +267,7 @@ export default function Home() {
     doc.setFontSize(11); doc.setFont("helvetica", "bold");
     doc.text("4. RISK ASSESSMENT", margin, currentY); currentY += 6;
 
-    // Key
+    // Risk Matrix Key
     doc.setFontSize(8); doc.setFont("helvetica", "italic");
     doc.text("Risk Key: High (15-25), Medium (8-12), Low (1-6)", margin, currentY);
     currentY += 4;
@@ -293,12 +285,7 @@ export default function Home() {
         theme: 'grid',
         styles: { fontSize: 8, textColor: 0, lineColor: 0, lineWidth: 0.1, cellPadding: 3, valign: 'top', overflow: 'linebreak' },
         headStyles: { fillColor: [230, 230, 230], textColor: 0, fontStyle: 'bold' },
-        columnStyles: { 
-          0: { cellWidth: 25, fontStyle: 'bold' }, 
-          1: { cellWidth: 35 }, 
-          3: { cellWidth: 15, halign: 'center' }, 
-          5: { cellWidth: 15, halign: 'center' } 
-        },
+        columnStyles: { 0: { cellWidth: 25, fontStyle: 'bold' }, 3: { cellWidth: 15, halign: 'center' }, 5: { cellWidth: 15, halign: 'center' } },
         // @ts-ignore
         didDrawPage: (d) => { if(d.cursor) currentY = d.cursor.y; }
     });
@@ -310,7 +297,6 @@ export default function Home() {
     doc.setFontSize(11); doc.setFont("helvetica", "bold");
     doc.text("5. METHOD STATEMENT", margin, currentY); currentY += 8;
     
-    // Prefer API Method Steps
     const methodSteps = apiData.method_steps || [
         { t: "5.1 PRE-COMMENCEMENT", d: "Arrive on site, sign in, and conduct a dynamic risk assessment. Establish exclusion zones." },
         { t: "5.2 SAFE ISOLATION", d: "Identify circuits/pipes. Isolate at source. Lock-Off & Tag-Out (LOTO). Prove dead/empty." },
@@ -361,9 +347,9 @@ export default function Home() {
     checkPageBreak(60);
     doc.setFontSize(11); doc.setFont("helvetica", "bold");
     doc.text("7. COSHH / SUBSTANCES", margin, currentY); currentY += 6;
-    
+
     const coshhRows = apiData.coshh || [
-      ['Construction Dust (Silica)', 'Inhalation/Irritation', 'LEV / FFP3 Mask', 'Bagged & Sealed']
+        ['Construction Dust (Silica)', 'Inhalation', 'LEV / FFP3 Mask', 'Bagged & Sealed']
     ];
 
     autoTable(doc, {
@@ -429,6 +415,7 @@ export default function Home() {
     doc.text("I confirm I have read and understood this RAMS, attended the briefing, and agree to work in accordance with it.", margin, currentY);
     currentY += 10;
 
+    // Authorisation Box
     doc.setDrawColor(0); doc.rect(margin, currentY, contentWidth, 45);
     doc.setFont("helvetica", "bold"); doc.text("RAMS Prepared & Approved By (Management):", margin + 5, currentY + 8);
     
@@ -549,7 +536,7 @@ export default function Home() {
               </div>
               
               <div className="mt-6 pt-6 border-t">
-                 <div className="flex gap-4"><button onClick={() => setStep(2)} className="w-1/3 border py-3 rounded">Back</button><button onClick={generateRAMS} disabled={loading} className="w-2/3 bg-green-600 text-white py-3 rounded font-bold flex justify-center items-center gap-2">{loading ? <Loader2 className="animate-spin"/> : <ShieldCheck/>} Generate PDF Pack</button></div>
+                 <div className="flex gap-4"><button onClick={() => setStep(2)} className="w-1/3 border py-3 rounded">Back</button><button onClick={generateRAMS} disabled={isGenerating} className="w-2/3 bg-green-600 text-white py-3 rounded font-bold flex justify-center items-center gap-2">{isGenerating ? <Loader2 className="animate-spin"/> : <ShieldCheck/>} Generate PDF Pack</button></div>
               </div>
             </div>
           )}
