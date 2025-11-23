@@ -1,7 +1,7 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { NextResponse } from "next/server";
 
-export const dynamic = 'force-dynamic'; // Fix for Vercel Caching
+export const dynamic = 'force-dynamic';
 
 const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY || "");
 
@@ -28,7 +28,7 @@ export async function POST(req: Request) {
 
       OUTPUT JSON ONLY (No Markdown):
       {
-        "summary": "Professional summary of works at ${siteAddress}...",
+        "summary": "Professional scope summary...",
         "method_steps": [
           { "t": "5.1 PRE-START", "d": "Arrive at ${siteAddress}, sign in..." },
           { "t": "5.2 SAFETY", "d": "Isolate services..." },
