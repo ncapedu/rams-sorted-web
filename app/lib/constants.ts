@@ -2350,6 +2350,608 @@ const BUILDER_CLUSTERS: Record<string, JobCluster> = {
   }
 };
 
+const CARPENTER_JOINER_CLUSTERS: Record<string, JobCluster> = {
+  "First fix carpentry (domestic)": {
+    desc: "First fix carpentry (domestic) covers structural and concealed timber works carried out before plastering, including fitting door linings, stud walls, floor joists, noggins and basic framing. The work is often carried out in partially completed shells with other trades present and changing levels of access. Materials are typically moved manually and cut to length on site using power saws and hand tools. Care is needed to maintain structural integrity, protect temporary supports and keep escape routes clear throughout.",
+    hazards: ["manual_handling", "work_at_height", "power_tools", "dust_fumes", "slips_trips"],
+    questions: [
+      { id: "q1", label: "Have you agreed a clear sequence of work with other trades before starting the first fix carpentry (domestic)?" },
+      { id: "q2", label: "Are all saws and power tools used for the first fix carpentry (domestic) in good condition, PAT tested where required and fitted with appropriate guards?" },
+      { id: "q3", label: "Is there a plan to keep walkways and escape routes clear of offcuts and materials during the first fix carpentry (domestic)?" },
+      { id: "q4", label: "Will any work at height for the first fix carpentry (domestic) be carried out using suitable access equipment rather than makeshift platforms?" },
+      { id: "q5", label: "Have you confirmed that structural elements installed as part of the first fix carpentry (domestic) are fixed in line with drawings or manufacturer guidance?" }
+    ]
+  },
+
+  "Second fix carpentry (domestic)": {
+    desc: "Second fix carpentry (domestic) involves installing visible finish carpentry such as doors, skirting, architraves, window boards and ironmongery after plastering is complete. The work is carried out in finished or nearly finished spaces where surfaces and furnishings must be protected from damage. Tasks require accurate measuring, cutting and fixing to achieve a neat visual finish. Good housekeeping is essential to avoid damage to floor finishes and to control dust from minor trimming and drilling.",
+    hazards: ["manual_handling", "power_tools", "sharp_objects", "slips_trips"],
+    questions: [
+      { id: "q1", label: "Have you put down suitable floor and surface protection before starting the second fix carpentry (domestic)?" },
+      { id: "q2", label: "Are all mitre saws and hand tools for the second fix carpentry (domestic) set up in a designated cutting area away from occupied spaces where possible?" },
+      { id: "q3", label: "Will offcuts, packaging and fixings from the second fix carpentry (domestic) be regularly cleared to prevent slips and trips?" },
+      { id: "q4", label: "Have you confirmed hinge positions, door swing and ironmongery requirements with the client before fixing items during the second fix carpentry (domestic)?" },
+      { id: "q5", label: "Is suitable extraction or local dust control in place if sanding or trimming is required during the second fix carpentry (domestic)?" }
+    ]
+  },
+
+  "Roof truss installation": {
+    desc: "Roof truss installation involves lifting, positioning and fixing prefabricated trussed rafters to form the primary roof structure. The work is usually carried out at height, often over open floor voids or scaffolds, and may involve working with cranes or mechanical lifting aids. Temporary bracing is required during installation to maintain stability until permanent restraint is in place. Close coordination with the site manager and scaffold contractor is needed to ensure safe access and edge protection.",
+    hazards: ["work_at_height", "manual_handling", "plant_machinery", "falling_objects", "environmental_weather"],
+    questions: [
+      { id: "q1", label: "Has a lifting and handling plan been agreed for the roof truss installation including use of crane or mechanical aids where necessary?" },
+      { id: "q2", label: "Is suitable scaffold or edge protection in place before starting the roof truss installation?" },
+      { id: "q3", label: "Have you confirmed the bracing and restraint requirements from the truss manufacturer for the roof truss installation?" },
+      { id: "q4", label: "Will exclusion zones be set up beneath the work area during the roof truss installation to protect people from falling objects?" },
+      { id: "q5", label: "Have you checked the forecast and agreed to suspend the roof truss installation if wind speeds or weather conditions become unsafe?" }
+    ]
+  },
+
+  "Cut roof construction": {
+    desc: "Cut roof construction involves forming a roof structure on site from loose timber including rafters, purlins, ridges and associated bracing. The work is highly technical, often carried out at height and may be undertaken over partially completed structures. Accurate setting out and marking is required to ensure correct pitches and bearing on walls or steels. Safe access and a clear work platform are critical due to the presence of open edges and temporary conditions.",
+    hazards: ["work_at_height", "manual_handling", "power_tools", "falling_objects", "environmental_weather"],
+    questions: [
+      { id: "q1", label: "Is there a safe working platform with edge protection in place before starting the cut roof construction?" },
+      { id: "q2", label: "Have the spans, loads and bearing details for the cut roof construction been confirmed against drawings or engineering information?" },
+      { id: "q3", label: "Are saws and cutting stations for the cut roof construction set up in a stable, well-lit area away from leading edges?" },
+      { id: "q4", label: "Will temporary bracing and noggins be installed progressively during the cut roof construction to prevent instability?" },
+      { id: "q5", label: "Have you briefed operatives on safe movement and material stacking on the structure during the cut roof construction?" }
+    ]
+  },
+
+  "Joist and floor boarding installation": {
+    desc: "Joist and floor boarding installation involves fixing floor joists, noggins and deck sheets to form new floor structures or strengthen existing ones. The work may be carried out over open voids or existing occupied areas that need protection from falling materials. Accurate levels and spacing are required to support finishes and meet load requirements. Good coordination with other trades is needed to allow for service penetrations and avoid clashes with pipework or cabling.",
+    hazards: ["work_at_height", "manual_handling", "slips_trips", "falling_objects"],
+    questions: [
+      { id: "q1", label: "Have you installed temporary guarding or fall prevention under and around open areas before starting the joist and floor boarding installation?" },
+      { id: "q2", label: "Is there a plan for safe material stacking so that joists and boards used in the joist and floor boarding installation do not overload local areas?" },
+      { id: "q3", label: "Have you coordinated with mechanical and electrical trades regarding penetrations before fixing boards in the joist and floor boarding installation?" },
+      { id: "q4", label: "Will cut-outs and openings created during the joist and floor boarding installation be protected or clearly marked to prevent falls?" },
+      { id: "q5", label: "Have you checked that fixings and joist hangers selected for the joist and floor boarding installation are compatible with the structure and specification?" }
+    ]
+  },
+
+  "Timber stud partition installation": {
+    desc: "Timber stud partition installation involves setting out, erecting and fixing internal non-loadbearing walls using timber studs, head and sole plates. The work is often carried out in partially finished spaces with other trades present and requires accurate measurement for doors, services and linings. Cutting and fixing generate noise and dust which must be controlled in occupied buildings. Partitions may form fire or acoustic barriers, so correct spacing, fixings and linings are essential.",
+    hazards: ["manual_handling", "power_tools", "dust_fumes", "slips_trips"],
+    questions: [
+      { id: "q1", label: "Have you confirmed the locations, thicknesses and heights for the timber stud partition installation before starting?" },
+      { id: "q2", label: "Is a clear route available for moving timber and plasterboard to the work area for the timber stud partition installation?" },
+      { id: "q3", label: "Are suitable dust controls in place when cutting timber during the timber stud partition installation, especially in occupied areas?" },
+      { id: "q4", label: "Will fixings and centres used in the timber stud partition installation meet the required fire and acoustic performance?" },
+      { id: "q5", label: "Have you agreed how to protect adjacent finishes and existing services while carrying out the timber stud partition installation?" }
+    ]
+  },
+
+  "Door lining and frame installation": {
+    desc: "Door lining and frame installation involves fixing timber linings or pre-formed frames into prepared openings to receive doors and ironmongery. The work must achieve plumb, level and square frames to allow correct door operation and clearances. Fixing is usually into masonry or studwork using mechanical fixings and packers. Protection of installed linings is important to prevent damage before second fix is complete.",
+    hazards: ["manual_handling", "power_tools", "sharp_objects", "slips_trips"],
+    questions: [
+      { id: "q1", label: "Have you checked that structural openings are suitable and correctly sized before starting the door lining and frame installation?" },
+      { id: "q2", label: "Are appropriate fixings and packers available for the substrate used in the door lining and frame installation?" },
+      { id: "q3", label: "Is there a plan to protect finished linings from damage after the door lining and frame installation is complete?" },
+      { id: "q4", label: "Will cutting and trimming for the door lining and frame installation be done at a designated cutting area to control dust and noise?" },
+      { id: "q5", label: "Have you confirmed the required door swing direction and ironmongery positions before fixing during the door lining and frame installation?" }
+    ]
+  },
+
+  "Internal door hanging": {
+    desc: "Internal door hanging covers fitting new or replacement internal doors to prepared linings or frames, including trimming, hinging and fitting latches and handles. The work requires precise measuring and controlled cutting to achieve even gaps and smooth operation. Doors can be heavy and awkward to manoeuvre in confined spaces, especially on upper floors. Care is needed to avoid damage to finished floors, walls and existing decorations.",
+    hazards: ["manual_handling", "sharp_objects", "power_tools", "slips_trips"],
+    questions: [
+      { id: "q1", label: "Have you assessed the weight and size of doors for the internal door hanging and arranged team lifts where necessary?" },
+      { id: "q2", label: "Is there adequate space and protection in place to set up a cutting bench for the internal door hanging?" },
+      { id: "q3", label: "Will you check for services or hidden fixings before drilling or screwing into existing frames during the internal door hanging?" },
+      { id: "q4", label: "Have you selected appropriate hinges and fixings for the door type and usage in the internal door hanging?" },
+      { id: "q5", label: "Will you keep the work area clear of offcuts, screws and tools while carrying out the internal door hanging to avoid trips and puncture injuries?" }
+    ]
+  },
+
+  "Fire door installation (FD30/FD60)": {
+    desc: "Fire door installation (FD30/FD60) involves fitting certified fire-resisting door sets in accordance with manufacturers' instructions and fire strategy requirements. The work must strictly control clearances, intumescent seals, hinges and closers to maintain fire performance. Survey and preparation of openings may be required to achieve suitable substrates and frame fixings. Accurate labelling and documentation are essential to demonstrate compliance and allow future inspection.",
+    hazards: ["manual_handling", "power_tools", "sharp_objects", "fire_explosion"],
+    questions: [
+      { id: "q1", label: "Have you confirmed the specification and certification details for the fire door installation (FD30/FD60) with reference to the fire strategy?" },
+      { id: "q2", label: "Are manufacturers' installation instructions available on site for the fire door installation (FD30/FD60) and understood by operatives?" },
+      { id: "q3", label: "Will any trimming of leaves or frames during the fire door installation (FD30/FD60) remain within the permitted tolerances?" },
+      { id: "q4", label: "Have you checked that intumescent seals, hinges, closers and ironmongery used in the fire door installation (FD30/FD60) are all compatible and correctly rated?" },
+      { id: "q5", label: "Is a process in place to label and record each opening completed as part of the fire door installation (FD30/FD60) for future inspection?" }
+    ]
+  },
+
+  "External door and frame installation": {
+    desc: "External door and frame installation covers fitting timber or composite door sets to external openings, often involving weather seals, thresholds and security ironmongery. The work is exposed to weather and may involve working at steps or platforms to access the opening. Accurate fitting is necessary to maintain security, weather tightness and smooth operation. Surrounding finishes and glazing units need to be protected during removal and installation.",
+    hazards: ["manual_handling", "work_at_height", "environmental_weather", "sharp_objects"],
+    questions: [
+      { id: "q1", label: "Have you assessed the access and any need for steps or platforms before starting the external door and frame installation?" },
+      { id: "q2", label: "Is there a plan to protect glazing, brickwork and internal finishes from damage during the external door and frame installation?" },
+      { id: "q3", label: "Will adequate temporary security be maintained if the external door and frame installation extends overnight?" },
+      { id: "q4", label: "Have you confirmed threshold levels and weathering details to prevent water ingress after the external door and frame installation?" },
+      { id: "q5", label: "Are all locks, cylinders and ironmongery for the external door and frame installation suitable for the security requirements agreed with the client?" }
+    ]
+  },
+
+  "Skirting board installation": {
+    desc: "Skirting board installation involves fixing skirting profiles to the base of walls to protect finishes and provide a neat junction with the floor. It requires accurate measuring, mitring and scribing around corners and features such as door frames. The work is usually undertaken in finished or nearly finished spaces where floors and decorations must be protected. Cutting and fixing is typically done using saws, nail guns or hand tools.",
+    hazards: ["manual_handling", "sharp_objects", "power_tools", "slips_trips"],
+    questions: [
+      { id: "q1", label: "Have you put suitable protection in place for floor finishes before starting the skirting board installation?" },
+      { id: "q2", label: "Are cutting and nailing tools for the skirting board installation set up safely with cables routed to avoid trip hazards?" },
+      { id: "q3", label: "Will waste pieces and fixings from the skirting board installation be regularly cleared from walkways?" },
+      { id: "q4", label: "Have you identified any services in walls that could be hit by fixings during the skirting board installation?" },
+      { id: "q5", label: "Is appropriate eye and hearing protection available if nail guns or power saws are used during the skirting board installation?" }
+    ]
+  },
+
+  "Architrave installation": {
+    desc: "Architrave installation consists of fixing decorative trims around door and window openings to cover junctions between frames and walls. The work requires careful marking, mitring and nailing to achieve tight joints and consistent reveals. It is normally carried out in completed or nearly completed rooms where floors, decorations and frames must be protected. Power tools and sharp hand tools are used for cutting and fixing.",
+    hazards: ["manual_handling", "sharp_objects", "power_tools", "slips_trips"],
+    questions: [
+      { id: "q1", label: "Have you protected door linings and finished surfaces before starting the architrave installation?" },
+      { id: "q2", label: "Is there an agreed cutting area for the architrave installation with adequate lighting and stable work supports?" },
+      { id: "q3", label: "Will cables and hoses for tools used during the architrave installation be routed so they do not create trip hazards?" },
+      { id: "q4", label: "Have you checked wall flatness and frame alignment to minimise the need for excessive packing during the architrave installation?" },
+      { id: "q5", label: "Are suitable fixings and adhesives available for the substrate being fixed to during the architrave installation?" }
+    ]
+  },
+
+  "Window board and reveal finishing": {
+    desc: "Window board and reveal finishing involves fitting timber boards and trims to the internal bases and sides of window openings. The work must allow for movement, moisture and any heating elements beneath while achieving a neat seal to frames and plaster. Boards may need to be cut around radiators, pipes or other obstructions. Protection of existing glazing, sills and floor finishes is important during cutting and fixing.",
+    hazards: ["manual_handling", "sharp_objects", "power_tools", "dust_fumes"],
+    questions: [
+      { id: "q1", label: "Have you protected existing windows, glass and floor finishes before starting the window board and reveal finishing?" },
+      { id: "q2", label: "Is there a safe cutting area set up for trimming boards during the window board and reveal finishing?" },
+      { id: "q3", label: "Will you inspect for hidden services before drilling or fixing during the window board and reveal finishing?" },
+      { id: "q4", label: "Have you considered expansion gaps and moisture risks when detailing joints for the window board and reveal finishing?" },
+      { id: "q5", label: "Are appropriate sealants and fixings available to complete the window board and reveal finishing to the specified standard?" }
+    ]
+  },
+
+  "Kitchen base and wall unit installation": {
+    desc: "Kitchen base and wall unit installation covers setting out, levelling, fixing and aligning cabinet carcasses within a kitchen area. The work includes securing units to walls and floors, allowing for services, appliances and worktops. Accurate coordination with plumbing and electrical trades is essential to avoid clashes and to maintain clearances. Protection of new units and existing finishes is required throughout the installation.",
+    hazards: ["manual_handling", "power_tools", "sharp_objects", "slips_trips"],
+    questions: [
+      { id: "q1", label: "Have you checked the kitchen layout, services positions and appliance sizes before starting the kitchen base and wall unit installation?" },
+      { id: "q2", label: "Is there a plan for safe manual handling of units and tall larders during the kitchen base and wall unit installation?" },
+      { id: "q3", label: "Will fixings used in the kitchen base and wall unit installation be appropriate for the wall construction and loading?" },
+      { id: "q4", label: "Have you protected worktops, flooring and new units from damage while carrying out the kitchen base and wall unit installation?" },
+      { id: "q5", label: "Is waste packaging and offcut material from the kitchen base and wall unit installation being cleared regularly to keep routes safe?" }
+    ]
+  },
+
+  "Kitchen worktop fitting and joining": {
+    desc: "Kitchen worktop fitting and joining involves cutting, scribing and fixing laminate, timber or composite worktops to kitchen units. The task can involve heavy, awkward lifts and precision jointing using specialist jigs and routers. Dust and noise levels can be high when cutting and edging. Cut-outs for sinks and hobs must be accurately positioned and sealed to prevent future water damage.",
+    hazards: ["manual_handling", "power_tools", "dust_fumes", "sharp_objects"],
+    questions: [
+      { id: "q1", label: "Have you planned safe lifting methods and team assistance for handling long or heavy tops during the kitchen worktop fitting and joining?" },
+      { id: "q2", label: "Is the router and jig setup for the kitchen worktop fitting and joining stable, well lit and correctly guarded?" },
+      { id: "q3", label: "Are dust extraction or respiratory controls in place while cutting tops during the kitchen worktop fitting and joining?" },
+      { id: "q4", label: "Have you confirmed sink, hob and appliance positions before making cut-outs as part of the kitchen worktop fitting and joining?" },
+      { id: "q5", label: "Will all exposed edges and joints created during the kitchen worktop fitting and joining be sealed to prevent moisture ingress?" }
+    ]
+  },
+
+  "Flat-pack and built-in furniture assembly": {
+    desc: "Flat-pack and built-in furniture assembly covers constructing and fixing wardrobes, units and storage furniture supplied in kit or modular form. The work may be carried out in confined bedrooms or living areas with limited space to lay out components. Heavy panels, tall units and mirrors require careful handling and fixing to walls to prevent tipping. Packaging and offcuts must be controlled to avoid clutter and trip hazards.",
+    hazards: ["manual_handling", "sharp_objects", "slips_trips"],
+    questions: [
+      { id: "q1", label: "Have you identified a clear, level area to lay out components before starting the flat-pack and built-in furniture assembly?" },
+      { id: "q2", label: "Will you use team lifts or aids for tall or heavy units during the flat-pack and built-in furniture assembly?" },
+      { id: "q3", label: "Are you fixing tall items assembled during the flat-pack and built-in furniture assembly back to walls where required to prevent tipping?" },
+      { id: "q4", label: "Is packaging being broken down and removed regularly during the flat-pack and built-in furniture assembly to keep routes clear?" },
+      { id: "q5", label: "Have you checked for hidden services before drilling in walls during the flat-pack and built-in furniture assembly?" }
+    ]
+  },
+
+  "Built-in wardrobes and bedroom storage": {
+    desc: "Built-in wardrobes and bedroom storage installation involves constructing custom or modular storage systems fitted wall-to-wall or floor-to-ceiling. The work often takes place in confined bedrooms with existing decorations and floor coverings that must be protected. Units may require precise scribing to walls and ceilings and secure fixings to prevent movement. Sliding doors and mirrors introduce additional handling and breakage risks.",
+    hazards: ["manual_handling", "sharp_objects", "slips_trips", "power_tools"],
+    questions: [
+      { id: "q1", label: "Have you protected carpets, flooring and existing decorations before starting the built-in wardrobes and bedroom storage installation?" },
+      { id: "q2", label: "Will tall wardrobe carcasses for the built-in wardrobes and bedroom storage be lifted and fixed using safe team handling?" },
+      { id: "q3", label: "Have you considered the weight and fixing requirements for any mirrors or glass doors within the built-in wardrobes and bedroom storage?" },
+      { id: "q4", label: "Is there a plan to manage dust and noise during the built-in wardrobes and bedroom storage scribing and trimming works?" },
+      { id: "q5", label: "Will all units installed as part of the built-in wardrobes and bedroom storage be securely fixed back to walls to prevent tipping?" }
+    ]
+  },
+
+  "Alcove units and media wall joinery": {
+    desc: "Alcove units and media wall joinery consists of bespoke storage and display units built into recesses or around media equipment. The work typically involves framing, cabinet construction, paneling and integration of cable routes and ventilation openings. Accurate coordination with electrical points and AV cabling is required. Finishes are highly visible, so careful handling and protection of materials are essential.",
+    hazards: ["manual_handling", "sharp_objects", "power_tools", "dust_fumes"],
+    questions: [
+      { id: "q1", label: "Have you agreed cable routes, socket positions and ventilation openings before starting the alcove units and media wall joinery?" },
+      { id: "q2", label: "Is there sufficient space and protection to assemble panels and carcasses for the alcove units and media wall joinery without damaging finishes?" },
+      { id: "q3", label: "Will cutting for the alcove units and media wall joinery be done using appropriate extraction or dust control?" },
+      { id: "q4", label: "Have you checked wall construction and fixings for any heavy equipment supported by the alcove units and media wall joinery?" },
+      { id: "q5", label: "Is there a plan to label and leave accessible any service access panels incorporated into the alcove units and media wall joinery?" }
+    ]
+  },
+
+  "Loft hatch installation": {
+    desc: "Loft hatch installation involves cutting and forming an opening in a ceiling or modifying an existing opening to fit a purpose-made loft hatch. The work may be carried out on steps, platforms or from within the loft space and requires protection from falling debris below. Checks for services in the ceiling zone are essential before cutting. Edges of the opening must be properly framed and finished to maintain structural integrity and fire performance where required.",
+    hazards: ["work_at_height", "dust_fumes", "sharp_objects", "manual_handling"],
+    questions: [
+      { id: "q1", label: "Have you checked for electrical cables, pipes or other services before cutting during the loft hatch installation?" },
+      { id: "q2", label: "Is safe access such as a platform or stable steps provided for the loft hatch installation both below and above the ceiling?" },
+      { id: "q3", label: "Will dust sheets and protection be used to protect the area beneath the loft hatch installation from debris?" },
+      { id: "q4", label: "Have you ensured that trimmers and framing used in the loft hatch installation maintain structural and fire performance requirements?" },
+      { id: "q5", label: "Is the new hatch unit selected for the loft hatch installation suitable for the opening size and insulation thickness?" }
+    ]
+  },
+
+  "Loft ladder installation": {
+    desc: "Loft ladder installation involves fitting a folding or sliding ladder unit to provide safe access into the loft space from below. The work usually includes fixing the ladder to the hatch frame, adjusting lengths and testing operation. Tasks are performed at height from steps or platforms and may require working partly within the loft. Clear fall zones must be maintained around the opening while work is in progress.",
+    hazards: ["work_at_height", "manual_handling", "slips_trips"],
+    questions: [
+      { id: "q1", label: "Have you provided a stable working platform or steps with handhold for the loft ladder installation?" },
+      { id: "q2", label: "Is there a clear area beneath the opening to prevent people walking under the work during the loft ladder installation?" },
+      { id: "q3", label: "Will you test the loft ladder installation for safe operation, load and locking before handover to the client?" },
+      { id: "q4", label: "Have you adjusted and trimmed the ladder correctly during the loft ladder installation to avoid trip edges or unstable footing?" },
+      { id: "q5", label: "Are all fixings and brackets used in the loft ladder installation tightened and checked against manufacturers' instructions?" }
+    ]
+  },
+
+  "Loft boarding for storage": {
+    desc: "Loft boarding for storage involves laying timber or panel boards across joists or raised frames to create a usable storage deck. The work is carried out in confined, poorly lit spaces with restricted headroom and possible trip hazards from insulation and joists. Care must be taken not to overload existing structures and to maintain ventilation and insulation performance. Access through the hatch and safe footing between joists are critical considerations.",
+    hazards: ["work_at_height", "manual_handling", "slips_trips", "poor_lighting"],
+    questions: [
+      { id: "q1", label: "Have you assessed the existing structure and loading limits before starting the loft boarding for storage?" },
+      { id: "q2", label: "Is adequate temporary lighting provided in the loft space for the loft boarding for storage?" },
+      { id: "q3", label: "Will raised platforms or supports be used during the loft boarding for storage to avoid compressing insulation and bridging services?" },
+      { id: "q4", label: "Are measures in place to prevent falls through the hatch opening during the loft boarding for storage?" },
+      { id: "q5", label: "Have you briefed operatives on safe movement between joists while carrying out the loft boarding for storage?" }
+    ]
+  },
+
+  "Timber decking installation (ground level)": {
+    desc: "Timber decking installation (ground level) covers constructing low-level deck areas using joists and deck boards supported on pads, posts or slabs. Work is undertaken outdoors with variable weather and ground conditions. Accurate setting out and support spacing are required to prevent movement and ponding. Good housekeeping is needed to control slips, offcuts and protruding fixings during construction.",
+    hazards: ["manual_handling", "environmental_weather", "slips_trips", "sharp_objects"],
+    questions: [
+      { id: "q1", label: "Have you checked ground conditions, services and levels before starting the timber decking installation (ground level)?" },
+      { id: "q2", label: "Will materials for the timber decking installation (ground level) be stored on firm, level ground to prevent collapse or trip hazards?" },
+      { id: "q3", label: "Are suitable weather-resistant fixings and treatments planned for the timber decking installation (ground level)?" },
+      { id: "q4", label: "Is there a plan to keep the work area for the timber decking installation (ground level) free from protruding screws, offcuts and nails?" },
+      { id: "q5", label: "Have you considered drainage and slip resistance when setting falls and board direction for the timber decking installation (ground level)?" }
+    ]
+  },
+
+  "Raised timber decking with steps": {
+    desc: "Raised timber decking with steps involves building elevated deck platforms and associated access steps or stairs. The work introduces greater fall risks from exposed edges and temporary conditions during construction. Structural posts, handrails and balustrades must be designed and installed to resist loads and provide safe guarding. Controls are required to prevent access beneath unstable areas and to manage weather effects on footing stability.",
+    hazards: ["work_at_height", "manual_handling", "slips_trips", "falling_objects"],
+    questions: [
+      { id: "q1", label: "Have you installed temporary edge protection or barriers during the raised timber decking with steps installation?" },
+      { id: "q2", label: "Are post foundations and supports for the raised timber decking with steps adequate for the load and ground conditions?" },
+      { id: "q3", label: "Will handrails and balustrades for the raised timber decking with steps be installed to the required height and spacing to prevent falls?" },
+      { id: "q4", label: "Is access beneath the structure restricted during the raised timber decking with steps construction to avoid injury from falling objects?" },
+      { id: "q5", label: "Have you planned slip-resistant finishes and drainage for treads and landings as part of the raised timber decking with steps?" }
+    ]
+  },
+
+  "Timber garden fencing and posts": {
+    desc: "Timber garden fencing and posts installation involves setting posts in the ground and fixing fence panels or rails between them. The work includes digging or augering post holes, handling heavy panels and working along property boundaries. Ground conditions, underground services and adjacent structures must be considered. Cement or post-mix is frequently used to secure posts, requiring manual handling and safe mixing practices.",
+    hazards: ["manual_handling", "excavation", "environmental_weather", "slips_trips"],
+    questions: [
+      { id: "q1", label: "Have you checked for underground services before digging during the timber garden fencing and posts installation?" },
+      { id: "q2", label: "Is there a plan for safe manual handling or mechanical assistance when lifting panels for the timber garden fencing and posts installation?" },
+      { id: "q3", label: "Will excavated holes and materials from the timber garden fencing and posts installation be managed to avoid trip and collapse risks?" },
+      { id: "q4", label: "Have you considered wind loading and post spacing for the timber garden fencing and posts installation to prevent future failure?" },
+      { id: "q5", label: "Are measures in place to keep the work area for the timber garden fencing and posts installation secure from the public during work?" }
+    ]
+  },
+
+  "Timber gates installation": {
+    desc: "Timber gates installation includes fitting pedestrian or driveway gates and their supporting posts, hinges and latches. Gates can be heavy and awkward to hold while alignment is checked. Ground levels, vehicle movements and security needs all influence the design. The work may be carried out adjacent to live roads or shared access routes, requiring coordination to prevent vehicle–worker interface risks.",
+    hazards: ["manual_handling", "moving_vehicles", "sharp_objects", "slips_trips"],
+    questions: [
+      { id: "q1", label: "Have you planned how to support and lift heavy leaves safely during the timber gates installation?" },
+      { id: "q2", label: "Is there a traffic management plan where the timber gates installation is taking place near live driveways or roads?" },
+      { id: "q3", label: "Will hinges, bolts and locks used in the timber gates installation be suitable for the gate weight and security requirement?" },
+      { id: "q4", label: "Have you checked clear opening widths and ground falls before fixing during the timber gates installation?" },
+      { id: "q5", label: "Is the work area for the timber gates installation kept tidy with offcuts and packaging removed from access routes?" }
+    ]
+  },
+
+  "Garden shed / timber outbuilding construction": {
+    desc: "Garden shed / timber outbuilding construction involves assembling prefabricated or custom-built timber structures for storage or workspace. The work includes forming bases, erecting wall panels, fitting roofs and installing doors and windows. Manual handling demands can be significant when lifting panels and roofing materials. Safe use of ladders or platforms is required when working at height on the roof or high walls.",
+    hazards: ["manual_handling", "work_at_height", "environmental_weather", "power_tools"],
+    questions: [
+      { id: "q1", label: "Have you confirmed that the base is level and suitable before starting the garden shed / timber outbuilding construction?" },
+      { id: "q2", label: "Will team lifting or aids be used for wall and roof panels during the garden shed / timber outbuilding construction?" },
+      { id: "q3", label: "Is suitable access equipment provided for fixing roofing materials during the garden shed / timber outbuilding construction?" },
+      { id: "q4", label: "Have you planned weather protection or safe stopping points if the garden shed / timber outbuilding construction cannot be completed in one visit?" },
+      { id: "q5", label: "Are all power tools used in the garden shed / timber outbuilding construction maintained, guarded and used with appropriate PPE?" }
+    ]
+  },
+
+  "Timber pergola or gazebo installation": {
+    desc: "Timber pergola or gazebo installation covers constructing open or partially enclosed timber structures in gardens or outdoor spaces. The work requires setting out post locations, installing footings or anchors and fixing beams, rafters and bracing above head height. Stability of posts during installation is critical, as is the integrity of fixings exposed to weather. Work is carried out externally with variable ground conditions and weather exposure.",
+    hazards: ["work_at_height", "manual_handling", "environmental_weather", "falling_objects"],
+    questions: [
+      { id: "q1", label: "Have you confirmed footing details and post anchor requirements before starting the timber pergola or gazebo installation?" },
+      { id: "q2", label: "Will posts be braced or temporarily supported during the timber pergola or gazebo installation to prevent collapse?" },
+      { id: "q3", label: "Is safe access in place for fixing beams and rafters overhead during the timber pergola or gazebo installation?" },
+      { id: "q4", label: "Have you considered wind loading and fixings durability for the completed timber pergola or gazebo installation?" },
+      { id: "q5", label: "Is the work area for the timber pergola or gazebo installation segregated from members of the public and householders?" }
+    ]
+  },
+
+  "Timber carport / canopy frame": {
+    desc: "Timber carport / canopy frame installation involves building timber-framed shelter structures attached to or adjacent to existing buildings. The work includes setting posts, beams and rafters and coordinating with roof coverings or glazing. Height and proximity to vehicles introduce additional risks during construction. Accurate fixing to existing structures must be achieved without compromising structural integrity or weather tightness.",
+    hazards: ["work_at_height", "manual_handling", "moving_vehicles", "environmental_weather"],
+    questions: [
+      { id: "q1", label: "Has access for vehicles been controlled or restricted during the timber carport / canopy frame installation?" },
+      { id: "q2", label: "Are posts, anchors and connections for the timber carport / canopy frame installation designed for expected snow and wind loading?" },
+      { id: "q3", label: "Is safe access in place for working at height on beams and rafters during the timber carport / canopy frame installation?" },
+      { id: "q4", label: "Have you checked for services where the timber carport / canopy frame installation connects to existing buildings?" },
+      { id: "q5", label: "Will temporary supports be used during the timber carport / canopy frame installation to prevent instability before completion?" }
+    ]
+  },
+
+  "Timber cladding installation (external)": {
+    desc: "Timber cladding installation (external) covers fixing timber boards or panels to external walls or facades over battens and membranes. The work is frequently carried out from scaffolds or MEWPs and involves cutting and handling long sections. Detailing around windows, corners and penetrations must maintain weather tightness and ventilation. Fire performance and fixings must follow specification, particularly on multi-storey buildings.",
+    hazards: ["work_at_height", "manual_handling", "environmental_weather", "power_tools"],
+    questions: [
+      { id: "q1", label: "Is suitable scaffold or access equipment in place before starting the timber cladding installation (external)?" },
+      { id: "q2", label: "Have you confirmed cavity barriers, fire breaks and membrane details for the timber cladding installation (external)?" },
+      { id: "q3", label: "Will cutting stations for the timber cladding installation (external) be set up with dust and noise controls away from the public?" },
+      { id: "q4", label: "Are fixings and batten sizing for the timber cladding installation (external) in line with the engineer or manufacturer requirements?" },
+      { id: "q5", label: "Have you planned safe material lifting and handling to the workface for the timber cladding installation (external)?" }
+    ]
+  },
+
+  "Timber cladding installation (internal feature walls)": {
+    desc: "Timber cladding installation (internal feature walls) involves fixing decorative timber panels or boards to interior walls and ceilings. The work is often carried out in finished spaces that must be protected from dust and damage. Fixings must be suitable for the substrate and any fire or acoustic requirements. Accurate set-out is required to align patterns with openings, corners and ceilings.",
+    hazards: ["manual_handling", "dust_fumes", "sharp_objects", "slips_trips"],
+    questions: [
+      { id: "q1", label: "Have you put dust sheets and protection in place before starting the timber cladding installation (internal feature walls)?" },
+      { id: "q2", label: "Will a suitable extraction or dust control method be used when cutting boards for the timber cladding installation (internal feature walls)?" },
+      { id: "q3", label: "Are fixings chosen for the timber cladding installation (internal feature walls) appropriate for the wall construction?" },
+      { id: "q4", label: "Have you checked for hidden services behind walls prior to nailing or screwing during the timber cladding installation (internal feature walls)?" },
+      { id: "q5", label: "Is waste packaging and offcut material from the timber cladding installation (internal feature walls) being removed regularly to keep floors clear?" }
+    ]
+  },
+
+  "Floorboard repair and replacement": {
+    desc: "Floorboard repair and replacement involves lifting damaged boards, inspecting joists and refitting or replacing boards as required. The work may expose services running below the floor and can leave temporary openings and trip hazards if not managed correctly. Noise and dust can affect occupants in residential properties. Accurate fixing is needed to prevent squeaks and movement under future loads.",
+    hazards: ["manual_handling", "slips_trips", "sharp_objects", "poor_lighting"],
+    questions: [
+      { id: "q1", label: "Have you identified and marked all openings to prevent falls during the floorboard repair and replacement?" },
+      { id: "q2", label: "Will you isolate or visibly identify services before cutting or lifting boards during the floorboard repair and replacement?" },
+      { id: "q3", label: "Is adequate lighting provided in the work area for the floorboard repair and replacement, especially in voids?" },
+      { id: "q4", label: "Are suitable fixings being used to secure boards during the floorboard repair and replacement to prevent future loosening?" },
+      { id: "q5", label: "Is waste timber and protruding nails removed promptly during the floorboard repair and replacement to avoid injuries?" }
+    ]
+  },
+
+  "Timber floor levelling and strengthening": {
+    desc: "Timber floor levelling and strengthening involves adding new joists, noggins or overlays to correct slopes and improve structural performance. The work may require partial strip-out of existing finishes and careful assessment of existing supports. Activities can create uneven surfaces and temporary trip hazards while works are in progress. Coordination with other trades is needed where floors support partitions, bathrooms or services.",
+    hazards: ["manual_handling", "slips_trips", "dust_fumes", "structural_collapse"],
+    questions: [
+      { id: "q1", label: "Have you assessed the existing structure and consulted engineering information before starting the timber floor levelling and strengthening?" },
+      { id: "q2", label: "Will temporary barriers or signage be used to prevent access across unsafe areas during the timber floor levelling and strengthening?" },
+      { id: "q3", label: "Are dust and noise from cutting controlled appropriately during the timber floor levelling and strengthening?" },
+      { id: "q4", label: "Have you identified any walls or services that rely on existing floor support before altering them in the timber floor levelling and strengthening?" },
+      { id: "q5", label: "Is there a plan for re-instating finishes once the timber floor levelling and strengthening work is complete to remove trip hazards?" }
+    ]
+  },
+
+  "Staircase installation (new stair)": {
+    desc: "Staircase installation (new stair) involves fitting complete stair flights or modular stair components within a void or between floors. The work includes lifting heavy and awkward components, aligning landings and fixing to supports. Open edges and fall risks are significant until guarding is installed. Coordination with structural supports, headroom requirements and finishes is crucial for compliance and safe use.",
+    hazards: ["work_at_height", "manual_handling", "falling_objects", "slips_trips"],
+    questions: [
+      { id: "q1", label: "Have you planned lifting methods and routes for stair flights before starting the staircase installation (new stair)?" },
+      { id: "q2", label: "Are temporary guarding or barriers installed around voids during the staircase installation (new stair)?" },
+      { id: "q3", label: "Will the staircase installation (new stair) be fixed to suitable structural supports in line with drawings and specifications?" },
+      { id: "q4", label: "Have you confirmed headroom, riser heights and going dimensions during the staircase installation (new stair) to meet regulations?" },
+      { id: "q5", label: "Is the work area below the staircase installation (new stair) controlled to prevent people passing under while fixing overhead?" }
+    ]
+  },
+
+  "Stair refurbishment (treads/risers over-clad)": {
+    desc: "Stair refurbishment (treads/risers over-clad) involves over-boarding or re-finishing existing stairs with new treads, risers or nosings. The work is carried out in circulation routes used by occupants and can create immediate trip hazards if stairs are left partly complete. Materials must be securely fixed and meet slip resistance requirements. Dust and noise must be controlled, especially in occupied dwellings.",
+    hazards: ["slips_trips", "manual_handling", "sharp_objects"],
+    questions: [
+      { id: "q1", label: "Have you planned how to maintain safe access or agreed alternative routes during the stair refurbishment (treads/risers over-clad)?" },
+      { id: "q2", label: "Will treads and nosings used in the stair refurbishment (treads/risers over-clad) provide adequate slip resistance?" },
+      { id: "q3", label: "Are all old fixings, nails and staples removed or made safe during the stair refurbishment (treads/risers over-clad)?" },
+      { id: "q4", label: "Is dust from cutting and sanding controlled during the stair refurbishment (treads/risers over-clad), particularly in occupied areas?" },
+      { id: "q5", label: "Will stairs only be handed back to occupants once the stair refurbishment (treads/risers over-clad) is fully complete and safe?" }
+    ]
+  },
+
+  "Balustrade and handrail installation": {
+    desc: "Balustrade and handrail installation covers fitting guarding and handrails to stairs, landings, decks and balconies. The work is critical for preventing falls from height and must meet spacing, height and loading requirements. Tasks may be carried out at exposed edges using steps or platforms. Components can be heavy and awkward, especially on tight staircases.",
+    hazards: ["work_at_height", "manual_handling", "falling_objects", "sharp_objects"],
+    questions: [
+      { id: "q1", label: "Have you confirmed the required heights and gap dimensions for the balustrade and handrail installation to meet regulations?" },
+      { id: "q2", label: "Is safe access in place for working near exposed edges during the balustrade and handrail installation?" },
+      { id: "q3", label: "Will components used in the balustrade and handrail installation be securely fixed to suitable substrates?" },
+      { id: "q4", label: "Are you controlling the risk of dropped tools or materials to lower levels during the balustrade and handrail installation?" },
+      { id: "q5", label: "Have you ensured there are no sharp projections or snagging hazards following the balustrade and handrail installation?" }
+    ]
+  },
+
+  "Newel post replacement": {
+    desc: "Newel post replacement involves removing and replacing structural or semi-structural posts at the ends and junctions of stair balustrades. The work requires careful cutting and fixing to avoid compromising stair stability. Operations often occur on live stairs used by occupants. Temporary guarding or support may be needed while posts are removed.",
+    hazards: ["work_at_height", "slips_trips", "sharp_objects", "manual_handling"],
+    questions: [
+      { id: "q1", label: "Have you assessed the structural role of the existing post before starting the newel post replacement?" },
+      { id: "q2", label: "Will temporary support or guarding be installed during the newel post replacement to prevent falls?" },
+      { id: "q3", label: "Are cutting and fixing operations for the newel post replacement planned to avoid damaging stairs or finishes?" },
+      { id: "q4", label: "Have you agreed access arrangements with the client while the newel post replacement is ongoing?" },
+      { id: "q5", label: "Will the newel post replacement be fixed in accordance with manufacturer or design details to restore full stability?" }
+    ]
+  },
+
+  "Boxing-in of services (pipes/soil stacks)": {
+    desc: "Boxing-in of services (pipes/soil stacks) involves constructing timber frameworks and panels to conceal services while allowing for access and ventilation where required. The work includes working in bathrooms, plant areas and circulation spaces with existing finishes and fixtures. Fixings must avoid damaging hidden pipework or cables. Panels may need to be demountable for maintenance.",
+    hazards: ["manual_handling", "sharp_objects", "power_tools", "slips_trips"],
+    questions: [
+      { id: "q1", label: "Have you confirmed the exact route of services before starting the boxing-in of services (pipes/soil stacks)?" },
+      { id: "q2", label: "Will fixings for the boxing-in of services (pipes/soil stacks) be located to avoid puncturing pipes or cables?" },
+      { id: "q3", label: "Is provision being made for access panels where required as part of the boxing-in of services (pipes/soil stacks)?" },
+      { id: "q4", label: "Are you controlling dust and protecting existing sanitaryware and finishes during the boxing-in of services (pipes/soil stacks)?" },
+      { id: "q5", label: "Will any boxing installed as part of the boxing-in of services (pipes/soil stacks) be adequately supported and fixed to resist knocks?" }
+    ]
+  },
+
+  "Pipe and cable boxing to corridors": {
+    desc: "Pipe and cable boxing to corridors covers forming long runs of timber and board enclosures to conceal services within circulation routes. The work is carried out in areas used by occupants and must be sequenced to maintain safe passage. Fire stopping and compartmentation requirements must be maintained at penetrations and junctions. Fixings must be robust to resist everyday knocks and impacts.",
+    hazards: ["manual_handling", "slips_trips", "fire_explosion", "sharp_objects"],
+    questions: [
+      { id: "q1", label: "Have you reviewed fire strategy and compartmentation requirements before starting the pipe and cable boxing to corridors?" },
+      { id: "q2", label: "Will you maintain adequate corridor width and emergency escape routes during the pipe and cable boxing to corridors?" },
+      { id: "q3", label: "Are suitable supports and fixings selected to prevent sagging or collapse of the pipe and cable boxing to corridors?" },
+      { id: "q4", label: "Is dust and noise being controlled while cutting materials for the pipe and cable boxing to corridors in occupied buildings?" },
+      { id: "q5", label: "Will any fire-stopping disturbed during the pipe and cable boxing to corridors be reinstated to the correct standard?" }
+    ]
+  },
+
+  "Window frame repair (timber)": {
+    desc: "Window frame repair (timber) involves cutting out decayed areas, splicing in new timber or resin repairs and refitting beads and hardware. Work is usually undertaken on external elevations from ladders, towers or scaffolds and may include lead-based paint or glazing putty. Openings must be controlled to avoid falls and protect occupants below from falling debris or glass.",
+    hazards: ["work_at_height", "sharp_objects", "dust_fumes", "falling_objects"],
+    questions: [
+      { id: "q1", label: "Is appropriate access equipment in place before starting the window frame repair (timber) at height?" },
+      { id: "q2", label: "Have you planned measures to catch or control debris and glass during the window frame repair (timber)?" },
+      { id: "q3", label: "Will suitable respiratory and skin protection be used if old coatings may contain lead during the window frame repair (timber)?" },
+      { id: "q4", label: "Are splices and repair materials for the window frame repair (timber) compatible with existing timber and coatings?" },
+      { id: "q5", label: "Is the area beneath the work cordoned off while the window frame repair (timber) is in progress?" }
+    ]
+  },
+
+  "Door and window ironmongery upgrade": {
+    desc: "Door and window ironmongery upgrade involves replacing or installing locks, handles, hinges and stays on existing timber doors and windows. The work is carried out in occupied buildings with the need to maintain security and safe egress. Small power tools and sharp hand tools are used for morticing and drilling. Doors and windows may be temporarily inoperable while works are underway.",
+    hazards: ["sharp_objects", "power_tools", "slips_trips"],
+    questions: [
+      { id: "q1", label: "Have you agreed how to maintain security and fire escape routes during the door and window ironmongery upgrade?" },
+      { id: "q2", label: "Will drilling and morticing for the door and window ironmongery upgrade be carried out with suitable dust and eye protection?" },
+      { id: "q3", label: "Are you checking for concealed services before fixing into frames during the door and window ironmongery upgrade?" },
+      { id: "q4", label: "Is the work area for the door and window ironmongery upgrade kept free of loose screws, offcuts and packaging?" },
+      { id: "q5", label: "Are all new items fitted during the door and window ironmongery upgrade tested for correct operation before handover?" }
+    ]
+  },
+
+  "Temporary timber works and propping (non-structural)": {
+    desc: "Temporary timber works and propping (non-structural) includes building short-term supports, ramps, platforms or guards to facilitate works on site. These elements are not designed as primary structural supports but must still be stable and safe under anticipated loads. Work is carried out in live construction environments with changing conditions. Good communication with site management is essential to ensure items are removed or adapted as work progresses.",
+    hazards: ["manual_handling", "slips_trips", "work_at_height", "structural_collapse"],
+    questions: [
+      { id: "q1", label: "Have you agreed loadings and intended use for the temporary timber works and propping (non-structural) with site management?" },
+      { id: "q2", label: "Will the temporary timber works and propping (non-structural) be checked and signed off before being put into use?" },
+      { id: "q3", label: "Are all components for the temporary timber works and propping (non-structural) suitably braced and fixed to prevent movement?" },
+      { id: "q4", label: "Is there a plan for regular inspection of the temporary timber works and propping (non-structural) while they remain in place?" },
+      { id: "q5", label: "Have you made sure that the temporary timber works and propping (non-structural) do not obstruct emergency routes or access for others?" }
+    ]
+  },
+
+  "Site hoarding and timber barriers": {
+    desc: "Site hoarding and timber barriers installation involves erecting solid timber fencing, gates and screens to secure the perimeter of a construction site or segregate areas within it. The work involves post setting, framing and sheeting often along public footpaths or roads. Structures must be stable under wind loads and impact. Consideration must be given to access for emergency services and visibility for vehicles and pedestrians.",
+    hazards: ["manual_handling", "moving_vehicles", "environmental_weather", "excavation"],
+    questions: [
+      { id: "q1", label: "Has a line and level been agreed and checked for underground services before starting the site hoarding and timber barriers installation?" },
+      { id: "q2", label: "Is a traffic and pedestrian management plan in place for the site hoarding and timber barriers installation near public areas?" },
+      { id: "q3", label: "Will posts and framing for the site hoarding and timber barriers installation be sized and fixed to withstand expected wind loading?" },
+      { id: "q4", label: "Are suitable gates, locks and viewing gaps included to maintain security and visibility in the site hoarding and timber barriers installation?" },
+      { id: "q5", label: "Is there a documented inspection regime for the site hoarding and timber barriers installation while it remains in place?" }
+    ]
+  },
+
+  "Temporary access ramps and steps (timber)": {
+    desc: "Temporary access ramps and steps (timber) are built to maintain safe access where levels or routes are disrupted by works. The structures must accommodate anticipated pedestrian or light equipment loads and provide slip-resistant surfaces and handrails where required. Poor design or construction can lead to collapse or falls. Coordination is required to avoid conflict with plant movements and other site activities.",
+    hazards: ["work_at_height", "slips_trips", "manual_handling", "structural_collapse"],
+    questions: [
+      { id: "q1", label: "Have you calculated loadings and gradients before constructing the temporary access ramps and steps (timber)?" },
+      { id: "q2", label: "Will the temporary access ramps and steps (timber) include handrails and edge protection where there is a risk of falls?" },
+      { id: "q3", label: "Are slip-resistant treads or coverings being used on the temporary access ramps and steps (timber)?" },
+      { id: "q4", label: "Is there a plan to inspect and maintain the temporary access ramps and steps (timber) while they are in use?" },
+      { id: "q5", label: "Have you ensured that the temporary access ramps and steps (timber) do not obstruct emergency egress routes?" }
+    ]
+  },
+
+  "Timber formwork for strip foundations": {
+    desc: "Timber formwork for strip foundations involves constructing shuttering to contain poured concrete in trenches or ground beams. The work includes setting levels, fixing profiles and working close to open excavations. Stability of the formwork and safe access around trenches are critical. Coordination with concrete placement operations is required to avoid collapse or blow-out.",
+    hazards: ["excavation", "manual_handling", "slips_trips", "plant_machinery"],
+    questions: [
+      { id: "q1", label: "Have trenches been inspected and made safe before starting the timber formwork for strip foundations?" },
+      { id: "q2", label: "Will access around the timber formwork for strip foundations be kept clear and protected from falls into excavations?" },
+      { id: "q3", label: "Are form ties, stakes and braces for the timber formwork for strip foundations adequate for concrete pressure?" },
+      { id: "q4", label: "Is there safe segregation from plant and concrete wagons while working on the timber formwork for strip foundations?" },
+      { id: "q5", label: "Have you planned how to safely strike and remove the timber formwork for strip foundations after curing?" }
+    ]
+  },
+
+  "Timber formwork for slabs and pads": {
+    desc: "Timber formwork for slabs and pads involves setting out and fixing edge shutters and profiles to define concrete slabs, pads and ground-bearing bases. Work is often external and involves repeated bending, kneeling and handling of boards and stakes. Accurate levels and lines are important for drainage and slab thickness. Access for concrete wagons, pumps and finishing equipment must be maintained safely.",
+    hazards: ["manual_handling", "slips_trips", "plant_machinery", "environmental_weather"],
+    questions: [
+      { id: "q1", label: "Have you set out lines and levels correctly before fixing the timber formwork for slabs and pads?" },
+      { id: "q2", label: "Are edge shutters and stakes for the timber formwork for slabs and pads fixed securely to resist concrete pressure?" },
+      { id: "q3", label: "Is safe access maintained for concrete delivery and finishing while the timber formwork for slabs and pads is in place?" },
+      { id: "q4", label: "Have you considered the effects of rain, heat or frost on the timber formwork for slabs and pads and the fresh concrete?" },
+      { id: "q5", label: "Is there a safe method in place for stripping the timber formwork for slabs and pads without damaging edges?" }
+    ]
+  },
+
+  "Timber formwork for walls and columns": {
+    desc: "Timber formwork for walls and columns involves building vertical shutters to contain concrete in suspended or ground-level wall and column pours. The work may take place at height on scaffolds or platforms and requires strong tying and bracing systems. Failure can lead to sudden releases of concrete, falling materials and structural instability. Coordination with steel fixing and concrete trades is essential.",
+    hazards: ["work_at_height", "manual_handling", "plant_machinery", "structural_collapse"],
+    questions: [
+      { id: "q1", label: "Has the design of the timber formwork for walls and columns been checked for concrete pressures and tie spacing?" },
+      { id: "q2", label: "Is safe access such as scaffolding available for constructing and striking the timber formwork for walls and columns?" },
+      { id: "q3", label: "Will exclusion zones be maintained during concrete pours associated with the timber formwork for walls and columns?" },
+      { id: "q4", label: "Are tie rods, walers and braces for the timber formwork for walls and columns correctly installed and tightened?" },
+      { id: "q5", label: "Is there an agreed sequence for striking the timber formwork for walls and columns to avoid destabilising the structure?" }
+    ]
+  },
+
+  "Timber edge protection to voids (handrails)": {
+    desc: "Timber edge protection to voids (handrails) involves installing temporary or semi-permanent rails and toe boards to protect workers from falls at floor edges, stairwells or voids. The work is carried out in live construction environments and often at height. Edge protection must be robust, correctly fixed and regularly inspected. Incorrect installation can give a false sense of security and lead to serious accidents.",
+    hazards: ["work_at_height", "slips_trips", "structural_collapse"],
+    questions: [
+      { id: "q1", label: "Have you confirmed the required heights and loading for the timber edge protection to voids (handrails)?" },
+      { id: "q2", label: "Will posts and rails for the timber edge protection to voids (handrails) be securely fixed to suitable structural elements?" },
+      { id: "q3", label: "Is there an inspection and sign-off process for the timber edge protection to voids (handrails) before use?" },
+      { id: "q4", label: "Are toe boards provided as part of the timber edge protection to voids (handrails) where falling objects are a risk?" },
+      { id: "q5", label: "Will defective or altered sections of the timber edge protection to voids (handrails) be removed from service until repaired?" }
+    ]
+  },
+
+  "Soffit and fascia board replacement (timber)": {
+    desc: "Soffit and fascia board replacement (timber) involves removing existing eaves boards and fitting new timber components at roof level. The work is undertaken from ladders, towers or scaffolds and may involve working over conservatories or extensions. Care must be taken with fragile roofing materials and existing gutters. Handling long boards at height introduces stability and manual handling risks.",
+    hazards: ["work_at_height", "manual_handling", "falling_objects", "environmental_weather"],
+    questions: [
+      { id: "q1", label: "Is appropriate access equipment provided before starting the soffit and fascia board replacement (timber)?" },
+      { id: "q2", label: "Will long boards used in the soffit and fascia board replacement (timber) be handled by more than one person where necessary?" },
+      { id: "q3", label: "Have you checked for fragile roofing elements and planned safe working methods for the soffit and fascia board replacement (timber)?" },
+      { id: "q4", label: "Is the area below cordoned off to protect people from falling debris during the soffit and fascia board replacement (timber)?" },
+      { id: "q5", label: "Have you allowed for safe removal and reinstatement of gutters during the soffit and fascia board replacement (timber)?" }
+    ]
+  },
+
+  "Timber bulkheads and ceiling casings": {
+    desc: "Timber bulkheads and ceiling casings involve constructing dropped sections of ceiling or boxings to conceal services or create architectural features. The work is done at height from steps or platforms and often in finished interiors. Accurate set-out is required to integrate with lighting, grilles and other services. Dust and noise must be managed where occupants are present below.",
+    hazards: ["work_at_height", "manual_handling", "dust_fumes", "slips_trips"],
+    questions: [
+      { id: "q1", label: "Is stable access equipment provided for the timber bulkheads and ceiling casings installation?" },
+      { id: "q2", label: "Have you coordinated with M&E trades on locations of fittings before starting the timber bulkheads and ceiling casings?" },
+      { id: "q3", label: "Will cutting and fixing for the timber bulkheads and ceiling casings be carried out with adequate dust control?" },
+      { id: "q4", label: "Are fixings and hangers for the timber bulkheads and ceiling casings suitable for the ceiling structure?" },
+      { id: "q5", label: "Is the work area under the timber bulkheads and ceiling casings installation protected and segregated from building users?" }
+    ]
+  },
+
+  "Other (Custom carpenter/joiner)": {
+    desc: "",
+    hazards: [],
+    questions: [
+      { id: "q1", label: "Have you identified all specific hazards associated with this custom carpenter/joiner task?" },
+      { id: "q2", label: "Do you have the correct tools, fixings and access equipment for this specific carpenter/joiner work?" },
+      { id: "q3", label: "Has a dynamic risk assessment been carried out for this custom carpenter/joiner task before starting?" },
+      { id: "q4", label: "Are you competent and appropriately supervised to undertake this specific custom carpenter/joiner task?" },
+      { id: "q5", label: "Have you agreed the full scope, constraints and handover requirements for this custom carpenter/joiner task with the client?" }
+    ]
+  }
+};
+
 // --- 6. TRADES EXPORT (The Glue) ---
 export const TRADES = {
   Electrician: {
@@ -2367,5 +2969,9 @@ export const TRADES = {
   Builder: {
     clusters: BUILDER_CLUSTERS,
     jobs: Object.keys(BUILDER_CLUSTERS).map(key => ({ name: key, cluster: key }))
+  },
+  "Carpenter / Joiner": {
+    clusters: CARPENTER_JOINER_CLUSTERS,
+    jobs: Object.keys(CARPENTER_JOINER_CLUSTERS).map(key => ({ name: key, cluster: key }))
   }
 };
