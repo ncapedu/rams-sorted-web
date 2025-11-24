@@ -47,38 +47,105 @@ export async function POST(req: Request) {
     });
 
     const systemPrompt = `
-      You are a Chartered Health & Safety Consultant (CMIOSH) for UK Construction.
-      Output strictly valid JSON.
+      You are a Senior Chartered Health & Safety Consultant (CMIOSH) with 20+ years of experience in UK construction.
+      You write site-specific RAMS content that is legally robust, clear, and concise.
+
+      HARD RULES:
+      - Output STRICT JSON only. No markdown, no code fences, no comments.
+      - Do NOT insert decorative spacing inside words or names.
+        - Wrong: "E T H E M"
+        - Correct: "Ethem"
+      - Do NOT type headings like "SUMMARY:" or "METHOD STATEMENT:" – the PDF already has section titles.
+      - Keep language professional, UK construction oriented.
+
+      LENGTH CONTROL:
+      - "summary" must be 3–4 sentences, max ~150 words.
+      - Each "method_steps" item must be 3–5 sentences, typically 80–150 words.
+      - COSHH text should be specific but compact (each field 1–2 sentences).
     `;
 
     const userPrompt = `
-      TASK: Write specific RAMS content.
-      
+      TASK:
+      Write site-specific RAMS content for a PDF template. The layout is handled by the application.
+      Your job is ONLY to supply clean text that fits the structure below.
+
       CONTEXT:
       - Task: ${jobType}
       - Trade: ${trade}
       - Client: ${clientName}
       - Site: ${siteAddress}
-      - Notes: ${customDescription || "Standard Scope"}
-      - Hazards: ${hazards ? hazards.join(", ") : "General"}
+      - Notes: ${customDescription || "Standard scope and typical domestic/light commercial conditions."}
+      - Hazards: ${hazards && hazards.length ? hazards.join(", ") : "Standard construction risks"}
 
       REQUIREMENTS:
-      1. Method Statement: 4 distinct steps (5.1-5.4).
-         - Step 5.1 MUST say "Arrive at ${siteAddress}..."
-         - Step 5.3 MUST incorporate user notes: "${customDescription}".
-      2. COSHH: Identify the 1 main substance risk.
 
-      OUTPUT FORMAT (JSON):
+      1. SUMMARY
+      - Provide a professional 3–4 sentence executive summary.
+      - Explicitly mention:
+        - The Client name.
+        - The Site address (or location).
+        - The specific nature of the work (use Task + Trade).
+      - If user notes are provided, acknowledge how they are managed (e.g. access constraints, occupied premises).
+      - No bullet points, no numbering, just a single coherent paragraph.
+
+      2. METHOD_STEPS (Array of exactly 4 strings)
+      Each item must be a full paragraph (3–5 sentences). No manual line breaks, just normal sentences.
+
+      - Step 5.1 (Pre-Start / Arrival)
+        - Must BEGIN with: "Arrive at ${siteAddress || "site"}..."
+        - Cover arrival, signing in with "${clientName || "the client"}", site induction, verification of RAMS, and a dynamic risk assessment.
+
+      - Step 5.2 (Safety & Isolation)
+        - Describe specific safety setup for ${trade} work.
+        - Include isolation of services (e.g. electrical lock-off for electricians, water isolation for plumbers, hot works permits where relevant).
+        - Mention exclusion zones, barriers, signage, and interface with other trades/occupants.
+
+      - Step 5.3 (Execution of Works)
+        - This is the core technical description.
+        - Combine the “standard” textbook process for ${jobType} with the user notes:
+          "${customDescription || "None provided – assume typical constraints."}"
+        - Describe the sequence: access, preparation, key installation/repair stages, inspection points.
+        - Reference controls for the hazards listed earlier where relevant (e.g. dust control, work at height, lifting, etc.).
+
+      - Step 5.4 (Completion & Handover)
+        - Include detailed testing/commissioning appropriate for ${trade} and ${jobType} (e.g. electrical dead/live tests, pressure testing, leak checks).
+        - Describe making good, clearing waste, removing temporary controls, reinstating services, and final handover/briefing to "${clientName || "the client"}".
+
+      IMPORTANT STYLE RULES:
+      - Do NOT space out names or words for emphasis. Always write names normally: "Ethem", "Apex Property & Roofing Services Ltd".
+      - Do NOT use bullet lists, numbered lists, or section headings in the text – the PDF already handles structure.
+      - No decorative line breaks, no ASCII art, no banners.
+
+      3. COSHH (Array with exactly ONE object)
+      Identify the single most relevant hazardous substance for this type of work (based on trade and hazards).
+      Examples:
+      - Dust/silica for chasing, drilling, grinding.
+      - Solder fumes for hot works.
+      - Solvent-based adhesives or sealants for fit-out.
+      - Cement/concrete for wet works.
+
+      The COSHH object must have:
+      - "substance": Name of the substance (e.g. "Respirable crystalline silica (construction dust)").
+      - "risk": 1–2 sentence description of health effects and exposure route.
+      - "control": 1–2 sentence description of specific control measures (LEV, water suppression, FFP3 RPE, gloves, etc).
+      - "disposal": 1–2 sentence description of how waste/contaminated material is to be contained and disposed.
+
+      OUTPUT FORMAT (STRICT JSON):
       {
-        "summary": "Professional summary...",
+        "summary": "string",
         "method_steps": [
-           "5.1 PRE-START: Detailed arrival instructions...",
-           "5.2 SAFETY: Isolation and safety setup...",
-           "5.3 EXECUTION: Technical steps...",
-           "5.4 COMPLETION: Handover instructions..."
+          "5.1 PRE-START: ...",
+          "5.2 SAFETY & ISOLATION: ...",
+          "5.3 EXECUTION OF WORKS: ...",
+          "5.4 COMPLETION & HANDOVER: ..."
         ],
         "coshh": [
-           { "substance": "Name", "risk": "Risk", "control": "Control", "disposal": "Disposal" }
+          {
+            "substance": "string",
+            "risk": "string",
+            "control": "string",
+            "disposal": "string"
+          }
         ]
       }
     `;

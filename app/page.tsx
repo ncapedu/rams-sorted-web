@@ -13,13 +13,24 @@ import {
   FileText,
 } from "lucide-react";
 
-// Make sure this path matches your constants file location
 import {
   TRADES,
   HAZARD_GROUPS,
   HAZARD_DATA,
   JobCluster,
 } from "./lib/constants";
+
+// --- SMALL TEXT SANITISER ---
+// Cleans AI text before sending into the PDF so we don't get weird spacing etc.
+function sanitizeText(input: any): string {
+  if (!input || typeof input !== "string") return "";
+  return input
+    .replace(/\r\n/g, "\n")
+    .replace(/\n{2,}/g, "\n")        // collapse multiple blank lines
+    .replace(/[ \t]+/g, " ")         // collapse multiple spaces/tabs
+    .replace(/ ?([.,;:!?])/g, "$1")  // remove space before punctuation
+    .trim();
+}
 
 // --- UI COMPONENTS ---
 const Tooltip = ({ text }: { text: string }) => (
@@ -67,8 +78,8 @@ function AddressSearch({
   return (
     <div className="relative group">
       <label className="flex items-center text-xs font-bold uppercase tracking-wider text-gray-700 mb-1.5">
-        {label}{" "}
-        {required && <span className="text-red-600 ml-1">*</span>}{" "}
+        {label}
+        {required && <span className="text-red-600 ml-1">*</span>}
         {tooltip && <Tooltip text={tooltip} />}
       </label>
       <div className="relative">
@@ -106,7 +117,6 @@ export default function Home() {
   const [step, setStep] = useState(1);
   const [isGenerating, setIsGenerating] = useState(false);
 
-  // --- FORM STATE ---
   const [formData, setFormData] = useState({
     companyName: "",
     officeAddress: "",
@@ -137,13 +147,14 @@ export default function Home() {
   const [questions, setQuestions] = useState<any[]>([]);
   const [answers, setAnswers] = useState<Record<string, string>>({});
 
-  // --- LOGIC: When trade/jobType changes, pull cluster data ---
+  // --- Update hazards/questions when trade/jobType changes ---
   useEffect(() => {
     const currentTrade = TRADES[formData.trade as keyof typeof TRADES];
     if (currentTrade && formData.jobType) {
       if (formData.jobType === "Other (Custom)") {
-        if (!formData.customDescription)
+        if (!formData.customDescription) {
           setFormData((prev) => ({ ...prev, customDescription: "" }));
+        }
         setQuestions([]);
         setHazards([]);
       } else {
@@ -159,8 +170,9 @@ export default function Home() {
           ]);
           setQuestions(clusterData.questions || []);
           const defaults: Record<string, string> = {};
-          if (clusterData.questions)
+          if (clusterData.questions) {
             clusterData.questions.forEach((q) => (defaults[q.id] = "Yes"));
+          }
           setAnswers(defaults);
         }
       }
@@ -179,16 +191,20 @@ export default function Home() {
     if (
       step === 1 &&
       (!formData.companyName || !formData.officeAddress || !formData.contactName)
-    )
-      return alert("⚠️ Please fill in Company Details.");
-    if (step === 2 && (!formData.clientName || !formData.siteAddress))
-      return alert("⚠️ Please fill in Project Details.");
+    ) {
+      alert("⚠️ Please fill in Company Details.");
+      return;
+    }
+    if (step === 2 && (!formData.clientName || !formData.siteAddress)) {
+      alert("⚠️ Please fill in Project Details.");
+      return;
+    }
     setStep((prev) => prev + 1);
   };
 
   const prevStep = () => setStep((prev) => prev - 1);
 
-  // --- API HANDLER (CALLS /api/generate ON SERVER) ---
+  // --- API HANDLER ---
   const generateRAMS = async () => {
     setIsGenerating(true);
     try {
@@ -219,8 +235,7 @@ export default function Home() {
         );
       }
 
-      // Generate PDF regardless – falls back if apiData is empty
-      createPDF(apiData);
+      createPDF(apiData || {});
     } catch (e: any) {
       console.error("Frontend fetch error:", e);
       alert(`Frontend fetch error: ${e.message || e}`);
@@ -230,7 +245,7 @@ export default function Home() {
     }
   };
 
-  // --- PDF ENGINE (FIXED WIDTHS) ---
+  // --- PDF ENGINE ---
   const createPDF = (apiData: any) => {
     const doc = new jsPDF();
     const pageWidth = 210;
@@ -293,7 +308,7 @@ export default function Home() {
       );
     };
 
-    // 1. DETAILS
+    // 1. PROJECT & JOB DETAILS
     drawHeader(doc);
     currentY = 25;
     doc.setTextColor(0);
@@ -306,16 +321,21 @@ export default function Home() {
       startY: currentY,
       theme: "grid",
       body: [
-        ["Company Name", formData.companyName],
-        ["Site Address", formData.siteAddress],
-        ["Client", formData.clientName],
+        ["Company Name", sanitizeText(formData.companyName)],
+        ["Site Address", sanitizeText(formData.siteAddress)],
+        ["Client", sanitizeText(formData.clientName)],
         [
           "Job / Task Title",
-          `${formData.trade} - ${toTitleCase(formData.jobType)}`,
+          sanitizeText(
+            `${formData.trade} - ${formData.jobType ? toTitleCase(formData.jobType) : ""}`
+          ),
         ],
-        ["Date of RAMS", formData.startDate],
-        ["Prepared By", `${formData.contactName} (Competent Person)`],
-        ["Operatives", formData.operatives],
+        ["Date of RAMS", sanitizeText(formData.startDate)],
+        [
+          "Prepared By",
+          sanitizeText(`${formData.contactName} (Competent Person)`),
+        ],
+        ["Operatives", sanitizeText(formData.operatives)],
       ],
       styles: {
         fontSize: 9,
@@ -341,23 +361,26 @@ export default function Home() {
     // @ts-ignore
     currentY = (doc as any).lastAutoTable.finalY + 12;
 
-    // 2. SCOPE
+    // 2. SCOPE OF WORKS
     doc.setFontSize(11);
     doc.setFont("helvetica", "bold");
     doc.text("2. SCOPE OF WORKS", margin, currentY);
     currentY += 6;
     doc.setFontSize(10);
     doc.setFont("helvetica", "normal");
-    const scopeText = doc.splitTextToSize(
+
+    const scopeRaw =
       apiData.summary ||
-        formData.customDescription ||
-        "Standard works as per industry guidelines.",
+      formData.customDescription ||
+      "Standard works as per industry guidelines.";
+    const scopeText = doc.splitTextToSize(
+      sanitizeText(scopeRaw),
       contentWidth
     );
     doc.text(scopeText, margin, currentY);
     currentY += scopeText.length * 5 + 12;
 
-    // 3. SAFETY CHECKS
+    // 3. PRE-START SAFETY CHECKLIST
     if (questions.length > 0) {
       checkPageBreak(60);
       doc.setFontSize(11);
@@ -367,7 +390,7 @@ export default function Home() {
 
       const checkRows = questions.map((q, i) => [
         (i + 1).toString(),
-        q.label,
+        sanitizeText(q.label),
         answers[q.id] === "Yes" ? "Yes" : "",
         answers[q.id] === "No" ? "No" : "",
         " ",
@@ -422,12 +445,12 @@ export default function Home() {
         const lib = (HAZARD_DATA as any)[hKey];
         if (!lib) return null;
         return [
-          lib.label,
-          lib.risk,
+          sanitizeText(lib.label),
+          sanitizeText(lib.risk),
           "Ops/Public",
-          lib.initial_score,
-          lib.control,
-          lib.residual_score,
+          sanitizeText(String(lib.initial_score)),
+          sanitizeText(lib.control),
+          sanitizeText(String(lib.residual_score)),
         ];
       })
       .filter((row): row is string[] => row !== null);
@@ -473,36 +496,44 @@ export default function Home() {
     const methodSteps =
       apiData.method_steps ||
       [
-        { t: "5.1 PRE-START", d: "Arrive on site." },
-        { t: "5.2 SAFETY", d: "Secure area." },
-        {
-          t: "5.3 EXECUTION",
-          d: `Carry out ${formData.jobType}.`,
-        },
-        { t: "5.4 COMPLETION", d: "Handover." },
+        "5.1 PRE-START: Arrive on site and verify conditions.",
+        "5.2 SAFETY: Set up safe system of work.",
+        `5.3 EXECUTION: Carry out ${formData.jobType}.`,
+        "5.4 COMPLETION: Test, tidy and hand over.",
       ];
 
     const finalMethods =
       Array.isArray(methodSteps) && typeof methodSteps[0] === "string"
-        ? methodSteps.map((s: string, i: number) => ({
-            t: `Step ${i + 1}`,
-            d: s,
-          }))
-        : methodSteps;
+        ? methodSteps.map((s: string) => {
+            const cleaned = sanitizeText(s);
+            const titleMatch = cleaned.match(/^(\d+\.\d+[^:]*:)/);
+            const title = titleMatch ? titleMatch[1] : "Step";
+            const text = titleMatch
+              ? cleaned.replace(titleMatch[1], "").trim()
+              : cleaned;
+            return {
+              t: title,
+              d: text,
+            };
+          })
+        : (methodSteps as any[]);
 
     finalMethods.forEach((stepObj: any) => {
       checkPageBreak(25);
       doc.setFont("helvetica", "bold");
-      doc.text(stepObj.t || "Step", margin, currentY);
+      doc.text(sanitizeText(stepObj.t || "Step"), margin, currentY);
       currentY += 5;
       doc.setFont("helvetica", "normal");
-      const text = doc.splitTextToSize(stepObj.d || stepObj, contentWidth);
-      doc.text(text, margin, currentY);
-      currentY += text.length * 5 + 5;
+      const textLines = doc.splitTextToSize(
+        sanitizeText(stepObj.d || stepObj),
+        contentWidth
+      );
+      doc.text(textLines, margin, currentY);
+      currentY += textLines.length * 5 + 5;
     });
     currentY += 5;
 
-    // 6. PPE
+    // 6. PPE REQUIREMENTS
     checkPageBreak(60);
     doc.setFontSize(11);
     doc.setFont("helvetica", "bold");
@@ -524,24 +555,24 @@ export default function Home() {
     // @ts-ignore
     currentY = (doc as any).lastAutoTable.finalY + 10;
 
-    // 7. COSHH
+    // 7. COSHH / SUBSTANCES
     checkPageBreak(60);
     doc.setFontSize(11);
     doc.setFont("helvetica", "bold");
     doc.text("7. COSHH / SUBSTANCES", margin, currentY);
     currentY += 6;
 
-    const coshhRows =
+    const coshhRaw =
       apiData.coshh ||
       [["Construction Dust", "Inhalation", "LEV / Mask", "Bagged & Sealed"]];
 
-    const coshhBody = Array.isArray(coshhRows[0])
-      ? coshhRows
-      : coshhRows.map((c: any) => [
-          c.substance,
-          c.risk,
-          c.control,
-          c.disposal,
+    const coshhBody = Array.isArray(coshhRaw[0])
+      ? coshhRaw
+      : coshhRaw.map((c: any) => [
+          sanitizeText(c.substance),
+          sanitizeText(c.risk),
+          sanitizeText(c.control),
+          sanitizeText(c.disposal),
         ]);
 
     autoTable(doc, {
@@ -561,7 +592,7 @@ export default function Home() {
     // @ts-ignore
     currentY = (doc as any).lastAutoTable.finalY + 10;
 
-    // 8. EMERGENCY
+    // 8. EMERGENCY ARRANGEMENTS
     checkPageBreak(50);
     doc.setFontSize(11);
     doc.setFont("helvetica", "bold");
@@ -571,10 +602,10 @@ export default function Home() {
     autoTable(doc, {
       startY: currentY,
       body: [
-        ["First Aid", formData.firstAider || "TBC"],
-        ["Hospital", formData.hospital || "Nearest A&E"],
-        ["Fire Point", formData.fireAssembly || "As Inducted"],
-        ["Supervisor", formData.supervisorName || "TBC"],
+        ["First Aid", sanitizeText(formData.firstAider || "TBC")],
+        ["Hospital", sanitizeText(formData.hospital || "Nearest A&E")],
+        ["Fire Point", sanitizeText(formData.fireAssembly || "As Inducted")],
+        ["Supervisor", sanitizeText(formData.supervisorName || "TBC")],
       ],
       theme: "grid",
       styles: {
@@ -594,7 +625,7 @@ export default function Home() {
     // @ts-ignore
     currentY = (doc as any).lastAutoTable.finalY + 12;
 
-    // 9. BRIEFING PAGE
+    // 9. OPERATIVE BRIEFING REGISTER
     doc.addPage();
     drawHeader(doc);
     currentY = 25;
@@ -657,10 +688,9 @@ export default function Home() {
     doc.save(`RAMS_${safeName}.pdf`);
   };
 
-  // --- RENDER ---
+  // --- UI RENDER ---
   return (
     <div className="min-h-screen bg-gray-50 font-sans text-gray-900 pb-24">
-      {/* NAVBAR */}
       <nav className="bg-white border-b border-gray-200 py-4 px-6 sticky top-0 z-50 flex justify-between items-center shadow-sm">
         <div className="flex items-center gap-2 font-extrabold text-xl tracking-tight text-blue-900">
           <ShieldCheck className="w-7 h-7 text-blue-700" /> RAMS Sorted
@@ -793,7 +823,6 @@ export default function Home() {
                   </select>
                 </div>
 
-                {/* DYNAMIC QUESTIONS */}
                 {questions.length > 0 && (
                   <div className="bg-blue-50 p-4 rounded border border-blue-100">
                     <h4 className="font-bold text-sm text-blue-900 mb-3">
