@@ -46,109 +46,128 @@ export async function POST(req: Request) {
       siteAddress,
     });
 
+    // ---------- HARD RULES FOR LAYOUT & STYLE ----------
     const systemPrompt = `
-      You are a Senior Chartered Health & Safety Consultant (CMIOSH) with 20+ years of experience in UK construction.
-      You write site-specific RAMS content that is legally robust, clear, and concise.
+You are a Chartered Health & Safety Consultant (CMIOSH) for UK Construction.
+Your text goes directly into an A4 PDF with fixed margins. There is NO human editing.
 
-      HARD RULES:
-      - Output STRICT JSON only. No markdown, no code fences, no comments.
-      - Do NOT insert decorative spacing inside words or names.
-        - Wrong: "E T H E M"
-        - Correct: "Ethem"
-      - Do NOT type headings like "SUMMARY:" or "METHOD STATEMENT:" – the PDF already has section titles.
-      - Keep language professional, UK construction oriented.
+ABSOLUTE LAYOUT RULES (DO NOT BREAK THESE):
+- Write normal sentences and paragraphs. Do NOT try to "design" the page.
+- Do NOT insert extra spaces inside names or words.
+  - Never write "E T H E M" or "E  T  H  E  M".
+  - Always write "Ethem" or standard spelling with normal spacing.
+- Do NOT add manual line breaks for visual effect. Only end lines when a paragraph ends.
+  - No fake columns, no centred text, no ASCII art.
+- No bullet lists, no numbered lists, no markdown, no tables. Just plain prose paragraphs.
+- Keep everything professional, concise and specific to the job and site.
 
-      LENGTH CONTROL:
-      - "summary" must be 3–4 sentences, max ~150 words.
-      - Each "method_steps" item must be 3–5 sentences, typically 80–150 words.
-      - COSHH text should be specific but compact (each field 1–2 sentences).
-    `;
+LENGTH LIMITS (TO FIT A4 PAGES CLEANLY):
+- "summary": 3–4 sentences, maximum ~120 words.
+- Each "method_steps" entry: 3–5 sentences, maximum ~140 words.
+- Each COSHH field ("risk", "control", "disposal"): 1–2 sentences, maximum ~60 words each.
+
+CONTENT STYLE:
+- Tone: Authoritative, technical, UK construction RAMS style.
+- Be specific to the actual task, client and address.
+- If user notes are provided, you MUST explicitly integrate them into the method steps.
+
+You MUST output strictly valid JSON matching the schema requested by the user.
+`;
 
     const userPrompt = `
-      TASK:
-      Write site-specific RAMS content for a PDF template. The layout is handled by the application.
-      Your job is ONLY to supply clean text that fits the structure below.
+TASK:
+Write specific RAMS content for a UK construction job that will be exported straight into a PDF.
 
-      CONTEXT:
-      - Task: ${jobType}
-      - Trade: ${trade}
-      - Client: ${clientName}
-      - Site: ${siteAddress}
-      - Notes: ${customDescription || "Standard scope and typical domestic/light commercial conditions."}
-      - Hazards: ${hazards && hazards.length ? hazards.join(", ") : "Standard construction risks"}
+CONTEXT:
+- Task: ${jobType || "Not specified"}
+- Trade: ${trade || "Not specified"}
+- Client: ${clientName || "Client"}
+- Site: ${siteAddress || "Site address not provided"}
+- User Notes / Constraints: ${customDescription || "Standard scope"}
+- Hazards (keywords only): ${hazards && hazards.length ? hazards.join(", ") : "General construction hazards"}
 
-      REQUIREMENTS:
+REQUIREMENTS:
 
-      1. SUMMARY
-      - Provide a professional 3–4 sentence executive summary.
-      - Explicitly mention:
-        - The Client name.
-        - The Site address (or location).
-        - The specific nature of the work (use Task + Trade).
-      - If user notes are provided, acknowledge how they are managed (e.g. access constraints, occupied premises).
-      - No bullet points, no numbering, just a single coherent paragraph.
+1) "summary"
+- A robust, 3–4 sentence executive summary.
+- Must mention:
+  - The task (e.g. "Additional sockets install for domestic property").
+  - The Client (by name where provided).
+  - The Site Address (where provided).
+  - How any user notes / constraints will be managed.
+- Keep it tight (max ~120 words). No lists, no bullet points.
 
-      2. METHOD_STEPS (Array of exactly 4 strings)
-      Each item must be a full paragraph (3–5 sentences). No manual line breaks, just normal sentences.
+2) "method_steps"
+Return an array of EXACTLY 4 STRINGS. Each string is a full paragraph (3–5 sentences).
+You are NOT allowed to return objects here – it MUST be a simple array of strings.
 
-      - Step 5.1 (Pre-Start / Arrival)
-        - Must BEGIN with: "Arrive at ${siteAddress || "site"}..."
-        - Cover arrival, signing in with "${clientName || "the client"}", site induction, verification of RAMS, and a dynamic risk assessment.
+Each element must follow this pattern INSIDE THE STRING:
 
-      - Step 5.2 (Safety & Isolation)
-        - Describe specific safety setup for ${trade} work.
-        - Include isolation of services (e.g. electrical lock-off for electricians, water isolation for plumbers, hot works permits where relevant).
-        - Mention exclusion zones, barriers, signage, and interface with other trades/occupants.
+- Element 1 (index 0) MUST start with:
+  "5.1 PRE-START & ARRIVAL: ..."
+  and must describe:
+    - Arriving at "${siteAddress || "site"}".
+    - Signing in with "${clientName || "the client"}".
+    - Site induction.
+    - A dynamic risk assessment before work starts.
 
-      - Step 5.3 (Execution of Works)
-        - This is the core technical description.
-        - Combine the “standard” textbook process for ${jobType} with the user notes:
-          "${customDescription || "None provided – assume typical constraints."}"
-        - Describe the sequence: access, preparation, key installation/repair stages, inspection points.
-        - Reference controls for the hazards listed earlier where relevant (e.g. dust control, work at height, lifting, etc.).
+- Element 2 (index 1) MUST start with:
+  "5.2 SAFETY & ISOLATION SETUP: ..."
+  and must describe:
+    - Specific safety setup for ${trade || "the trade"}.
+    - Any isolation / lock-off needed (e.g. electrical isolation, water shut-off).
+    - Exclusion zones and protection of occupants/third parties.
 
-      - Step 5.4 (Completion & Handover)
-        - Include detailed testing/commissioning appropriate for ${trade} and ${jobType} (e.g. electrical dead/live tests, pressure testing, leak checks).
-        - Describe making good, clearing waste, removing temporary controls, reinstating services, and final handover/briefing to "${clientName || "the client"}".
+- Element 3 (index 2) MUST start with:
+  "5.3 EXECUTION OF WORKS: ..."
+  and must describe:
+    - The technical sequence for ${jobType || "the works"}.
+    - Combine the standard process with the user notes:
+      "${customDescription || "None provided. Assume standard conditions."}"
+    - Refer to hazards where relevant, but do not list them; weave them naturally into the text.
 
-      IMPORTANT STYLE RULES:
-      - Do NOT space out names or words for emphasis. Always write names normally: "Ethem", "Apex Property & Roofing Services Ltd".
-      - Do NOT use bullet lists, numbered lists, or section headings in the text – the PDF already handles structure.
-      - No decorative line breaks, no ASCII art, no banners.
+- Element 4 (index 3) MUST start with:
+  "5.4 COMPLETION, TESTING & HANDOVER: ..."
+  and must describe:
+    - Testing / verification (e.g. electrical testing, pressure testing, functional checks).
+    - Making good, cleaning the area, removing waste.
+    - Final handover / sign-off with "${clientName || "the client"}".
 
-      3. COSHH (Array with exactly ONE object)
-      Identify the single most relevant hazardous substance for this type of work (based on trade and hazards).
-      Examples:
-      - Dust/silica for chasing, drilling, grinding.
-      - Solder fumes for hot works.
-      - Solvent-based adhesives or sealants for fit-out.
-      - Cement/concrete for wet works.
+IMPORTANT FORMATTING RULES FOR method_steps:
+- Each array element is ONE paragraph. No internal bullet lists.
+- No manual spacing tricks. No "S O C K E T S" or split names.
+- Do not insert empty lines inside the string. The PDF renderer will handle wrapping.
 
-      The COSHH object must have:
-      - "substance": Name of the substance (e.g. "Respirable crystalline silica (construction dust)").
-      - "risk": 1–2 sentence description of health effects and exposure route.
-      - "control": 1–2 sentence description of specific control measures (LEV, water suppression, FFP3 RPE, gloves, etc).
-      - "disposal": 1–2 sentence description of how waste/contaminated material is to be contained and disposed.
+3) "coshh"
+Return an array with ONE object, describing the primary hazardous substance relevant to this job.
 
-      OUTPUT FORMAT (STRICT JSON):
-      {
-        "summary": "string",
-        "method_steps": [
-          "5.1 PRE-START: ...",
-          "5.2 SAFETY & ISOLATION: ...",
-          "5.3 EXECUTION OF WORKS: ...",
-          "5.4 COMPLETION & HANDOVER: ..."
-        ],
-        "coshh": [
-          {
-            "substance": "string",
-            "risk": "string",
-            "control": "string",
-            "disposal": "string"
-          }
-        ]
-      }
-    `;
+Each object MUST have:
+- "substance": Name of the main substance (e.g. "Construction Dust (Silica)", "Solder Fumes").
+- "risk": 1–2 sentence description of health effects and exposure routes.
+- "control": 1–2 sentence description of specific control measures (RPE type, LEV, etc.).
+- "disposal": 1–2 sentence description of disposal method and regulatory considerations.
+
+Do NOT use bullets, numbering or markdown in ANY of these text fields.
+
+EXPECTED JSON STRUCTURE (NO EXTRA FIELDS):
+{
+  "summary": "string",
+  "method_steps": [
+    "5.1 PRE-START & ARRIVAL: ...",
+    "5.2 SAFETY & ISOLATION SETUP: ...",
+    "5.3 EXECUTION OF WORKS: ...",
+    "5.4 COMPLETION, TESTING & HANDOVER: ..."
+  ],
+  "coshh": [
+    {
+      "substance": "string",
+      "risk": "string",
+      "control": "string",
+      "disposal": "string"
+    }
+  ]
+}
+`;
 
     const completion = await openai.chat.completions.create({
       model: "gpt-4o-mini",
@@ -157,7 +176,7 @@ export async function POST(req: Request) {
         { role: "user", content: userPrompt },
       ],
       response_format: { type: "json_object" },
-      temperature: 0.6,
+      temperature: 0.4, // tighter, more conservative
     });
 
     const content = completion.choices[0]?.message?.content;
