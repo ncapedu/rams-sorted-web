@@ -4210,7 +4210,6 @@ const GROUNDWORKS_CIVILS_CLUSTERS: Record<string, JobCluster> = {
   }
 };
 
-
 // ==========================================
 // 4. MASTER TRADE REGISTRY
 // ==========================================
@@ -4232,13 +4231,18 @@ export const TRADES = {
   },
 
   Roofer: {
-    jobs: Object.keys(ROOFING_CLUSTERS).map((name) => ({ name })),
-    clusters: ROOFING_CLUSTERS,
+    jobs: Object.keys(ROOFER_CLUSTERS).map((name) => ({ name })),
+    clusters: ROOFER_CLUSTERS,
   },
 
   "Carpenter / Joiner": {
     jobs: Object.keys(CARPENTER_JOINER_CLUSTERS).map((name) => ({ name })),
     clusters: CARPENTER_JOINER_CLUSTERS,
+  },
+
+  "Drylining & Ceilings": {
+    jobs: Object.keys(DRYLINING_CEILINGS_CLUSTERS).map((name) => ({ name })),
+    clusters: DRYLINING_CEILINGS_CLUSTERS,
   },
 
   "Groundworks & Civils": {
