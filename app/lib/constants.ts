@@ -5423,7 +5423,663 @@ const HVAC_AIRCON_CLUSTERS: Record<string, JobCluster> = {
 };
 
 // ==========================================
-// 4. MASTER TRADE REGISTRY
+// X. JOB CLUSTERS (GAS & HEATING ENGINEER)
+// ==========================================
+
+const GAS_HEATING_CLUSTERS: Record<string, JobCluster> = {
+  // 1
+  "Combi boiler installation (domestic)": {
+    desc: "Combi boiler installation (domestic) involves removing any existing appliance as required, installing the new boiler, connecting gas, water and electrical supplies, and commissioning the system. Flue routing, condensate disposal and ventilation are checked against manufacturer instructions and current standards. Documentation and benchmark records are completed on handover.",
+    hazards: ["gas", "hot_work", "water_ingress", "manual_handling", "live_electricity"],
+    questions: [
+      { id: "q1", label: "Has gas pipe sizing and meter capacity been checked before the combi boiler installation (domestic)?" },
+      { id: "q2", label: "Is the proposed flue route for the combi boiler installation (domestic) compliant with current clearance and terminal requirements?" },
+      { id: "q3", label: "Is adequate provision made for safe condensate discharge during the combi boiler installation (domestic)?" },
+      { id: "q4", label: "Will all electrical connections for the combi boiler installation (domestic) be isolated and tested before energising?" },
+      { id: "q5", label: "Will commissioning and notification paperwork for the combi boiler installation (domestic) be completed and issued to the client?" }
+    ]
+  },
+
+  // 2
+  "System/regular boiler installation (domestic)": {
+    desc: "System/regular boiler installation (domestic) involves fitting a boiler that serves stored hot water and radiators via separate components. Works include connecting primary pipework, pumps, valves, cylinders and controls. Correct venting, expansion and safety devices are verified during commissioning.",
+    hazards: ["gas", "water_ingress", "manual_handling", "hot_work", "live_electricity"],
+    questions: [
+      { id: "q1", label: "Have suitable locations been agreed for the system/regular boiler installation (domestic) and associated components?" },
+      { id: "q2", label: "Are primary and safety pipework arrangements correct for the system/regular boiler installation (domestic)?" },
+      { id: "q3", label: "Is the flue system for the system/regular boiler installation (domestic) designed and installed to manufacturer instructions?" },
+      { id: "q4", label: "Are expansion and safety valves correctly specified for the system/regular boiler installation (domestic)?" },
+      { id: "q5", label: "Will benchmark and notification for the system/regular boiler installation (domestic) be completed on handover?" }
+    ]
+  },
+
+  // 3
+  "Like-for-like boiler swap (domestic)": {
+    desc: "Like-for-like boiler swap (domestic) covers replacing an existing boiler with a similar appliance in the same location. Works include isolation, draining, removal, refitting and recommissioning. Gas soundness testing and flue integrity checks are carried out as part of the process.",
+    hazards: ["gas", "water_ingress", "manual_handling", "hot_work"],
+    questions: [
+      { id: "q1", label: "Will the gas installation be tested for tightness before and after the like-for-like boiler swap (domestic)?" },
+      { id: "q2", label: "Is the existing flue suitable and compliant for the new appliance in the like-for-like boiler swap (domestic)?" },
+      { id: "q3", label: "Is safe draining and refilling of the system planned for the like-for-like boiler swap (domestic)?" },
+      { id: "q4", label: "Will safe lifting methods be used when removing and refitting the appliance for the like-for-like boiler swap (domestic)?" },
+      { id: "q5", label: "Are all control settings and safety devices tested following the like-for-like boiler swap (domestic)?" }
+    ]
+  },
+
+  // 4
+  "Full central heating system install (domestic)": {
+    desc: "Full central heating system install (domestic) involves providing a complete heating system including boiler, pipework, radiators, valves, controls and flushing. Pipe routes are planned to avoid damage to fabric and services. The system is filled, flushed, inhibited and commissioned to deliver balanced heat output.",
+    hazards: ["gas", "hot_work", "manual_handling", "water_ingress", "dust_fumes"],
+    questions: [
+      { id: "q1", label: "Is a clear pipework routing plan in place for the full central heating system install (domestic)?" },
+      { id: "q2", label: "Will floor and wall penetrations for the full central heating system install (domestic) be checked for hidden services?" },
+      { id: "q3", label: "Is adequate flushing and chemical treatment planned for the full central heating system install (domestic)?" },
+      { id: "q4", label: "Are lifting and handling arrangements in place for radiators and the boiler during the full central heating system install (domestic)?" },
+      { id: "q5", label: "Will all radiators be balanced and controls set up following the full central heating system install (domestic)?" }
+    ]
+  },
+
+  // 5
+  "Radiator replacement & additions": {
+    desc: "Radiator replacement & additions covers removing existing radiators and installing new or additional emitters on a heating circuit. Works include isolating, draining locally, altering pipework and refilling. Surfaces and floor coverings are protected from leaks and debris.",
+    hazards: ["manual_handling", "water_ingress", "slips_trips"],
+    questions: [
+      { id: "q1", label: "Have suitable isolation points been identified before radiator replacement & additions start?" },
+      { id: "q2", label: "Are manual handling controls in place for lifting radiators during radiator replacement & additions?" },
+      { id: "q3", label: "Is floor and furniture protection provided for radiator replacement & additions?" },
+      { id: "q4", label: "Will all joints be checked for leaks after radiator replacement & additions?" },
+      { id: "q5", label: "Will the system be vented and rebalanced following radiator replacement & additions?" }
+    ]
+  },
+
+  // 6
+  "TRV installation / upgrade": {
+    desc: "TRV installation / upgrade involves fitting thermostatic radiator valves to existing heating systems to improve control and efficiency. Works require draining down sections of pipework, swapping valves and refilling. Correct orientation and setting are checked.",
+    hazards: ["water_ingress", "manual_handling", "slips_trips"],
+    questions: [
+      { id: "q1", label: "Is the system or zone safely isolated and drained before TRV installation / upgrade?" },
+      { id: "q2", label: "Is floor protection in place for TRV installation / upgrade to manage any spills?" },
+      { id: "q3", label: "Are TRVs installed in correct flow direction during TRV installation / upgrade?" },
+      { id: "q4", label: "Will valves be checked for leaks after TRV installation / upgrade?" },
+      { id: "q5", label: "Will TRVs be set and demonstrated to the client after TRV installation / upgrade?" }
+    ]
+  },
+
+  // 7
+  "Power flush / chemical clean of heating system": {
+    desc: "Power flush / chemical clean of heating system involves circulating cleaning chemicals through the heating circuit using specialised pumps. Sludge, debris and contaminants are removed and fresh inhibitor is added. Filters and strainers are cleaned as part of the process.",
+    hazards: ["chemical_coshh", "water_ingress", "manual_handling", "slips_trips"],
+    questions: [
+      { id: "q1", label: "Are COSHH assessments in place for chemicals used in the power flush / chemical clean of heating system?" },
+      { id: "q2", label: "Is adequate containment arranged for waste water during the power flush / chemical clean of heating system?" },
+      { id: "q3", label: "Are hoses routed safely to avoid trips during the power flush / chemical clean of heating system?" },
+      { id: "q4", label: "Is appropriate PPE worn for the power flush / chemical clean of heating system?" },
+      { id: "q5", label: "Will inhibitor levels be restored after the power flush / chemical clean of heating system?" }
+    ]
+  },
+
+  // 8
+  "Gas hob installation": {
+    desc: "Gas hob installation covers connecting a new hob to the gas supply, carrying out tightness testing, and verifying flame picture and ventilation. Existing pipework and isolation valves are checked for suitability. Clearances to combustibles are maintained.",
+    hazards: ["gas", "hot_work", "fire_explosion"],
+    questions: [
+      { id: "q1", label: "Has the gas run and isolation valve been checked for capacity before the gas hob installation?" },
+      { id: "q2", label: "Are work surfaces and surrounding materials suitable and non-combustible for the gas hob installation?" },
+      { id: "q3", label: "Is a gas tightness and let-by test planned following the gas hob installation?" },
+      { id: "q4", label: "Is ventilation adequate for the appliance following the gas hob installation?" },
+      { id: "q5", label: "Will the flame picture and safety devices be tested as part of the gas hob installation?" }
+    ]
+  },
+
+  // 9
+  "Freestanding gas cooker installation": {
+    desc: "Freestanding gas cooker installation involves positioning the appliance, connecting to the gas supply, testing for tightness and verifying operation. Stability devices and chains are checked, and clearances to combustibles are confirmed. User instructions are provided at handover.",
+    hazards: ["gas", "manual_handling", "fire_explosion"],
+    questions: [
+      { id: "q1", label: "Will a suitable stability device be fitted or checked during the freestanding gas cooker installation?" },
+      { id: "q2", label: "Is the gas supply and isolation valve suitable for the freestanding gas cooker installation?" },
+      { id: "q3", label: "Is there adequate clearance to combustibles for the freestanding gas cooker installation?" },
+      { id: "q4", label: "Will tightness testing be carried out after the freestanding gas cooker installation?" },
+      { id: "q5", label: "Will the user be shown how to operate and isolate the cooker after the freestanding gas cooker installation?" }
+    ]
+  },
+
+  // 10
+  "Built-in gas oven installation": {
+    desc: "Built-in gas oven installation involves fitting an oven into kitchen units, connecting the gas supply and ensuring appropriate ventilation and clearances. Cabinet modifications may be required, and flexible connections are checked for kinks or damage.",
+    hazards: ["gas", "manual_handling", "dust_fumes"],
+    questions: [
+      { id: "q1", label: "Is the cabinet aperture suitable and fire-safe for the built-in gas oven installation?" },
+      { id: "q2", label: "Is the gas hose or rigid pipework for the built-in gas oven installation correctly sized and routed?" },
+      { id: "q3", label: "Will tightness checks be carried out after the built-in gas oven installation?" },
+      { id: "q4", label: "Is ventilation adequate for the built-in gas oven installation?" },
+      { id: "q5", label: "Will the oven be secured and levelled during the built-in gas oven installation?" }
+    ]
+  },
+
+  // 11
+  "Gas fire installation (decorative fuel effect)": {
+    desc: "Gas fire installation (decorative fuel effect) involves fitting a gas fire, connecting gas supplies and checking flue or chimney suitability. Spill tests and flue performance checks are essential. Surrounds and hearths are verified to meet safety requirements.",
+    hazards: ["gas", "fire_explosion", "dust_fumes", "asbestos"],
+    questions: [
+      { id: "q1", label: "Has the chimney or flue been inspected for suitability before the gas fire installation (decorative fuel effect)?" },
+      { id: "q2", label: "Is there any suspicion of asbestos in old surrounds or back panels during the gas fire installation (decorative fuel effect)?" },
+      { id: "q3", label: "Will spillage and flue performance tests be carried out after the gas fire installation (decorative fuel effect)?" },
+      { id: "q4", label: "Are hearth and surround dimensions compliant for the gas fire installation (decorative fuel effect)?" },
+      { id: "q5", label: "Will the flame picture and safety devices be checked after the gas fire installation (decorative fuel effect)?" }
+    ]
+  },
+
+  // 12
+  "Gas fire service & safety check": {
+    desc: "Gas fire service & safety check includes cleaning burners, checking flue operation, testing safety devices and confirming adequate ventilation. Any defects are recorded and reported. The appliance is recommissioned and left safe.",
+    hazards: ["gas", "dust_fumes", "fire_explosion"],
+    questions: [
+      { id: "q1", label: "Will a full flue flow and spillage test be completed during the gas fire service & safety check?" },
+      { id: "q2", label: "Is ventilation provision checked as part of the gas fire service & safety check?" },
+      { id: "q3", label: "Are dust and debris from cleaning controlled during the gas fire service & safety check?" },
+      { id: "q4", label: "Will safety devices be tested and recorded during the gas fire service & safety check?" },
+      { id: "q5", label: "Will any unsafe findings be clearly explained and documented after the gas fire service & safety check?" }
+    ]
+  },
+
+  // 13
+  "Landlord gas safety check (CP12)": {
+    desc: "Landlord gas safety check (CP12) involves inspection and testing of all gas appliances and associated pipework in rented property. Flues, ventilation and safety devices are assessed, and a formal record is produced. Any immediately dangerous situations are made safe.",
+    hazards: ["gas", "public_interface", "slips_trips"],
+    questions: [
+      { id: "q1", label: "Are all gas appliances and meters accessible for the landlord gas safety check (CP12)?" },
+      { id: "q2", label: "Will tightness testing be carried out where appropriate during the landlord gas safety check (CP12)?" },
+      { id: "q3", label: "Are tenants made aware of any temporary loss of supply during the landlord gas safety check (CP12)?" },
+      { id: "q4", label: "Will any unsafe installations identified during the landlord gas safety check (CP12) be made safe or disconnected?" },
+      { id: "q5", label: "Will a completed certificate be issued to the landlord after the landlord gas safety check (CP12)?" }
+    ]
+  },
+
+  // 14
+  "Gas leak trace & repair (domestic)": {
+    desc: "Gas leak trace & repair (domestic) involves investigating suspected gas leaks, often under emergency conditions. Techniques include tightness testing, pressure drop checks and tracing pipe routes. Repairs may require exposing concealed pipework and reinstatement.",
+    hazards: ["gas", "fire_explosion", "dust_fumes"],
+    questions: [
+      { id: "q1", label: "Is the gas supply isolated where necessary during gas leak trace & repair (domestic)?" },
+      { id: "q2", label: "Are ignition sources controlled during gas leak trace & repair (domestic)?" },
+      { id: "q3", label: "Is the working area ventilated during gas leak trace & repair (domestic)?" },
+      { id: "q4", label: "Is dust and debris from opening up controlled during gas leak trace & repair (domestic)?" },
+      { id: "q5", label: "Will a final tightness test be recorded after gas leak trace & repair (domestic)?" }
+    ]
+  },
+
+  // 15
+  "Emergency gas call-out & make safe": {
+    desc: "Emergency gas call-out & make safe covers attending urgent gas incidents, assessing risk and making installations safe. This may include isolating supplies, capping appliances and advising occupants. Work can occur outside normal hours under time pressure.",
+    hazards: ["gas", "fire_explosion", "lone_working", "public_interface"],
+    questions: [
+      { id: "q1", label: "Is a dynamic risk assessment carried out on arrival for the emergency gas call-out & make safe?" },
+      { id: "q2", label: "Are ignition sources and smoking controlled during the emergency gas call-out & make safe?" },
+      { id: "q3", label: "Is lone working risk considered for the emergency gas call-out & make safe?" },
+      { id: "q4", label: "Will any capped-off or disconnected appliances be clearly labelled after the emergency gas call-out & make safe?" },
+      { id: "q5", label: "Are vulnerable occupants given clear instructions following the emergency gas call-out & make safe?" }
+    ]
+  },
+
+  // 16
+  "Unvented cylinder installation": {
+    desc: "Unvented cylinder installation involves fitting a pressurised hot water storage cylinder with appropriate safety devices, discharge pipework and controls. Works include connecting cold mains, heating primary circuits and electrical immersion if present. G3 regulations must be followed.",
+    hazards: ["water_ingress", "manual_handling", "live_electricity"],
+    questions: [
+      { id: "q1", label: "Is the floor and structure suitable for the weight of the unvented cylinder installation?" },
+      { id: "q2", label: "Are all safety and discharge pipework arrangements compliant for the unvented cylinder installation?" },
+      { id: "q3", label: "Is competent G3 certification in place for the unvented cylinder installation?" },
+      { id: "q4", label: "Are electrical immersions for the unvented cylinder installation isolated and tested correctly?" },
+      { id: "q5", label: "Will benchmark and commissioning records be completed for the unvented cylinder installation?" }
+    ]
+  },
+
+  // 17
+  "Unvented cylinder annual service": {
+    desc: "Unvented cylinder annual service includes testing safety valves, expansion devices and discharge pipework, and checking for scale build-up. Controls are verified for correct operation. Any defects are reported and rectified where agreed.",
+    hazards: ["water_ingress", "manual_handling", "hot_work"],
+    questions: [
+      { id: "q1", label: "Is the area kept dry and protected during the unvented cylinder annual service?" },
+      { id: "q2", label: "Will all safety valves and expansion devices be tested during the unvented cylinder annual service?" },
+      { id: "q3", label: "Is scale and debris management planned for the unvented cylinder annual service?" },
+      { id: "q4", label: "Are discharge routes visually checked during the unvented cylinder annual service?" },
+      { id: "q5", label: "Will service findings from the unvented cylinder annual service be recorded for the client?" }
+    ]
+  },
+
+  // 18
+  "Vented cylinder replacement": {
+    desc: "Vented cylinder replacement involves isolating, draining and removing an existing hot water cylinder, then installing a new open-vented unit. Pipework alterations, vent and feed arrangements and insulation are checked. The system is refilled, vented and tested for leaks.",
+    hazards: ["manual_handling", "water_ingress", "slips_trips"],
+    questions: [
+      { id: "q1", label: "Is safe manual handling arranged for the vented cylinder replacement?" },
+      { id: "q2", label: "Is floor protection provided to manage spills during the vented cylinder replacement?" },
+      { id: "q3", label: "Are feed and vent connections checked during the vented cylinder replacement?" },
+      { id: "q4", label: "Will the system be fully vented and leak-checked after the vented cylinder replacement?" },
+      { id: "q5", label: "Is all lagging reinstated following the vented cylinder replacement?" }
+    ]
+  },
+
+  // 19
+  "Back boiler decommission & replacement": {
+    desc: "Back boiler decommission & replacement involves making an old back boiler permanently safe and often installing a new appliance elsewhere. Works include gas isolation, chimney and hearth modifications and managing waste materials. Asbestos and structural issues may be encountered.",
+    hazards: ["gas", "dust_fumes", "asbestos", "manual_handling"],
+    questions: [
+      { id: "q1", label: "Has the presence of asbestos been considered before the back boiler decommission & replacement?" },
+      { id: "q2", label: "Will gas to the back boiler decommission & replacement be safely isolated and capped?" },
+      { id: "q3", label: "Is chimney integrity and structure assessed before the back boiler decommission & replacement?" },
+      { id: "q4", label: "Are lifting and access arrangements adequate for the back boiler decommission & replacement?" },
+      { id: "q5", label: "Will waste arising from the back boiler decommission & replacement be disposed of correctly?" }
+    ]
+  },
+
+  // 20
+  "Flue replacement / upgrade (domestic boiler)": {
+    desc: "Flue replacement / upgrade (domestic boiler) covers replacing or rerouting a boiler flue system to comply with current standards or design changes. Works may include core drilling, fitting new terminals and sealing external penetrations. Flue integrity is tested on completion.",
+    hazards: ["work_at_height", "dust_fumes", "manual_handling"],
+    questions: [
+      { id: "q1", label: "Is safe access provided for external elements of the flue replacement / upgrade (domestic boiler)?" },
+      { id: "q2", label: "Is core drilling for the flue replacement / upgrade (domestic boiler) planned to avoid services?" },
+      { id: "q3", label: "Is dust control in place during the flue replacement / upgrade (domestic boiler)?" },
+      { id: "q4", label: "Will all joints be checked and tested for the flue replacement / upgrade (domestic boiler)?" },
+      { id: "q5", label: "Will external penetrations be sealed and weathered after the flue replacement / upgrade (domestic boiler)?" }
+    ]
+  },
+
+  // 21
+  "Chimney flue liner installation (gas appliance)": {
+    desc: "Chimney flue liner installation (gas appliance) involves installing a flexible liner down an existing chimney to suit a new gas appliance. Works are carried out at height and may require roof access and lifting equipment. Connections and terminals are fitted and tested.",
+    hazards: ["work_at_height", "manual_handling", "falling_objects", "dust_fumes"],
+    questions: [
+      { id: "q1", label: "Is roof access for chimney flue liner installation (gas appliance) properly controlled and protected?" },
+      { id: "q2", label: "Are lifting and lowering methods in place for the chimney flue liner installation (gas appliance)?" },
+      { id: "q3", label: "Is the chimney checked for obstructions before the chimney flue liner installation (gas appliance)?" },
+      { id: "q4", label: "Will debris from the chimney flue liner installation (gas appliance) be controlled and cleared?" },
+      { id: "q5", label: "Will flue integrity tests be completed following the chimney flue liner installation (gas appliance)?" }
+    ]
+  },
+
+  // 22
+  "Gas pipework alteration (internal property)": {
+    desc: "Gas pipework alteration (internal property) covers rerouting or extending pipework within a building, for example for new appliances. Works include tightness testing, clipping and protecting pipe runs, and reinstating finishes where required.",
+    hazards: ["gas", "dust_fumes", "manual_handling"],
+    questions: [
+      { id: "q1", label: "Will a tightness test be carried out before and after the gas pipework alteration (internal property)?" },
+      { id: "q2", label: "Are pipe routes for the gas pipework alteration (internal property) chosen to avoid damage and hidden voids?" },
+      { id: "q3", label: "Is floor and wall chasing for the gas pipework alteration (internal property) carried out avoiding other services?" },
+      { id: "q4", label: "Are suitable pipe clips and protection used during the gas pipework alteration (internal property)?" },
+      { id: "q5", label: "Will all exposed openings be made good after the gas pipework alteration (internal property)?" }
+    ]
+  },
+
+  // 23
+  "Gas meter relocation (non-DNO works)": {
+    desc: "Gas meter relocation (non-DNO works) involves moving a meter within allowable limits, coordinating with the network operator where required. Works include isolating, altering pipework, refixing the meter and retesting. Meter support and ventilation requirements are maintained.",
+    hazards: ["gas", "manual_handling", "fire_explosion"],
+    questions: [
+      { id: "q1", label: "Has approval been obtained where required before the gas meter relocation (non-DNO works)?" },
+      { id: "q2", label: "Is the new position for the gas meter relocation (non-DNO works) compliant with ventilation and access requirements?" },
+      { id: "q3", label: "Will the gas installation be tightness tested after the gas meter relocation (non-DNO works)?" },
+      { id: "q4", label: "Are supports and fixings adequate for the gas meter relocation (non-DNO works)?" },
+      { id: "q5", label: "Are emergency control valves clearly accessible after the gas meter relocation (non-DNO works)?" }
+    ]
+  },
+
+  // 24
+  "LPG installation (bottled) – domestic": {
+    desc: "LPG installation (bottled) – domestic covers setting up cylinder locations, changeover valves and regulators, and running pipework to appliances. Works must consider cylinder separation distances, protection from impact and ventilation.",
+    hazards: ["gas", "fire_explosion", "moving_vehicles", "environmental_weather"],
+    questions: [
+      { id: "q1", label: "Are cylinder positions for LPG installation (bottled) – domestic compliant with separation distances and ventilation?" },
+      { id: "q2", label: "Are regulators and hoses for LPG installation (bottled) – domestic sized and installed correctly?" },
+      { id: "q3", label: "Is pipework for LPG installation (bottled) – domestic adequately protected from damage?" },
+      { id: "q4", label: "Is a tightness test planned after the LPG installation (bottled) – domestic?" },
+      { id: "q5", label: "Will cylinder handling and storage for LPG installation (bottled) – domestic follow safety guidance?" }
+    ]
+  },
+
+  // 25
+  "LPG installation (bulk tank) – domestic": {
+    desc: "LPG installation (bulk tank) – domestic involves connecting a bulk storage tank to property pipework and appliances. Works require coordination with the LPG supplier on siting, access and safety zones. Underground or above-ground pipe routes are designed and installed to standard.",
+    hazards: ["gas", "fire_explosion", "moving_vehicles", "excavation"],
+    questions: [
+      { id: "q1", label: "Has the LPG supplier's design been reviewed before the LPG installation (bulk tank) – domestic?" },
+      { id: "q2", label: "Are excavation and pipe routes for LPG installation (bulk tank) – domestic planned to avoid other services?" },
+      { id: "q3", label: "Is protection against vehicle impact provided for the LPG installation (bulk tank) – domestic?" },
+      { id: "q4", label: "Is a full tightness test scheduled after the LPG installation (bulk tank) – domestic?" },
+      { id: "q5", label: "Are safety notices and emergency information provided after the LPG installation (bulk tank) – domestic?" }
+    ]
+  },
+
+  // 26
+  "Commercial boiler installation (plantroom)": {
+    desc: "Commercial boiler installation (plantroom) involves installing larger appliances and associated headers, pumps, flues and controls in a plant area. Works may require lifting equipment, hot works and coordination with other services. Commissioning is carried out with reference to design data.",
+    hazards: ["gas", "hot_work", "manual_handling", "plant_machinery", "fire_explosion"],
+    questions: [
+      { id: "q1", label: "Is a lifting and access plan in place for the commercial boiler installation (plantroom)?" },
+      { id: "q2", label: "Are hot work permits and fire watch arrangements agreed for the commercial boiler installation (plantroom)?" },
+      { id: "q3", label: "Are gas trains and safety devices sized and installed correctly for the commercial boiler installation (plantroom)?" },
+      { id: "q4", label: "Is flue routing and discharge for the commercial boiler installation (plantroom) designed and agreed?" },
+      { id: "q5", label: "Will commissioning data and settings be recorded for the commercial boiler installation (plantroom)?" }
+    ]
+  },
+
+  // 27
+  "Commercial boiler service & PPM": {
+    desc: "Commercial boiler service & PPM covers regular planned maintenance on commercial boilers and plant. Tasks include combustion analysis, safety device testing, cleaning and visual inspections. Findings and remedial actions are recorded in maintenance logs.",
+    hazards: ["gas", "hot_work", "noise_vibration", "plant_machinery"],
+    questions: [
+      { id: "q1", label: "Are isolation and lock-off procedures in place for commercial boiler service & PPM?" },
+      { id: "q2", label: "Is combustion analysis equipment calibrated for commercial boiler service & PPM?" },
+      { id: "q3", label: "Are burner components removed and handled safely during commercial boiler service & PPM?" },
+      { id: "q4", label: "Are safety shutdowns proven as part of commercial boiler service & PPM?" },
+      { id: "q5", label: "Are service records updated and actions prioritised after commercial boiler service & PPM?" }
+    ]
+  },
+
+  // 28
+  "Warm air unit installation (domestic/commercial)": {
+    desc: "Warm air unit installation (domestic/commercial) involves installing gas-fired warm air heaters, connecting ductwork and controls where applicable. Flues and air intakes are arranged to meet manufacturer and regulatory requirements.",
+    hazards: ["gas", "hot_work", "manual_handling", "work_at_height"],
+    questions: [
+      { id: "q1", label: "Is flue and combustion air provision adequate for the warm air unit installation (domestic/commercial)?" },
+      { id: "q2", label: "Are lifting and support arrangements in place for the warm air unit installation (domestic/commercial)?" },
+      { id: "q3", label: "Are ducts and grilles positioned safely for the warm air unit installation (domestic/commercial)?" },
+      { id: "q4", label: "Will gas tightness and combustion be tested after the warm air unit installation (domestic/commercial)?" },
+      { id: "q5", label: "Are controls and interlocks confirmed during the warm air unit installation (domestic/commercial)?" }
+    ]
+  },
+
+  // 29
+  "Warm air unit service & repair": {
+    desc: "Warm air unit service & repair includes cleaning heat exchangers and fans, checking safety devices and repairing faults. Access to high-level units and duct connections is often required. Combustion and airflow are checked and adjusted.",
+    hazards: ["gas", "work_at_height", "dust_fumes", "noise_vibration"],
+    questions: [
+      { id: "q1", label: "Is safe access provided for warm air unit service & repair, especially at height?" },
+      { id: "q2", label: "Are fans and burners isolated before warm air unit service & repair?" },
+      { id: "q3", label: "Is dust from cleaning managed during warm air unit service & repair?" },
+      { id: "q4", label: "Is combustion tested and set up during warm air unit service & repair?" },
+      { id: "q5", label: "Are all panels and guards resecured after warm air unit service & repair?" }
+    ]
+  },
+
+  // 30
+  "Radiant tube heater installation (warehouse)": {
+    desc: "Radiant tube heater installation (warehouse) involves installing gas-fired radiant tubes at height, suspending them from structure, connecting gas and flue systems and commissioning. Clearances to combustibles and occupants are critical.",
+    hazards: ["gas", "work_at_height", "plant_machinery", "fire_explosion"],
+    questions: [
+      { id: "q1", label: "Is a safe access method defined for radiant tube heater installation (warehouse) at high level?" },
+      { id: "q2", label: "Are supports and hangers adequate for radiant tube heater installation (warehouse)?" },
+      { id: "q3", label: "Are clearances to combustibles and walkways maintained for radiant tube heater installation (warehouse)?" },
+      { id: "q4", label: "Will flue routes and terminals be checked after radiant tube heater installation (warehouse)?" },
+      { id: "q5", label: "Is gas tightness and combustion tested after radiant tube heater installation (warehouse)?" }
+    ]
+  },
+
+  // 31
+  "Radiant tube heater service & repair": {
+    desc: "Radiant tube heater service & repair includes inspecting tubes, burners, reflectors and suspensions, and carrying out necessary repairs. Work is often at height with powered access. Combustion and safety devices are tested.",
+    hazards: ["gas", "work_at_height", "noise_vibration"],
+    questions: [
+      { id: "q1", label: "Is MEWP or scaffolding used correctly for radiant tube heater service & repair?" },
+      { id: "q2", label: "Are burners and electrics isolated before radiant tube heater service & repair?" },
+      { id: "q3", label: "Are suspension systems checked for integrity during radiant tube heater service & repair?" },
+      { id: "q4", label: "Is combustion tested and adjusted during radiant tube heater service & repair?" },
+      { id: "q5", label: "Are safety interlocks confirmed during radiant tube heater service & repair?" }
+    ]
+  },
+
+  // 32
+  "Radiant panel heater installation (office)": {
+    desc: "Radiant panel heater installation (office) involves mounting gas or water-fed radiant panels and connecting them to services. Panels are positioned to provide even coverage without causing discomfort. Fixings and pipework supports are checked.",
+    hazards: ["work_at_height", "manual_handling", "live_electricity"],
+    questions: [
+      { id: "q1", label: "Is safe access arranged for radiant panel heater installation (office) at height?" },
+      { id: "q2", label: "Are fixings suitable for the substrate during radiant panel heater installation (office)?" },
+      { id: "q3", label: "Are pipe or power connections safely isolated for radiant panel heater installation (office)?" },
+      { id: "q4", label: "Are panel locations agreed to avoid glare and discomfort in the radiant panel heater installation (office)?" },
+      { id: "q5", label: "Will the system be tested and balanced after radiant panel heater installation (office)?" }
+    ]
+  },
+
+  // 33
+  "Underfloor heating (wet) system installation": {
+    desc: "Underfloor heating (wet) system installation involves laying pipework in floors, connecting to manifolds and heat sources, and pressure testing before finishes are applied. Pipe layout must avoid damage from fixings and respect expansion joints.",
+    hazards: ["manual_handling", "hot_work", "dust_fumes"],
+    questions: [
+      { id: "q1", label: "Is pipe layout for the underfloor heating (wet) system installation agreed and marked up?" },
+      { id: "q2", label: "Will the underfloor heating (wet) system installation be pressure tested before screed or finishes are applied?" },
+      { id: "q3", label: "Is coordination with other trades in place for the underfloor heating (wet) system installation?" },
+      { id: "q4", label: "Are manifolds located accessibly for the underfloor heating (wet) system installation?" },
+      { id: "q5", label: "Will controls and zones be clearly labelled at the end of the underfloor heating (wet) system installation?" }
+    ]
+  },
+
+  // 34
+  "Underfloor heating (wet) fault finding & repair": {
+    desc: "Underfloor heating (wet) fault finding & repair includes tracing pipe runs, checking pressures and temperatures, and addressing leaks or circulation issues. Works may involve opening up floors and reinstatement afterwards.",
+    hazards: ["water_ingress", "dust_fumes", "manual_handling"],
+    questions: [
+      { id: "q1", label: "Is the system depressurised where necessary for underfloor heating (wet) fault finding & repair?" },
+      { id: "q2", label: "Is there a plan for minimising and containing water leaks during underfloor heating (wet) fault finding & repair?" },
+      { id: "q3", label: "Is dust and debris control in place when opening floors for underfloor heating (wet) fault finding & repair?" },
+      { id: "q4", label: "Will all repairs be re-tested before reinstating finishes after underfloor heating (wet) fault finding & repair?" },
+      { id: "q5", label: "Will the client be advised about any residual risks after underfloor heating (wet) fault finding & repair?" }
+    ]
+  },
+
+  // 35
+  "Heating controls upgrade (smart thermostats)": {
+    desc: "Heating controls upgrade (smart thermostats) involves installing new programmable or smart controls, wiring into existing systems and commissioning schedules. Works often require integration with apps and customer Wi-Fi networks.",
+    hazards: ["live_electricity", "dust_fumes"],
+    questions: [
+      { id: "q1", label: "Is safe isolation confirmed before wiring changes for the heating controls upgrade (smart thermostats)?" },
+      { id: "q2", label: "Is existing wiring suitable and identified clearly for the heating controls upgrade (smart thermostats)?" },
+      { id: "q3", label: "Are controller positions suitable and accessible for the heating controls upgrade (smart thermostats)?" },
+      { id: "q4", label: "Will the client receive a demonstration after the heating controls upgrade (smart thermostats)?" },
+      { id: "q5", label: "Are any old controls safely decommissioned during the heating controls upgrade (smart thermostats)?" }
+    ]
+  },
+
+  // 36
+  "Zone valve replacement (S-plan/Y-plan)": {
+    desc: "Zone valve replacement (S-plan/Y-plan) involves isolating and draining parts of the heating system, replacing motorised valves and wiring them into controls. Correct orientation and wiring are essential to safe operation.",
+    hazards: ["water_ingress", "manual_handling", "live_electricity"],
+    questions: [
+      { id: "q1", label: "Is the system safely isolated and drained before the zone valve replacement (S-plan/Y-plan)?" },
+      { id: "q2", label: "Is safe isolation of controls confirmed before rewiring during zone valve replacement (S-plan/Y-plan)?" },
+      { id: "q3", label: "Are valves installed with correct flow direction during zone valve replacement (S-plan/Y-plan)?" },
+      { id: "q4", label: "Will joints be checked for leaks after zone valve replacement (S-plan/Y-plan)?" },
+      { id: "q5", label: "Will controls be tested through all modes after zone valve replacement (S-plan/Y-plan)?" }
+    ]
+  },
+
+  // 37
+  "Heating pump replacement (circulator)": {
+    desc: "Heating pump replacement (circulator) includes isolating and draining the section, removing the existing pump, fitting a new unit and recommissioning. Pump orientation, speed settings and electrical connections are confirmed.",
+    hazards: ["water_ingress", "manual_handling", "live_electricity"],
+    questions: [
+      { id: "q1", label: "Is isolation and drain down arranged before the heating pump replacement (circulator)?" },
+      { id: "q2", label: "Is lifting of the old and new pump controlled during the heating pump replacement (circulator)?" },
+      { id: "q3", label: "Is electrical isolation in place for the heating pump replacement (circulator)?" },
+      { id: "q4", label: "Will rotation and settings be checked after the heating pump replacement (circulator)?" },
+      { id: "q5", label: "Will all unions and joints be leak-checked following the heating pump replacement (circulator)?" }
+    ]
+  },
+
+  // 38
+  "Expansion vessel replacement (heating system)": {
+    desc: "Expansion vessel replacement (heating system) involves isolating, depressurising and removing a vessel, then installing and pre-charging a new one. The system is refilled and pressure-tested afterward.",
+    hazards: ["water_ingress", "manual_handling", "work_at_height"],
+    questions: [
+      { id: "q1", label: "Is the system depressurised safely before the expansion vessel replacement (heating system)?" },
+      { id: "q2", label: "Is safe access provided if the expansion vessel replacement (heating system) is at height?" },
+      { id: "q3", label: "Are lifting and handling controls in place for the expansion vessel replacement (heating system)?" },
+      { id: "q4", label: "Is vessel pre-charge checked and set during the expansion vessel replacement (heating system)?" },
+      { id: "q5", label: "Will the system be refilled and checked for leaks after the expansion vessel replacement (heating system)?" }
+    ]
+  },
+
+  // 39
+  "Magnetic system filter installation": {
+    desc: "Magnetic system filter installation involves cutting into heating pipework to fit a filter, usually near the boiler. The system is partially drained and refilled. Filters are left accessible for future servicing.",
+    hazards: ["water_ingress", "manual_handling", "slips_trips"],
+    questions: [
+      { id: "q1", label: "Is partial drain down planned before the magnetic system filter installation?" },
+      { id: "q2", label: "Is suitable containment provided for water during the magnetic system filter installation?" },
+      { id: "q3", label: "Is the filter position accessible for servicing after the magnetic system filter installation?" },
+      { id: "q4", label: "Will joints be checked for leaks following the magnetic system filter installation?" },
+      { id: "q5", label: "Will inhibitor levels be checked after the magnetic system filter installation?" }
+    ]
+  },
+
+  // 40
+  "Condensate pipe modification & freeze protection": {
+    desc: "Condensate pipe modification & freeze protection includes altering routes, increasing pipe sizes or adding insulation and trace heating to prevent freezing. External runs and discharge points are reviewed for compliance.",
+    hazards: ["water_ingress", "work_at_height", "slips_trips"],
+    questions: [
+      { id: "q1", label: "Is safe access in place for external condensate pipe modification & freeze protection?" },
+      { id: "q2", label: "Are pipe falls and diameters checked during condensate pipe modification & freeze protection?" },
+      { id: "q3", label: "Is suitable insulation or trace heat applied as part of condensate pipe modification & freeze protection?" },
+      { id: "q4", label: "Is discharge from condensate pipe modification & freeze protection directed to an appropriate location?" },
+      { id: "q5", label: "Will the condensate system be tested after condensate pipe modification & freeze protection?" }
+    ]
+  },
+
+  // 41
+  "Gas appliance disconnection & cap-off": {
+    desc: "Gas appliance disconnection & cap-off involves safely isolating and removing appliances, then permanently sealing the gas supply. Labels and records are updated to show the appliance is no longer in use.",
+    hazards: ["gas", "fire_explosion"],
+    questions: [
+      { id: "q1", label: "Is the gas supply safely isolated before gas appliance disconnection & cap-off?" },
+      { id: "q2", label: "Is the pipe/service labelled after gas appliance disconnection & cap-off?" },
+      { id: "q3", label: "Will a tightness test be carried out after gas appliance disconnection & cap-off?" },
+      { id: "q4", label: "Are any open flues or vents made safe following gas appliance disconnection & cap-off?" },
+      { id: "q5", label: "Is the client made aware that the appliance is not to be reconnected following gas appliance disconnection & cap-off?" }
+    ]
+  },
+
+  // 42
+  "Gas safety survey for property purchase": {
+    desc: "Gas safety survey for property purchase involves inspecting existing gas appliances, flues and pipework to provide a condition report for potential buyers. Any non-compliances and safety issues are highlighted.",
+    hazards: ["gas", "public_interface"],
+    questions: [
+      { id: "q1", label: "Has permission been obtained from the owner/agent before starting the gas safety survey for property purchase?" },
+      { id: "q2", label: "Are all appliances accessible for the gas safety survey for property purchase?" },
+      { id: "q3", label: "Will tightness and flue tests be completed as part of the gas safety survey for property purchase?" },
+      { id: "q4", label: "Will unsafe situations be made safe during the gas safety survey for property purchase?" },
+      { id: "q5", label: "Will a written report be provided after the gas safety survey for property purchase?" }
+    ]
+  },
+
+  // 43
+  "Plantroom heating pipework modifications": {
+    desc: "Plantroom heating pipework modifications includes altering flow/return pipework, adding tees or valves, and reconfiguring circuits in a plantroom. Works may require hot works, draining down and lifting heavy components.",
+    hazards: ["hot_work", "water_ingress", "manual_handling", "confined_space"],
+    questions: [
+      { id: "q1", label: "Are hot work permits and fire controls in place for plantroom heating pipework modifications?" },
+      { id: "q2", label: "Is the system safely isolated and drained before plantroom heating pipework modifications?" },
+      { id: "q3", label: "Are lifting and access arrangements adequate for plantroom heating pipework modifications?" },
+      { id: "q4", label: "Is pipework correctly supported after plantroom heating pipework modifications?" },
+      { id: "q5", label: "Is the system refilled, vented and checked for leaks after plantroom heating pipework modifications?" }
+    ]
+  },
+
+  // 44
+  "Commercial unit heater installation": {
+    desc: "Commercial unit heater installation involves mounting gas or water-fed heaters in industrial or commercial spaces, connecting services and controls, and commissioning. Work is often at height and may require powered access.",
+    hazards: ["work_at_height", "gas", "manual_handling", "plant_machinery"],
+    questions: [
+      { id: "q1", label: "Is access equipment correctly specified for the commercial unit heater installation?" },
+      { id: "q2", label: "Are supports and fixings adequate for the commercial unit heater installation?" },
+      { id: "q3", label: "Are gas and power connections for the commercial unit heater installation isolated and tested?" },
+      { id: "q4", label: "Are clearances to combustibles checked for the commercial unit heater installation?" },
+      { id: "q5", label: "Will controls be tested following the commercial unit heater installation?" }
+    ]
+  },
+
+  // 45
+  "Commercial heating controls / BMS upgrade": {
+    desc: "Commercial heating controls / BMS upgrade includes replacing or reprogramming control panels, sensors and actuators controlling heating systems. Works involve electrical and low-voltage control wiring and coordination with building managers.",
+    hazards: ["live_electricity", "manual_handling", "poor_lighting"],
+    questions: [
+      { id: "q1", label: "Is safe isolation in place before commercial heating controls / BMS upgrade wiring begins?" },
+      { id: "q2", label: "Are existing circuits identified and labelled for the commercial heating controls / BMS upgrade?" },
+      { id: "q3", label: "Is adequate lighting provided during the commercial heating controls / BMS upgrade?" },
+      { id: "q4", label: "Will new control strategies be tested during the commercial heating controls / BMS upgrade?" },
+      { id: "q5", label: "Is the client briefed on any operational changes after the commercial heating controls / BMS upgrade?" }
+    ]
+  },
+
+  // 46
+  "School / care home heating PPM visit": {
+    desc: "School / care home heating PPM visit involves scheduled maintenance of heating systems in sensitive environments. Work includes servicing boilers, checking controls and ensuring safe temperatures. Safeguarding and access protocols are followed.",
+    hazards: ["gas", "public_interface", "noise_vibration"],
+    questions: [
+      { id: "q1", label: "Have safeguarding and access procedures been agreed before the school / care home heating PPM visit?" },
+      { id: "q2", label: "Is noise from the school / care home heating PPM visit controlled to minimise disruption?" },
+      { id: "q3", label: "Are plant areas secured during the school / care home heating PPM visit?" },
+      { id: "q4", label: "Are any defects identified during the school / care home heating PPM visit recorded and prioritised?" },
+      { id: "q5", label: "Will statutory checks (e.g. gas safety) be updated during the school / care home heating PPM visit?" }
+    ]
+  },
+
+  // 47
+  "Temporary boiler hook-up & commissioning": {
+    desc: "Temporary boiler hook-up & commissioning includes connecting mobile boiler plant to existing systems using flexible hoses and temporary services. Works typically occur in constrained plant or yard areas and require careful planning of flows and returns.",
+    hazards: ["plant_machinery", "moving_vehicles", "water_ingress", "manual_handling"],
+    questions: [
+      { id: "q1", label: "Is a traffic management plan in place for the temporary boiler hook-up & commissioning?" },
+      { id: "q2", label: "Are flexible hoses for temporary boiler hook-up & commissioning protected from damage and trips?" },
+      { id: "q3", label: "Is the system pressure and temperature regime agreed for temporary boiler hook-up & commissioning?" },
+      { id: "q4", label: "Are gas and power connections for temporary boiler hook-up & commissioning installed and tested safely?" },
+      { id: "q5", label: "Will the temporary boiler hook-up & commissioning be documented and communicated to the client?" }
+    ]
+  },
+
+  // 48
+  "District heating HIU installation & commissioning": {
+    desc: "District heating HIU installation & commissioning involves fitting heat interface units in dwellings served from a central plant. Works include connecting primary and secondary circuits, flushes, pressure tests and control setup.",
+    hazards: ["manual_handling", "water_ingress", "live_electricity"],
+    questions: [
+      { id: "q1", label: "Is isolation and drain down arranged for district heating HIU installation & commissioning?" },
+      { id: "q2", label: "Are primary and secondary connections clearly identified during district heating HIU installation & commissioning?" },
+      { id: "q3", label: "Is electrical supply for district heating HIU installation & commissioning safely isolated and tested?" },
+      { id: "q4", label: "Will flushing and pressure tests be completed during district heating HIU installation & commissioning?" },
+      { id: "q5", label: "Will controls be set up and demonstrated after district heating HIU installation & commissioning?" }
+    ]
+  },
+
+  // 49
+  "District heating HIU service & maintenance": {
+    desc: "District heating HIU service & maintenance includes cleaning filters, checking plate heat exchangers, testing controls and ensuring safe temperatures. Works are usually carried out within occupied dwellings with minimal disruption.",
+    hazards: ["water_ingress", "public_interface", "manual_handling"],
+    questions: [
+      { id: "q1", label: "Have occupants been notified before district heating HIU service & maintenance starts?" },
+      { id: "q2", label: "Is floor and surface protection in place for district heating HIU service & maintenance?" },
+      { id: "q3", label: "Will filters and strainers be cleaned during district heating HIU service & maintenance?" },
+      { id: "q4", label: "Will temperatures and controls be verified during district heating HIU service & maintenance?" },
+      { id: "q5", label: "Will service findings be recorded after district heating HIU service & maintenance?" }
+    ]
+  },
+
+  // 50
+  "Oil boiler service & commissioning": {
+    desc: "Oil boiler service & commissioning involves cleaning combustion chambers, replacing nozzles and filters, checking oil line integrity and setting up combustion using flue gas analysis. Spillages and odours are controlled throughout.",
+    hazards: ["chemical_coshh", "fire_explosion", "noise_vibration", "dust_fumes"],
+    questions: [
+      { id: "q1", label: "Are oil lines and tanks checked for leaks during the oil boiler service & commissioning?" },
+      { id: "q2", label: "Is spill control in place for oil boiler service & commissioning activities?" },
+      { id: "q3", label: "Is combustion analysis carried out and recorded during the oil boiler service & commissioning?" },
+      { id: "q4", label: "Are burner components handled and reassembled safely during the oil boiler service & commissioning?" },
+      { id: "q5", label: "Is ventilation adequate during the oil boiler service & commissioning?" }
+    ]
+  },
+};
+
+// ==========================================
+// MASTER TRADE REGISTRY
 // ==========================================
 
 export const TRADES = {
@@ -5470,5 +6126,10 @@ export const TRADES = {
   "HVAC / Air Conditioning": {
     jobs: Object.keys(HVAC_AIRCON_CLUSTERS).map((name) => ({ name })),
     clusters: HVAC_AIRCON_CLUSTERS,
+  },
+
+  "Gas & Heating Engineer": {
+    jobs: Object.keys(GAS_HEATING_CLUSTERS).map((name) => ({ name })),
+    clusters: GAS_HEATING_CLUSTERS,
   },
 };
