@@ -6076,6 +6076,18 @@ const GAS_HEATING_CLUSTERS: Record<string, JobCluster> = {
       { id: "q5", label: "Is ventilation adequate during the oil boiler service & commissioning?" }
     ]
   },
+
+  "Other (Custom)": {
+    desc: "",
+    hazards: [],
+    questions: [
+      { id: "q1", label: "Have you identified all specific hazards associated with this custom gas or heating task (including gas, flues and hot water)?" },
+      { id: "q2", label: "Do you have the correct tools, test equipment and parts for this custom gas or heating task?" },
+      { id: "q3", label: "Has a dynamic risk assessment been carried out for this custom gas or heating task before starting work?" },
+      { id: "q4", label: "Are you competent, Gas Safe registered (where required) and authorised to undertake this specific custom gas or heating task?" },
+      { id: "q5", label: "Have you agreed the scope, isolation points and any temporary loss of service with the client for this custom gas or heating task?" }
+    ]
+  }
 };
 
 // ==========================================
