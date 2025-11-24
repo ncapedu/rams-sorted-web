@@ -4817,6 +4817,612 @@ const DEMOLITION_STRIPOUT_CLUSTERS: Record<string, JobCluster> = {
 };
 
 // ==========================================
+// X. JOB CLUSTERS (HVAC / AIR CONDITIONING)
+// ==========================================
+
+const HVAC_AIRCON_CLUSTERS: Record<string, JobCluster> = {
+  "Wall-mounted split AC installation (domestic)": {
+    desc: "Wall-mounted split AC installation (domestic) involves fitting indoor and outdoor units, installing refrigerant pipework, interconnecting cables and condensate drains. The work typically requires drilling through external walls, fixing brackets securely and pressure testing the system before commissioning. Care is taken to protect finishes, manage noise and position equipment in line with manufacturer guidance and client requirements.",
+    hazards: ["work_at_height", "manual_handling", "dust_fumes", "noise_vibration"],
+    questions: [
+      { id: "q1", label: "Have suitable fixing points been identified for the wall-mounted split AC installation (domestic) to avoid weak substrates and services?" },
+      { id: "q2", label: "Is a safe method in place for drilling external walls during the wall-mounted split AC installation (domestic)?" },
+      { id: "q3", label: "Will access equipment for the outdoor unit be used in line with work at height requirements for the wall-mounted split AC installation (domestic)?" },
+      { id: "q4", label: "Are refrigerant pipe runs for the wall-mounted split AC installation (domestic) planned to avoid damage and trip hazards?" },
+      { id: "q5", label: "Will the wall-mounted split AC installation (domestic) be pressure tested and evacuated in accordance with manufacturer and F-gas requirements?" }
+    ]
+  },
+
+  "Multi-split AC installation (domestic)": {
+    desc: "Multi-split AC installation (domestic) covers installing one outdoor condenser feeding multiple indoor units. The work involves routing multiple pipe sets, condensate drains and control cables around the property. Equipment positioning is planned to minimise visual impact, noise and interference with neighbours. System commissioning ensures balanced performance across all indoor units.",
+    hazards: ["work_at_height", "manual_handling", "dust_fumes", "noise_vibration"],
+    questions: [
+      { id: "q1", label: "Has the outdoor unit position for the multi-split AC installation (domestic) been agreed with the client and neighbours where relevant?" },
+      { id: "q2", label: "Are pipe routes for the multi-split AC installation (domestic) planned to avoid overloading walls and soffits?" },
+      { id: "q3", label: "Is access equipment suitable for all high-level works in the multi-split AC installation (domestic)?" },
+      { id: "q4", label: "Will all joints in the multi-split AC installation (domestic) be pressure tested and leak checked before commissioning?" },
+      { id: "q5", label: "Are condensate drains from the multi-split AC installation (domestic) routed to safe discharge points?" }
+    ]
+  },
+
+  "Split AC replacement (like-for-like)": {
+    desc: "Split AC replacement (like-for-like) involves removing an existing system and installing a new unit of similar capacity and layout. The task includes safe recovery of refrigerant, disconnection of services, removal of old equipment and fitting the replacement. Pipework and cabling may be reused where suitable, subject to cleaning and testing.",
+    hazards: ["manual_handling", "chemical_coshh", "noise_vibration", "work_at_height"],
+    questions: [
+      { id: "q1", label: "Will refrigerant be safely recovered from the existing unit before split AC replacement (like-for-like) begins?" },
+      { id: "q2", label: "Is the existing pipework for split AC replacement (like-for-like) being assessed for suitability and cleanliness?" },
+      { id: "q3", label: "Is safe access provided for removal and refitting of outdoor units during split AC replacement (like-for-like)?" },
+      { id: "q4", label: "Has a plan been agreed for disposal of redundant split AC equipment and refrigerant?" },
+      { id: "q5", label: "Will the new split AC replacement (like-for-like) be commissioned and documented in line with manufacturer and F-gas guidance?" }
+    ]
+  },
+
+  "Portable AC installation & setup": {
+    desc: "Portable AC installation & setup covers delivering, positioning and configuring mobile cooling units in domestic or commercial spaces. Work includes routing exhaust ducts, setting condensate arrangements and advising on electrical supply limitations. Trip hazards and hot exhaust routing are managed carefully to protect occupants.",
+    hazards: ["manual_handling", "slips_trips", "environmental_weather"],
+    questions: [
+      { id: "q1", label: "Are manual handling controls in place for moving portable AC units during installation & setup?" },
+      { id: "q2", label: "Is the exhaust routing for portable AC installation & setup planned to avoid overheating or damage?" },
+      { id: "q3", label: "Are trip hazards from hoses and leads controlled during portable AC installation & setup?" },
+      { id: "q4", label: "Is the electrical supply adequate and correctly fused for the portable AC installation & setup?" },
+      { id: "q5", label: "Will users be briefed on safe operation and drainage during portable AC installation & setup?" }
+    ]
+  },
+
+  "Ceiling cassette AC installation": {
+    desc: "Ceiling cassette AC installation involves fitting cassette units into suspended ceilings or structural apertures, routing refrigerant pipework, drains and cabling back to an outdoor unit. The work is predominantly at height, requiring safe access and control of falling objects. Ceiling grids and tiles are supported to prevent collapse.",
+    hazards: ["work_at_height", "falling_objects", "manual_handling", "dust_fumes"],
+    questions: [
+      { id: "q1", label: "Is suitable access equipment in place for ceiling cassette AC installation?" },
+      { id: "q2", label: "Have ceiling supports and grid strength been checked before cutting openings for ceiling cassette AC installation?" },
+      { id: "q3", label: "Are measures in place to prevent tools and components falling during ceiling cassette AC installation?" },
+      { id: "q4", label: "Are condensate drains from ceiling cassette AC installation routed with adequate falls and insulation?" },
+      { id: "q5", label: "Will cassette units be commissioned and balanced following ceiling cassette AC installation?" }
+    ]
+  },
+
+  "Ducted AC system install (domestic)": {
+    desc: "Ducted AC system install (domestic) covers installing concealed air handling units, flexible or rigid ductwork and grilles to distribute cooled or heated air. The work often occurs in lofts or ceiling voids with restricted access and fragile ceilings. Duct routes are planned to avoid structural elements and services.",
+    hazards: ["work_at_height", "confined_space", "fragile_surfaces", "manual_handling", "dust_fumes"],
+    questions: [
+      { id: "q1", label: "Are safe crawl boards and access provided for ducted AC system install (domestic) in lofts or voids?" },
+      { id: "q2", label: "Have fragile ceilings been identified for ducted AC system install (domestic) and protected appropriately?" },
+      { id: "q3", label: "Are duct routes for ducted AC system install (domestic) planned to avoid structural and service clashes?" },
+      { id: "q4", label: "Is insulation specified correctly to prevent condensation on ducted AC system install (domestic)?" },
+      { id: "q5", label: "Will airflow and noise levels be checked after ducted AC system install (domestic)?" }
+    ]
+  },
+
+  "VRF/VRV system installation (commercial)": {
+    desc: "VRF/VRV system installation (commercial) involves installing multi-branch refrigerant systems serving numerous indoor units from one or more outdoor condensers. Works include large-bore and branch piping, extensive controls cabling and commissioning of sophisticated control strategies. Coordination with other trades and structural design is essential due to weight and routing complexity.",
+    hazards: ["manual_handling", "work_at_height", "noise_vibration", "chemical_coshh"],
+    questions: [
+      { id: "q1", label: "Has a coordinated services drawing been reviewed before VRF/VRV system installation (commercial) starts?" },
+      { id: "q2", label: "Are appropriate lifting aids available for VRF/VRV outdoor units and headers?" },
+      { id: "q3", label: "Will all refrigerant joints in VRF/VRV system installation (commercial) be pressure tested and nitrogen leak tested?" },
+      { id: "q4", label: "Are control and power cabling routes identified clearly for VRF/VRV system installation (commercial)?" },
+      { id: "q5", label: "Is manufacturer commissioning support or guidance being followed for VRF/VRV system installation (commercial)?" }
+    ]
+  },
+
+  "Server room close-control AC install": {
+    desc: "Server room close-control AC install provides precise temperature and humidity control for IT spaces. Works include installing high-reliability CRAC/CRAH units, pipework, drains and control interfaces to servers or BMS. Redundancy and resilience are considered in the design and installation, with close coordination on changeover and commissioning.",
+    hazards: ["manual_handling", "live_electricity", "water_ingress", "noise_vibration"],
+    questions: [
+      { id: "q1", label: "Has a changeover plan been agreed for server room close-control AC install to protect live IT equipment?" },
+      { id: "q2", label: "Are electrical supplies for server room close-control AC install sized and isolated correctly?" },
+      { id: "q3", label: "Is condensate management for server room close-control AC install designed to avoid leaks near IT equipment?" },
+      { id: "q4", label: "Are redundancy and alarm functions tested as part of server room close-control AC install?" },
+      { id: "q5", label: "Is noise and vibration from server room close-control AC install acceptable for adjacent spaces?" }
+    ]
+  },
+
+  "AC condensate pump installation": {
+    desc: "AC condensate pump installation covers fitting and wiring small pumps to lift condensate where gravity discharge is not possible. The work includes routing discharge pipework, installing anti-vibration supports and connecting to AC unit safeties. Flooding and nuisance tripping risks are managed by correct design and testing.",
+    hazards: ["live_electricity", "water_ingress", "manual_handling", "slips_trips"],
+    questions: [
+      { id: "q1", label: "Is the AC condensate pump installation located to allow safe maintenance access?" },
+      { id: "q2", label: "Are electrical connections for AC condensate pump installation made with appropriate isolation and fusing?" },
+      { id: "q3", label: "Is discharge pipework from AC condensate pump installation routed with adequate support and falls?" },
+      { id: "q4", label: "Will the AC condensate pump installation be function-tested for leak and overflow protection?" },
+      { id: "q5", label: "Are slip risks from potential leaks considered for AC condensate pump installation?" }
+    ]
+  },
+
+  "AC system commissioning & handover": {
+    desc: "AC system commissioning & handover focuses on verifying performance, safety and control settings of new or modified systems. The task includes checking refrigerant charge, superheat/subcool, electrical loads, airflow and setpoints. Documentation, labelling and client training are delivered as part of handover.",
+    hazards: ["live_electricity", "noise_vibration", "chemical_coshh"],
+    questions: [
+      { id: "q1", label: "Are commissioning works for AC system commissioning & handover carried out on safely isolated panels wherever possible?" },
+      { id: "q2", label: "Is test equipment for AC system commissioning & handover calibrated and suitable for the system?" },
+      { id: "q3", label: "Are refrigerant pressures and temperatures monitored safely during AC system commissioning & handover?" },
+      { id: "q4", label: "Will all safety devices be proven as part of AC system commissioning & handover?" },
+      { id: "q5", label: "Is handover documentation for AC system commissioning & handover prepared and issued to the client?" }
+    ]
+  },
+
+  "AC fault finding & diagnostics": {
+    desc: "AC fault finding & diagnostics involves tracing and rectifying performance or breakdown issues on existing systems. This may include electrical testing, refrigerant pressure checks, leak detection and control system interrogation. Live testing is minimised and only carried out under controlled conditions.",
+    hazards: ["live_electricity", "chemical_coshh", "noise_vibration", "lone_working"],
+    questions: [
+      { id: "q1", label: "Are safe isolation procedures followed wherever possible during AC fault finding & diagnostics?" },
+      { id: "q2", label: "Is leak detection for AC fault finding & diagnostics carried out using suitable equipment and ventilation?" },
+      { id: "q3", label: "Are manufacturer manuals consulted as part of AC fault finding & diagnostics?" },
+      { id: "q4", label: "Is there a lone working arrangement in place where AC fault finding & diagnostics occurs outside normal hours?" },
+      { id: "q5", label: "Are findings from AC fault finding & diagnostics recorded and communicated to the client?" }
+    ]
+  },
+
+  "AC gas leak trace & repair (F-gas)": {
+    desc: "AC gas leak trace & repair (F-gas) covers locating and repairing refrigerant leaks in compliance with F-gas regulations. Works include pressure testing with nitrogen, isolating circuits, repairing joints and evacuating/charging systems. Environmental and health risks from refrigerant release are controlled.",
+    hazards: ["chemical_coshh", "environmental_weather", "live_electricity", "noise_vibration"],
+    questions: [
+      { id: "q1", label: "Are F-gas qualifications in place for AC gas leak trace & repair (F-gas)?" },
+      { id: "q2", label: "Is refrigerant recovery equipment available for AC gas leak trace & repair (F-gas)?" },
+      { id: "q3", label: "Are nitrogen pressure tests for AC gas leak trace & repair (F-gas) carried out with suitable regulators and gauges?" },
+      { id: "q4", label: "Is the area ventilated adequately during AC gas leak trace & repair (F-gas)?" },
+      { id: "q5", label: "Will records of AC gas leak trace & repair (F-gas) be kept in line with regulatory requirements?" }
+    ]
+  },
+
+  "AC refrigerant reclaim & recharge": {
+    desc: "AC refrigerant reclaim & recharge focuses on recovering refrigerant, evacuating systems and charging to specified weights. The work is typically carried out after repairs or replacements. Cylinders, hoses and manifolds are handled carefully to prevent leaks and manual handling injuries.",
+    hazards: ["chemical_coshh", "manual_handling", "live_electricity"],
+    questions: [
+      { id: "q1", label: "Are recovery cylinders for AC refrigerant reclaim & recharge correctly rated and labelled?" },
+      { id: "q2", label: "Is weighing equipment used for AC refrigerant reclaim & recharge to ensure correct charge?" },
+      { id: "q3", label: "Are electrical supplies to associated equipment isolated where possible during AC refrigerant reclaim & recharge?" },
+      { id: "q4", label: "Are hoses and connections for AC refrigerant reclaim & recharge inspected for damage before use?" },
+      { id: "q5", label: "Is refrigerant waste handled and consigned correctly following AC refrigerant reclaim & recharge?" }
+    ]
+  },
+
+  "AC seasonal service (domestic)": {
+    desc: "AC seasonal service (domestic) includes cleaning filters, checking electrical connections, verifying drains and basic function checks on small domestic units. The work is usually done in occupied properties and must minimise disruption and dust. Access to indoor and outdoor units is managed safely.",
+    hazards: ["work_at_height", "manual_handling", "dust_fumes"],
+    questions: [
+      { id: "q1", label: "Have occupants been advised of the AC seasonal service (domestic) schedule and any power interruptions?" },
+      { id: "q2", label: "Is access equipment for outdoor units used correctly during AC seasonal service (domestic)?" },
+      { id: "q3", label: "Are filters cleaned or replaced using methods that control dust during AC seasonal service (domestic)?" },
+      { id: "q4", label: "Are electrical checks for AC seasonal service (domestic) carried out with safe isolation where possible?" },
+      { id: "q5", label: "Is condensate drainage verified and tested during AC seasonal service (domestic)?" }
+    ]
+  },
+
+  "AC PPM visit (commercial)": {
+    desc: "AC PPM visit (commercial) covers planned preventive maintenance on multiple units across commercial sites. Tasks include filter changes, coil cleaning, checks on belts, fans, electrics and controls. Work is often at height or in plant areas and must be coordinated with site management.",
+    hazards: ["work_at_height", "manual_handling", "dust_fumes", "noise_vibration", "plant_machinery"],
+    questions: [
+      { id: "q1", label: "Has a permit or access approval been obtained for AC PPM visit (commercial) areas?" },
+      { id: "q2", label: "Is safe access in place for roof or plantroom units during AC PPM visit (commercial)?" },
+      { id: "q3", label: "Are chemical cleaners for AC PPM visit (commercial) used in line with COSHH guidance?" },
+      { id: "q4", label: "Are rotating parts isolated or guarded during AC PPM visit (commercial)?" },
+      { id: "q5", label: "Are PPM findings documented and outstanding defects raised following AC PPM visit (commercial)?" }
+    ]
+  },
+
+  "Heat pump installation (air-to-air)": {
+    desc: "Heat pump installation (air-to-air) involves fitting reversible AC systems that provide heating and cooling via indoor fan coil units. The work covers mounting indoor/outdoor units, installing refrigerant circuits, drains and controls. Outdoor siting and noise impact are important considerations.",
+    hazards: ["manual_handling", "work_at_height", "noise_vibration", "chemical_coshh"],
+    questions: [
+      { id: "q1", label: "Is the outdoor location for heat pump installation (air-to-air) suitable for noise and service access?" },
+      { id: "q2", label: "Are wall or ground brackets adequate for the weight of the heat pump installation (air-to-air)?" },
+      { id: "q3", label: "Will refrigerant pipework for heat pump installation (air-to-air) be pressure tested and evacuated?" },
+      { id: "q4", label: "Is electrical protection correctly sized for heat pump installation (air-to-air)?" },
+      { id: "q5", label: "Are controls for heat pump installation (air-to-air) located for safe and convenient access?" }
+    ]
+  },
+
+  "Heat pump installation (air-to-water)": {
+    desc: "Heat pump installation (air-to-water) covers installing external units connected to wet heating systems and cylinders. Works include concrete bases or wall brackets, primary pipework, insulation, controls and integration with existing heating circuits. System flushing, filling and commissioning are critical to performance.",
+    hazards: ["manual_handling", "environmental_weather", "water_ingress", "live_electricity"],
+    questions: [
+      { id: "q1", label: "Has a suitable base or bracket been installed for heat pump installation (air-to-water)?" },
+      { id: "q2", label: "Are primary pipe routes for heat pump installation (air-to-water) protected and insulated externally?" },
+      { id: "q3", label: "Is integration with existing heating circuits clearly designed for heat pump installation (air-to-water)?" },
+      { id: "q4", label: "Are filling, flushing and inhibitor procedures in place for heat pump installation (air-to-water)?" },
+      { id: "q5", label: "Are electrical supplies and controls commissioned safely for heat pump installation (air-to-water)?" }
+    ]
+  },
+
+  "Heat pump replacement (like-for-like)": {
+    desc: "Heat pump replacement (like-for-like) involves isolating, draining and removing an existing heat pump and installing a similar unit. Refrigerant, water and power connections are managed carefully to avoid leaks and electrical risks. Commissioning confirms correct operation of both heating and cooling modes if applicable.",
+    hazards: ["manual_handling", "water_ingress", "chemical_coshh", "live_electricity"],
+    questions: [
+      { id: "q1", label: "Will refrigerant and system water be safely recovered before heat pump replacement (like-for-like)?" },
+      { id: "q2", label: "Is lifting equipment in place for heavy components during heat pump replacement (like-for-like)?" },
+      { id: "q3", label: "Are electrical isolations clearly identified during heat pump replacement (like-for-like)?" },
+      { id: "q4", label: "Is there a plan for managing water spills during heat pump replacement (like-for-like)?" },
+      { id: "q5", label: "Will system controls be reconfigured and tested after heat pump replacement (like-for-like)?" }
+    ]
+  },
+
+  "Heat pump fault finding & repair": {
+    desc: "Heat pump fault finding & repair covers diagnosing performance or breakdown issues on air-source or similar heat pump systems. This may involve refrigerant analysis, electrical testing and interaction with wet heating circuits. Live systems and cold weather operation increase risk and must be managed.",
+    hazards: ["live_electricity", "chemical_coshh", "water_ingress", "environmental_weather"],
+    questions: [
+      { id: "q1", label: "Are live testing risks assessed before heat pump fault finding & repair begins?" },
+      { id: "q2", label: "Is F-gas compliance considered where refrigerant work is needed in heat pump fault finding & repair?" },
+      { id: "q3", label: "Are heating circuits depressurised or isolated as required during heat pump fault finding & repair?" },
+      { id: "q4", label: "Is working in cold or icy conditions during heat pump fault finding & repair assessed for slips and exposure?" },
+      { id: "q5", label: "Are remedial works from heat pump fault finding & repair documented for the client?" }
+    ]
+  },
+
+  "MVHR system installation (domestic)": {
+    desc: "MVHR system installation (domestic) involves fitting mechanical ventilation with heat recovery units, ductwork, valves and controls in dwellings. Works often occur in tight roof spaces and ceiling voids. Duct routing, sound and fire-stopping requirements must be considered.",
+    hazards: ["confined_space", "work_at_height", "dust_fumes", "manual_handling"],
+    questions: [
+      { id: "q1", label: "Is safe access arranged for MVHR system installation (domestic) in lofts/voids?" },
+      { id: "q2", label: "Are duct penetrations for MVHR system installation (domestic) planned to maintain fire separation?" },
+      { id: "q3", label: "Are ducts and valves labelled clearly during MVHR system installation (domestic)?" },
+      { id: "q4", label: "Is condensation control considered for MVHR system installation (domestic) ducts?" },
+      { id: "q5", label: "Will airflow balancing be completed after MVHR system installation (domestic)?" }
+    ]
+  },
+
+  "Mechanical extract fan install (bathroom)": {
+    desc: "Mechanical extract fan install (bathroom) includes fitting fans, ducting and external grilles to remove moist air from wet rooms. The works require drilling or coring through walls or ceilings, making electrical connections and sealing penetrations against moisture ingress.",
+    hazards: ["dust_fumes", "work_at_height", "live_electricity", "water_ingress"],
+    questions: [
+      { id: "q1", label: "Is safe isolation in place before mechanical extract fan install (bathroom) electrical works?" },
+      { id: "q2", label: "Is coring or drilling for mechanical extract fan install (bathroom) planned to avoid services?" },
+      { id: "q3", label: "Is there a plan to manage dust from mechanical extract fan install (bathroom) drilling?" },
+      { id: "q4", label: "Are external terminations for mechanical extract fan install (bathroom) weatherproof and sealed?" },
+      { id: "q5", label: "Are fan controls and timers tested after mechanical extract fan install (bathroom)?" }
+    ]
+  },
+
+  "Kitchen extract canopy & fan install": {
+    desc: "Kitchen extract canopy & fan install covers fitting commercial canopies, ductwork, fans and associated controls over cooking appliances. Grease, heat and fire risks are managed through appropriate materials, fire dampers and clearances. Noise and discharge locations are coordinated with building management.",
+    hazards: ["hot_work", "work_at_height", "dust_fumes", "fire_explosion", "manual_handling"],
+    questions: [
+      { id: "q1", label: "Is a lifting method agreed for heavy canopies during kitchen extract canopy & fan install?" },
+      { id: "q2", label: "Are fire and grease control requirements considered in kitchen extract canopy & fan install design?" },
+      { id: "q3", label: "Is duct routing for kitchen extract canopy & fan install planned to avoid excessive bends and fire risks?" },
+      { id: "q4", label: "Are electrical and control connections for kitchen extract canopy & fan install isolated and tested?" },
+      { id: "q5", label: "Is external discharge from kitchen extract canopy & fan install acceptable to neighbours and regulations?" }
+    ]
+  },
+
+  "Ductwork install (small domestic)": {
+    desc: "Ductwork install (small domestic) includes fitting flexible or rigid ducts for small extract or supply systems in houses and flats. Works take place in lofts, ceiling voids and service cupboards. Fire-stopping, insulation and support spacing must be adequate.",
+    hazards: ["work_at_height", "confined_space", "dust_fumes", "manual_handling"],
+    questions: [
+      { id: "q1", label: "Are safe work platforms or crawl boards used for ductwork install (small domestic)?" },
+      { id: "q2", label: "Are duct joints for ductwork install (small domestic) sealed and supported correctly?" },
+      { id: "q3", label: "Is fire-stopping reinstated after ductwork install (small domestic) penetrations?" },
+      { id: "q4", label: "Is insulation specified for ducts where required during ductwork install (small domestic)?" },
+      { id: "q5", label: "Are access panels provided to key components after ductwork install (small domestic)?" }
+    ]
+  },
+
+  "Ductwork install (commercial main runs)": {
+    desc: "Ductwork install (commercial main runs) covers installing larger rectangular and circular ducts in commercial buildings, often using plant to lift and support sections. Works are at height within ceiling voids or roof spaces. Coordination with other services and structural elements is critical.",
+    hazards: ["work_at_height", "plant_machinery", "manual_handling", "falling_objects", "dust_fumes"],
+    questions: [
+      { id: "q1", label: "Is a lifting plan agreed for heavy duct sections in ductwork install (commercial main runs)?" },
+      { id: "q2", label: "Are hangers and supports for ductwork install (commercial main runs) designed for load and fire requirements?" },
+      { id: "q3", label: "Is access coordinated with other trades for ductwork install (commercial main runs)?" },
+      { id: "q4", label: "Are joints and seals tested for leakage after ductwork install (commercial main runs)?" },
+      { id: "q5", label: "Are areas below cordoned off during overhead ductwork install (commercial main runs)?" }
+    ]
+  },
+
+  "Fire/smoke damper installation": {
+    desc: "Fire/smoke damper installation involves fitting dampers at duct penetrations through fire compartments, connecting to control systems and proving operation. Access provisions are critical for future inspection and testing. Works must comply with fire strategy and manufacturer instructions.",
+    hazards: ["work_at_height", "manual_handling", "dust_fumes", "services_isolation"],
+    questions: [
+      { id: "q1", label: "Are fire compartments identified before fire/smoke damper installation starts?" },
+      { id: "q2", label: "Are dampers for fire/smoke damper installation installed in line with tested orientation and details?" },
+      { id: "q3", label: "Is access for maintenance considered during fire/smoke damper installation?" },
+      { id: "q4", label: "Are control and indication circuits tested after fire/smoke damper installation?" },
+      { id: "q5", label: "Is fire-stopping reinstated around fire/smoke damper installation locations?" }
+    ]
+  },
+
+  "Fire/smoke damper inspection & reset": {
+    desc: "Fire/smoke damper inspection & reset covers routine testing of dampers, verifying closure and reopening functions, cleaning and recording results. Work often occurs in tight ceiling voids and risers. Failures are recorded and escalated for repair.",
+    hazards: ["work_at_height", "confined_space", "dust_fumes", "poor_lighting"],
+    questions: [
+      { id: "q1", label: "Is safe access provided for fire/smoke damper inspection & reset in ceiling voids and risers?" },
+      { id: "q2", label: "Are test procedures for fire/smoke damper inspection & reset agreed with building management?" },
+      { id: "q3", label: "Is adequate lighting provided during fire/smoke damper inspection & reset?" },
+      { id: "q4", label: "Are inspection findings from fire/smoke damper inspection & reset recorded and stored?" },
+      { id: "q5", label: "Is dust and debris controlled during fire/smoke damper inspection & reset?" }
+    ]
+  },
+
+  "AHU installation (packaged)": {
+    desc: "AHU installation (packaged) involves positioning and connecting air handling units, often on roofs or plant decks. Works include duct, pipe, power and control connections, as well as access platforms and guards. Lifting operations are critical and must be planned.",
+    hazards: ["work_at_height", "plant_machinery", "manual_handling", "moving_vehicles"],
+    questions: [
+      { id: "q1", label: "Is a lifting plan and appropriate crane/plant arranged for AHU installation (packaged)?" },
+      { id: "q2", label: "Is edge protection in place where AHU installation (packaged) takes place on roofs?" },
+      { id: "q3", label: "Are duct and pipe connections for AHU installation (packaged) coordinated with other services?" },
+      { id: "q4", label: "Are electrical isolators and emergency stops accessible after AHU installation (packaged)?" },
+      { id: "q5", label: "Is the AHU installation (packaged) commissioned with airflows, temperatures and safeties verified?" }
+    ]
+  },
+
+  "AHU refurbishment & coil change": {
+    desc: "AHU refurbishment & coil change includes replacing coils, fans, sections or controls within existing air handling units. Works take place in plantrooms or roof housings and may involve confined access and heavy components. Isolations for water, steam and power are critical.",
+    hazards: ["manual_handling", "confined_space", "live_electricity", "water_ingress"],
+    questions: [
+      { id: "q1", label: "Have heating/cooling media and power been isolated before AHU refurbishment & coil change?" },
+      { id: "q2", label: "Is a manual handling or lifting plan in place for heavy parts during AHU refurbishment & coil change?" },
+      { id: "q3", label: "Is access space adequate for AHU refurbishment & coil change works?" },
+      { id: "q4", label: "Are potential leaks controlled when breaking into pipework during AHU refurbishment & coil change?" },
+      { id: "q5", label: "Are all covers re-secured and guards replaced after AHU refurbishment & coil change?" }
+    ]
+  },
+
+  "Fan coil unit installation": {
+    desc: "Fan coil unit installation involves mounting FCUs, connecting chilled/hot water pipework, condensate drains, power and controls. Units may be concealed in ceilings or exposed. Coordination with ceiling trades and fire stopping is required.",
+    hazards: ["work_at_height", "manual_handling", "water_ingress", "dust_fumes"],
+    questions: [
+      { id: "q1", label: "Is safe access available for fan coil unit installation at height?" },
+      { id: "q2", label: "Are hanging supports for fan coil unit installation designed for load and vibration?" },
+      { id: "q3", label: "Are pipework connections for fan coil unit installation tested for leaks?" },
+      { id: "q4", label: "Is condensate drainage from fan coil unit installation checked and insulated where necessary?" },
+      { id: "q5", label: "Are FCU access panels maintained for future maintenance after fan coil unit installation?" }
+    ]
+  },
+
+  "Fan coil unit service & filter change": {
+    desc: "Fan coil unit service & filter change involves opening FCUs, cleaning or replacing filters, checking fans and coils, and verifying operation. Work may disturb dust and fibres and occurs above ceiling level or in occupied spaces.",
+    hazards: ["work_at_height", "dust_fumes", "manual_handling"],
+    questions: [
+      { id: "q1", label: "Is access for fan coil unit service & filter change safe and stable?" },
+      { id: "q2", label: "Are dust and debris from fan coil unit service & filter change controlled and cleaned up?" },
+      { id: "q3", label: "Are filters and panels handled to avoid strain injuries during fan coil unit service & filter change?" },
+      { id: "q4", label: "Are fans isolated where possible during fan coil unit service & filter change?" },
+      { id: "q5", label: "Is FCU performance checked after fan coil unit service & filter change?" }
+    ]
+  },
+
+  "Chiller installation (air-cooled)": {
+    desc: "Chiller installation (air-cooled) involves positioning packaged chillers, connecting primary pipework, electrics and BMS, and commissioning the plant. Works often require crane lifts, roof access and coordination with other plant. Noise and air discharge are considered for neighbours.",
+    hazards: ["plant_machinery", "work_at_height", "manual_handling", "moving_vehicles"],
+    questions: [
+      { id: "q1", label: "Is a lift plan agreed with a competent person for chiller installation (air-cooled)?" },
+      { id: "q2", label: "Is roof or slab capacity confirmed for chiller installation (air-cooled)?" },
+      { id: "q3", label: "Are pipe and power connections for chiller installation (air-cooled) properly supported and labelled?" },
+      { id: "q4", label: "Are noise and airflow impacts from chiller installation (air-cooled) reviewed?" },
+      { id: "q5", label: "Is commissioning of chiller installation (air-cooled) planned with manufacturer guidance?" }
+    ]
+  },
+
+  "Chiller decommission & strip-out": {
+    desc: "Chiller decommission & strip-out involves recovering refrigerant, isolating and draining circuits, disconnecting power and removing chiller units and associated plant. Heavy lifting operations and environmental controls for refrigerant and glycol are key considerations.",
+    hazards: ["chemical_coshh", "plant_machinery", "manual_handling", "moving_vehicles"],
+    questions: [
+      { id: "q1", label: "Are F-gas and environmental procedures followed for chiller decommission & strip-out?" },
+      { id: "q2", label: "Is a lifting plan agreed for all major components during chiller decommission & strip-out?" },
+      { id: "q3", label: "Are glycol or other fluids contained and disposed of correctly in chiller decommission & strip-out?" },
+      { id: "q4", label: "Are power supplies isolated and proven dead for chiller decommission & strip-out?" },
+      { id: "q5", label: "Is plant area left in a safe, tidy state after chiller decommission & strip-out?" }
+    ]
+  },
+
+  "Cooling tower inspection & clean": {
+    desc: "Cooling tower inspection & clean includes physical inspection, cleaning, descaling and disinfection of cooling towers in line with water hygiene plans. Work involves exposure to aerosols, chemicals and working at height. Strict hygiene and safety controls are needed.",
+    hazards: ["biological", "chemical_coshh", "work_at_height", "water_ingress"],
+    questions: [
+      { id: "q1", label: "Are Legionella and water hygiene procedures in place for cooling tower inspection & clean?" },
+      { id: "q2", label: "Is suitable PPE and RPE provided for cooling tower inspection & clean?" },
+      { id: "q3", label: "Is access to cooling towers for inspection & clean safe and protected against falls?" },
+      { id: "q4", label: "Are chemicals for cooling tower inspection & clean handled in line with COSHH?" },
+      { id: "q5", label: "Is waste water and sludge from cooling tower inspection & clean disposed of correctly?" }
+    ]
+  },
+
+  "Plantroom HVAC pipework install": {
+    desc: "Plantroom HVAC pipework install covers installation of flow and return pipework, headers, valves and supports around boilers, chillers and pumps. Works are often congested and may require hot works. Coordination with structural supports and access routes is essential.",
+    hazards: ["hot_work", "manual_handling", "confined_space", "dust_fumes"],
+    questions: [
+      { id: "q1", label: "Are hot work permits in place where welding or cutting is used for plantroom HVAC pipework install?" },
+      { id: "q2", label: "Are pipe supports for plantroom HVAC pipework install designed for load and expansion?" },
+      { id: "q3", label: "Is access for valves and equipment maintained during plantroom HVAC pipework install?" },
+      { id: "q4", label: "Are lifting aids used for heavy spools during plantroom HVAC pipework install?" },
+      { id: "q5", label: "Is fire-stopping reinstated after plantroom HVAC pipework install penetrations?" }
+    ]
+  },
+
+  "Plantroom HVAC valve replacement": {
+    desc: "Plantroom HVAC valve replacement includes isolating, draining and changing valves on heating or cooling systems in plantrooms. Confined spaces, hot surfaces and pressure hazards must be managed. Correct re-pressurisation and venting are required on completion.",
+    hazards: ["water_ingress", "confined_space", "manual_handling", "hot_work"],
+    questions: [
+      { id: "q1", label: "Are systems safely isolated and depressurised before plantroom HVAC valve replacement?" },
+      { id: "q2", label: "Is there a plan to manage hot water or steam during plantroom HVAC valve replacement?" },
+      { id: "q3", label: "Is suitable access and lighting in place in the plantroom for HVAC valve replacement?" },
+      { id: "q4", label: "Are new valves correctly supported and aligned after plantroom HVAC valve replacement?" },
+      { id: "q5", label: "Are systems refilled, vented and tested for leaks after plantroom HVAC valve replacement?" }
+    ]
+  },
+
+  "BMS controls panel installation (HVAC)": {
+    desc: "BMS controls panel installation (HVAC) involves mounting, wiring and labelling building management system panels controlling HVAC plant. Works include power supplies, control circuits and communications. Testing and documentation are essential to future operation.",
+    hazards: ["live_electricity", "manual_handling", "dust_fumes"],
+    questions: [
+      { id: "q1", label: "Is safe isolation in place before BMS controls panel installation (HVAC) wiring begins?" },
+      { id: "q2", label: "Is panel mounting for BMS controls panel installation (HVAC) structurally secure?" },
+      { id: "q3", label: "Are terminals and cables for BMS controls panel installation (HVAC) labelled clearly?" },
+      { id: "q4", label: "Are control circuits tested and proven during BMS controls panel installation (HVAC)?" },
+      { id: "q5", label: "Is as-built documentation updated after BMS controls panel installation (HVAC)?" }
+    ]
+  },
+
+  "Thermostat / room controller install": {
+    desc: "Thermostat / room controller install includes fitting room sensors, controllers and associated wiring for HVAC systems. Correct location and wiring are critical to effective temperature control. Work may involve chasing, trunking or wireless commissioning.",
+    hazards: ["live_electricity", "dust_fumes", "manual_handling"],
+    questions: [
+      { id: "q1", label: "Is safe isolation provided before thermostat / room controller install wiring works?" },
+      { id: "q2", label: "Are controller positions for thermostat / room controller install chosen to avoid draughts and heat sources?" },
+      { id: "q3", label: "Is chasing or drilling for thermostat / room controller install carried out avoiding services?" },
+      { id: "q4", label: "Are terminations and polarity checked for thermostat / room controller install?" },
+      { id: "q5", label: "Is the thermostat / room controller install commissioned and confirmed with the client?" }
+    ]
+  },
+
+  "Refrigerant pipework installation (small-bore)": {
+    desc: "Refrigerant pipework installation (small-bore) covers installing copper linesets for smaller systems using brazed or flared joints. Works require cleanliness, nitrogen purging and correct support spacing. Route selection avoids damage, kinking and noise issues.",
+    hazards: ["hot_work", "chemical_coshh", "manual_handling", "work_at_height"],
+    questions: [
+      { id: "q1", label: "Is nitrogen purging used during brazing for refrigerant pipework installation (small-bore)?" },
+      { id: "q2", label: "Are fire controls in place where hot work is used for refrigerant pipework installation (small-bore)?" },
+      { id: "q3", label: "Are supports and bends correctly spaced for refrigerant pipework installation (small-bore)?" },
+      { id: "q4", label: "Are pipes pressure tested after refrigerant pipework installation (small-bore)?" },
+      { id: "q5", label: "Is access equipment used safely where refrigerant pipework installation (small-bore) is at height?" }
+    ]
+  },
+
+  "Refrigerant pipework installation (large-bore)": {
+    desc: "Refrigerant pipework installation (large-bore) covers installing larger diameter piping for VRF or industrial systems. Components are heavy and may require mechanical lifting and prefabrication. Joints are typically brazed or welded under strict cleanliness and testing regimes.",
+    hazards: ["hot_work", "plant_machinery", "manual_handling", "chemical_coshh"],
+    questions: [
+      { id: "q1", label: "Is a lifting plan in place for refrigerant pipework installation (large-bore) sections?" },
+      { id: "q2", label: "Are hot work controls implemented for brazing/welding during refrigerant pipework installation (large-bore)?" },
+      { id: "q3", label: "Are joints for refrigerant pipework installation (large-bore) pressure tested and documented?" },
+      { id: "q4", label: "Are supports for refrigerant pipework installation (large-bore) designed for expansion and vibration?" },
+      { id: "q5", label: "Are safety data sheets available for gases used in refrigerant pipework installation (large-bore)?" }
+    ]
+  },
+
+  "Lagging/insulation to HVAC services": {
+    desc: "Lagging/insulation to HVAC services involves fitting thermal and acoustic insulation to pipework, ductwork and plant. Works may take place at height and in tight spaces. Insulation materials can create dust and fibres requiring appropriate PPE.",
+    hazards: ["work_at_height", "dust_fumes", "manual_handling"],
+    questions: [
+      { id: "q1", label: "Is safe access used for lagging/insulation to HVAC services at height?" },
+      { id: "q2", label: "Is suitable PPE worn for handling insulation during lagging/insulation to HVAC services?" },
+      { id: "q3", label: "Are vapour barriers and finishes applied correctly for lagging/insulation to HVAC services?" },
+      { id: "q4", label: "Are labels and valve identification reinstated after lagging/insulation to HVAC services?" },
+      { id: "q5", label: "Is waste insulation from lagging/insulation to HVAC services disposed of correctly?" }
+    ]
+  },
+
+  "Condensate drain installation & routing": {
+    desc: "Condensate drain installation & routing focuses on providing reliable drainage paths from cooling coils and equipment to appropriate discharge points. Falls, trap locations and insulation are important to prevent leaks, smells and freezing. Penetrations through fabric are sealed properly.",
+    hazards: ["water_ingress", "slips_trips", "manual_handling"],
+    questions: [
+      { id: "q1", label: "Are adequate pipe falls provided for condensate drain installation & routing?" },
+      { id: "q2", label: "Are traps located correctly for condensate drain installation & routing to prevent air ingress?" },
+      { id: "q3", label: "Is insulation specified where condensate drain installation & routing passes through cold areas?" },
+      { id: "q4", label: "Are penetrations sealed after condensate drain installation & routing?" },
+      { id: "q5", label: "Will drains be flushed and tested after condensate drain installation & routing?" }
+    ]
+  },
+
+  "Duct cleaning (small commercial)": {
+    desc: "Duct cleaning (small commercial) involves cleaning internal surfaces of smaller duct systems using brushes, vacuums and limited access hatches. Works generate dust and may disturb microbial contamination. Access at height and confined spaces are common.",
+    hazards: ["dust_fumes", "biological", "work_at_height", "confined_space"],
+    questions: [
+      { id: "q1", label: "Is suitable RPE and PPE provided for duct cleaning (small commercial)?" },
+      { id: "q2", label: "Is safe access in place for high-level duct cleaning (small commercial)?" },
+      { id: "q3", label: "Are access panels used safely for duct cleaning (small commercial) to avoid falling items?" },
+      { id: "q4", label: "Is waste dust and debris from duct cleaning (small commercial) contained and removed appropriately?" },
+      { id: "q5", label: "Is the system shut down and locked off during duct cleaning (small commercial)?" }
+    ]
+  },
+
+  "Duct cleaning (large system)": {
+    desc: "Duct cleaning (large system) covers cleaning extensive duct networks in larger buildings, often with robotic or powered cleaning equipment. Works must manage access, power supplies and contamination over longer runs. Coordination with building management is essential.",
+    hazards: ["dust_fumes", "biological", "work_at_height", "plant_machinery"],
+    questions: [
+      { id: "q1", label: "Is a cleaning plan and sequence agreed for duct cleaning (large system) with building management?" },
+      { id: "q2", label: "Are access doors and hatches adequate for duct cleaning (large system) activities?" },
+      { id: "q3", label: "Is suitable plant and power management provided for duct cleaning (large system) equipment?" },
+      { id: "q4", label: "Are air quality and contamination risks managed during duct cleaning (large system)?" },
+      { id: "q5", label: "Is the system reinstated and filters checked after duct cleaning (large system)?" }
+    ]
+  },
+
+  "Filter change visit (rooftop plant)": {
+    desc: "Filter change visit (rooftop plant) involves accessing rooftop AHUs or packaged units to replace air filters. The work is at height and exposed to weather. Filters may be bulky and dusty, requiring manual handling controls and PPE.",
+    hazards: ["work_at_height", "environmental_weather", "manual_handling", "dust_fumes"],
+    questions: [
+      { id: "q1", label: "Is safe roof access and edge protection provided for filter change visit (rooftop plant)?" },
+      { id: "q2", label: "Is weather risk assessed before filter change visit (rooftop plant) proceeds?" },
+      { id: "q3", label: "Are dust masks and gloves used during filter change visit (rooftop plant)?" },
+      { id: "q4", label: "Are old filters bagged and removed safely after filter change visit (rooftop plant)?" },
+      { id: "q5", label: "Are AHU doors and guards closed correctly after filter change visit (rooftop plant)?" }
+    ]
+  },
+
+  "Rooftop package unit installation": {
+    desc: "Rooftop package unit installation involves lifting and positioning large packaged HVAC units on building roofs, then connecting ducts, gas (if applicable), power and controls. Lifting, working at height and weather exposure are key risk areas.",
+    hazards: ["work_at_height", "plant_machinery", "moving_vehicles", "environmental_weather"],
+    questions: [
+      { id: "q1", label: "Is a crane and lifting plan agreed for rooftop package unit installation?" },
+      { id: "q2", label: "Is roof structure verified as suitable for rooftop package unit installation loads?" },
+      { id: "q3", label: "Are edge protection and fall prevention measures in place for rooftop package unit installation?" },
+      { id: "q4", label: "Are gas and power connections for rooftop package unit installation installed and tested safely?" },
+      { id: "q5", label: "Is weather monitored and rooftop package unit installation suspended in unsafe conditions?" }
+    ]
+  },
+
+  "Rooftop plant access & maintenance": {
+    desc: "Rooftop plant access & maintenance covers routine visits to rooftop equipment for inspection, cleaning, adjustments and small repairs. Safe access routes, edge protection and weather considerations are critical to prevent falls and exposure.",
+    hazards: ["work_at_height", "environmental_weather", "slips_trips"],
+    questions: [
+      { id: "q1", label: "Is permanent safe access provided for rooftop plant access & maintenance?" },
+      { id: "q2", label: "Are guardrails or fall arrest systems in place for rooftop plant access & maintenance?" },
+      { id: "q3", label: "Is weather risk assessed before rooftop plant access & maintenance is carried out?" },
+      { id: "q4", label: "Are walkways kept clear during rooftop plant access & maintenance?" },
+      { id: "q5", label: "Is lone working considered and controlled for rooftop plant access & maintenance?" }
+    ]
+  },
+
+  "Cold room / walk-in chiller install": {
+    desc: "Cold room / walk-in chiller install involves erecting insulated panels, fitting doors, installing refrigeration plant, drains and controls. Works must consider vapour barriers, floor finishes and door safety mechanisms. Plant location and noise impact are planned.",
+    hazards: ["manual_handling", "dust_fumes", "chemical_coshh", "slips_trips"],
+    questions: [
+      { id: "q1", label: "Are panels for cold room / walk-in chiller install handled safely and with lifting aids where needed?" },
+      { id: "q2", label: "Are vapour barriers and seals installed correctly for cold room / walk-in chiller install?" },
+      { id: "q3", label: "Is floor finish for cold room / walk-in chiller install suitable for cleaning and slip resistance?" },
+      { id: "q4", label: "Are door safety features and releases tested after cold room / walk-in chiller install?" },
+      { id: "q5", label: "Is refrigeration plant for cold room / walk-in chiller install commissioned and documented?" }
+    ]
+  },
+
+  "Cold room service & repair": {
+    desc: "Cold room service & repair covers routine maintenance, defrost checks, door seal repairs and refrigeration fault rectification. Work is carried out in cold environments with limited space. Condensation and ice can cause slips and working time must be managed.",
+    hazards: ["cold_stress", "slips_trips", "chemical_coshh", "confined_space"],
+    questions: [
+      { id: "q1", label: "Is working time in cold room service & repair limited and monitored to prevent cold stress?" },
+      { id: "q2", label: "Are slip hazards from ice and water controlled during cold room service & repair?" },
+      { id: "q3", label: "Are refrigerant works during cold room service & repair carried out to F-gas standards?" },
+      { id: "q4", label: "Is there a means of communication and emergency egress for cold room service & repair?" },
+      { id: "q5", label: "Are door heaters and seals checked and repaired as part of cold room service & repair?" }
+    ]
+  },
+
+  "Pressurisation unit install & commissioning": {
+    desc: "Pressurisation unit install & commissioning involves fitting units that maintain system pressure in closed heating and cooling circuits. Works include connecting pipework, electrics and controls, and setting pressure regimes. System cleanliness and expansion arrangements are checked.",
+    hazards: ["water_ingress", "manual_handling", "live_electricity"],
+    questions: [
+      { id: "q1", label: "Are isolation valves and drain points in place before pressurisation unit install & commissioning?" },
+      { id: "q2", label: "Is electrical supply for pressurisation unit install & commissioning correctly rated and isolated?" },
+      { id: "q3", label: "Are pressure settings and safeties configured during pressurisation unit install & commissioning?" },
+      { id: "q4", label: "Is there a plan to manage spills during pressurisation unit install & commissioning?" },
+      { id: "q5", label: "Is documentation updated following pressurisation unit install & commissioning?" }
+    ]
+  },
+
+  "Expansion vessel replacement (HVAC circuit)": {
+    desc: "Expansion vessel replacement (HVAC circuit) includes isolating, draining and replacing vessels that accommodate thermal expansion in heating or cooling systems. Vessels may be located at height or in plantrooms. Correct pre-charge and reconnection are essential.",
+    hazards: ["manual_handling", "water_ingress", "work_at_height"],
+    questions: [
+      { id: "q1", label: "Are systems safely isolated and depressurised before expansion vessel replacement (HVAC circuit)?" },
+      { id: "q2", label: "Is suitable access in place for expansion vessel replacement (HVAC circuit), especially at height?" },
+      { id: "q3", label: "Are lifting aids used where necessary during expansion vessel replacement (HVAC circuit)?" },
+      { id: "q4", label: "Is vessel pre-charge set correctly during expansion vessel replacement (HVAC circuit)?" },
+      { id: "q5", label: "Are systems refilled, vented and checked for leaks after expansion vessel replacement (HVAC circuit)?" }
+    ]
+  }
+};
+
+// ==========================================
 // 4. MASTER TRADE REGISTRY
 // ==========================================
 
@@ -4859,5 +5465,10 @@ export const TRADES = {
   "Demolition & Strip-Out": {
     jobs: Object.keys(DEMOLITION_STRIPOUT_CLUSTERS).map((name) => ({ name })),
     clusters: DEMOLITION_STRIPOUT_CLUSTERS,
+  },
+
+  "HVAC / Air Conditioning": {
+    jobs: Object.keys(HVAC_AIRCON_CLUSTERS).map((name) => ({ name })),
+    clusters: HVAC_AIRCON_CLUSTERS,
   },
 };
