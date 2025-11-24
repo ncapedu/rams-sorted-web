@@ -4211,6 +4211,612 @@ const GROUNDWORKS_CIVILS_CLUSTERS: Record<string, JobCluster> = {
 };
 
 // ==========================================
+// X. JOB CLUSTERS (DEMOLITION & STRIP-OUT)
+// ==========================================
+
+const DEMOLITION_STRIPOUT_CLUSTERS: Record<string, JobCluster> = {
+  "Internal soft strip (domestic)": {
+    desc: "Internal soft strip (domestic) covers removal of non-structural fittings, fixtures and finishes within occupied or recently vacated houses or flats. Typical items include kitchen units, sanitaryware, internal doors, skirtings, floor coverings and redundant services. Work is planned to protect remaining finishes, isolate services and control dust and noise for neighbours and occupants. Waste streams are segregated and removed in a controlled manner to keep routes clear and safe.",
+    hazards: ["manual_handling", "dust_fumes", "slips_trips", "glass_sharps", "poor_lighting"],
+    questions: [
+      { id: "q1", label: "Have all live services been isolated and verified dead before starting the internal soft strip (domestic)?" },
+      { id: "q2", label: "Are clear access and egress routes agreed for the internal soft strip (domestic) to avoid blocking escape routes?" },
+      { id: "q3", label: "Is there a plan for dust suppression and ventilation during the internal soft strip (domestic)?" },
+      { id: "q4", label: "Are arrangements in place for segregated waste removal for the internal soft strip (domestic)?" },
+      { id: "q5", label: "Have fragile items such as glazing and mirrors been identified before the internal soft strip (domestic) begins?" }
+    ]
+  },
+
+  "Internal soft strip (commercial)": {
+    desc: "Internal soft strip (commercial) covers removal of non-structural fittings, fixtures and finishes in offices, shops and other commercial units. Works can include removal of partitions, ceilings, raised floors, furniture and redundant services while maintaining safe access for other occupiers or trades. Noise, dust and vibration are managed to minimise disruption to neighbouring businesses. Sequence and loading of debris are controlled to avoid overloading floors or routes.",
+    hazards: ["manual_handling", "dust_fumes", "noise_vibration", "slips_trips", "public_interface"],
+    questions: [
+      { id: "q1", label: "Has a clear working area been defined and segregated for the internal soft strip (commercial)?" },
+      { id: "q2", label: "Are other building users aware of the internal soft strip (commercial) and any restricted zones?" },
+      { id: "q3", label: "Is there a plan to manage noise and vibration during the internal soft strip (commercial) to avoid undue disruption?" },
+      { id: "q4", label: "Have loading limits on floors been checked before stockpiling waste from the internal soft strip (commercial)?" },
+      { id: "q5", label: "Are suitable waste chutes, lifts or routes agreed for debris removal from the internal soft strip (commercial)?" }
+    ]
+  },
+
+  "Kitchen strip-out": {
+    desc: "Kitchen strip-out involves removing existing units, worktops, appliances, splashbacks, floor finishes and associated services ready for refurbishment. Electrical, gas and water services must be correctly isolated and any hazardous materials identified before work begins. Care is taken to protect retained finishes and control dust and noise. All waste is removed safely, leaving a clean and safe shell for new installation works.",
+    hazards: ["manual_handling", "dust_fumes", "glass_sharps", "slips_trips", "services_isolation"],
+    questions: [
+      { id: "q1", label: "Have gas, water and electrical supplies been fully isolated and labelled prior to the kitchen strip-out?" },
+      { id: "q2", label: "Is there adequate protection to adjacent finishes and retained items during the kitchen strip-out?" },
+      { id: "q3", label: "Are appliances and worktops being lifted using safe manual handling techniques during the kitchen strip-out?" },
+      { id: "q4", label: "Is there a plan for safely removing and disposing of glass doors and splashbacks during the kitchen strip-out?" },
+      { id: "q5", label: "Has a clear waste removal route been agreed to minimise trips during the kitchen strip-out?" }
+    ]
+  },
+
+  "Bathroom strip-out": {
+    desc: "Bathroom strip-out includes removal of sanitaryware, tiles, enclosures, ceilings, wall linings and floor finishes in preparation for new works. Water and electrical circuits must be isolated and made safe before removals commence. Particular attention is paid to sharp edges, breaking ceramic and slippery wet areas. The work area is kept clean and dry to maintain safe footing throughout.",
+    hazards: ["manual_handling", "dust_fumes", "glass_sharps", "slips_trips", "water_ingress"],
+    questions: [
+      { id: "q1", label: "Have all water feeds and wastes been isolated and drained down before the bathroom strip-out?" },
+      { id: "q2", label: "Are electrical circuits serving the bathroom strip-out area isolated and confirmed dead?" },
+      { id: "q3", label: "Is there sufficient ventilation or dust extraction in place during tile removal for the bathroom strip-out?" },
+      { id: "q4", label: "Are measures in place to manage sharp fragments from broken ceramic during the bathroom strip-out?" },
+      { id: "q5", label: "Has the floor surface been kept free of water and debris to control slip risk during the bathroom strip-out?" }
+    ]
+  },
+
+  "Office strip-out": {
+    desc: "Office strip-out covers removal of partitions, ceilings, raised floors, lighting, small power, data, furniture and finishes to return a space to shell or CAT A. Works are sequenced to maintain safe access and fire escape routes at all times. Live services are clearly identified and either isolated or protected. Coordination with building management is critical to manage noise, working hours and waste removal.",
+    hazards: ["manual_handling", "dust_fumes", "slips_trips", "public_interface", "noise_vibration"],
+    questions: [
+      { id: "q1", label: "Have working hours and noisy periods for the office strip-out been agreed with building management?" },
+      { id: "q2", label: "Are live landlord services identified and protected before commencing the office strip-out?" },
+      { id: "q3", label: "Is there a traffic management plan for moving stripped materials during the office strip-out?" },
+      { id: "q4", label: "Are safe access routes and fire exits maintained and signed throughout the office strip-out?" },
+      { id: "q5", label: "Is suitable manual handling equipment available for heavy items during the office strip-out?" }
+    ]
+  },
+
+  "Shop / retail strip-out": {
+    desc: "Shop / retail strip-out includes removal of displays, counters, ceilings, services and back-of-house fixtures while controlling disruption in public-facing environments. Works are often done out of hours to minimise risk to the public. The site is securely hoarded or screened from live trading areas and clear segregation is maintained. Waste streams are controlled to avoid obstructing shared malls or pavements.",
+    hazards: ["manual_handling", "public_interface", "dust_fumes", "slips_trips", "security_risk"],
+    questions: [
+      { id: "q1", label: "Has a secure hoarding or barrier system been agreed for the shop / retail strip-out?" },
+      { id: "q2", label: "Are out-of-hours working arrangements in place where required for the shop / retail strip-out?" },
+      { id: "q3", label: "Is there a plan for controlling dust and noise where the shop / retail strip-out adjoins trading areas?" },
+      { id: "q4", label: "Are waste routes for the shop / retail strip-out agreed with centre management to avoid conflict with the public?" },
+      { id: "q5", label: "Have security arrangements been agreed to protect tools and materials during the shop / retail strip-out?" }
+    ]
+  },
+
+  "Restaurant / kitchen strip-out": {
+    desc: "Restaurant / kitchen strip-out covers removal of commercial catering equipment, extraction canopies, ductwork, coldrooms, bars and associated services. There is often heavy, greasy contamination and potential fire residues within ductwork and extract paths. Gas, water and electrical feeds must be carefully identified and isolated. Access equipment may be required to dismantle high-level services and canopies safely.",
+    hazards: ["manual_handling", "dust_fumes", "fire_explosion", "slips_trips", "work_at_height"],
+    questions: [
+      { id: "q1", label: "Have all catering gas supplies and isolation valves been positively identified before the restaurant / kitchen strip-out starts?" },
+      { id: "q2", label: "Is there a safe method for dismantling and lowering heavy extract canopies during the restaurant / kitchen strip-out?" },
+      { id: "q3", label: "Are operatives protected from grease and residues that may affect grip during the restaurant / kitchen strip-out?" },
+      { id: "q4", label: "Is suitable access equipment planned for high-level ductwork during the restaurant / kitchen strip-out?" },
+      { id: "q5", label: "Has a plan been agreed for disposing of contaminated ductwork and filters from the restaurant / kitchen strip-out?" }
+    ]
+  },
+
+  "Warehouse strip-out": {
+    desc: "Warehouse strip-out covers removal of racking, mezzanines, conveyor systems, services and internal structures within large industrial spaces. Works involve plant use, working at height and significant manual handling of steelwork and decking. Traffic management is critical where forklifts or MEWPs are in use. Loads are controlled to avoid overloading floors and to maintain building stability.",
+    hazards: ["work_at_height", "plant_machinery", "manual_handling", "falling_objects", "moving_vehicles"],
+    questions: [
+      { id: "q1", label: "Is there a written lifting and dismantling sequence for racking during the warehouse strip-out?" },
+      { id: "q2", label: "Have exclusion zones been set up under areas where high-level work occurs in the warehouse strip-out?" },
+      { id: "q3", label: "Is there a traffic management plan for forklifts and MEWPs during the warehouse strip-out?" },
+      { id: "q4", label: "Are operatives briefed on safe techniques for handling long and awkward members in the warehouse strip-out?" },
+      { id: "q5", label: "Have anchorage points and fixings been identified before dismantling structures in the warehouse strip-out?" }
+    ]
+  },
+
+  "Ceiling grid removal": {
+    desc: "Ceiling grid removal involves taking down suspended ceilings, tiles and hangers to expose the soffit and services. Work is carried out systematically to avoid uncontrolled collapse and to manage debris. Dust, fibres and possible contamination from above-ceiling voids are controlled using suitable PPE and containment. Any retained services are supported independently before grid elements are removed.",
+    hazards: ["work_at_height", "dust_fumes", "falling_objects", "manual_handling", "poor_lighting"],
+    questions: [
+      { id: "q1", label: "Is the ceiling grid removal planned in sections to prevent large uncontrolled collapse?" },
+      { id: "q2", label: "Are services above the ceiling grid removal area identified and supported before hangers are cut?" },
+      { id: "q3", label: "Is adequate respiratory and eye protection specified for ceiling grid removal work?" },
+      { id: "q4", label: "Have exclusion zones been established under the area of ceiling grid removal?" },
+      { id: "q5", label: "Is there sufficient temporary lighting once tiles are removed during the ceiling grid removal?" }
+    ]
+  },
+
+  "Stud partition removal": {
+    desc: "Stud partition removal includes taking down lightweight metal or timber stud walls, linings and doors without affecting structural elements. Checks are made first to confirm that partitions are non-load-bearing and to identify any services concealed within them. Debris is controlled as sections are removed, and adjacent finishes are protected. Openings are made safe with edge protection where necessary.",
+    hazards: ["manual_handling", "dust_fumes", "falling_objects", "slips_trips", "services_isolation"],
+    questions: [
+      { id: "q1", label: "Has it been confirmed that the stud partition removal works do not affect load-bearing or structural walls?" },
+      { id: "q2", label: "Have services within or on the walls been identified and isolated before stud partition removal?" },
+      { id: "q3", label: "Is demolition of partitions sequenced to avoid pushing large sections into walkways during stud partition removal?" },
+      { id: "q4", label: "Are operatives using suitable dust suppression or extraction during stud partition removal?" },
+      { id: "q5", label: "Is the floor kept clear of studs and fixings to control slips and trips during stud partition removal?" }
+    ]
+  },
+
+  "Blockwork wall demolition": {
+    desc: "Blockwork wall demolition involves breaking down non-load-bearing masonry walls using hand tools or light mechanical equipment. Before works start, the wall is checked for any structural role, ties or services. Demolition is carried out from the top down in controlled sections, with debris managed to avoid overloading floors. Adequate dust control and noise protection are put in place.",
+    hazards: ["manual_handling", "dust_fumes", "silica_dust", "falling_objects", "slips_trips"],
+    questions: [
+      { id: "q1", label: "Has a competent person confirmed that the blockwork wall demolition does not affect structural stability?" },
+      { id: "q2", label: "Is demolition of blockwork carried out from the top down in small sections?" },
+      { id: "q3", label: "Are measures in place to control silica dust during blockwork wall demolition?" },
+      { id: "q4", label: "Is waste from the blockwork wall demolition being removed regularly to avoid floor overloading?" },
+      { id: "q5", label: "Are operatives protected from falling fragments during blockwork wall demolition?" }
+    ]
+  },
+
+  "Load-bearing wall removal (propped)": {
+    desc: "Load-bearing wall removal (propped) involves creating openings or removing masonry that supports other elements of the structure. Temporary works such as needles, props or beams are installed in accordance with an engineer's design before any demolition begins. Works are strictly sequenced to maintain stability at all stages. All operatives are briefed on the temporary works arrangement and exclusion zones are enforced beneath supported elements.",
+    hazards: ["structural_collapse", "falling_objects", "manual_handling", "dust_fumes", "silica_dust"],
+    questions: [
+      { id: "q1", label: "Has a structural engineer provided design and details for the load-bearing wall removal (propped)?" },
+      { id: "q2", label: "Are temporary works installed, checked and signed off before starting the load-bearing wall removal (propped)?" },
+      { id: "q3", label: "Are exclusion zones in place beneath any props or needles used for the load-bearing wall removal (propped)?" },
+      { id: "q4", label: "Is demolition of masonry sequenced to avoid undermining supports during the load-bearing wall removal (propped)?" },
+      { id: "q5", label: "Are records kept of inspections to the temporary works during the load-bearing wall removal (propped)?" }
+    ]
+  },
+
+  "Chimney breast removal": {
+    desc: "Chimney breast removal involves dismantling internal chimney projections and associated masonry, often over several storeys. Structural support to remaining masonry and floors is required based on engineered details. Work is carried out carefully to prevent debris falling down flues or into occupied areas. Dust is controlled and flues are sealed where necessary.",
+    hazards: ["structural_collapse", "work_at_height", "manual_handling", "dust_fumes", "falling_objects"],
+    questions: [
+      { id: "q1", label: "Has a structural design been obtained for the chimney breast removal, including any gallows brackets or beams?" },
+      { id: "q2", label: "Are upper chimney sections supported or removed in a controlled sequence during chimney breast removal?" },
+      { id: "q3", label: "Have flues been sealed and protected to prevent debris spread during chimney breast removal?" },
+      { id: "q4", label: "Is work at height for chimney breast removal carried out using suitable access equipment?" },
+      { id: "q5", label: "Are waste arisings from chimney breast removal removed regularly to avoid overloading floors?" }
+    ]
+  },
+
+  "Fireplace removal and make-good": {
+    desc: "Fireplace removal and make-good includes taking out surrounds, hearths, lintels and associated finishes, then making the opening safe and ready for infill. Checks are made for any structural reliance on existing lintels. Dust, soot and sharp fragments are controlled using sheeting and PPE. The opening is made safe with suitable support or closure in line with the refurbishment plan.",
+    hazards: ["manual_handling", "dust_fumes", "glass_sharps", "slips_trips", "structural_collapse"],
+    questions: [
+      { id: "q1", label: "Has the structural role of the existing lintel been assessed before fireplace removal and make-good?" },
+      { id: "q2", label: "Are soot and dust from fireplace removal and make-good controlled using sheeting and extraction?" },
+      { id: "q3", label: "Is there a plan for handling heavy hearth stones safely during fireplace removal and make-good?" },
+      { id: "q4", label: "Have sharp tiles and glass been identified and controlled as part of fireplace removal and make-good?" },
+      { id: "q5", label: "Will the opening be left in a structurally sound and safe condition after fireplace removal and make-good?" }
+    ]
+  },
+
+  "Floor covering removal (carpet/vinyl)": {
+    desc: "Floor covering removal (carpet/vinyl) involves stripping existing soft or resilient finishes, including adhesive residues where specified. Work is planned to avoid trip hazards from partially removed coverings and to manage dust from scraping activities. Manual handling controls are used for heavy rolls and bundles. Floors are left in a safe, clean condition for follow-on trades.",
+    hazards: ["manual_handling", "slips_trips", "dust_fumes", "poor_lighting"],
+    questions: [
+      { id: "q1", label: "Are floor areas sectioned so that floor covering removal (carpet/vinyl) does not create trip hazards in escape routes?" },
+      { id: "q2", label: "Is suitable scraping or stripping equipment available for floor covering removal (carpet/vinyl)?" },
+      { id: "q3", label: "Are heavy rolls from floor covering removal (carpet/vinyl) being lifted using correct manual handling techniques?" },
+      { id: "q4", label: "Is dust from adhesive removal controlled during floor covering removal (carpet/vinyl)?" },
+      { id: "q5", label: "Are floors made level and free of residues after floor covering removal (carpet/vinyl)?" }
+    ]
+  },
+
+  "Timber floorboard removal": {
+    desc: "Timber floorboard removal involves lifting existing boards to access voids, services or for replacement. There is risk of opening large floor holes and exposing uneven joists. Work is sequenced so that edge protection or temporary covers are installed wherever boards are taken up. Nails and fixings are removed or bent over to prevent puncture injuries.",
+    hazards: ["slips_trips", "falling_objects", "manual_handling", "sharp_objects", "poor_lighting"],
+    questions: [
+      { id: "q1", label: "Are areas of timber floorboard removal clearly marked and protected against falls between joists?" },
+      { id: "q2", label: "Is there a safe system for collecting nails and fixings during timber floorboard removal?" },
+      { id: "q3", label: "Are temporary covers used where floorboard removal exposes voids in traffic routes?" },
+      { id: "q4", label: "Is adequate lighting provided in voids revealed by timber floorboard removal?" },
+      { id: "q5", label: "Are boards handled and stacked safely following timber floorboard removal?" }
+    ]
+  },
+
+  "Concrete slab breakout (internal)": {
+    desc: "Concrete slab breakout (internal) covers breaking and removal of internal concrete floors or plinths using breakers and small plant. The work generates noise, vibration and dust, which must be controlled. Existing services beneath or within the slab are located before breaking starts. Debris is removed systematically to avoid trip hazards and overloading.",
+    hazards: ["silica_dust", "dust_fumes", "noise_vibration", "manual_handling", "slips_trips"],
+    questions: [
+      { id: "q1", label: "Have all embedded or underlying services been identified before starting concrete slab breakout (internal)?" },
+      { id: "q2", label: "Is suitable respiratory protection provided for concrete slab breakout (internal)?" },
+      { id: "q3", label: "Are vibration exposure limits controlled for operatives during concrete slab breakout (internal)?" },
+      { id: "q4", label: "Is debris from concrete slab breakout (internal) removed regularly to keep walkways clear?" },
+      { id: "q5", label: "Have neighbouring occupiers been informed of noise from concrete slab breakout (internal)?" }
+    ]
+  },
+
+  "Concrete slab breakout (external)": {
+    desc: "Concrete slab breakout (external) covers breaking out external pads, yards, steps or hardstandings using breakers and small plant. Works consider buried services, adjacent structures and control of flying debris. Dust and noise are managed with water suppression and PPE. Traffic management controls are used where works adjoin live roads or paths.",
+    hazards: ["silica_dust", "dust_fumes", "noise_vibration", "moving_vehicles", "environmental_weather"],
+    questions: [
+      { id: "q1", label: "Have buried services been traced before external concrete slab breakout starts?" },
+      { id: "q2", label: "Is water suppression planned for dust control during concrete slab breakout (external)?" },
+      { id: "q3", label: "Is there a barrier or signage system to segregate the public during concrete slab breakout (external)?" },
+      { id: "q4", label: "Are weather conditions monitored so concrete slab breakout (external) stops in high winds or heavy rain?" },
+      { id: "q5", label: "Are noise levels from concrete slab breakout (external) considered for neighbouring properties?" }
+    ]
+  },
+
+  "Staircase removal (timber)": {
+    desc: "Staircase removal (timber) involves dismantling internal timber stairs, balustrades and associated finishes. Temporary access or alternative routes are established before the existing stair is taken out. The structure is removed from top to bottom, with components lowered carefully to avoid damaging surrounding finishes. Edge protection is installed where openings remain temporarily.",
+    hazards: ["work_at_height", "falling_objects", "manual_handling", "slips_trips", "structural_collapse"],
+    questions: [
+      { id: "q1", label: "Is an alternative safe means of access provided before staircase removal (timber) starts?" },
+      { id: "q2", label: "Is staircase removal (timber) sequenced from top down to control falling components?" },
+      { id: "q3", label: "Are suitable fall protection measures in place once the staircase removal (timber) is complete?" },
+      { id: "q4", label: "Are large timber components from staircase removal (timber) handled safely to avoid strain injuries?" },
+      { id: "q5", label: "Has the impact of staircase removal (timber) on fire escape routes been assessed?" }
+    ]
+  },
+
+  "Staircase removal (concrete/steel)": {
+    desc: "Staircase removal (concrete/steel) covers cutting, breaking and dismantling heavier stair structures using mechanical means. Temporary works and alternative access routes are designed prior to removal. Lifting or support equipment may be needed to handle large sections. Work generates significant noise, vibration and dust which must be planned and controlled.",
+    hazards: ["structural_collapse", "work_at_height", "noise_vibration", "silica_dust", "manual_handling"],
+    questions: [
+      { id: "q1", label: "Has a temporary works design been completed for staircase removal (concrete/steel)?" },
+      { id: "q2", label: "Is a lifting plan in place for heavy elements during staircase removal (concrete/steel)?" },
+      { id: "q3", label: "Are noise and vibration from staircase removal (concrete/steel) managed in line with site controls?" },
+      { id: "q4", label: "Is dust extraction or suppression provided during cutting for staircase removal (concrete/steel)?" },
+      { id: "q5", label: "Are new or temporary access routes clearly signed before staircase removal (concrete/steel) begins?" }
+    ]
+  },
+
+  "Garage demolition (single)": {
+    desc: "Garage demolition (single) involves dismantling or demolishing a small standalone garage structure, typically brick, block or timber with a lightweight roof. Structural stability and collapse sequence are considered before starting. Asbestos cement roofs and old finishes are assumed until proven otherwise and treated accordingly. The work area is securely fenced and debris removed promptly.",
+    hazards: ["structural_collapse", "asbestos", "manual_handling", "moving_vehicles", "falling_objects"],
+    questions: [
+      { id: "q1", label: "Has the garage demolition (single) been checked for asbestos-containing materials, particularly roof sheets?" },
+      { id: "q2", label: "Is there a planned collapse or dismantling sequence for the garage demolition (single)?" },
+      { id: "q3", label: "Are exclusion zones and fencing in place around the garage demolition (single)?" },
+      { id: "q4", label: "Are manual handling and plant use balanced appropriately for the garage demolition (single)?" },
+      { id: "q5", label: "Has waste from the garage demolition (single) been classified and disposal routes confirmed?" }
+    ]
+  },
+
+  "Outbuilding / shed demolition": {
+    desc: "Outbuilding / shed demolition involves removing small timber, metal or lightweight structures in gardens or yards. The structure is checked for services, asbestos and stability before dismantling. Work is sequenced so roof coverings are removed safely before walls are taken down. Ground conditions and access for waste removal are assessed in advance.",
+    hazards: ["manual_handling", "asbestos", "environmental_weather", "slips_trips", "falling_objects"],
+    questions: [
+      { id: "q1", label: "Has the outbuilding / shed demolition been checked for hidden services and asbestos-containing materials?" },
+      { id: "q2", label: "Is the outbuilding / shed demolition sequenced to remove roof coverings before wall collapse?" },
+      { id: "q3", label: "Are safe access routes established for carrying debris from the outbuilding / shed demolition?" },
+      { id: "q4", label: "Are weather conditions monitored to avoid wind-related hazards during outbuilding / shed demolition?" },
+      { id: "q5", label: "Is waste from the outbuilding / shed demolition segregated and stored safely pending removal?" }
+    ]
+  },
+
+  "Conservatory demolition": {
+    desc: "Conservatory demolition covers dismantling glazed structures attached to domestic properties, often with lightweight roofs and UPVC or aluminium frames. Glass panes and roof panels are removed carefully before framing is dismantled. Junctions with the main building are managed to avoid damage to retained walls and finishes. Access and protection to garden areas and neighbours are planned.",
+    hazards: ["glass_sharps", "work_at_height", "manual_handling", "slips_trips", "public_interface"],
+    questions: [
+      { id: "q1", label: "Is there a method for safely removing and handling glazing during conservatory demolition?" },
+      { id: "q2", label: "Are roof sections lowered in a controlled manner during conservatory demolition?" },
+      { id: "q3", label: "Is adjacent property protected from falling debris during conservatory demolition?" },
+      { id: "q4", label: "Are garden routes and surfaces assessed for stability when moving waste from conservatory demolition?" },
+      { id: "q5", label: "Has the impact on neighbours and boundary lines been considered before conservatory demolition?" }
+    ]
+  },
+
+  "Brick boundary wall demolition": {
+    desc: "Brick boundary wall demolition involves taking down garden or site perimeter walls. Stability, height and condition of the wall are reviewed before starting. Works may involve section-by-section take-down or use of plant depending on environment. Public safety is critical where works adjoin pavements or roads, requiring suitable barriers and signage.",
+    hazards: ["structural_collapse", "falling_objects", "public_interface", "manual_handling", "dust_fumes"],
+    questions: [
+      { id: "q1", label: "Have you agreed a safe working zone and barrier system for brick boundary wall demolition?" },
+      { id: "q2", label: "Is brick boundary wall demolition being carried out from the top down in controlled sections?" },
+      { id: "q3", label: "Is there a plan to control dust during brick boundary wall demolition?" },
+      { id: "q4", label: "Are neighbouring properties and public areas protected from flying debris during brick boundary wall demolition?" },
+      { id: "q5", label: "Is waste from brick boundary wall demolition removed regularly to maintain visibility and access?" }
+    ]
+  },
+
+  "Garden structure removal (pergola/deck)": {
+    desc: "Garden structure removal (pergola/deck) includes dismantling timber or lightweight structures, posts and associated fixings. Rot, instability and embedded fixings are assessed before works begin. The work area is managed to protect planting, paving and adjacent property. Posts and framing are removed carefully to avoid sudden collapse.",
+    hazards: ["manual_handling", "slips_trips", "sharp_objects", "environmental_weather"],
+    questions: [
+      { id: "q1", label: "Has the stability of pergolas or decks been assessed before garden structure removal starts?" },
+      { id: "q2", label: "Are ground conditions safe for access and waste movement during garden structure removal (pergola/deck)?" },
+      { id: "q3", label: "Is there a method for dealing with embedded fixings during garden structure removal (pergola/deck)?" },
+      { id: "q4", label: "Are sharp edges and nails controlled during garden structure removal (pergola/deck)?" },
+      { id: "q5", label: "Is there adequate lighting if garden structure removal (pergola/deck) takes place at low light levels?" }
+    ]
+  },
+
+  "Roof strip (tiles/slates)": {
+    desc: "Roof strip (tiles/slates) covers removal of pitched roof coverings, battens and felt to expose the structure. Work at height controls are critical, typically using scaffolds, edge protection and debris netting. Materials are stripped in planned sections to avoid unstable areas. Waste is lowered safely to ground level without overloading roofs or scaffolds.",
+    hazards: ["work_at_height", "falling_objects", "environmental_weather", "manual_handling", "fragile_surfaces"],
+    questions: [
+      { id: "q1", label: "Is full perimeter edge protection in place before roof strip (tiles/slates) begins?" },
+      { id: "q2", label: "Have fragile areas such as rooflights been identified and protected during roof strip (tiles/slates)?" },
+      { id: "q3", label: "Is there a plan for safe lowering of stripped materials during roof strip (tiles/slates)?" },
+      { id: "q4", label: "Are weather forecasts reviewed so roof strip (tiles/slates) is halted in high winds or storms?" },
+      { id: "q5", label: "Are operatives trained and briefed on safe access and egress for roof strip (tiles/slates)?" }
+    ]
+  },
+
+  "Flat roof strip (felt/insulation)": {
+    desc: "Flat roof strip (felt/insulation) involves removing multi-layer felt systems, insulation boards, ballast and associated components. Hot works may be involved where torched systems or asphalt are present. Roof drainage and temporary weather protection are considered before stripping large areas. Waste and tools are managed to prevent trip hazards on the roof.",
+    hazards: ["work_at_height", "hot_work", "environmental_weather", "manual_handling", "slips_trips"],
+    questions: [
+      { id: "q1", label: "Is edge protection and access equipment in place prior to flat roof strip (felt/insulation)?" },
+      { id: "q2", label: "Are hot work permits and controls required for flat roof strip (felt/insulation)?" },
+      { id: "q3", label: "Is temporary waterproofing planned if flat roof strip (felt/insulation) cannot be completed in one phase?" },
+      { id: "q4", label: "Is the flat roof kept free of tripping hazards during flat roof strip (felt/insulation)?" },
+      { id: "q5", label: "Are waste routes and loading points agreed for flat roof strip (felt/insulation)?" }
+    ]
+  },
+
+  "Non-licensed asbestos cement sheet removal": {
+    desc: "Non-licensed asbestos cement sheet removal covers controlled removal of low-risk asbestos cement roofing or cladding by trained operatives under non-licensed conditions. Work follows strict procedures including wetting, minimal breakage, controlled handling and double-wrapping of waste. The area is segregated and warning signage is displayed. Airborne fibre release is minimised through careful technique and housekeeping.",
+    hazards: ["asbestos", "work_at_height", "manual_handling", "environmental_weather"],
+    questions: [
+      { id: "q1", label: "Are operatives trained and briefed in non-licensed asbestos cement sheet removal procedures?" },
+      { id: "q2", label: "Is appropriate segregation, signage and notification in place for asbestos cement sheet removal?" },
+      { id: "q3", label: "Are sheets removed whole and dampened to reduce breakage during asbestos cement sheet removal?" },
+      { id: "q4", label: "Is asbestos waste from asbestos cement sheet removal double-bagged and consigned correctly?" },
+      { id: "q5", label: "Are weather conditions suitable to prevent sheet movement during asbestos cement sheet removal?" }
+    ]
+  },
+
+  "Plant room strip-out": {
+    desc: "Plant room strip-out covers removal of pumps, valves, pipework, electrical panels and supports within service spaces. All services are safely isolated and drained or purged as required before dismantling. Heavy components may require lifting plans and equipment. The environment can be confined and noisy, requiring ventilation and coordination with other services.",
+    hazards: ["manual_handling", "confined_space", "dust_fumes", "noise_vibration", "services_isolation"],
+    questions: [
+      { id: "q1", label: "Have all mechanical and electrical services been positively isolated before plant room strip-out?" },
+      { id: "q2", label: "Is there a lifting plan for heavy components involved in plant room strip-out?" },
+      { id: "q3", label: "Is ventilation provided where plant room strip-out takes place in confined or poorly ventilated areas?" },
+      { id: "q4", label: "Are noise levels from plant room strip-out within agreed site limits?" },
+      { id: "q5", label: "Is access to plant room strip-out areas controlled to authorised personnel only?" }
+    ]
+  },
+
+  "Boiler decommission & strip-out": {
+    desc: "Boiler decommission & strip-out involves isolating, draining and removing boilers, flues and associated plant. Gas, oil and electrical supplies must be made safe in accordance with regulations. Residual fuels and water are managed to prevent spillage and environmental harm. Flues and chimneys are dismantled safely with consideration for structural ties.",
+    hazards: ["gas", "fire_explosion", "manual_handling", "dust_fumes", "services_isolation"],
+    questions: [
+      { id: "q1", label: "Has a competent Gas Safe or equivalent engineer decommissioned supplies before boiler decommission & strip-out?" },
+      { id: "q2", label: "Are residual fuels and water managed safely during boiler decommission & strip-out?" },
+      { id: "q3", label: "Is there a safe system for breaking down and removing flues during boiler decommission & strip-out?" },
+      { id: "q4", label: "Are ignition sources controlled where combustible residues may be present during boiler decommission & strip-out?" },
+      { id: "q5", label: "Is waste from boiler decommission & strip-out disposed of via appropriate routes?" }
+    ]
+  },
+
+  "Tank and cylinder removal": {
+    desc: "Tank and cylinder removal involves draining, cleaning and dismantling hot water cylinders, storage tanks and associated pipework. Structural support for large tanks is assessed before removal. Confined space and contamination risks may arise in roof spaces or plantrooms. Wastewater and residues are managed to avoid damage to finishes and the environment.",
+    hazards: ["manual_handling", "confined_space", "water_ingress", "biological"],
+    questions: [
+      { id: "q1", label: "Has all water been fully drained and isolated before tank and cylinder removal starts?" },
+      { id: "q2", label: "Are supports and platforms checked for integrity before tank and cylinder removal?" },
+      { id: "q3", label: "Is space and lighting adequate where tank and cylinder removal occurs in lofts or tight plant areas?" },
+      { id: "q4", label: "Are potential biological hazards from stagnant water considered during tank and cylinder removal?" },
+      { id: "q5", label: "Is there a plan to manage spills and leaks during tank and cylinder removal?" }
+    ]
+  },
+
+  "Ceiling artex/texture scraping (non-licensed)": {
+    desc: "Ceiling artex/texture scraping (non-licensed) involves controlled removal of textured coatings where they fall under non-licensed asbestos work, following appropriate testing and procedures. Surfaces are pre-treated to minimise dust and fibre release. The area is segregated and cleaned using suitable methods. Waste is treated as asbestos-containing where required.",
+    hazards: ["asbestos", "dust_fumes", "work_at_height", "poor_lighting"],
+    questions: [
+      { id: "q1", label: "Has testing confirmed whether textured coatings fall under non-licensed asbestos work before ceiling artex scraping?" },
+      { id: "q2", label: "Is segregation and signage in place for ceiling artex/texture scraping (non-licensed)?" },
+      { id: "q3", label: "Are damping and scraping methods used to minimise dust during ceiling artex/texture scraping (non-licensed)?" },
+      { id: "q4", label: "Is suitable access and lighting provided for ceiling artex/texture scraping (non-licensed)?" },
+      { id: "q5", label: "Is waste from ceiling artex/texture scraping (non-licensed) bagged and labelled correctly?" }
+    ]
+  },
+
+  "Fire-damaged strip-out": {
+    desc: "Fire-damaged strip-out involves removal of charred, smoke-damaged and structurally compromised materials after a fire incident. Surfaces may be unstable, contaminated and sharp. Air quality, soot and residues are managed with enhanced PPE and ventilation. Structural assessments are completed before entry and progressive strip-out.",
+    hazards: ["fire_explosion", "structural_collapse", "dust_fumes", "biological", "sharp_objects"],
+    questions: [
+      { id: "q1", label: "Has a competent person confirmed structural stability before fire-damaged strip-out begins?" },
+      { id: "q2", label: "Is enhanced PPE specified for soot and contamination during fire-damaged strip-out?" },
+      { id: "q3", label: "Are access routes and floor surfaces checked for weakness during fire-damaged strip-out?" },
+      { id: "q4", label: "Is waste from fire-damaged strip-out segregated and handled as potentially contaminated material?" },
+      { id: "q5", label: "Is ventilation provided to control airborne contaminants during fire-damaged strip-out?" }
+    ]
+  },
+
+  "Water-damaged strip-out": {
+    desc: "Water-damaged strip-out covers removal of saturated finishes, plasterboard, floor coverings and insulation following leaks or flooding. There is risk from mould growth, weakened structures and electrical hazards. Work is sequenced to remove affected materials while maintaining safe access. Dehumidification and drying are coordinated with strip-out activities.",
+    hazards: ["water_ingress", "biological", "slips_trips", "manual_handling", "live_electricity"],
+    questions: [
+      { id: "q1", label: "Have electrical systems been isolated or checked safe prior to water-damaged strip-out?" },
+      { id: "q2", label: "Is mould or contamination risk assessed and controlled during water-damaged strip-out?" },
+      { id: "q3", label: "Are saturated materials handled using safe manual handling techniques during water-damaged strip-out?" },
+      { id: "q4", label: "Are slip hazards from water-damaged strip-out controlled by regular cleaning and matting?" },
+      { id: "q5", label: "Is a drying plan in place following water-damaged strip-out?" }
+    ]
+  },
+
+  "M&E services strip-out (dead)": {
+    desc: "M&E services strip-out (dead) involves removal of redundant mechanical and electrical services that have been fully isolated. Works include cable trays, pipework, ductwork, terminal units and plant connections. Verification that all services are dead is critical before cutting or dismantling. High-level works require suitable access and fall protection.",
+    hazards: ["services_isolation", "work_at_height", "manual_handling", "plant_machinery"],
+    questions: [
+      { id: "q1", label: "Has formal confirmation been obtained that all M&E services involved in strip-out are dead?" },
+      { id: "q2", label: "Is suitable access equipment used for high-level M&E services strip-out (dead)?" },
+      { id: "q3", label: "Are heavy duct and pipe sections lowered in a controlled manner during M&E services strip-out (dead)?" },
+      { id: "q4", label: "Are cable and pipe routes clearly identified to avoid removing live services during M&E strip-out (dead)?" },
+      { id: "q5", label: "Is waste metal from M&E services strip-out (dead) stored securely before removal?" }
+    ]
+  },
+
+  "Raised access floor removal": {
+    desc: "Raised access floor removal involves lifting floor tiles, pedestals and stringers to expose the structural slab below. Care is taken not to damage underlying services. Openings are protected with barriers or covers to prevent falls. Tiles and pedestals are stacked safely and removed systematically.",
+    hazards: ["slips_trips", "manual_handling", "poor_lighting", "services_isolation"],
+    questions: [
+      { id: "q1", label: "Are void openings protected during raised access floor removal to prevent falls?" },
+      { id: "q2", label: "Are services within the floor void identified and protected during raised access floor removal?" },
+      { id: "q3", label: "Are tiles and pedestals stacked safely during raised access floor removal?" },
+      { id: "q4", label: "Is lighting adequate within void spaces during raised access floor removal?" },
+      { id: "q5", label: "Is there a clear plan for waste removal and recycling from raised access floor removal?" }
+    ]
+  },
+
+  "Toilet block strip-out": {
+    desc: "Toilet block strip-out covers removal of cubicles, sanitaryware, IPS panels, ceilings and floor finishes in washroom areas. Water and electrical services are isolated and any concealed services identified before strip-out. Work generates sharp fragments and contamination from old pipework and sanitary fittings. The area is kept hygienic and slip hazards controlled.",
+    hazards: ["manual_handling", "water_ingress", "biological", "slips_trips", "dust_fumes"],
+    questions: [
+      { id: "q1", label: "Have water and power been isolated to all relevant areas before toilet block strip-out?" },
+      { id: "q2", label: "Are hygienic controls in place for dealing with old sanitaryware during toilet block strip-out?" },
+      { id: "q3", label: "Are sharp edges managed from removed fixtures during toilet block strip-out?" },
+      { id: "q4", label: "Is adequate ventilation provided during toilet block strip-out?" },
+      { id: "q5", label: "Is the floor kept dry and clear of debris throughout the toilet block strip-out?" }
+    ]
+  },
+
+  "Lift lobby and car interior strip-out (non-lift removal)": {
+    desc: "Lift lobby and car interior strip-out involves removing finishes, ceilings, doors, call stations and car linings without interfering with lift safety systems or machinery. Works are coordinated with lift specialists and building management. The lift is taken out of service where required. Fall and entrapment risks are managed carefully around doorways and shafts.",
+    hazards: ["public_interface", "manual_handling", "work_at_height", "services_isolation"],
+    questions: [
+      { id: "q1", label: "Has the lift company been consulted before lift lobby and car interior strip-out starts?" },
+      { id: "q2", label: "Is the lift taken safely out of service for the duration of the strip-out?" },
+      { id: "q3", label: "Are controls in place to prevent access to open shafts during lift lobby and car interior strip-out?" },
+      { id: "q4", label: "Are decorative panels and doors handled safely during lift lobby and car interior strip-out?" },
+      { id: "q5", label: "Is the public kept away from work zones during lift lobby and car interior strip-out?" }
+    ]
+  },
+
+  "Facade cladding removal (non-structural)": {
+    desc: "Facade cladding removal (non-structural) covers taking down rainscreen panels, lightweight cladding and fixings that are not primary structure. Work at height and falling object risks are controlled with scaffolding and netting. Fire and weather performance of the temporary exposed facade are considered in the planning. Waste is lowered via controlled routes.",
+    hazards: ["work_at_height", "falling_objects", "environmental_weather", "manual_handling"],
+    questions: [
+      { id: "q1", label: "Is scaffold and edge protection in place before facade cladding removal (non-structural) begins?" },
+      { id: "q2", label: "Are panel removal sequences planned to prevent large areas becoming unstable during facade cladding removal?" },
+      { id: "q3", label: "Is debris netting or similar installed to control falling items during facade cladding removal?" },
+      { id: "q4", label: "Is temporary weather protection planned once facade cladding removal exposes the building?" },
+      { id: "q5", label: "Are manual handling aids available for large panels during facade cladding removal?" }
+    ]
+  },
+
+  "Window and door removal": {
+    desc: "Window and door removal includes taking out frames, sashes, glazing and ironmongery from openings. Glass breakage and falling components are key risks, controlled through removal sequences and PPE. Temporary protection may be required to openings for safety and weatherproofing. Adjacent finishes are protected from damage.",
+    hazards: ["glass_sharps", "falling_objects", "work_at_height", "manual_handling"],
+    questions: [
+      { id: "q1", label: "Is there a method for safely removing glazing during window and door removal?" },
+      { id: "q2", label: "Are openings protected against falls after window and door removal?" },
+      { id: "q3", label: "Is suitable manual handling equipment available for large frames during window and door removal?" },
+      { id: "q4", label: "Are sharp edges controlled and disposed of correctly during window and door removal?" },
+      { id: "q5", label: "Is temporary weather protection installed after window and door removal where required?" }
+    ]
+  },
+
+  "Door frame and lining removal": {
+    desc: "Door frame and lining removal involves stripping internal frames, linings and associated architraves without damaging structural openings. Fixings and wedges are removed systematically and frames are split to reduce force on adjacent finishes. The operation is coordinated with follow-on works ready to re-frame or close the opening.",
+    hazards: ["manual_handling", "sharp_objects", "slips_trips", "dust_fumes"],
+    questions: [
+      { id: "q1", label: "Are frames cut and split to ease removal rather than levered out during door frame and lining removal?" },
+      { id: "q2", label: "Are sharp fixings controlled during door frame and lining removal?" },
+      { id: "q3", label: "Is dust and debris from door frame and lining removal cleaned regularly?" },
+      { id: "q4", label: "Are door openings made safe and free of trip hazards after door frame and lining removal?" },
+      { id: "q5", label: "Is there a plan for temporary door or barrier provision where required after door frame and lining removal?" }
+    ]
+  },
+
+  "Balustrade and handrail removal": {
+    desc: "Balustrade and handrail removal involves dismantling guarding from stairs, landings and edges. Temporary edge protection or alternative guarding is installed before original barriers are removed. Works are sequenced to maintain protection at all times. Removed components are handled safely to avoid falls from height.",
+    hazards: ["work_at_height", "falling_objects", "slips_trips", "manual_handling"],
+    questions: [
+      { id: "q1", label: "Is temporary guarding installed before balustrade and handrail removal starts?" },
+      { id: "q2", label: "Are balustrade components removed in a sequence that maintains edge protection during removal?" },
+      { id: "q3", label: "Are removed balustrade and handrail elements secured so they cannot fall from height?" },
+      { id: "q4", label: "Is access controlled to areas affected by balustrade and handrail removal?" },
+      { id: "q5", label: "Are stairs and landings kept free of debris during balustrade and handrail removal?" }
+    ]
+  },
+
+  "Ductwork strip-out": {
+    desc: "Ductwork strip-out covers removal of sheet metal ducts, insulation and supports from ceiling voids, plantrooms and risers. Work at height is common, using steps, towers or MEWPs. Materials are lowered in manageable sections. Insulation may contain fibres or contaminants, requiring suitable PPE and waste handling.",
+    hazards: ["work_at_height", "manual_handling", "dust_fumes", "falling_objects"],
+    questions: [
+      { id: "q1", label: "Is access equipment suitable and inspected before starting ductwork strip-out?" },
+      { id: "q2", label: "Are duct sections cut into manageable pieces before lowering in ductwork strip-out?" },
+      { id: "q3", label: "Is insulation from ductwork strip-out treated as potentially hazardous and bagged appropriately?" },
+      { id: "q4", label: "Are fixings and hangers removed in a controlled way during ductwork strip-out?" },
+      { id: "q5", label: "Is the work area below protected from falling items during ductwork strip-out?" }
+    ]
+  },
+
+  "Suspended services strip-out (tray/conduit)": {
+    desc: "Suspended services strip-out (tray/conduit) involves removing cable trays, trunking and conduits that no longer carry live services. Isolation of any remaining circuits is confirmed before removal. Work is carried out at height and overhead, requiring good access and control of falling items. Cable segregation and identification are reviewed to avoid accidental disruption of live systems.",
+    hazards: ["work_at_height", "manual_handling", "falling_objects", "services_isolation"],
+    questions: [
+      { id: "q1", label: "Have all live circuits been traced and identified before suspended services strip-out (tray/conduit)?" },
+      { id: "q2", label: "Is suitable access in place for overhead suspended services strip-out (tray/conduit)?" },
+      { id: "q3", label: "Are trays and conduits removed in short sections to control weight during suspended services strip-out (tray/conduit)?" },
+      { id: "q4", label: "Are areas below cordoned off during suspended services strip-out (tray/conduit)?" },
+      { id: "q5", label: "Is there a process to verify that only redundant services are removed during suspended services strip-out (tray/conduit)?" }
+    ]
+  },
+
+  "External hardstanding breakout (paths/patio)": {
+    desc: "External hardstanding breakout (paths/patio) covers demolition of paved areas, slabs and small retaining features in gardens or yards. Buried services and tree roots are considered before breaking out. Works use hand tools or light plant and must control noise, dust and flying debris. Ground reinstatement or protection is planned for after removal.",
+    hazards: ["silica_dust", "dust_fumes", "moving_vehicles", "environmental_weather", "manual_handling"],
+    questions: [
+      { id: "q1", label: "Have underground services been located before external hardstanding breakout (paths/patio)?" },
+      { id: "q2", label: "Is dust suppression in place for external hardstanding breakout (paths/patio)?" },
+      { id: "q3", label: "Is the public segregated from the work zone during external hardstanding breakout (paths/patio)?" },
+      { id: "q4", label: "Are slabs broken into manageable sizes during external hardstanding breakout (paths/patio)?" },
+      { id: "q5", label: "Is the ground made safe and even after external hardstanding breakout (paths/patio)?" }
+    ]
+  },
+
+  "Kerb and edging removal": {
+    desc: "Kerb and edging removal involves lifting precast kerbs, edgings and small retaining elements from pavements and drives. Traffic and pedestrian management is crucial where works adjoin live roads. Breakout is controlled to avoid damage to adjacent surfaces and services. Removed units are stacked safely awaiting reuse or disposal.",
+    hazards: ["moving_vehicles", "manual_handling", "slips_trips", "silica_dust"],
+    questions: [
+      { id: "q1", label: "Is a traffic management plan in place for kerb and edging removal near roads or car parks?" },
+      { id: "q2", label: "Are kerbs lifted using suitable tools or plant during kerb and edging removal?" },
+      { id: "q3", label: "Is dust controlled when breaking out bedding during kerb and edging removal?" },
+      { id: "q4", label: "Are pedestrians segregated from kerb and edging removal works?" },
+      { id: "q5", label: "Are removed kerbs stacked safely after kerb and edging removal?" }
+    ]
+  },
+
+  "Playground equipment removal": {
+    desc: "Playground equipment removal includes dismantling swings, frames, slides and safety surfacing in public or school environments. Public access is strictly controlled with fencing and signage. Foundations and fixings are removed or made safe. Surfaces are restored to prevent trip hazards and to prepare for new installations.",
+    hazards: ["public_interface", "manual_handling", "plant_machinery", "slips_trips"],
+    questions: [
+      { id: "q1", label: "Is the playground equipment removal area securely fenced off from children and the public?" },
+      { id: "q2", label: "Is there a method for dealing with below-ground foundations during playground equipment removal?" },
+      { id: "q3", label: "Are lifting techniques and plant suitable for large play structures in playground equipment removal?" },
+      { id: "q4", label: "Is surfacing made level and safe after playground equipment removal?" },
+      { id: "q5", label: "Have school or site managers agreed timings and controls for playground equipment removal?" }
+    ]
+  },
+
+  "Internal demolition for open-plan conversion": {
+    desc: "Internal demolition for open-plan conversion involves removal of partitions, ceilings, floor finishes and selected structural elements in preparation for a new layout. Structural design and temporary works plans are in place where load-bearing elements are affected. Dust, noise and vibration are controlled to protect neighbouring areas. Access, fire escape routes and services are carefully managed throughout.",
+    hazards: ["structural_collapse", "dust_fumes", "manual_handling", "slips_trips", "public_interface"],
+    questions: [
+      { id: "q1", label: "Has a structural design and sequence been agreed for internal demolition for open-plan conversion?" },
+      { id: "q2", label: "Are temporary works in place where internal demolition for open-plan conversion affects structure?" },
+      { id: "q3", label: "Is dust control (e.g. screening, extraction) planned for internal demolition for open-plan conversion?" },
+      { id: "q4", label: "Are escape routes maintained while internal demolition for open-plan conversion progresses?" },
+      { id: "q5", label: "Are services clearly identified before internal demolition for open-plan conversion begins?" }
+    ]
+  },
+
+  "Loft clear-out and strip-out": {
+    desc: "Loft clear-out and strip-out covers removal of stored items, insulation, obsolete tanks and services from roof spaces. The work is often in confined, poorly lit areas with fragile ceilings below. Access arrangements, crawl boards and fall protection measures are established before entry. Dust, droppings and biological contamination are controlled with suitable PPE.",
+    hazards: ["work_at_height", "confined_space", "poor_lighting", "dust_fumes", "fragile_surfaces"],
+    questions: [
+      { id: "q1", label: "Are safe access and crawl boards installed before loft clear-out and strip-out starts?" },
+      { id: "q2", label: "Are ceilings below treated as fragile surfaces during loft clear-out and strip-out?" },
+      { id: "q3", label: "Is suitable PPE specified for dust and biological risks during loft clear-out and strip-out?" },
+      { id: "q4", label: "Is lighting provided to all working areas for loft clear-out and strip-out?" },
+      { id: "q5", label: "Are waste routes and bagging arrangements set up for loft clear-out and strip-out?" }
+    ]
+  },
+
+  "Site clearance of demolition arisings": {
+    desc: "Site clearance of demolition arisings involves collecting, sorting and removing rubble, scrap, timber and waste following demolition or strip-out activities. Plant and vehicles may be used to load skips and containers. Segregation of waste streams is maintained to support recycling. The area is progressively tidied to reduce trip, fire and security risks.",
+    hazards: ["plant_machinery", "manual_handling", "slips_trips", "moving_vehicles", "sharp_objects"],
+    questions: [
+      { id: "q1", label: "Is there a traffic and plant management plan in place for site clearance of demolition arisings?" },
+      { id: "q2", label: "Are waste streams segregated during site clearance of demolition arisings?" },
+      { id: "q3", label: "Are sharp and protruding materials controlled during site clearance of demolition arisings?" },
+      { id: "q4", label: "Are walkways kept clear throughout site clearance of demolition arisings?" },
+      { id: "q5", label: "Is plant operated by trained personnel only during site clearance of demolition arisings?" }
+    ]
+  }
+};
+
+// ==========================================
 // 4. MASTER TRADE REGISTRY
 // ==========================================
 
@@ -4248,5 +4854,10 @@ export const TRADES = {
   "Groundworks & Civils": {
     jobs: Object.keys(GROUNDWORKS_CIVILS_CLUSTERS).map((name) => ({ name })),
     clusters: GROUNDWORKS_CIVILS_CLUSTERS,
+  },
+
+  "Demolition & Strip-Out": {
+    jobs: Object.keys(DEMOLITION_STRIPOUT_CLUSTERS).map((name) => ({ name })),
+    clusters: DEMOLITION_STRIPOUT_CLUSTERS,
   },
 };
