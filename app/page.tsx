@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import {
@@ -11,6 +11,10 @@ import {
   AlertTriangle,
   Info,
   FileText,
+  Search,
+  Settings,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 
 import {
@@ -21,24 +25,23 @@ import {
 } from "./lib/constants";
 
 // --- SMALL TEXT SANITISER ---
-// Cleans AI text before sending into the PDF so we don't get weird spacing etc.
 function sanitizeText(input: any): string {
   if (!input || typeof input !== "string") return "";
   return input
     .replace(/\r\n/g, "\n")
-    .replace(/\n{2,}/g, "\n") // collapse multiple blank lines
-    .replace(/[ \t]+/g, " ") // collapse multiple spaces/tabs
-    .replace(/ ?([.,;:!?])/g, "$1") // remove space before punctuation
+    .replace(/\n{2,}/g, "\n")
+    .replace(/[ \t]+/g, " ")
+    .replace(/ ?([.,;:!?])/g, "$1")
     .trim();
 }
 
 // --- UI COMPONENTS ---
 const Tooltip = ({ text }: { text: string }) => (
   <div className="group relative inline-block ml-2">
-    <Info className="w-4 h-4 text-gray-400 hover:text-black cursor-help transition-colors" />
-    <div className="invisible group-hover:visible absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-64 p-3 bg-black text-white text-xs rounded-md shadow-xl z-50 text-center leading-relaxed border border-gray-800">
+    <Info className="w-4 h-4 text-slate-400 hover:text-slate-900 cursor-help transition-colors" />
+    <div className="invisible group-hover:visible absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-64 p-3 bg-slate-900 text-white text-xs rounded-md shadow-xl z-50 text-center leading-relaxed border border-slate-700">
       {text}
-      <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-black"></div>
+      <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-slate-900" />
     </div>
   </div>
 );
@@ -77,22 +80,22 @@ function AddressSearch({
 
   return (
     <div className="relative group">
-      <label className="flex items-center text-xs font-bold uppercase tracking-wider text-gray-700 mb-1.5">
+      <label className="flex items-center text-xs font-semibold uppercase tracking-[0.12em] text-slate-600 mb-1.5">
         {label}
         {required && <span className="text-red-600 ml-1">*</span>}
         {tooltip && <Tooltip text={tooltip} />}
       </label>
       <div className="relative">
         <input
-          className="w-full border border-gray-300 rounded-md p-3 text-sm focus:ring-2 focus:ring-black focus:border-transparent outline-none transition-all shadow-sm"
+          className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-800 focus:border-transparent shadow-sm"
           placeholder="Start typing address..."
           value={query}
           onChange={(e) => searchAddress(e.target.value)}
         />
-        <MapPin className="w-4 h-4 absolute right-3 top-3.5 text-gray-400" />
+        <MapPin className="w-4 h-4 absolute right-3 top-3.5 text-slate-400" />
       </div>
       {showDropdown && results.length > 0 && (
-        <ul className="absolute z-50 w-full bg-white border border-gray-200 rounded-md shadow-2xl mt-1 max-h-60 overflow-auto">
+        <ul className="absolute z-50 w-full bg-white border border-slate-200 rounded-lg shadow-2xl mt-1 max-h-60 overflow-auto text-xs">
           {results.map((r: any, i: number) => (
             <li
               key={i}
@@ -101,7 +104,7 @@ function AddressSearch({
                 onChange(r.display_name);
                 setShowDropdown(false);
               }}
-              className="p-3 hover:bg-gray-50 cursor-pointer text-xs border-b last:border-0 text-gray-700 leading-tight"
+              className="p-3 hover:bg-slate-50 cursor-pointer border-b last:border-0 text-slate-700 leading-tight"
             >
               {r.display_name}
             </li>
@@ -114,12 +117,16 @@ function AddressSearch({
 
 // --- MAIN APPLICATION ---
 export default function Home() {
+  const [sidebarOpen, setSidebarOpen] = useState(true);
   const [step, setStep] = useState(1);
   const [isGenerating, setIsGenerating] = useState(false);
+
+  const mainRef = useRef<HTMLDivElement | null>(null);
 
   const [formData, setFormData] = useState({
     companyName: "",
     officeAddress: "",
+    email: "",
     contactName: "",
     contactPhone: "",
     clientName: "",
@@ -147,6 +154,13 @@ export default function Home() {
   const [questions, setQuestions] = useState<any[]>([]);
   const [answers, setAnswers] = useState<Record<string, string>>({});
 
+  // Scroll main panel to top when step changes
+  useEffect(() => {
+    if (mainRef.current) {
+      mainRef.current.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  }, [step]);
+
   // --- Update hazards/questions when trade/jobType changes ---
   useEffect(() => {
     const currentTrade = TRADES[formData.trade as keyof typeof TRADES];
@@ -154,6 +168,7 @@ export default function Home() {
     if (!currentTrade || !formData.jobType) {
       setQuestions([]);
       setHazards([]);
+      setAnswers({});
       return;
     }
 
@@ -162,35 +177,55 @@ export default function Home() {
 
     if (!clusterData) {
       setQuestions([]);
+      setHazards([]);
+      setAnswers({});
       return;
     }
 
-    // For named jobs: use desc from constants
-    // For "Other (Custom)": keep whatever user has typed
+    // Set description: for "Other (Custom)" start blank, otherwise use library desc
     setFormData((prev) => ({
       ...prev,
       customDescription:
-        prev.jobType === "Other (Custom)"
-          ? prev.customDescription
+        formData.jobType === "Other (Custom)"
+          ? ""
           : clusterData.desc || "",
     }));
 
-    setHazards((prev) => [
-      ...new Set([...(prev || []), ...(clusterData.hazards || [])]),
-    ]);
+    // Replace hazards with just this job's hazards
+    setHazards(clusterData.hazards || []);
 
+    // Replace questions; no default "Yes" anymore
     const qs = clusterData.questions || [];
     setQuestions(qs);
-
-    const defaults: Record<string, string> = {};
-    qs.forEach((q) => {
-      defaults[q.id] = "Yes";
-    });
-    setAnswers(defaults);
+    setAnswers({});
   }, [formData.jobType, formData.trade]);
 
-  const handleInput = (field: string, value: string) =>
+  const handleInput = (field: string, value: string) => {
+    if (field === "trade") {
+      setFormData((prev) => ({
+        ...prev,
+        trade: value,
+        jobType: "",
+        customJobType: "",
+        customDescription: "",
+      }));
+      setQuestions([]);
+      setHazards([]);
+      setAnswers({});
+      return;
+    }
+
+    if (field === "jobType") {
+      setFormData((prev) => ({
+        ...prev,
+        jobType: value,
+        ...(value !== "Other (Custom)" ? { customJobType: "" } : {}),
+      }));
+      return;
+    }
+
     setFormData((prev) => ({ ...prev, [field]: value }));
+  };
 
   const toggleHazard = (h: string) =>
     setHazards((prev) =>
@@ -204,11 +239,11 @@ export default function Home() {
         !formData.officeAddress ||
         !formData.contactName)
     ) {
-      alert("⚠️ Please fill in Company Details.");
+      alert("⚠️ Please fill in Company Name, Office Address and Competent Person Name.");
       return;
     }
     if (step === 2 && (!formData.clientName || !formData.siteAddress)) {
-      alert("⚠️ Please fill in Project Details.");
+      alert("⚠️ Please fill in Client Name and Site Address.");
       return;
     }
     setStep((prev) => prev + 1);
@@ -218,6 +253,18 @@ export default function Home() {
 
   // --- API HANDLER ---
   const generateRAMS = async () => {
+    if (
+      !formData.supervisorName ||
+      !formData.firstAider ||
+      !formData.hospital ||
+      !formData.fireAssembly
+    ) {
+      alert(
+        "⚠️ Please complete the emergency details (Supervisor, First Aider, Nearest Hospital, Fire Assembly Point). If something is not known, enter 'N/A'."
+      );
+      return;
+    }
+
     setIsGenerating(true);
     try {
       const res = await fetch("/api/generate", {
@@ -228,6 +275,7 @@ export default function Home() {
           hazards,
           answers,
           customDescription: formData.customDescription,
+          extraNotes: formData.extraNotes,
         }),
       });
 
@@ -340,7 +388,14 @@ export default function Home() {
           "Job / Task Title",
           sanitizeText(
             `${formData.trade} - ${
-              formData.jobType ? toTitleCase(formData.jobType) : ""
+              formData.jobType
+                ? toTitleCase(
+                    formData.jobType === "Other (Custom)" &&
+                    formData.customJobType.trim().length > 0
+                      ? formData.customJobType
+                      : formData.jobType
+                  )
+                : ""
             }`
           ),
         ],
@@ -383,12 +438,16 @@ export default function Home() {
     doc.setFontSize(10);
     doc.setFont("helvetica", "normal");
 
-    const scopeRaw =
+    const scopeBase =
       apiData.summary ||
       formData.customDescription ||
       "Standard works as per industry guidelines.";
+    const extra =
+      formData.extraNotes && formData.extraNotes.trim().length > 0
+        ? `\n\nAdditional site-specific notes: ${formData.extraNotes}`
+        : "";
     const scopeText = doc.splitTextToSize(
-      sanitizeText(scopeRaw),
+      sanitizeText(scopeBase + extra),
       contentWidth
     );
     doc.text(scopeText, margin, currentY);
@@ -702,161 +761,368 @@ export default function Home() {
     doc.save(`RAMS_${safeName}.pdf`);
   };
 
+  const inputClass =
+    "w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-800 focus:border-transparent shadow-sm placeholder:text-slate-400";
+
   // --- UI RENDER ---
   return (
-    <div className="min-h-screen bg-gray-50 font-sans text-gray-900 pb-24">
-      <nav className="bg-white border-b border-gray-200 py-4 px-6 sticky top-0 z-50 flex justify-between items-center shadow-sm">
-        <div className="flex items-center gap-2 font-extrabold text-xl tracking-tight text-blue-900">
-          <ShieldCheck className="w-7 h-7 text-blue-700" /> RAMS Sorted
-        </div>
-        <div className="text-xs font-bold bg-blue-700 text-white px-4 py-1.5 rounded-full shadow-sm">
-          Step {step} / 3
-        </div>
-      </nav>
+    <div className="h-screen flex bg-slate-200 text-slate-900 font-sans">
+      {/* SIDEBAR */}
+      <aside
+        className={`flex flex-col h-full border-r border-slate-300 transition-all duration-300 ease-out ${
+          sidebarOpen ? "w-72 bg-slate-200" : "w-14 bg-white"
+        }`}
+      >
+        {sidebarOpen ? (
+          <>
+            {/* Header with title + collapse */}
+            <div className="flex items-center justify-between px-4 pt-4 pb-3">
+              <div className="text-[11px] font-semibold tracking-[0.22em] uppercase text-slate-700">
+                RAMS Builder
+              </div>
+              <button
+                onClick={() => setSidebarOpen(false)}
+                className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-800 text-white hover:bg-blue-700 shadow-md"
+              >
+                <ChevronLeft className="w-4 h-4" />
+              </button>
+            </div>
 
-      <main className="max-w-4xl mx-auto py-10 px-4 sm:px-6">
-        <div className="bg-white rounded-2xl shadow-xl border border-gray-200 overflow-hidden">
-          <div className="h-1.5 bg-gray-100 w-full">
+            {/* Search */}
+            <div className="px-4 pb-3">
+              <div className="relative">
+                <Search className="w-4 h-4 absolute left-3 top-3 text-slate-400" />
+                <input
+                  className="w-full rounded-full bg-white border border-slate-200 pl-9 pr-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-blue-800 focus:border-transparent"
+                  placeholder="Search history (coming soon)"
+                  disabled
+                />
+              </div>
+            </div>
+
+            {/* History section with its own scroll */}
+            <div className="flex-1 overflow-y-auto px-4 pb-4">
+              <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500 mb-2">
+                History
+              </div>
+              <div className="text-xs text-slate-400 bg-white border border-dashed border-slate-200 rounded-lg px-3 py-3">
+                No RAMS generated yet.
+              </div>
+            </div>
+
+            {/* Account footer */}
+            <div className="px-4 py-3 border-t border-slate-300 flex items-center justify-between">
+              <button className="flex items-center gap-2.5">
+                <div className="h-8 w-8 rounded-full bg-blue-800 text-[11px] font-semibold text-white flex items-center justify-center">
+                  N
+                </div>
+                <div className="text-left">
+                  <div className="text-xs font-semibold text-slate-800">
+                    Account
+                  </div>
+                  <div className="text-[11px] text-slate-500">
+                    RAMS Sorted
+                  </div>
+                </div>
+              </button>
+              <button className="h-8 w-8 flex items-center justify-center rounded-full border border-slate-200 text-slate-500 hover:bg-slate-50">
+                <Settings className="w-4 h-4" />
+              </button>
+            </div>
+          </>
+        ) : (
+          // Collapsed sidebar
+          <div className="flex flex-col h-full items-center justify-between py-4">
+            <button
+              onClick={() => setSidebarOpen(true)}
+              className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-800 text-white hover:bg-blue-700 shadow-md"
+            >
+              <ChevronRight className="w-4 h-4" />
+            </button>
+
+            <div className="mb-2 flex flex-col items-center gap-3">
+              <button className="flex h-9 w-9 items-center justify-center rounded-full bg-blue-800 text-[10px] font-semibold text-white">
+                N
+              </button>
+            </div>
+          </div>
+        )}
+      </aside>
+
+      {/* MAIN WIZARD PANEL */}
+      <main
+        ref={mainRef}
+        className="flex-1 bg-white overflow-y-auto"
+      >
+        <div className="w-full px-5 sm:px-10 py-6 sm:py-7">
+          {/* Header + progress */}
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-2 text-xs font-semibold tracking-[0.25em] uppercase text-slate-500">
+              <FileText className="w-4 h-4 text-slate-400" />
+              RAMS Wizard
+            </div>
+            <div className="text-[11px] font-medium text-slate-500">
+              Step {step} of 3
+            </div>
+          </div>
+
+          <div className="h-1.5 rounded-full bg-slate-100 mb-6">
             <div
-              className="h-full bg-blue-600 transition-all duration-500 ease-out"
+              className="h-full rounded-full bg-blue-800 transition-all duration-500 ease-out"
               style={{ width: `${(step / 3) * 100}%` }}
             />
           </div>
 
-          <div className="p-8">
-            {/* STEP 1: COMPANY */}
-            {step === 1 && (
-              <div className="space-y-6 animate-in fade-in">
-                <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2">
-                  <Briefcase className="w-5 h-5" /> Company Details
-                </h2>
+          {/* STEP 1: COMPANY */}
+          {step === 1 && (
+            <div className="space-y-6">
+              <div className="flex items-center gap-2">
+                <Briefcase className="w-5 h-5 text-slate-900" />
+                <div>
+                  <h2 className="text-lg font-semibold text-slate-900">
+                    Company Details
+                  </h2>
+                  <p className="text-xs text-slate-500 mt-1">
+                    These details feed directly into the header of your RAMS
+                    document.
+                  </p>
+                </div>
+              </div>
+
+              <div className="space-y-5">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-600 mb-1.5">
+                      Company Name <span className="text-red-600">*</span>
+                    </label>
+                    <input
+                      className={inputClass}
+                      placeholder="Your company name"
+                      value={formData.companyName}
+                      onChange={(e) =>
+                        handleInput("companyName", e.target.value)
+                      }
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-600 mb-1.5">
+                      Competent Person Name{" "}
+                      <span className="text-red-600">*</span>
+                    </label>
+                    <input
+                      className={inputClass}
+                      placeholder="Who is preparing this RAMS?"
+                      value={formData.contactName}
+                      onChange={(e) =>
+                        handleInput("contactName", e.target.value)
+                      }
+                    />
+                  </div>
+                </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <input
-                    className="border p-3 rounded w-full"
-                    placeholder="Company Name"
-                    value={formData.companyName}
-                    onChange={(e) =>
-                      handleInput("companyName", e.target.value)
-                    }
-                  />
-                  <input
-                    className="border p-3 rounded w-full"
-                    placeholder="Competent Person Name"
-                    value={formData.contactName}
-                    onChange={(e) =>
-                      handleInput("contactName", e.target.value)
-                    }
-                  />
                   <AddressSearch
                     label="Office Address"
+                    required
                     value={formData.officeAddress}
                     onChange={(val: string) =>
                       handleInput("officeAddress", val)
                     }
                   />
-                  <input
-                    className="border p-3 rounded w-full"
-                    placeholder="Phone Number"
-                    value={formData.contactPhone}
-                    onChange={(e) =>
-                      handleInput("contactPhone", e.target.value)
-                    }
-                  />
-                </div>
-
-                <div className="bg-gray-50 p-4 rounded border mt-4 space-y-4">
-                  <h3 className="font-bold text-sm">Project Info</h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-600 mb-1.5">
+                      Phone Number{" "}
+                      <span className="text-slate-400 font-normal">
+                        (optional)
+                      </span>
+                    </label>
                     <input
-                      className="border p-3 rounded w-full"
-                      placeholder="Client Name"
-                      value={formData.clientName}
+                      className={inputClass}
+                      placeholder="Optional"
+                      value={formData.contactPhone}
                       onChange={(e) =>
-                        handleInput("clientName", e.target.value)
-                      }
-                    />
-                    <input
-                      className="border p-3 rounded w-full"
-                      placeholder="Job Ref (Optional)"
-                      value={formData.projectRef}
-                      onChange={(e) =>
-                        handleInput("projectRef", e.target.value)
+                        handleInput("contactPhone", e.target.value)
                       }
                     />
                   </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-600 mb-1.5">
+                      Email{" "}
+                      <span className="text-slate-400 font-normal">
+                        (optional)
+                      </span>
+                    </label>
+                    <input
+                      className={inputClass}
+                      placeholder="Optional"
+                      value={formData.email}
+                      onChange={(e) =>
+                        handleInput("email", e.target.value)
+                      }
+                    />
+                  </div>
+                  <div />
+                </div>
+
+                <div className="mt-1 rounded-2xl border border-slate-100 bg-slate-50 px-4 py-4 space-y-4">
+                  <h3 className="text-sm font-semibold text-slate-800">
+                    Project Info
+                  </h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-600 mb-1.5">
+                        Client Name <span className="text-red-600">*</span>
+                      </label>
+                      <input
+                        className={inputClass}
+                        placeholder="Client name"
+                        value={formData.clientName}
+                        onChange={(e) =>
+                          handleInput("clientName", e.target.value)
+                        }
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-600 mb-1.5">
+                        Job Ref{" "}
+                        <span className="text-slate-400 font-normal">
+                          (optional)
+                        </span>
+                      </label>
+                      <input
+                        className={inputClass}
+                        placeholder="Optional"
+                        value={formData.projectRef}
+                        onChange={(e) =>
+                          handleInput("projectRef", e.target.value)
+                        }
+                      />
+                    </div>
+                  </div>
+
                   <AddressSearch
                     label="Site Address"
+                    required
                     value={formData.siteAddress}
                     onChange={(val: string) =>
                       handleInput("siteAddress", val)
                     }
                   />
                 </div>
+              </div>
 
+              <div className="pt-1">
                 <button
                   onClick={nextStep}
-                  className="bg-black text-white w-full py-3 rounded font-bold mt-4"
+                  className="w-full md:w-auto px-6 py-3 rounded-full bg-blue-800 text-white text-sm font-semibold shadow-sm hover:bg-blue-700"
                 >
-                  Next Step
+                  Next: Job Scope
                 </button>
               </div>
-            )}
+            </div>
+          )}
 
-            {/* STEP 2: SCOPE */}
-            {step === 2 && (
-              <div className="space-y-6 animate-in fade-in">
-                <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2">
-                  <FileText className="w-5 h-5" /> Job Scope
-                </h2>
+          {/* STEP 2: SCOPE */}
+          {step === 2 && (
+            <div className="space-y-8">
+              <div className="flex items-center gap-2">
+                <FileText className="w-5 h-5 text-slate-900" />
+                <div>
+                  <h2 className="text-lg font-semibold text-slate-900">
+                    Job Scope
+                  </h2>
+                  <p className="text-xs text-slate-500 mt-1">
+                    Choose the trade and job type. We auto-fill a description
+                    you can refine.
+                  </p>
+                </div>
+              </div>
 
+              <div className="space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <select
-                    className="border p-3 rounded w-full"
-                    value={formData.trade}
-                    onChange={(e) => handleInput("trade", e.target.value)}
-                  >
-                    {Object.keys(TRADES).map((t) => (
-                      <option key={t}>{t}</option>
-                    ))}
-                  </select>
+                  <div>
+                    <label className="block text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-600 mb-1.5">
+                      Trade
+                    </label>
+                    <select
+                      className={inputClass}
+                      value={formData.trade}
+                      onChange={(e) => handleInput("trade", e.target.value)}
+                    >
+                      {Object.keys(TRADES).map((t) => (
+                        <option key={t}>{t}</option>
+                      ))}
+                    </select>
+                  </div>
 
-                  {/* @ts-ignore */}
-                  <select
-                    className="border p-3 rounded w-full"
-                    value={formData.jobType}
-                    onChange={(e) => handleInput("jobType", e.target.value)}
-                  >
-                    <option value="">Select Job Type</option>
-                    {
-                      // @ts-ignore
-                      TRADES[formData.trade].jobs.map((j: any) => (
-                        <option key={j.name}>{j.name}</option>
-                      ))
-                    }
-                  </select>
+                  <div>
+                    <label className="block text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-600 mb-1.5">
+                      Job Type
+                    </label>
+                    {/* @ts-ignore */}
+                    <select
+                      className={inputClass}
+                      value={formData.jobType}
+                      onChange={(e) => handleInput("jobType", e.target.value)}
+                    >
+                      <option value="">Select Job Type</option>
+                      {
+                        // @ts-ignore
+                        TRADES[formData.trade].jobs.map((j: any) => (
+                          <option key={j.name}>{j.name}</option>
+                        ))
+                      }
+                    </select>
+                  </div>
                 </div>
 
+                {formData.jobType === "Other (Custom)" && (
+                  <div>
+                    <label className="block text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-600 mb-1.5">
+                      Custom Job Title
+                    </label>
+                    <input
+                      className={inputClass}
+                      placeholder="e.g. Safe isolation before works"
+                      value={formData.customJobType}
+                      onChange={(e) =>
+                        handleInput("customJobType", e.target.value)
+                      }
+                    />
+                  </div>
+                )}
+
                 {questions.length > 0 && (
-                  <div className="bg-blue-50 p-4 rounded border border-blue-100">
-                    <h4 className="font-bold text-sm text-blue-900 mb-3">
-                      Pre-Start Safety Checks
-                    </h4>
+                  <div className="bg-slate-50 border border-slate-100 rounded-2xl p-4">
+                    <div className="flex items-center justify-between mb-3">
+                      <h4 className="font-semibold text-sm text-slate-900">
+                        Pre-Start Safety Checks
+                      </h4>
+                      <span className="text-[11px] text-slate-500">
+                        Select Yes / No for each – leave blank if not
+                        applicable.
+                      </span>
+                    </div>
                     {questions.map((q: any) => (
                       <div
                         key={q.id}
-                        className="flex justify-between items-center mb-2 bg-white p-2 rounded border"
+                        className="flex justify-between items-center mb-2 bg-white p-2.5 rounded-lg border border-slate-100"
                       >
-                        <span className="text-sm">{q.label}</span>
+                        <span className="text-sm text-slate-800 pr-4">
+                          {q.label}
+                        </span>
                         <div className="flex gap-2">
                           <button
                             onClick={() =>
                               setAnswers({ ...answers, [q.id]: "Yes" })
                             }
-                            className={`px-3 py-1 rounded text-xs font-bold ${
+                            className={`px-3 py-1 rounded-full text-[11px] font-semibold ${
                               answers[q.id] === "Yes"
-                                ? "bg-black text-white"
-                                : "bg-gray-100"
+                                ? "bg-blue-800 text-white"
+                                : "bg-slate-100 text-slate-700"
                             }`}
                           >
                             Yes
@@ -865,10 +1131,10 @@ export default function Home() {
                             onClick={() =>
                               setAnswers({ ...answers, [q.id]: "No" })
                             }
-                            className={`px-3 py-1 rounded text-xs font-bold ${
+                            className={`px-3 py-1 rounded-full text-[11px] font-semibold ${
                               answers[q.id] === "No"
-                                ? "bg-black text-white"
-                                : "bg-gray-100"
+                                ? "bg-blue-800 text-white"
+                                : "bg-slate-100 text-slate-700"
                             }`}
                           >
                             No
@@ -879,126 +1145,190 @@ export default function Home() {
                   </div>
                 )}
 
-                <textarea
-                  className="w-full border p-3 rounded h-32"
-                  value={formData.customDescription}
-                  onChange={(e) =>
-                    handleInput("customDescription", e.target.value)
-                  }
-                  placeholder="Add any site-specific notes or constraints..."
-                />
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-600 mb-1.5">
+                      Job Description
+                    </label>
+                    <textarea
+                      className={`${inputClass} h-32 resize-none`}
+                      value={formData.customDescription}
+                      onChange={(e) =>
+                        handleInput("customDescription", e.target.value)
+                      }
+                      placeholder={
+                        formData.jobType
+                          ? "Describe the works to be carried out..."
+                          : "Select a job type first..."
+                      }
+                    />
+                  </div>
 
-                <div className="flex gap-4">
-                  <button
-                    onClick={() => setStep(1)}
-                    className="w-1/3 border py-3 rounded"
-                  >
-                    Back
-                  </button>
-                  <button
-                    onClick={nextStep}
-                    className="w-2/3 bg-black text-white py-3 rounded font-bold"
-                  >
-                    Next
-                  </button>
+                  <div>
+                    <label className="block text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-600 mb-1.5">
+                      Extra site-specific notes{" "}
+                      <span className="text-slate-400 font-normal">
+                        (optional)
+                      </span>
+                    </label>
+                    <textarea
+                      className={`${inputClass} h-24 resize-none`}
+                      value={formData.extraNotes}
+                      onChange={(e) =>
+                        handleInput("extraNotes", e.target.value)
+                      }
+                      placeholder="Any specific constraints, client instructions or unusual risks…"
+                    />
+                  </div>
                 </div>
               </div>
-            )}
 
-            {/* STEP 3: HAZARDS */}
-            {step === 3 && (
-              <div className="space-y-6 animate-in fade-in">
-                <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2">
-                  <AlertTriangle className="w-5 h-5" /> Safety & Hazards
-                </h2>
+              <div className="flex gap-4 pt-2">
+                <button
+                  onClick={prevStep}
+                  className="w-1/3 md:w-auto px-4 py-2.5 rounded-full border border-slate-200 text-sm font-semibold text-slate-700 bg-white hover:bg-slate-50"
+                >
+                  Back
+                </button>
+                <button
+                  onClick={nextStep}
+                  className="flex-1 md:flex-none md:w-auto bg-blue-800 text-white py-2.5 px-6 rounded-full text-sm font-semibold shadow-sm hover:bg-blue-700"
+                >
+                  Next: Safety & Hazards
+                </button>
+              </div>
+            </div>
+          )}
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-gray-50 p-4 rounded border">
+          {/* STEP 3: HAZARDS */}
+          {step === 3 && (
+            <div className="space-y-8">
+              <div className="flex items-center gap-2">
+                <AlertTriangle className="w-5 h-5 text-slate-900" />
+                <div>
+                  <h2 className="text-lg font-semibold text-slate-900">
+                    Safety & Hazards
+                  </h2>
+                  <p className="text-xs text-slate-500 mt-1">
+                    Confirm key emergency details and select the hazards that
+                    apply to this job.
+                  </p>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-slate-50 p-4 rounded-2xl border border-slate-100">
+                <div>
+                  <label className="block text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-600 mb-1.5">
+                    Supervisor Name <span className="text-red-600">*</span>
+                  </label>
                   <input
-                    className="border p-2 rounded"
-                    placeholder="Supervisor Name"
+                    className={inputClass}
+                    placeholder="Supervisor on site"
                     value={formData.supervisorName}
                     onChange={(e) =>
                       handleInput("supervisorName", e.target.value)
                     }
                   />
+                </div>
+                <div>
+                  <label className="block text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-600 mb-1.5">
+                    First Aider <span className="text-red-600">*</span>
+                  </label>
                   <input
-                    className="border p-2 rounded"
-                    placeholder="First Aider"
+                    className={inputClass}
+                    placeholder="Designated first aider"
                     value={formData.firstAider}
                     onChange={(e) =>
                       handleInput("firstAider", e.target.value)
                     }
                   />
+                </div>
+                <div>
+                  <label className="block text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-600 mb-1.5">
+                    Nearest Hospital <span className="text-red-600">*</span>
+                  </label>
                   <input
-                    className="border p-2 rounded"
-                    placeholder="Nearest Hospital"
+                    className={inputClass}
+                    placeholder="Nearest A&E"
                     value={formData.hospital}
                     onChange={(e) =>
                       handleInput("hospital", e.target.value)
                     }
                   />
+                </div>
+                <div>
+                  <label className="block text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-600 mb-1.5">
+                    Fire Assembly Point <span className="text-red-600">*</span>
+                  </label>
                   <input
-                    className="border p-2 rounded"
-                    placeholder="Fire Assembly Point"
+                    className={inputClass}
+                    placeholder="As inducted / site plan"
                     value={formData.fireAssembly}
                     onChange={(e) =>
                       handleInput("fireAssembly", e.target.value)
                     }
                   />
                 </div>
-
-                <div className="space-y-4">
-                  {Object.entries(HAZARD_GROUPS).map(
-                    ([group, items]: [string, any]) => (
-                      <div key={group} className="border p-4 rounded-lg">
-                        <h4 className="text-xs font-bold uppercase text-gray-500 mb-2">
-                          {group}
-                        </h4>
-                        <div className="flex flex-wrap gap-2">
-                          {items.map((h: string) => (
-                            <button
-                              key={h}
-                              onClick={() => toggleHazard(h)}
-                              className={`text-xs py-1 px-3 rounded border ${
-                                hazards.includes(h)
-                                  ? "bg-black text-white"
-                                  : "bg-white"
-                              }`}
-                            >
-                              {(HAZARD_DATA as any)[h]?.label || h}
-                            </button>
-                          ))}
-                        </div>
-                      </div>
-                    )
-                  )}
-                </div>
-
-                <div className="mt-6 pt-6 border-t">
-                  <div className="flex gap-4">
-                    <button
-                      onClick={() => setStep(2)}
-                      className="w-1/3 border py-3 rounded"
-                    >
-                      Back
-                    </button>
-                    <button
-                      onClick={generateRAMS}
-                      disabled={isGenerating}
-                      className="w-2/3 bg-green-600 text-white py-3 rounded font-bold flex justify-center items-center gap-2"
-                    >
-                      {isGenerating ? (
-                        <Loader2 className="animate-spin" />
-                      ) : (
-                        <ShieldCheck />
-                      )}
-                      {isGenerating ? "Generating..." : "Generate PDF Pack"}
-                    </button>
-                  </div>
-                </div>
+                <p className="md:col-span-2 text-[11px] text-slate-500">
+                  If you genuinely don’t know something at this stage, type{" "}
+                  <span className="font-semibold">“N/A”</span> – but this should
+                  be agreed with the client or site management before works
+                  start.
+                </p>
               </div>
-            )}
-          </div>
+
+              <div className="space-y-4">
+                {Object.entries(HAZARD_GROUPS).map(
+                  ([group, items]: [string, any]) => (
+                    <div
+                      key={group}
+                      className="border border-slate-100 p-4 rounded-2xl"
+                    >
+                      <h4 className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500 mb-2">
+                        {group}
+                      </h4>
+                      <div className="flex flex-wrap gap-2">
+                        {items.map((h: string) => (
+                          <button
+                            key={h}
+                            onClick={() => toggleHazard(h)}
+                            className={`text-xs py-1.5 px-3 rounded-full border ${
+                              hazards.includes(h)
+                                ? "bg-blue-800 text-white border-blue-800"
+                                : "bg-white text-slate-800 border-slate-200"
+                            }`}
+                          >
+                            {(HAZARD_DATA as any)[h]?.label || h}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )
+                )}
+              </div>
+
+              <div className="mt-6 pt-4 border-t border-slate-100 flex gap-4">
+                <button
+                  onClick={prevStep}
+                  className="w-1/3 md:w-auto border border-slate-200 py-2.5 px-4 rounded-full text-sm font-semibold text-slate-700 bg-white hover:bg-slate-50"
+                >
+                  Back
+                </button>
+                <button
+                  onClick={generateRAMS}
+                  disabled={isGenerating}
+                  className="flex-1 md:flex-none md:w-auto bg-emerald-600 hover:bg-emerald-700 text-white py-2.5 px-6 rounded-full text-sm font-semibold flex justify-center items-center gap-2 shadow-sm disabled:opacity-70"
+                >
+                  {isGenerating ? (
+                    <Loader2 className="animate-spin w-4 h-4" />
+                  ) : (
+                    <ShieldCheck className="w-4 h-4" />
+                  )}
+                  {isGenerating ? "Generating..." : "Generate PDF Pack"}
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       </main>
     </div>
