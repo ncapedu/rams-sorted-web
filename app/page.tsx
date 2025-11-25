@@ -26,9 +26,9 @@ function sanitizeText(input: any): string {
   if (!input || typeof input !== "string") return "";
   return input
     .replace(/\r\n/g, "\n")
-    .replace(/\n{2,}/g, "\n")        // collapse multiple blank lines
-    .replace(/[ \t]+/g, " ")         // collapse multiple spaces/tabs
-    .replace(/ ?([.,;:!?])/g, "$1")  // remove space before punctuation
+    .replace(/\n{2,}/g, "\n") // collapse multiple blank lines
+    .replace(/[ \t]+/g, " ") // collapse multiple spaces/tabs
+    .replace(/ ?([.,;:!?])/g, "$1") // remove space before punctuation
     .trim();
 }
 
@@ -150,33 +150,43 @@ export default function Home() {
   // --- Update hazards/questions when trade/jobType changes ---
   useEffect(() => {
     const currentTrade = TRADES[formData.trade as keyof typeof TRADES];
-    if (currentTrade && formData.jobType) {
-      if (formData.jobType === "Other (Custom)") {
-        if (!formData.customDescription) {
-          setFormData((prev) => ({ ...prev, customDescription: "" }));
-        }
-        setQuestions([]);
-        setHazards([]);
-      } else {
-        const clusters = currentTrade.clusters as Record<string, JobCluster>;
-        const clusterData = clusters[formData.jobType];
-        if (clusterData) {
-          setFormData((prev) => ({
-            ...prev,
-            customDescription: clusterData.desc || "",
-          }));
-          setHazards((prev) => [
-            ...new Set([...prev, ...clusterData.hazards]),
-          ]);
-          setQuestions(clusterData.questions || []);
-          const defaults: Record<string, string> = {};
-          if (clusterData.questions) {
-            clusterData.questions.forEach((q) => (defaults[q.id] = "Yes"));
-          }
-          setAnswers(defaults);
-        }
-      }
+
+    if (!currentTrade || !formData.jobType) {
+      setQuestions([]);
+      setHazards([]);
+      return;
     }
+
+    const clusters = currentTrade.clusters as Record<string, JobCluster>;
+    const clusterData = clusters[formData.jobType];
+
+    if (!clusterData) {
+      setQuestions([]);
+      return;
+    }
+
+    // For named jobs: use desc from constants
+    // For "Other (Custom)": keep whatever user has typed
+    setFormData((prev) => ({
+      ...prev,
+      customDescription:
+        prev.jobType === "Other (Custom)"
+          ? prev.customDescription
+          : clusterData.desc || "",
+    }));
+
+    setHazards((prev) => [
+      ...new Set([...(prev || []), ...(clusterData.hazards || [])]),
+    ]);
+
+    const qs = clusterData.questions || [];
+    setQuestions(qs);
+
+    const defaults: Record<string, string> = {};
+    qs.forEach((q) => {
+      defaults[q.id] = "Yes";
+    });
+    setAnswers(defaults);
   }, [formData.jobType, formData.trade]);
 
   const handleInput = (field: string, value: string) =>
@@ -190,7 +200,9 @@ export default function Home() {
   const nextStep = () => {
     if (
       step === 1 &&
-      (!formData.companyName || !formData.officeAddress || !formData.contactName)
+      (!formData.companyName ||
+        !formData.officeAddress ||
+        !formData.contactName)
     ) {
       alert("⚠️ Please fill in Company Details.");
       return;
@@ -327,7 +339,9 @@ export default function Home() {
         [
           "Job / Task Title",
           sanitizeText(
-            `${formData.trade} - ${formData.jobType ? toTitleCase(formData.jobType) : ""}`
+            `${formData.trade} - ${
+              formData.jobType ? toTitleCase(formData.jobType) : ""
+            }`
           ),
         ],
         ["Date of RAMS", sanitizeText(formData.startDate)],
