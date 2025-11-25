@@ -3549,627 +3549,65 @@ const DRYLINING_CEILINGS_CLUSTERS: Record<string, JobCluster> = {
     desc: "Ceiling survey and access panel installation involves inspecting existing ceilings to locate services, then forming openings and fitting access panels where required. Work is often above occupied areas and may reveal unforeseen issues. Accurate records are made of panel locations. Fire and acoustic properties must be preserved.",
     hazards: ["work_at_height", "dust_fumes", "public_interface", "sharp_objects"],
     questions: [
-      { id: "q1", label: "Have you agreed survey scope and locations before ceiling survey and access panel installation?" },
-      { id: "q2", label: "Is access safe for all areas of ceiling survey and access panel installation?" },
-      { id: "q3", label: "Will you record all panel positions during ceiling survey and access panel installation?" },
-      { id: "q4", label: "Are you maintaining fire and acoustic ratings during ceiling survey and access panel installation?" },
-      { id: "q5", label: "Have you arranged protection and signage under areas affected by ceiling survey and access panel installation?" }
-    ]
-  }
-};
-
-const DRYLINING_CEILINGS_CLUSTERS: Record<string, JobCluster> = {
-  "Metal stud partition installation": {
-    desc: "Metal stud partition installation involves setting out, fixing track and studs, and lining with plasterboard to form internal walls or room divisions. Studwork is fixed to floors, walls and ceilings while maintaining plumb and straight lines. Openings for doors and services are framed with additional support and bracing. All work is carried out in line with manufacturer details and fire/acoustic requirements.",
-    hazards: ["manual_handling", "work_at_height", "dust_fumes", "silica_dust", "sharp_objects"],
-    questions: [
-      { id: "q1", label: "Have you confirmed the setting out for the metal stud partition installation against drawings and structural constraints?" },
-      { id: "q2", label: "Are suitable fixings and anchors available for the substrates involved in the metal stud partition installation?" },
-      { id: "q3", label: "Will cutting of studs and boards for the metal stud partition installation be carried out using dust-reducing methods where possible?" },
-      { id: "q4", label: "Is appropriate access equipment in place for any high-level tasks during the metal stud partition installation?" },
-      { id: "q5", label: "Have you checked that door openings and service penetrations are correctly framed within the metal stud partition installation?" }
-    ]
+      {
+        id: "q1",
+        label:
+          "Have you agreed survey scope and locations before ceiling survey and access panel installation?",
+      },
+      {
+        id: "q2",
+        label:
+          "Is access safe for all areas of ceiling survey and access panel installation?",
+      },
+      {
+        id: "q3",
+        label:
+          "Will you record all panel positions during ceiling survey and access panel installation?",
+      },
+      {
+        id: "q4",
+        label:
+          "Are you maintaining fire and acoustic ratings during ceiling survey and access panel installation?",
+      },
+      {
+        id: "q5",
+        label:
+          "Have you arranged protection and signage under areas affected by ceiling survey and access panel installation?",
+      },
+    ],
   },
 
-  "Timber stud partition installation": {
-    desc: "Timber stud partition installation uses timber studs and plates to form internal walls which are then lined with plasterboard or other board materials. Work includes setting out, fixing sole and head plates, installing studs at correct centres and bracing where required. Consideration is given to straightness, fixing into suitable substrates and avoiding clashes with services. Boarding and subsequent finishes rely on the studwork being correctly installed.",
-    hazards: ["manual_handling", "work_at_height", "sharp_objects", "dust_fumes"],
+  "Other (Custom)": {
+    desc: "",
+    hazards: [],
     questions: [
-      { id: "q1", label: "Has the line and position of the timber stud partition installation been agreed with the client or site manager?" },
-      { id: "q2", label: "Are you using straight, undamaged timber suitable for the timber stud partition installation?" },
-      { id: "q3", label: "Will fixings for the timber stud partition installation be appropriate for the floor and ceiling substrates?" },
-      { id: "q4", label: "Is access clear of trip hazards where the timber stud partition installation is being built?" },
-      { id: "q5", label: "Have you allowed for door openings and noggins in the timber stud partition installation before boarding starts?" }
-    ]
+      {
+        id: "q1",
+        label:
+          "Have you identified all specific risks associated with this custom drylining or ceilings task (e.g. work at height, dust, hidden services)?",
+      },
+      {
+        id: "q2",
+        label:
+          "Is the access equipment or platform for this custom drylining or ceilings task safe, stable and suitable for the height and duration of work?",
+      },
+      {
+        id: "q3",
+        label:
+          "Have you confirmed that existing ceilings, walls and fixings affected by this custom drylining or ceilings task are structurally sound?",
+      },
+      {
+        id: "q4",
+        label:
+          "Have you planned how dust, debris and waste from this custom drylining or ceilings task will be controlled and cleared safely?",
+      },
+      {
+        id: "q5",
+        label:
+          "Have you agreed the exact scope, working areas and any live services to avoid with the client for this custom drylining or ceilings task?",
+      },
+    ],
   },
-
-  "Acoustic partition installation": {
-    desc: "Acoustic partition installation focuses on providing enhanced sound reduction between rooms using specific stud arrangements, insulation and board types. The work includes installing studs, acoustic insulation, resilient bars or channels and multi-layer boarding. Care is taken to minimise flanking paths and ensure all joints and junctions are sealed. Manufacturer details and acoustic performance requirements are followed throughout.",
-    hazards: ["manual_handling", "dust_fumes", "silica_dust", "slips_trips"],
-    questions: [
-      { id: "q1", label: "Have you confirmed the acoustic specification and build-up required for the acoustic partition installation?" },
-      { id: "q2", label: "Is suitable acoustic insulation on site and stored dry for the acoustic partition installation?" },
-      { id: "q3", label: "Will joints and perimeters of the acoustic partition installation be sealed as per manufacturer guidance?" },
-      { id: "q4", label: "Have you planned the acoustic partition installation to avoid gaps around sockets and service penetrations?" },
-      { id: "q5", label: "Are materials and offcuts from the acoustic partition installation kept tidy to avoid slips and trips?" }
-    ]
-  },
-
-  "Fire-rated partition installation": {
-    desc: "Fire-rated partition installation provides fire compartmentation using tested stud and board systems designed to achieve a specific fire resistance period. The work includes installing studs, fire-rated boards, appropriate fixings and sealing all joints and penetrations. Details at head, base and junctions with other construction are followed precisely. Any deviation from the system can compromise fire performance.",
-    hazards: ["manual_handling", "dust_fumes", "silica_dust", "work_at_height", "fire_explosion"],
-    questions: [
-      { id: "q1", label: "Have you confirmed the required fire rating and system for the fire-rated partition installation?" },
-      { id: "q2", label: "Are you using the correct fire-rated boards and fixings specified for the fire-rated partition installation?" },
-      { id: "q3", label: "Will all joints, deflection heads and penetrations in the fire-rated partition installation be sealed with approved fire products?" },
-      { id: "q4", label: "Is hot work needed near the fire-rated partition installation, and if so, is a permit in place?" },
-      { id: "q5", label: "Have you checked that any services routed through the fire-rated partition installation maintain the fire integrity?" }
-    ]
-  },
-
-  "Shaftwall / riser wall installation": {
-    desc: "Shaftwall / riser wall installation involves constructing fire and acoustic rated walls around lift shafts, risers and vertical service routes. Work is often carried out from one side only using proprietary shaftwall systems. Access may be restricted and work can be at height around openings and voids. Particular care is taken with edge protection, fixing into structure and sealing any service penetrations.",
-    hazards: ["work_at_height", "falling_objects", "manual_handling", "dust_fumes", "confined_space"],
-    questions: [
-      { id: "q1", label: "Have you assessed edge protection and fall prevention around openings for the shaftwall / riser wall installation?" },
-      { id: "q2", label: "Are you following the specific manufacturer sequence for the shaftwall / riser wall installation?" },
-      { id: "q3", label: "Is access into risers or shafts for the shaftwall / riser wall installation controlled and authorised?" },
-      { id: "q4", label: "Will all service penetrations in the shaftwall / riser wall installation be sealed with approved fire-stopping materials?" },
-      { id: "q5", label: "Have you arranged safe material handling routes for boards and studs used in the shaftwall / riser wall installation?" }
-    ]
-  },
-
-  "Curved partition installation": {
-    desc: "Curved partition installation involves forming non-linear walls using flexible studs, track systems or segmented board techniques. The task requires accurate setting out to achieve the required radius and smooth final finish. Additional care is needed when cutting and fixing boards to avoid cracking and weak spots. Coordination with finishes and door positions is essential.",
-    hazards: ["manual_handling", "dust_fumes", "sharp_objects", "slips_trips"],
-    questions: [
-      { id: "q1", label: "Have you set out the radius and centre points accurately for the curved partition installation?" },
-      { id: "q2", label: "Are you using suitable flexible track or methods for achieving the curve in the curved partition installation?" },
-      { id: "q3", label: "Is cutting of boards for the curved partition installation planned to minimise waste and awkward offcuts?" },
-      { id: "q4", label: "Are walkways kept clear of offcuts and tools during the curved partition installation?" },
-      { id: "q5", label: "Have you confirmed with the client any door or opening locations within the curved partition installation?" }
-    ]
-  },
-
-  "Demountable office partition installation": {
-    desc: "Demountable office partition installation uses proprietary glazed or solid panel systems to create office layouts which can later be altered. Work includes setting out, fixing head and floor tracks, installing panels, doors and glazing, and fitting trims and seals. The environment is often live with occupants and existing finishes. Noise, dust and access need to be carefully controlled.",
-    hazards: ["manual_handling", "glass_sharps", "public_interface", "slips_trips"],
-    questions: [
-      { id: "q1", label: "Has the layout for the demountable office partition installation been agreed and marked out on site?" },
-      { id: "q2", label: "Are you using appropriate handling methods and PPE for glass panels during the demountable office partition installation?" },
-      { id: "q3", label: "Is noise and dust from the demountable office partition installation being controlled in a live office environment?" },
-      { id: "q4", label: "Are access routes for staff kept clear during the demountable office partition installation?" },
-      { id: "q5", label: "Will fire and acoustic seals be correctly installed around doors and junctions in the demountable office partition installation?" }
-    ]
-  },
-
-  "Stud wall door set installation": {
-    desc: "Stud wall door set installation involves forming openings in stud partitions and installing pre-hung door sets or frames and leaves. The work includes checking structural support around openings, fixing frames plumb and level, and adjusting ironmongery for correct operation. Care is taken to protect finished doors and frames from damage. Fire and acoustic performance must be maintained where applicable.",
-    hazards: ["manual_handling", "sharp_objects", "slips_trips"],
-    questions: [
-      { id: "q1", label: "Has the opening size for the stud wall door set installation been checked against the door set?" },
-      { id: "q2", label: "Is the surrounding studwork for the stud wall door set installation adequately framed and fixed?" },
-      { id: "q3", label: "Will the door set be protected from impact and damage once the stud wall door set installation is complete?" },
-      { id: "q4", label: "Are you maintaining any required fire or acoustic seals as part of the stud wall door set installation?" },
-      { id: "q5", label: "Have you checked that floor finishes and thresholds align with the stud wall door set installation?" }
-    ]
-  },
-
-  "Plasterboard lining to masonry walls": {
-    desc: "Plasterboard lining to masonry walls involves fixing boards directly or on battens/metal systems to provide a smooth internal surface. The task may include installing insulation, vapour barriers and noggins for fixings. Fixings must be suitable for the substrate and spaced correctly to avoid board movement. Joints are prepared for tape and jointing or skim plaster finishes.",
-    hazards: ["manual_handling", "dust_fumes", "silica_dust", "slips_trips"],
-    questions: [
-      { id: "q1", label: "Have you checked the masonry substrate is suitable and sound for the plasterboard lining to masonry walls?" },
-      { id: "q2", label: "Will any damp or structural issues be addressed before starting the plasterboard lining to masonry walls?" },
-      { id: "q3", label: "Are fixings and adhesive for the plasterboard lining to masonry walls appropriate for the wall type?" },
-      { id: "q4", label: "Is there a clear plan for installing any insulation behind the plasterboard lining to masonry walls?" },
-      { id: "q5", label: "Are work areas kept free of debris and offcuts during the plasterboard lining to masonry walls?" }
-    ]
-  },
-
-  "Dot and dab plasterboard to blockwork": {
-    desc: "Dot and dab plasterboard to blockwork involves fixing boards to masonry using adhesive dabs rather than mechanical fixings. Boards are aligned plumb and level while maintaining adhesive coverage and cavity requirements. Openings, sockets and corners are carefully detailed. The finished surface is prepared for skim plaster or tape and jointing.",
-    hazards: ["manual_handling", "dust_fumes", "silica_dust", "cement"],
-    questions: [
-      { id: "q1", label: "Is the blockwork clean, sound and reasonably flat before starting the dot and dab plasterboard to blockwork?" },
-      { id: "q2", label: "Are you using the correct adhesive and mixing methods for the dot and dab plasterboard to blockwork?" },
-      { id: "q3", label: "Will you maintain sufficient coverage and dab pattern for the dot and dab plasterboard to blockwork as per guidance?" },
-      { id: "q4", label: "Have you allowed for any service runs or insulation behind the dot and dab plasterboard to blockwork?" },
-      { id: "q5", label: "Are safe manual handling techniques used when lifting boards during the dot and dab plasterboard to blockwork?" }
-    ]
-  },
-
-  "MF ceiling installation": {
-    desc: "MF ceiling installation uses metal furring components suspended from the structure to create a level framework for plasterboard ceilings. The work includes setting out hangers, primary and secondary channels, and fixing boards with appropriate screws. Ceiling levels, deflection allowances and service coordination are critical. Access equipment and safe working at height controls are essential.",
-    hazards: ["work_at_height", "manual_handling", "dust_fumes", "silica_dust", "scaffold_safety"],
-    questions: [
-      { id: "q1", label: "Have you confirmed fixing centres and suspension points for the MF ceiling installation with reference to the drawings?" },
-      { id: "q2", label: "Is suitable access equipment available and inspected before starting the MF ceiling installation?" },
-      { id: "q3", label: "Are hangers and fixings for the MF ceiling installation suitable for the soffit or structure being fixed to?" },
-      { id: "q4", label: "Will dust from cutting boards during the MF ceiling installation be controlled with extraction or masks?" },
-      { id: "q5", label: "Have you planned sequencing with other trades to avoid clashes above and below the MF ceiling installation?" }
-    ]
-  },
-
-  "Suspended lay-in grid ceiling installation": {
-    desc: "Suspended lay-in grid ceiling installation involves fixing a metal grid suspended from the structure and inserting ceiling tiles or panels. The task includes setting out, levelling main runners and cross tees, and cutting tiles around perimeters and services. Work is often carried out in live environments where access control is important. Finished ceilings must remain level and free of damage.",
-    hazards: ["work_at_height", "manual_handling", "slips_trips", "plant_machinery"],
-    questions: [
-      { id: "q1", label: "Has the ceiling height and layout been agreed before starting the suspended lay-in grid ceiling installation?" },
-      { id: "q2", label: "Is access equipment for the suspended lay-in grid ceiling installation in good condition and suitable for the floor type?" },
-      { id: "q3", label: "Are you coordinating the suspended lay-in grid ceiling installation with M&E services and sprinkler layouts?" },
-      { id: "q4", label: "Will offcuts and packaging from the suspended lay-in grid ceiling installation be cleared regularly to reduce trip hazards?" },
-      { id: "q5", label: "Have you planned how to protect completed areas of the suspended lay-in grid ceiling installation from damage by others?" }
-    ]
-  },
-
-  "Plasterboard MF ceiling with access hatches": {
-    desc: "Plasterboard MF ceiling with access hatches combines MF framing with board linings and integrated access points for services. Work includes framing, boarding, forming openings and fitting proprietary access panels. Particular attention is given to fire and acoustic performance around hatches. The finished ceiling must be level, with neat joints ready for finishing.",
-    hazards: ["work_at_height", "manual_handling", "dust_fumes", "silica_dust"],
-    questions: [
-      { id: "q1", label: "Have the locations and sizes of access panels been agreed before starting the plasterboard MF ceiling with access hatches?" },
-      { id: "q2", label: "Are you using the correct framing and support details around openings in the plasterboard MF ceiling with access hatches?" },
-      { id: "q3", label: "Will any fire or acoustic performance be maintained where the plasterboard MF ceiling with access hatches is installed?" },
-      { id: "q4", label: "Is safe access available for all areas of the plasterboard MF ceiling with access hatches?" },
-      { id: "q5", label: "Have you coordinated with services to avoid clashes with the plasterboard MF ceiling with access hatches?" }
-    ]
-  },
-
-  "Bulkhead and downstand construction": {
-    desc: "Bulkhead and downstand construction involves forming dropped sections of ceiling or wall to conceal services or create architectural features. The work may combine stud partitions, MF framing and board linings. Setting out lines, levels and junctions is critical for a neat finish. These elements are often at height and may require complex access.",
-    hazards: ["work_at_height", "manual_handling", "dust_fumes", "sharp_objects"],
-    questions: [
-      { id: "q1", label: "Have you set out the positions and dimensions needed for the bulkhead and downstand construction?" },
-      { id: "q2", label: "Is the bulkhead and downstand construction coordinated with ductwork, pipework and lighting layouts?" },
-      { id: "q3", label: "Are suitable fixings being used to support the bulkhead and downstand construction from the structure?" },
-      { id: "q4", label: "Is there safe access for the full length of the bulkhead and downstand construction works?" },
-      { id: "q5", label: "Have you planned how to finish and joint the bulkhead and downstand construction into adjacent ceilings and walls?" }
-    ]
-  },
-
-  "Raft / feature ceiling installation": {
-    desc: "Raft / feature ceiling installation involves hanging independent decorative ceiling elements below the main structure or ceiling. The work includes setting out, installing hangers or wires, and fixing panels or rafts level and secure. These ceilings often incorporate acoustic materials and integrated lighting. Installation must consider visual alignment and future access for maintenance.",
-    hazards: ["work_at_height", "manual_handling", "falling_objects", "plant_machinery"],
-    questions: [
-      { id: "q1", label: "Have you confirmed loadings and fixing details for the raft / feature ceiling installation with the manufacturer?" },
-      { id: "q2", label: "Is access equipment suitable for the height and location of the raft / feature ceiling installation?" },
-      { id: "q3", label: "Will all fixings used in the raft / feature ceiling installation be tested or checked before loading panels?" },
-      { id: "q4", label: "Are exclusion zones set up below the raft / feature ceiling installation while working overhead?" },
-      { id: "q5", label: "Have you coordinated the raft / feature ceiling installation with lighting and sprinkler layouts?" }
-    ]
-  },
-
-  "Ceiling access hatch installation": {
-    desc: "Ceiling access hatch installation provides removable panels within ceilings for access to services, valves and equipment. The task involves cutting openings, installing proprietary frames and doors, and making good surrounding finishes. Fire and acoustic performance must often be maintained. Safe working at height applies for both installation and future use.",
-    hazards: ["work_at_height", "manual_handling", "dust_fumes", "sharp_objects"],
-    questions: [
-      { id: "q1", label: "Have hatch locations been agreed with the client before ceiling access hatch installation starts?" },
-      { id: "q2", label: "Is the ceiling structure suitable for forming openings for the ceiling access hatch installation?" },
-      { id: "q3", label: "Will you maintain any fire or acoustic rating around the ceiling access hatch installation?" },
-      { id: "q4", label: "Are cut edges and offcuts controlled to prevent injury during the ceiling access hatch installation?" },
-      { id: "q5", label: "Have you allowed sufficient clear opening for maintenance activities once the ceiling access hatch installation is complete?" }
-    ]
-  },
-
-  "Ceiling tile replacement / repairs": {
-    desc: "Ceiling tile replacement / repairs consists of removing damaged tiles and fitting new ones within existing suspended ceiling grids. The work may be carried out in live, occupied areas with furniture and equipment present. Care is taken to avoid disturbing services above the ceiling and to prevent debris falling on occupants. Replaced tiles must match fire and acoustic performance where required.",
-    hazards: ["work_at_height", "slips_trips", "public_interface", "falling_objects"],
-    questions: [
-      { id: "q1", label: "Have you cordoned off the work area for the ceiling tile replacement / repairs to protect occupants?" },
-      { id: "q2", label: "Is access equipment suitable and stable for the ceiling tile replacement / repairs task?" },
-      { id: "q3", label: "Will you check for any displaced services or cables when carrying out the ceiling tile replacement / repairs?" },
-      { id: "q4", label: "Are replacement tiles for the ceiling tile replacement / repairs compatible with existing fire and acoustic requirements?" },
-      { id: "q5", label: "Will you clear all debris and packaging after completing the ceiling tile replacement / repairs?" }
-    ]
-  },
-
-  "Plasterboard jointing and taping": {
-    desc: "Plasterboard jointing and taping involves applying joint tape and compound over board joints, screw heads and corners to create a smooth, finished surface. The work is often carried out on walls and ceilings using steps or stilts. Sanding of dried compound can generate fine dust. The final result is ready to receive paint or other finishes.",
-    hazards: ["dust_fumes", "silica_dust", "work_at_height", "slips_trips"],
-    questions: [
-      { id: "q1", label: "Is adequate ventilation available for the plasterboard jointing and taping area, especially during sanding?" },
-      { id: "q2", label: "Are you using suitable respiratory and eye protection during plasterboard jointing and taping?" },
-      { id: "q3", label: "Is access equipment such as steps or stilts for plasterboard jointing and taping inspected and used correctly?" },
-      { id: "q4", label: "Will floors be kept clear of tools and mixing buckets during plasterboard jointing and taping?" },
-      { id: "q5", label: "Have you planned drying times and sequencing for the plasterboard jointing and taping to avoid rework?" }
-    ]
-  },
-
-  "Skim coat plaster to plasterboard": {
-    desc: "Skim coat plaster to plasterboard involves applying a thin coat of finishing plaster to provide a smooth, paint-ready surface. Work includes mixing plaster, trowelling onto walls or ceilings and polishing before set. It can involve extended periods at height on steps or platforms. Moisture, ventilation and temperature must be controlled for proper curing.",
-    hazards: ["manual_handling", "work_at_height", "damp_proofing", "slips_trips"],
-    questions: [
-      { id: "q1", label: "Is the substrate prepared and sealed appropriately before applying skim coat plaster to plasterboard?" },
-      { id: "q2", label: "Are you using suitable access equipment for ceiling areas during skim coat plaster to plasterboard work?" },
-      { id: "q3", label: "Will mixing and carrying plaster for the skim coat plaster to plasterboard be managed to reduce strain?" },
-      { id: "q4", label: "Are floors protected and kept clear of spills during the skim coat plaster to plasterboard?" },
-      { id: "q5", label: "Have you considered room temperature and ventilation for proper curing of the skim coat plaster to plasterboard?" }
-    ]
-  },
-
-  "Drylining to stair cores and landings": {
-    desc: "Drylining to stair cores and landings involves installing boards to walls and soffits around staircases, often in restricted spaces and at multiple levels. Work at height over voids is common and may require bespoke access solutions. Fire and escape route requirements are critical. Edges, openings and temporary protection must be carefully managed.",
-    hazards: ["work_at_height", "falling_objects", "manual_handling", "slips_trips", "scaffold_safety"],
-    questions: [
-      { id: "q1", label: "Have you agreed an access and edge protection plan for the drylining to stair cores and landings?" },
-      { id: "q2", label: "Is the stairwell protected from falling materials during the drylining to stair cores and landings?" },
-      { id: "q3", label: "Are escape routes maintained and kept free from obstruction while drylining to stair cores and landings?" },
-      { id: "q4", label: "Will manual handling of boards be planned to suit the restricted spaces for drylining to stair cores and landings?" },
-      { id: "q5", label: "Have you checked fire and smoke seal details for the drylining to stair cores and landings?" }
-    ]
-  },
-
-  "Drylining to corridor walls and soffits": {
-    desc: "Drylining to corridor walls and soffits covers long, narrow circulation areas often used as fire escape routes. Work includes installing boards, framing and soffit details while maintaining clear routes. Coordination with services, doors and fire protection is essential. Sequencing is important to minimise disruption to other trades.",
-    hazards: ["manual_handling", "slips_trips", "work_at_height", "dust_fumes"],
-    questions: [
-      { id: "q1", label: "Will escape routes remain usable during the drylining to corridor walls and soffits?" },
-      { id: "q2", label: "Is access equipment suitable for the restricted widths involved in drylining to corridor walls and soffits?" },
-      { id: "q3", label: "Are services and door frames coordinated before starting drylining to corridor walls and soffits?" },
-      { id: "q4", label: "Will dust from cutting and sanding during drylining to corridor walls and soffits be controlled?" },
-      { id: "q5", label: "Are materials stored safely without blocking access during drylining to corridor walls and soffits?" }
-    ]
-  },
-
-  "Insulated plasterboard lining to external walls": {
-    desc: "Insulated plasterboard lining to external walls combines insulation and board in a single panel to improve thermal performance. The work includes checking for damp, fixing or adhesive application, and sealing joints to reduce cold bridging. Window reveals and junctions require careful detailing. Fixings must be suitable for the substrate and insulation thickness.",
-    hazards: ["manual_handling", "dust_fumes", "silica_dust", "cement"],
-    questions: [
-      { id: "q1", label: "Have you checked for damp or condensation issues before installing insulated plasterboard lining to external walls?" },
-      { id: "q2", label: "Is the correct insulation thickness and board type being used for the insulated plasterboard lining to external walls?" },
-      { id: "q3", label: "Will you seal around windows and penetrations when installing insulated plasterboard lining to external walls?" },
-      { id: "q4", label: "Are suitable fixings or adhesive methods used for insulated plasterboard lining to external walls?" },
-      { id: "q5", label: "Is manual handling of the heavier boards for insulated plasterboard lining to external walls properly planned?" }
-    ]
-  },
-
-  "Metal furring ceiling to concrete soffit": {
-    desc: "Metal furring ceiling to concrete soffit involves fixing channels and hangers onto concrete to level and support plasterboard ceilings. Work is typically overhead and requires drilling, fixing and boarding. Proper anchoring into concrete is essential for safety. The finished ceiling often forms part of fire or acoustic separation.",
-    hazards: ["work_at_height", "manual_handling", "dust_fumes", "silica_dust", "falling_objects"],
-    questions: [
-      { id: "q1", label: "Are approved anchors being used for the metal furring ceiling to concrete soffit?" },
-      { id: "q2", label: "Is drilling into the soffit for the metal furring ceiling to concrete soffit checked against services above?" },
-      { id: "q3", label: "Is access equipment suitable for continuous overhead work during the metal furring ceiling to concrete soffit?" },
-      { id: "q4", label: "Will you control dust and debris when fixing the metal furring ceiling to concrete soffit?" },
-      { id: "q5", label: "Have you confirmed any fire or acoustic requirements for the metal furring ceiling to concrete soffit?" }
-    ]
-  },
-
-  "SFS infill panel installation": {
-    desc: "SFS infill panel installation utilises light gauge steel framing to form external wall infill between primary structure elements. Work is often carried out at height from scaffolds or MEWPs. Studs, rails and bracing are installed to engineer's design, followed by sheathing boards and membranes. Accurate fixing and alignment are critical for cladding and drylining that follow.",
-    hazards: ["work_at_height", "manual_handling", "scaffold_safety", "plant_machinery", "environmental_weather"],
-    questions: [
-      { id: "q1", label: "Have you reviewed engineer's drawings for the SFS infill panel installation before starting?" },
-      { id: "q2", label: "Is scaffold or MEWP access for the SFS infill panel installation inspected and suitable for the façade?" },
-      { id: "q3", label: "Are all fixings and brackets for the SFS infill panel installation correct and available on site?" },
-      { id: "q4", label: "Will weather conditions be monitored during the SFS infill panel installation, especially at height?" },
-      { id: "q5", label: "Have you planned safe lifting and handling of long studs and rails for the SFS infill panel installation?" }
-    ]
-  },
-
-  "Deflection head detail installation": {
-    desc: "Deflection head detail installation involves forming partition head details that allow for structural movement while maintaining fire and acoustic performance. Work includes fitting head track, deflection channels and sealing systems at the top of partitions. This is typically carried out at height along slab edges or beams. Correct sequencing with drylining and fire stopping is important.",
-    hazards: ["work_at_height", "manual_handling", "dust_fumes", "falling_objects"],
-    questions: [
-      { id: "q1", label: "Have you checked the required movement allowance for the deflection head detail installation?" },
-      { id: "q2", label: "Is access safe and continuous along the run for the deflection head detail installation?" },
-      { id: "q3", label: "Will fire and acoustic seals be maintained at the deflection head detail installation?" },
-      { id: "q4", label: "Are cut metal sections from the deflection head detail installation kept secure and cleared promptly?" },
-      { id: "q5", label: "Have you coordinated the deflection head detail installation with services passing near the slab head?" }
-    ]
-  },
-
-  "Fire stopping to partitions and ceilings": {
-    desc: "Fire stopping to partitions and ceilings includes sealing around services, joints and gaps using fire-rated products to maintain compartmentation. Work often involves moving above ceilings, within risers and around penetrations. Only tested systems and approved products are used. Documentation of locations and materials is important for compliance.",
-    hazards: ["work_at_height", "dust_fumes", "chemical_coshh", "confined_space"],
-    questions: [
-      { id: "q1", label: "Are approved fire stopping systems specified for the fire stopping to partitions and ceilings?" },
-      { id: "q2", label: "Is access safe to all areas where fire stopping to partitions and ceilings is required?" },
-      { id: "q3", label: "Are COSHH assessments in place for any sealants or compounds used in the fire stopping to partitions and ceilings?" },
-      { id: "q4", label: "Will all fire stopping to partitions and ceilings be photographed and logged for records?" },
-      { id: "q5", label: "Have you checked that services will not be altered after completing the fire stopping to partitions and ceilings?" }
-    ]
-  },
-
-  "Acoustic sealant and mastic works": {
-    desc: "Acoustic sealant and mastic works provide airtight and acoustic seals at perimeters, junctions and service penetrations. The task involves applying sealants neatly to specified gaps and joints. It is often carried out as a finishing activity around drylined partitions and ceilings. Correct product selection and application are essential for performance.",
-    hazards: ["chemical_coshh", "manual_handling", "slips_trips"],
-    questions: [
-      { id: "q1", label: "Are the correct products specified for the acoustic sealant and mastic works?" },
-      { id: "q2", label: "Have COSHH requirements been reviewed for materials used in the acoustic sealant and mastic works?" },
-      { id: "q3", label: "Is access safe and clear for the lengths involved in the acoustic sealant and mastic works?" },
-      { id: "q4", label: "Will waste cartridges and wipes from the acoustic sealant and mastic works be disposed of correctly?" },
-      { id: "q5", label: "Have you checked that all required junctions and gaps are included in the scope of the acoustic sealant and mastic works?" }
-    ]
-  },
-
-  "Boarding out loft spaces": {
-    desc: "Boarding out loft spaces involves installing boards over joists or rafters to provide a usable storage deck or access platform. Work is often carried out in confined, dusty spaces with limited headroom. Care must be taken to avoid stepping on weak ceilings or un-supported areas. Existing insulation and services must be protected.",
-    hazards: ["work_at_height", "confined_space", "dust_fumes", "manual_handling", "slips_trips"],
-    questions: [
-      { id: "q1", label: "Is the access and lighting adequate before starting the boarding out loft spaces?" },
-      { id: "q2", label: "Have you identified safe zones to step on while boarding out loft spaces?" },
-      { id: "q3", label: "Are you protecting existing insulation and services during the boarding out loft spaces?" },
-      { id: "q4", label: "Is dust control and ventilation considered when boarding out loft spaces?" },
-      { id: "q5", label: "Have you planned safe material handling routes when boarding out loft spaces?" }
-    ]
-  },
-
-  "Over-boarding existing ceilings": {
-    desc: "Over-boarding existing ceilings involves fixing new boards over existing ceiling linings to improve appearance or performance. Work is overhead and can involve working around existing fittings and services. The existing ceiling must be assessed for condition and fixings must be adequate. Joints and perimeters are prepared for finishing.",
-    hazards: ["work_at_height", "manual_handling", "dust_fumes", "silica_dust"],
-    questions: [
-      { id: "q1", label: "Has the existing surface been checked for suitability before over-boarding existing ceilings?" },
-      { id: "q2", label: "Is access equipment suitable and stable for the over-boarding existing ceilings task?" },
-      { id: "q3", label: "Will lights and services be isolated or protected during over-boarding existing ceilings?" },
-      { id: "q4", label: "Are adequate fixings and patterns planned for over-boarding existing ceilings?" },
-      { id: "q5", label: "Is dust likely during over-boarding existing ceilings and have controls been arranged?" }
-    ]
-  },
-
-  "Removal of existing suspended ceilings": {
-    desc: "Removal of existing suspended ceilings includes taking down tiles, grid and hangers, and managing waste safely. The work often reveals services, debris and dust above the ceiling. Exclusion zones below the work area are required to protect others. Waste must be segregated and removed promptly.",
-    hazards: ["work_at_height", "falling_objects", "dust_fumes", "manual_handling", "public_interface"],
-    questions: [
-      { id: "q1", label: "Have you set up barriers and signage before starting the removal of existing suspended ceilings?" },
-      { id: "q2", label: "Is access equipment suitable for the removal of existing suspended ceilings?" },
-      { id: "q3", label: "Will you check for live services or hazards above the ceiling before removal of existing suspended ceilings?" },
-      { id: "q4", label: "Are waste skips or containers available close to the removal of existing suspended ceilings area?" },
-      { id: "q5", label: "Will dust be controlled during the removal of existing suspended ceilings, especially in occupied buildings?" }
-    ]
-  },
-
-  "Removal of existing plasterboard partitions": {
-    desc: "Removal of existing plasterboard partitions involves stripping out boards, studs and related trims back to structure. Work may expose hidden services, asbestos-containing materials or sharp edges. Noise and dust control are important, particularly in occupied buildings. Materials must be segregated and removed safely.",
-    hazards: ["dust_fumes", "manual_handling", "sharp_objects", "asbestos", "noise_vibration"],
-    questions: [
-      { id: "q1", label: "Have you checked for possible asbestos before the removal of existing plasterboard partitions?" },
-      { id: "q2", label: "Is isolation of electrical and other services arranged before the removal of existing plasterboard partitions?" },
-      { id: "q3", label: "Will dust and noise be controlled during the removal of existing plasterboard partitions?" },
-      { id: "q4", label: "Are you using safe methods and PPE to manage sharp edges in the removal of existing plasterboard partitions?" },
-      { id: "q5", label: "Have you planned waste handling and routes for the removal of existing plasterboard partitions?" }
-    ]
-  },
-
-  "Patch repairs to partitions and ceilings": {
-    desc: "Patch repairs to partitions and ceilings involve cutting out damaged areas and installing new sections of board, followed by jointing or plastering. Work may be local but can involve overhead tasks and dust. Matching existing finishes and performance is important. The work is often carried out in live, finished environments.",
-    hazards: ["dust_fumes", "sharp_objects", "work_at_height", "slips_trips"],
-    questions: [
-      { id: "q1", label: "Is the area around the patch repairs to partitions and ceilings protected from dust and debris?" },
-      { id: "q2", label: "Are services checked before cutting during patch repairs to partitions and ceilings?" },
-      { id: "q3", label: "Is access equipment suitable for overhead patch repairs to partitions and ceilings?" },
-      { id: "q4", label: "Will you match fire and acoustic performance where patch repairs to partitions and ceilings are carried out?" },
-      { id: "q5", label: "Are offcuts and waste cleared promptly during patch repairs to partitions and ceilings?" }
-    ]
-  },
-
-  "Installation of pattresses and noggins": {
-    desc: "Installation of pattresses and noggins provides local strengthening within stud walls and ceilings to support fixtures, fittings and equipment. Work may involve opening up linings or installing supports before boarding. Accurate positioning is required to align with future fixings. Work is often done at height or within confined wall voids.",
-    hazards: ["work_at_height", "manual_handling", "sharp_objects", "dust_fumes"],
-    questions: [
-      { id: "q1", label: "Have you confirmed locations for the installation of pattresses and noggins against drawings or client requirements?" },
-      { id: "q2", label: "Are you using suitable timber or board for the installation of pattresses and noggins?" },
-      { id: "q3", label: "Is access safe for ceiling-level installation of pattresses and noggins?" },
-      { id: "q4", label: "Will you ensure fixings for the installation of pattresses and noggins are adequate for the intended loads?" },
-      { id: "q5", label: "Have you considered future access before closing up linings after the installation of pattresses and noggins?" }
-    ]
-  },
-
-  "Service bulkhead boxing-in": {
-    desc: "Service bulkhead boxing-in involves constructing enclosures around pipes, ducts and cables using framing and board linings. Work often occurs in corridors, plant rooms and washrooms. Access to valves and joints must be maintained. Lines, levels and junctions with existing finishes are carefully managed.",
-    hazards: ["manual_handling", "dust_fumes", "work_at_height", "sharp_objects"],
-    questions: [
-      { id: "q1", label: "Have you agreed routes and dimensions before starting the service bulkhead boxing-in?" },
-      { id: "q2", label: "Are access panels allowed for key valves or joints within the service bulkhead boxing-in?" },
-      { id: "q3", label: "Is dust and noise from the service bulkhead boxing-in controlled in occupied areas?" },
-      { id: "q4", label: "Are you using suitable fixings for substrates involved in the service bulkhead boxing-in?" },
-      { id: "q5", label: "Have you checked that fire and acoustic separations are maintained within the service bulkhead boxing-in?" }
-    ]
-  },
-
-  "Hatch and access panel framing": {
-    desc: "Hatch and access panel framing provides structural support around openings for access panels in walls and ceilings. Work includes installing additional studs, noggins or channels and ensuring clearances match manufacturer requirements. This is often carried out before boarding or during remedial work. Correct framing is essential for long-term performance and safe access.",
-    hazards: ["work_at_height", "manual_handling", "sharp_objects", "dust_fumes"],
-    questions: [
-      { id: "q1", label: "Have you confirmed panel sizes and types before hatch and access panel framing begins?" },
-      { id: "q2", label: "Is hatch and access panel framing installed in line with manufacturer guidance for loading?" },
-      { id: "q3", label: "Is access safe at ceiling level for hatch and access panel framing?" },
-      { id: "q4", label: "Will fire and acoustic requirements still be met after hatch and access panel framing is completed?" },
-      { id: "q5", label: "Are all cut metal and timber pieces from hatch and access panel framing disposed of safely?" }
-    ]
-  },
-
-  "Ceiling grid alterations for new services": {
-    desc: "Ceiling grid alterations for new services involve adjusting existing suspended ceiling grids to accommodate additional ducts, lights or sprinklers. Work may require cutting and reinforcing grid members and re-routing hangers. Care is taken not to overload or destabilise the existing ceiling. Coordination with M&E trades is essential.",
-    hazards: ["work_at_height", "falling_objects", "manual_handling", "public_interface"],
-    questions: [
-      { id: "q1", label: "Have you agreed the extent of ceiling grid alterations for new services with the M&E trades?" },
-      { id: "q2", label: "Is access controlled and safe underneath while ceiling grid alterations for new services are in progress?" },
-      { id: "q3", label: "Will any modified grid be re-supported correctly during ceiling grid alterations for new services?" },
-      { id: "q4", label: "Are all removed tiles and fittings accounted for during ceiling grid alterations for new services?" },
-      { id: "q5", label: "Have you confirmed final layout drawings after completing ceiling grid alterations for new services?" }
-    ]
-  },
-
-  "Smoke barrier / baffle installation above ceilings": {
-    desc: "Smoke barrier / baffle installation above ceilings involves fitting fire or smoke curtains and barriers in concealed spaces to control smoke movement. Work is undertaken above ceiling level, often in cramped, dusty conditions. Barriers are fixed to structure and coordinated around services. Fire integrity and continuity are critical.",
-    hazards: ["work_at_height", "dust_fumes", "confined_space", "falling_objects"],
-    questions: [
-      { id: "q1", label: "Is access above ceilings adequate before starting smoke barrier / baffle installation above ceilings?" },
-      { id: "q2", label: "Are specified products being used for the smoke barrier / baffle installation above ceilings?" },
-      { id: "q3", label: "Will all gaps at junctions and penetrations be sealed during the smoke barrier / baffle installation above ceilings?" },
-      { id: "q4", label: "Are you controlling dust and debris during smoke barrier / baffle installation above ceilings?" },
-      { id: "q5", label: "Have you checked compatibility with sprinkler and detection systems during smoke barrier / baffle installation above ceilings?" }
-    ]
-  },
-
-  "Fire rated ceiling installation": {
-    desc: "Fire rated ceiling installation involves constructing ceilings using tested systems to provide a specific fire resistance. Work includes installing framing, fire-rated boards, fixings and joint treatments. Penetrations and access panels must be fire rated and sealed. Strict adherence to system details is essential for certification.",
-    hazards: ["work_at_height", "manual_handling", "dust_fumes", "fire_explosion"],
-    questions: [
-      { id: "q1", label: "Have you confirmed the required fire rating for the fire rated ceiling installation?" },
-      { id: "q2", label: "Are correct fire-rated boards and fixings available for the fire rated ceiling installation?" },
-      { id: "q3", label: "Will all penetrations and access panels be compatible with the fire rated ceiling installation system?" },
-      { id: "q4", label: "Is access safe for all areas involved in the fire rated ceiling installation?" },
-      { id: "q5", label: "Have you planned inspection and documentation for the fire rated ceiling installation?" }
-    ]
-  },
-
-  "Acoustic ceiling installation": {
-    desc: "Acoustic ceiling installation uses perforated boards, acoustic tiles or rafts to control reverberation and noise. Work includes installing supporting systems, infill materials and edge trims. Attention is paid to detailing around services and perimeters. The completed system must meet acoustic design criteria.",
-    hazards: ["work_at_height", "manual_handling", "dust_fumes", "slips_trips"],
-    questions: [
-      { id: "q1", label: "Have you confirmed the acoustic performance requirements for the acoustic ceiling installation?" },
-      { id: "q2", label: "Are specified acoustic tiles or panels on site and protected before acoustic ceiling installation?" },
-      { id: "q3", label: "Is access equipment suitable for the acoustic ceiling installation areas?" },
-      { id: "q4", label: "Will you maintain a clean environment to protect finishes during the acoustic ceiling installation?" },
-      { id: "q5", label: "Have you coordinated acoustic ceiling installation details with lighting and ventilation layouts?" }
-    ]
-  },
-
-  "Clean room / hygienic ceiling installation": {
-    desc: "Clean room / hygienic ceiling installation involves fitting specialised ceiling systems designed for controlled environments such as labs, food production or healthcare. Work includes installing sealed panels, cleanable surfaces and integrated services. Strict cleanliness, PPE and handling procedures are followed. Any damage or gaps can compromise the environment.",
-    hazards: ["work_at_height", "chemical_coshh", "public_interface", "manual_handling"],
-    questions: [
-      { id: "q1", label: "Are clean room protocols understood before starting the clean room / hygienic ceiling installation?" },
-      { id: "q2", label: "Are all components for the clean room / hygienic ceiling installation stored clean and protected?" },
-      { id: "q3", label: "Is access and PPE suitable for the controlled environment during the clean room / hygienic ceiling installation?" },
-      { id: "q4", label: "Will all joints and penetrations be sealed correctly in the clean room / hygienic ceiling installation?" },
-      { id: "q5", label: "Have you planned cleaning and inspection after the clean room / hygienic ceiling installation?" }
-    ]
-  },
-
-  "Washroom / wet area board installation": {
-    desc: "Washroom / wet area board installation uses moisture-resistant or cement-based boards in areas exposed to water such as showers and changing rooms. Work includes fixing boards, sealing joints and detailing around trays, baths and fixtures. Correct product selection is critical to prevent failure. The system must be compatible with tanking and tile finishes.",
-    hazards: ["manual_handling", "water_ingress", "dust_fumes", "chemical_coshh"],
-    questions: [
-      { id: "q1", label: "Are appropriate moisture-resistant boards specified for the washroom / wet area board installation?" },
-      { id: "q2", label: "Will you protect adjacent areas from water and debris during the washroom / wet area board installation?" },
-      { id: "q3", label: "Are jointing and sealing materials for the washroom / wet area board installation compatible with tanking systems?" },
-      { id: "q4", label: "Is manual handling of heavy boards for the washroom / wet area board installation properly planned?" },
-      { id: "q5", label: "Have you coordinated with plumbers and tilers for sequencing the washroom / wet area board installation?" }
-    ]
-  },
-
-  "High bay / atrium ceiling works via tower or MEWP": {
-    desc: "High bay / atrium ceiling works via tower or MEWP involve installing or repairing ceilings at significant height, often over open spaces. Work includes access planning, edge protection and careful movement of materials at height. MEWP or tower inspections and operator competence are critical. Exclusion zones below the work are enforced.",
-    hazards: ["work_at_height", "scaffold_safety", "plant_machinery", "falling_objects"],
-    questions: [
-      { id: "q1", label: "Has a full access plan been agreed for the high bay / atrium ceiling works via tower or MEWP?" },
-      { id: "q2", label: "Are MEWP operators for the high bay / atrium ceiling works via tower or MEWP trained and authorised?" },
-      { id: "q3", label: "Are exclusion zones below the high bay / atrium ceiling works via tower or MEWP clearly marked?" },
-      { id: "q4", label: "Have weather and wind conditions been considered for the high bay / atrium ceiling works via tower or MEWP?" },
-      { id: "q5", label: "Will tools and materials be secured at height during the high bay / atrium ceiling works via tower or MEWP?" }
-    ]
-  },
-
-  "Ceiling works in live office environment": {
-    desc: "Ceiling works in live office environment involves installing, altering or repairing ceilings while staff and equipment remain in place. Noise, dust and access are tightly controlled. Work may be carried out out-of-hours or in phases. Protection of furniture, IT and occupants is a priority.",
-    hazards: ["public_interface", "work_at_height", "dust_fumes", "slips_trips"],
-    questions: [
-      { id: "q1", label: "Have you agreed working hours and noisy periods for ceiling works in live office environment?" },
-      { id: "q2", label: "Is adequate protection in place over desks and equipment for ceiling works in live office environment?" },
-      { id: "q3", label: "Are you controlling dust effectively during ceiling works in live office environment?" },
-      { id: "q4", label: "Are routes for staff clearly maintained during ceiling works in live office environment?" },
-      { id: "q5", label: "Will all work areas be cleaned and made safe at the end of each shift during ceiling works in live office environment?" }
-    ]
-  },
-
-  "Night shift ceiling works in occupied building": {
-    desc: "Night shift ceiling works in occupied building involve undertaking ceiling activities outside normal hours to reduce disruption. Work is carried out under artificial lighting with reduced supervision and support services. Security, noise control and lone working must be considered. The building must be left secure and safe for daytime use.",
-    hazards: ["work_at_height", "poor_lighting", "lone_working", "security_risk"],
-    questions: [
-      { id: "q1", label: "Is there a clear permit or instruction for night shift ceiling works in occupied building?" },
-      { id: "q2", label: "Are arrangements in place to manage lone working during night shift ceiling works in occupied building?" },
-      { id: "q3", label: "Is lighting adequate and safe for all areas of night shift ceiling works in occupied building?" },
-      { id: "q4", label: "Will noise be controlled to avoid disturbing occupants during night shift ceiling works in occupied building?" },
-      { id: "q5", label: "Have you confirmed how the building will be secured after night shift ceiling works in occupied building?" }
-    ]
-  },
-
-  "Drylining works in residential refurb (occupied)": {
-    desc: "Drylining works in residential refurb (occupied) covers installing or altering partitions and ceilings in homes while residents remain in place. Work includes dust control, protection of furniture and careful sequencing around daily routines. Communication with occupants is important. Safety of children and vulnerable persons is a key consideration.",
-    hazards: ["public_interface", "dust_fumes", "manual_handling", "slips_trips"],
-    questions: [
-      { id: "q1", label: "Have you agreed working times with residents for drylining works in residential refurb (occupied)?" },
-      { id: "q2", label: "Is dust and debris from drylining works in residential refurb (occupied) being controlled and contained?" },
-      { id: "q3", label: "Are you keeping tools and materials secure during drylining works in residential refurb (occupied)?" },
-      { id: "q4", label: "Are escape routes and stairs kept clear during drylining works in residential refurb (occupied)?" },
-      { id: "q5", label: "Will you clean down and remove waste at the end of each day for drylining works in residential refurb (occupied)?" }
-    ]
-  },
-
-  "Drylining works in new build shell": {
-    desc: "Drylining works in new build shell involve large-scale installation of partitions and ceilings in a new structure. Work is co-ordinated with multiple trades on a fast programme. Material handling, sequencing and access routes must be planned. Quality and compliance checks are built into the process.",
-    hazards: ["manual_handling", "work_at_height", "slips_trips", "plant_machinery"],
-    questions: [
-      { id: "q1", label: "Have you agreed floor-by-floor sequencing for drylining works in new build shell?" },
-      { id: "q2", label: "Are materials for drylining works in new build shell stored safely and close to work areas?" },
-      { id: "q3", label: "Is access coordinated with other trades for drylining works in new build shell?" },
-      { id: "q4", label: "Will you follow quality checks and sign-offs during drylining works in new build shell?" },
-      { id: "q5", label: "Have you planned waste removal routes for drylining works in new build shell?" }
-    ]
-  },
-
-  "Builders work in connection for ceiling openings": {
-    desc: "Builders work in connection for ceiling openings involves forming holes or trimming structure to allow for ducts, hatches, lights or other fixtures. Work may involve breaking out concrete, cutting boards and adjusting framing. Structural and fire implications must be considered. Edges are prepared for the follow-on trades.",
-    hazards: ["dust_fumes", "noise_vibration", "work_at_height", "falling_objects"],
-    questions: [
-      { id: "q1", label: "Have you confirmed structural limitations before builders work in connection for ceiling openings?" },
-      { id: "q2", label: "Are services identified and isolated before builders work in connection for ceiling openings?" },
-      { id: "q3", label: "Is dust and noise from builders work in connection for ceiling openings controlled appropriately?" },
-      { id: "q4", label: "Are edges protected and safe after builders work in connection for ceiling openings?" },
-      { id: "q5", label: "Will fire protection be reinstated after builders work in connection for ceiling openings?" }
-    ]
-  },
-
-  "Fire encasement to steel beams/columns": {
-    desc: "Fire encasement to steel beams/columns uses board systems to provide fire protection to structural steelwork. Work includes framing, board fixing and sealing joints in line with tested systems. Working at height on scaffolds or MEWPs is common. Accurate installation is essential to achieve the required fire rating.",
-    hazards: ["work_at_height", "manual_handling", "dust_fumes", "scaffold_safety"],
-    questions: [
-      { id: "q1", label: "Have you confirmed the required fire rating for the fire encasement to steel beams/columns?" },
-      { id: "q2", label: "Is access safe for all steelwork needing fire encasement to steel beams/columns?" },
-      { id: "q3", label: "Are you using the correct board type and fixings for the fire encasement to steel beams/columns?" },
-      { id: "q4", label: "Will all joints and corners be sealed correctly during fire encasement to steel beams/columns?" },
-      { id: "q5", label: "Have you planned inspection and recording for fire encasement to steel beams/columns?" }
-    ]
-  },
-
-  "Soffit lining in car parks": {
-    desc: "Soffit lining in car parks involves fixing boards or panels to exposed soffits to improve appearance, fire performance or durability. Work is often carried out above vehicle routes and in exposed conditions. Fixings must cope with vibration and environment. Traffic management and headroom need careful planning.",
-    hazards: ["work_at_height", "moving_vehicles", "environmental_weather", "manual_handling"],
-    questions: [
-      { id: "q1", label: "Is a traffic management plan in place before starting soffit lining in car parks?" },
-      { id: "q2", label: "Is access equipment suitable for the headroom arrangements for soffit lining in car parks?" },
-      { id: "q3", label: "Are fixings and boards for soffit lining in car parks suitable for external or semi-exposed conditions?" },
-      { id: "q4", label: "Will you manage dust and debris so it does not affect vehicles during soffit lining in car parks?" },
-      { id: "q5", label: "Have you considered fire and smoke requirements when specifying soffit lining in car parks?" }
-    ]
-  },
-
-  "Ceiling survey and access panel installation": {
-    desc: "Ceiling survey and access panel installation involves inspecting existing ceilings to locate services, then forming openings and fitting access panels where required. Work is often above occupied areas and may reveal unforeseen issues. Accurate records are made of panel locations. Fire and acoustic properties must be preserved.",
-    hazards: ["work_at_height", "dust_fumes", "public_interface", "sharp_objects"],
-    questions: [
-      { id: "q1", label: "Have you agreed survey scope and locations before ceiling survey and access panel installation?" },
-      { id: "q2", label: "Is access safe for all areas of ceiling survey and access panel installation?" },
-      { id: "q3", label: "Will you record all panel positions during ceiling survey and access panel installation?" },
-      { id: "q4", label: "Are you maintaining fire and acoustic ratings during ceiling survey and access panel installation?" },
-      { id: "q5", label: "Have you arranged protection and signage under areas affected by ceiling survey and access panel installation?" }
-    ]
-  }
-};
-
-"Other (Custom)": {
-  desc: "",
-  hazards: [],
-  questions: [
-    { id: "q1", label: "Have you identified all specific risks associated with this custom drylining or ceilings task (e.g. work at height, dust, hidden services)?" },
-    { id: "q2", label: "Is the access equipment or platform for this custom drylining or ceilings task safe, stable and suitable for the height and duration of work?" },
-    { id: "q3", label: "Have you confirmed that existing ceilings, walls and fixings affected by this custom drylining or ceilings task are structurally sound?" },
-    { id: "q4", label: "Have you planned how dust, debris and waste from this custom drylining or ceilings task will be controlled and cleared safely?" },
-    { id: "q5", label: "Have you agreed the exact scope, working areas and any live services to avoid with the client for this custom drylining or ceilings task?" }
-  ]
 };
 
 const GROUNDWORKS_CIVILS_CLUSTERS: Record<string, JobCluster> = {
@@ -6048,7 +5486,7 @@ const HVAC_AIRCON_CLUSTERS: Record<string, JobCluster> = {
   }
 };
 
-"Other (Custom)": {
+  "Other (Custom)": {
   desc: "",
   hazards: [],
   questions: [
@@ -6714,7 +6152,7 @@ const GAS_HEATING_CLUSTERS: Record<string, JobCluster> = {
       { id: "q5", label: "Is ventilation adequate during the oil boiler service & commissioning?" }
     ]
   },
-
+  
   "Other (Custom)": {
     desc: "",
     hazards: [],
