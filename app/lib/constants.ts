@@ -6768,6 +6768,612 @@ const PAINTER_DECORATOR_CLUSTERS: Record<string, JobCluster> = {
 };
 
 // ==========================================
+// FLOORING CONTRACTOR
+// ==========================================
+
+const FLOORING_CONTRACTOR_CLUSTERS: Record<string, JobCluster> = {
+  "Carpet fitting to single bedroom": {
+    desc: "Carpet fitting to a single bedroom typically involves uplifting any existing floor coverings, checking the subfloor for damage or unevenness, and installing underlay and new carpet. The fitter measures and cuts the carpet accurately, stretches it into position using appropriate tools and secures it at gripper rods and thresholds. Furniture movement, door trimming and waste removal are coordinated with the occupier.",
+    hazards: ["manual_handling", "slips_trips", "sharp_objects", "dust_fumes"],
+    questions: [
+      { id: "q1", label: "Has the bedroom been cleared or agreed access routes arranged before carpet fitting to single bedroom starts?" },
+      { id: "q2", label: "Have you checked the subfloor condition and levels before carpet fitting to single bedroom?" },
+      { id: "q3", label: "Are sharp tools such as knives and blades controlled safely during carpet fitting to single bedroom?" },
+      { id: "q4", label: "Have you planned how offcuts, old floor coverings and packaging will be removed during carpet fitting to single bedroom?" },
+      { id: "q5", label: "Have you agreed with the occupier any door trimming or threshold details required for carpet fitting to single bedroom?" }
+    ]
+  },
+
+  "Full house carpet installation": {
+    desc: "Full house carpet installation involves replacing floor coverings throughout a property, often in multiple rooms and levels. The work includes phased clearance of furniture, uplift and disposal of existing carpets, inspection and preparation of subfloors, and installation of underlay and new carpets. Sequencing is planned to minimise disruption and maintain safe access for occupants.",
+    hazards: ["manual_handling", "slips_trips", "dust_fumes", "public_interface"],
+    questions: [
+      { id: "q1", label: "Has a room-by-room sequence been agreed with the client for the full house carpet installation?" },
+      { id: "q2", label: "Is there a safe route for moving furniture and materials during the full house carpet installation?" },
+      { id: "q3", label: "Have you assessed subfloors for damage, moisture and unevenness before the full house carpet installation?" },
+      { id: "q4", label: "Is there a plan to control dust, offcuts and old carpets during the full house carpet installation to keep escape routes clear?" },
+      { id: "q5", label: "Have you agreed how residents will safely access essential rooms while the full house carpet installation is underway?" }
+    ]
+  },
+
+  "Carpet replacement in occupied dwelling": {
+    desc: "Carpet replacement in an occupied dwelling focuses on changing carpets while people remain living in the property. Work is phased to allow ongoing occupation, often with temporary clearances of rooms or areas. Extra care is taken to maintain safe access routes, control dust and noise, and coordinate with the household’s routine.",
+    hazards: ["manual_handling", "slips_trips", "public_interface", "dust_fumes"],
+    questions: [
+      { id: "q1", label: "Have you agreed with the occupier which rooms will be done and in what order for carpet replacement in occupied dwelling?" },
+      { id: "q2", label: "Are escape routes and main circulation areas kept clear during carpet replacement in occupied dwelling?" },
+      { id: "q3", label: "Have you planned how vulnerable residents, pets or children will be kept away from tools during carpet replacement in occupied dwelling?" },
+      { id: "q4", label: "Is there a method for controlling dust and debris while carrying out carpet replacement in occupied dwelling?" },
+      { id: "q5", label: "Have you arranged safe temporary floor coverings where necessary during carpet replacement in occupied dwelling?" }
+    ]
+  },
+
+  "Commercial carpet tile installation to office": {
+    desc: "Commercial carpet tile installation to an office involves working in a business environment, often with existing furniture, IT equipment and staff present or nearby. The task includes lifting and stacking furniture where agreed, removing old floor finishes, preparing the subfloor and laying new carpet tiles in a set pattern. Coordination with office management is required to minimise disruption and protect equipment.",
+    hazards: ["manual_handling", "slips_trips", "public_interface", "dust_fumes"],
+    questions: [
+      { id: "q1", label: "Have you agreed working hours and phased areas with the client for commercial carpet tile installation to office?" },
+      { id: "q2", label: "Is there a plan to protect IT equipment and cabling during commercial carpet tile installation to office?" },
+      { id: "q3", label: "Have you checked subfloor condition and access floor panels before commercial carpet tile installation to office?" },
+      { id: "q4", label: "Are walkways and fire exits maintained throughout commercial carpet tile installation to office?" },
+      { id: "q5", label: "Is waste and old flooring removed promptly during commercial carpet tile installation to office to prevent trips?" }
+    ]
+  },
+
+  "Carpet tile replacement in live office": {
+    desc: "Carpet tile replacement in a live office environment focuses on swapping tiles in selected areas while the office remains operational. The work is typically carried out out-of-hours or in small zones, requiring careful moving of desks, chairs and equipment. Communication with staff is essential to avoid trip hazards and protect data and belongings.",
+    hazards: ["manual_handling", "slips_trips", "public_interface"],
+    questions: [
+      { id: "q1", label: "Have you communicated the working areas and timings for carpet tile replacement in live office with office staff?" },
+      { id: "q2", label: "Are cables and desk equipment safely managed during carpet tile replacement in live office?" },
+      { id: "q3", label: "Is there a clear plan for stacking and moving furniture during carpet tile replacement in live office?" },
+      { id: "q4", label: "Are replaced carpet tiles inspected for rocking or unevenness after carpet tile replacement in live office?" },
+      { id: "q5", label: "Will waste tiles and offcuts be removed quickly to keep routes clear during carpet tile replacement in live office?" }
+    ]
+  },
+
+  "Entrance matting system installation": {
+    desc: "Entrance matting system installation involves fitting specialist mats or mat wells at building entrances to reduce dirt and moisture carried into the building. The work may require cutting recesses, adjusting thresholds and coordinating with door hardware. Accurate levelling is needed to avoid creating steps or trip lips.",
+    hazards: ["manual_handling", "slips_trips", "sharp_objects"],
+    questions: [
+      { id: "q1", label: "Have you agreed the exact footprint and depth for the entrance matting system installation?" },
+      { id: "q2", label: "Have you checked that the entrance matting system installation will not create a trip at thresholds?" },
+      { id: "q3", label: "Are suitable tools and PPE available for cutting during entrance matting system installation?" },
+      { id: "q4", label: "Is the working area under control, with pedestrians diverted if necessary during entrance matting system installation?" },
+      { id: "q5", label: "Have you planned cleaning and maintenance instructions following the entrance matting system installation?" }
+    ]
+  },
+
+  "Stair carpet and nosing installation": {
+    desc: "Stair carpet and nosing installation involves working on stair flights and landings to fit carpet and protective stair nosings. Work is carried out on steps and edges where falls are more likely, and access for occupants may be restricted during the task. Fixings must be secure and details consistent to minimise slips and trips.",
+    hazards: ["work_at_height", "slips_trips", "manual_handling", "sharp_objects"],
+    questions: [
+      { id: "q1", label: "Have you arranged to restrict or control access to the staircase during stair carpet and nosing installation?" },
+      { id: "q2", label: "Are nosings and carpet details designed to provide slip resistance for stair carpet and nosing installation?" },
+      { id: "q3", label: "Are tools and offcuts prevented from being left on treads during stair carpet and nosing installation?" },
+      { id: "q4", label: "Have you confirmed fixing methods and substrates are suitable during stair carpet and nosing installation?" },
+      { id: "q5", label: "Will a final inspection be carried out to check each step edge after stair carpet and nosing installation?" }
+    ]
+  },
+
+  "Safety vinyl flooring to corridors": {
+    desc: "Safety vinyl flooring to corridors involves installing slip-resistant sheet flooring along main circulation routes. The job typically includes uplift of existing finishes, levelling the subfloor, welding seams and forming coved skirtings where specified. Work must be sequenced to maintain at least one safe route through the building.",
+    hazards: ["manual_handling", "slips_trips", "dust_fumes", "chemical_coshh"],
+    questions: [
+      { id: "q1", label: "Have you agreed diversion routes and phasing for safety vinyl flooring to corridors?" },
+      { id: "q2", label: "Are subfloors assessed and prepared properly before safety vinyl flooring to corridors is installed?" },
+      { id: "q3", label: "Are adhesives and welding processes controlled with adequate ventilation during safety vinyl flooring to corridors?" },
+      { id: "q4", label: "Are wet adhesive areas clearly marked and protected during safety vinyl flooring to corridors?" },
+      { id: "q5", label: "Will a slip-resistance and visual inspection be carried out after safety vinyl flooring to corridors is complete?" }
+    ]
+  },
+
+  "Safety vinyl flooring to commercial kitchen": {
+    desc: "Safety vinyl flooring to a commercial kitchen involves installing heavy-duty, slip-resistant floors in a high-risk environment. The work often requires working around fixed equipment, floor drains and upstands, with welded joints and coved skirting. Consideration is given to drainage falls, hygiene and heat from cooking equipment.",
+    hazards: ["manual_handling", "slips_trips", "chemical_coshh", "hot_work"],
+    questions: [
+      { id: "q1", label: "Have you coordinated shutdown of cooking and extraction equipment for safety vinyl flooring to commercial kitchen?" },
+      { id: "q2", label: "Are drains, gullies and falls checked before safety vinyl flooring to commercial kitchen is installed?" },
+      { id: "q3", label: "Are adhesives and hot welds managed safely with adequate ventilation during safety vinyl flooring to commercial kitchen?" },
+      { id: "q4", label: "Is there a plan for safe access for kitchen staff around the work area during safety vinyl flooring to commercial kitchen?" },
+      { id: "q5", label: "Have you confirmed cleaning and hygiene requirements with the client for safety vinyl flooring to commercial kitchen?" }
+    ]
+  },
+
+  "Sheet vinyl installation to bathroom": {
+    desc: "Sheet vinyl installation to a bathroom involves fitting continuous flooring around sanitaryware, often with tight details at WC bases, basins and baths. Moisture resistance and watertight junctions are essential, and care is taken when working in confined spaces. Existing floor finishes may need uplifting and subfloors repaired.",
+    hazards: ["manual_handling", "slips_trips", "water_ingress", "dust_fumes"],
+    questions: [
+      { id: "q1", label: "Have you checked subfloor condition and moisture levels before sheet vinyl installation to bathroom?" },
+      { id: "q2", label: "Is there enough space and ventilation for adhesive use during sheet vinyl installation to bathroom?" },
+      { id: "q3", label: "Have you planned details at WC bases and trims for sheet vinyl installation to bathroom?" },
+      { id: "q4", label: "Are existing floor finishes removed safely before sheet vinyl installation to bathroom?" },
+      { id: "q5", label: "Will you test for water-tightness around penetrations after sheet vinyl installation to bathroom?" }
+    ]
+  },
+
+  "Sheet vinyl installation to wet room": {
+    desc: "Sheet vinyl installation to a wet room involves forming a fully tanked floor area with falls to a drain, often with coved skirtings and sealed upstands. The work requires careful setting out, accurate cutting at drains and thresholds, and close coordination with plumbing and wall finishes. Any defects can lead to leaks and damage below.",
+    hazards: ["manual_handling", "water_ingress", "dust_fumes", "chemical_coshh"],
+    questions: [
+      { id: "q1", label: "Have you confirmed falls and drain positions before sheet vinyl installation to wet room?" },
+      { id: "q2", label: "Are substrates, tanking and priming completed before sheet vinyl installation to wet room starts?" },
+      { id: "q3", label: "Is adequate ventilation provided for adhesives during sheet vinyl installation to wet room?" },
+      { id: "q4", label: "Have you agreed details at thresholds and door bars for sheet vinyl installation to wet room?" },
+      { id: "q5", label: "Will you test the wet room for leaks or ponding after sheet vinyl installation to wet room?" }
+    ]
+  },
+
+  "LVT installation to kitchen": {
+    desc: "LVT installation to a kitchen involves fitting luxury vinyl tiles over a prepared subfloor, typically with a set pattern or plank layout. The work requires careful marking out around units, islands and appliances, with attention to expansion joints and door thresholds. Adhesives and cutting operations are managed in a confined but busy area.",
+    hazards: ["manual_handling", "slips_trips", "dust_fumes", "chemical_coshh"],
+    questions: [
+      { id: "q1", label: "Have you confirmed layout and pattern direction before LVT installation to kitchen?" },
+      { id: "q2", label: "Is the subfloor level, clean and primed before LVT installation to kitchen?" },
+      { id: "q3", label: "Are adhesives used for LVT installation to kitchen applied within manufacturer open times and with good ventilation?" },
+      { id: "q4", label: "Have you protected access routes and wet adhesive areas during LVT installation to kitchen?" },
+      { id: "q5", label: "Have you agreed with the client when appliances can be moved back after LVT installation to kitchen?" }
+    ]
+  },
+
+  "LVT installation to open-plan living area": {
+    desc: "LVT installation to an open-plan living area covers larger contiguous spaces, often spanning kitchen, dining and lounge zones. The task requires careful control of straight lines and transitions, as well as allowance for movement joints at larger spans. Work is sequenced around furniture and may be carried out in occupied homes.",
+    hazards: ["manual_handling", "slips_trips", "public_interface", "dust_fumes"],
+    questions: [
+      { id: "q1", label: "Has a datum and main line been set out for LVT installation to open-plan living area?" },
+      { id: "q2", label: "Have you agreed furniture moving and storage arrangements for LVT installation to open-plan living area?" },
+      { id: "q3", label: "Are expansion gaps and transitions planned correctly for LVT installation to open-plan living area?" },
+      { id: "q4", label: "Is dust and debris controlled during subfloor preparation for LVT installation to open-plan living area?" },
+      { id: "q5", label: "Will you provide aftercare guidance following LVT installation to open-plan living area?" }
+    ]
+  },
+
+  "LVT installation to retail unit": {
+    desc: "LVT installation to a retail unit involves installing robust vinyl finishes in a commercial setting with display units, tills and public circulation. Work may be done out-of-hours to avoid disruption. The layout often includes feature borders, inlays or brand patterns which require precise cutting and setting out.",
+    hazards: ["manual_handling", "slips_trips", "public_interface", "dust_fumes"],
+    questions: [
+      { id: "q1", label: "Have you coordinated working hours and access arrangements for LVT installation to retail unit?" },
+      { id: "q2", label: "Have layouts, borders or logos been agreed in writing before LVT installation to retail unit?" },
+      { id: "q3", label: "Is stock and display equipment protected or relocated safely during LVT installation to retail unit?" },
+      { id: "q4", label: "Are adhesive and cutting operations controlled to protect members of the public during LVT installation to retail unit?" },
+      { id: "q5", label: "Have you confirmed curing times before reopening the floor to customers after LVT installation to retail unit?" }
+    ]
+  },
+
+  "Laminate flooring installation to lounge": {
+    desc: "Laminate flooring installation to a lounge involves laying interlocking boards over an underlay on a prepared subfloor. Expansion gaps are left at perimeters and covered with skirting or trims. The work may include trimming doors, adjusting thresholds and carefully storing materials to prevent damage.",
+    hazards: ["manual_handling", "slips_trips", "sharp_objects"],
+    questions: [
+      { id: "q1", label: "Have you checked levels and underlay suitability before laminate flooring installation to lounge?" },
+      { id: "q2", label: "Are expansion gaps and perimeter details planned for laminate flooring installation to lounge?" },
+      { id: "q3", label: "Are power tools and saws used safely and with dust control during laminate flooring installation to lounge?" },
+      { id: "q4", label: "Is there safe storage space for packs of boards during laminate flooring installation to lounge?" },
+      { id: "q5", label: "Have you agreed with the client any door trimming required for laminate flooring installation to lounge?" }
+    ]
+  },
+
+  "Laminate flooring installation to apartment": {
+    desc: "Laminate flooring installation to an apartment may involve working at height within a multi-occupancy building, moving materials via stairs or lifts and managing noise for neighbours. Underlay selection may be influenced by acoustic requirements. Access and deliveries are coordinated with building management.",
+    hazards: ["manual_handling", "slips_trips", "public_interface", "noise_vibration"],
+    questions: [
+      { id: "q1", label: "Have you checked building rules and quiet hours for laminate flooring installation to apartment?" },
+      { id: "q2", label: "Is there a safe route for moving materials to the flat for laminate flooring installation to apartment?" },
+      { id: "q3", label: "Does the underlay meet any acoustic requirements for laminate flooring installation to apartment?" },
+      { id: "q4", label: "Are neighbours and building users protected from dust and noise during laminate flooring installation to apartment?" },
+      { id: "q5", label: "Is waste removed without blocking communal stairs or corridors during laminate flooring installation to apartment?" }
+    ]
+  },
+
+  "Engineered timber flooring installation": {
+    desc: "Engineered timber flooring installation involves fitting multi-layer boards either floated, glued or fixed to a prepared subfloor. Moisture content and acclimatisation are critical, and perimeter expansion gaps must be maintained. Hidden services and underfloor heating may affect fixing methods.",
+    hazards: ["manual_handling", "slips_trips", "dust_fumes", "sharp_objects"],
+    questions: [
+      { id: "q1", label: "Have you checked moisture readings and acclimatisation requirements for engineered timber flooring installation?" },
+      { id: "q2", label: "Are underfloor heating and hidden services identified before engineered timber flooring installation?" },
+      { id: "q3", label: "Are suitable adhesives or fixing methods selected for engineered timber flooring installation?" },
+      { id: "q4", label: "Are expansion gaps and perimeter trims properly detailed for engineered timber flooring installation?" },
+      { id: "q5", label: "Is dust from cutting controlled during engineered timber flooring installation?" }
+    ]
+  },
+
+  "Solid hardwood floor installation": {
+    desc: "Solid hardwood floor installation involves fitting solid timber boards that are more sensitive to moisture and movement than engineered boards. The task includes careful acclimatisation, subfloor assessment, fixing with nails or adhesives, and planning board direction. Mistakes can lead to cupping, gaps or squeaks.",
+    hazards: ["manual_handling", "dust_fumes", "sharp_objects", "noise_vibration"],
+    questions: [
+      { id: "q1", label: "Have solid boards been acclimatised correctly before solid hardwood floor installation?" },
+      { id: "q2", label: "Is the subfloor dry, flat and structurally sound for solid hardwood floor installation?" },
+      { id: "q3", label: "Are fixing methods chosen to suit the substrate for solid hardwood floor installation?" },
+      { id: "q4", label: "Is dust and noise from cutting and fixing controlled during solid hardwood floor installation?" },
+      { id: "q5", label: "Have you planned for movement joints at doorways and large spans during solid hardwood floor installation?" }
+    ]
+  },
+
+  "Parquet flooring installation": {
+    desc: "Parquet flooring installation involves laying small timber blocks or panels in patterns such as herringbone or chevron. The work requires precise setting out, accurate cuts at borders and stable adhesive beds. The floor is often sanded and finished on site, adding further stages and risks.",
+    hazards: ["manual_handling", "dust_fumes", "sharp_objects", "noise_vibration"],
+    questions: [
+      { id: "q1", label: "Has the pattern, border and starting point been agreed for parquet flooring installation?" },
+      { id: "q2", label: "Are adhesives and subfloor preparation suitable for parquet flooring installation?" },
+      { id: "q3", label: "Are cutting and sanding operations controlled for dust during parquet flooring installation?" },
+      { id: "q4", label: "Have you allowed adequate curing and sanding times for parquet flooring installation?" },
+      { id: "q5", label: "Are finishes and sealers compatible with the parquet flooring installation system?" }
+    ]
+  },
+
+  "Sanding and sealing existing timber floors": {
+    desc: "Sanding and sealing existing timber floors involves using sanding machines to remove old finishes and level boards, followed by application of sealers, oils or lacquers. The work generates significant dust and noise, and flammable vapours may be present. Adjacent areas require protection from dust migration.",
+    hazards: ["dust_fumes", "noise_vibration", "manual_handling", "hot_work"],
+    questions: [
+      { id: "q1", label: "Are all services, cables and loose boards checked before sanding and sealing existing timber floors?" },
+      { id: "q2", label: "Is dust extraction suitable and in good condition for sanding and sealing existing timber floors?" },
+      { id: "q3", label: "Are combustible dust and vapours controlled to prevent ignition during sanding and sealing existing timber floors?" },
+      { id: "q4", label: "Are PPE and hearing protection provided for sanding and sealing existing timber floors?" },
+      { id: "q5", label: "Have you agreed drying times and reoccupation with the client for sanding and sealing existing timber floors?" }
+    ]
+  },
+
+  "Timber floor repair and board replacement": {
+    desc: "Timber floor repair and board replacement involves lifting damaged boards, assessing joists or substrates and fitting new sections to match the existing flooring. The work may expose voids, services or historic defects. Fixings and new boards must be secure and level to avoid future hazards.",
+    hazards: ["manual_handling", "sharp_objects", "slips_trips"],
+    questions: [
+      { id: "q1", label: "Have you identified any services below boards before timber floor repair and board replacement?" },
+      { id: "q2", label: "Is the work area protected and voids guarded during timber floor repair and board replacement?" },
+      { id: "q3", label: "Are replacement boards compatible and adequately supported during timber floor repair and board replacement?" },
+      { id: "q4", label: "Are nails, screws and old fixings managed safely during timber floor repair and board replacement?" },
+      { id: "q5", label: "Will the repaired area be checked for level and trip hazards after timber floor repair and board replacement?" }
+    ]
+  },
+
+  "Floor levelling with latex screed": {
+    desc: "Floor levelling with latex screed involves mixing and applying self-levelling compounds to correct uneven subfloors. The work includes substrate preparation, priming, mixing of powder and liquid components, and spreading the screed to a specified depth. Chemical exposure and manual handling of bags and water are significant considerations.",
+    hazards: ["manual_handling", "dust_fumes", "chemical_coshh", "slips_trips"],
+    questions: [
+      { id: "q1", label: "Have you assessed the subfloor and priming requirements before floor levelling with latex screed?" },
+      { id: "q2", label: "Are mixing operations for floor levelling with latex screed carried out in a ventilated area with appropriate PPE?" },
+      { id: "q3", label: "Are walkways and wet screed areas protected during floor levelling with latex screed?" },
+      { id: "q4", label: "Is manual handling of screed bags and water containers controlled during floor levelling with latex screed?" },
+      { id: "q5", label: "Have you confirmed drying times and loadings before further works on floor levelling with latex screed?" }
+    ]
+  },
+
+  "Subfloor preparation to concrete slab": {
+    desc: "Subfloor preparation to a concrete slab may involve grinding, shot blasting, filling and priming to achieve a suitable surface for floor coverings. The task can generate dust, noise and vibration, and may expose existing defects or joints. Plant and extraction equipment are used to control dust and debris.",
+    hazards: ["dust_fumes", "noise_vibration", "manual_handling", "plant_machinery"],
+    questions: [
+      { id: "q1", label: "Have you identified and marked cracks, joints and weak areas before subfloor preparation to concrete slab?" },
+      { id: "q2", label: "Is dust extraction used for grinding and preparation during subfloor preparation to concrete slab?" },
+      { id: "q3", label: "Are hearing and respiratory PPE provided for subfloor preparation to concrete slab?" },
+      { id: "q4", label: "Is access for others restricted while machinery is running during subfloor preparation to concrete slab?" },
+      { id: "q5", label: "Have you planned waste removal of arisings from subfloor preparation to concrete slab?" }
+    ]
+  },
+
+  "DPM and moisture barrier installation": {
+    desc: "DPM and moisture barrier installation involves applying surface membranes or fitting physical damp-proof layers to control moisture transmission from subfloors. The process may include mechanical preparation, priming and applying liquid or sheet systems. Correct coverage, thickness and curing are crucial for the success of subsequent flooring.",
+    hazards: ["chemical_coshh", "dust_fumes", "manual_handling"],
+    questions: [
+      { id: "q1", label: "Have you carried out moisture tests and documented results before DPM and moisture barrier installation?" },
+      { id: "q2", label: "Are substrates prepared and free of contaminants before DPM and moisture barrier installation?" },
+      { id: "q3", label: "Is adequate ventilation provided when using liquid products for DPM and moisture barrier installation?" },
+      { id: "q4", label: "Are coverage rates and thicknesses monitored during DPM and moisture barrier installation?" },
+      { id: "q5", label: "Have curing times and compatibility with subsequent layers been confirmed for DPM and moisture barrier installation?" }
+    ]
+  },
+
+  "Acoustic flooring system installation": {
+    desc: "Acoustic flooring system installation involves fitting layers such as resilient mats, battens or acoustic boards to reduce sound transmission. The task includes working around perimeter details, thresholds and services, and may affect finished floor levels. Care is taken to avoid rigid bridges that compromise performance.",
+    hazards: ["manual_handling", "slips_trips", "dust_fumes"],
+    questions: [
+      { id: "q1", label: "Have acoustic performance requirements been confirmed before acoustic flooring system installation?" },
+      { id: "q2", label: "Have you planned the build-up and finished levels for acoustic flooring system installation?" },
+      { id: "q3", label: "Are potential rigid bridges identified and avoided during acoustic flooring system installation?" },
+      { id: "q4", label: "Is manual handling of boards and rolls controlled during acoustic flooring system installation?" },
+      { id: "q5", label: "Will the client receive information on maintaining performance after acoustic flooring system installation?" }
+    ]
+  },
+
+  "Underlay installation and floor soundproofing": {
+    desc: "Underlay installation and floor soundproofing involves laying resilient underlays, mats or products beneath floor finishes to reduce impact sound. The work may be combined with carpet, laminate or engineered flooring. Continuity at perimeters and junctions is important to avoid acoustic flanking paths.",
+    hazards: ["manual_handling", "slips_trips"],
+    questions: [
+      { id: "q1", label: "Is the correct underlay specified for underlay installation and floor soundproofing based on floor finish and acoustic requirements?" },
+      { id: "q2", label: "Are rolls and sheets handled safely during underlay installation and floor soundproofing?" },
+      { id: "q3", label: "Are joints and perimeters lapped or sealed to prevent flanking during underlay installation and floor soundproofing?" },
+      { id: "q4", label: "Is the subfloor suitably clean and level before underlay installation and floor soundproofing?" },
+      { id: "q5", label: "Are routes and walkways kept clear of loose underlay during underlay installation and floor soundproofing?" }
+    ]
+  },
+
+  "Raised access flooring installation": {
+    desc: "Raised access flooring installation involves building a grid of pedestals and panels to create a service void beneath the floor. The task includes setting out, levelling pedestals, fixing, and laying panels while maintaining structural capacity and safe access. Co-ordination with cabling, HVAC and other trades is required.",
+    hazards: ["manual_handling", "slips_trips", "plant_machinery"],
+    questions: [
+      { id: "q1", label: "Have loadings and specification been confirmed before raised access flooring installation?" },
+      { id: "q2", label: "Are pedestals and fixings installed and levelled correctly during raised access flooring installation?" },
+      { id: "q3", label: "Are open voids and missing panels protected during raised access flooring installation?" },
+      { id: "q4", label: "Are lifting tools used correctly to remove and replace panels during raised access flooring installation?" },
+      { id: "q5", label: "Have fire and acoustic considerations been taken into account for raised access flooring installation?" }
+    ]
+  },
+
+  "Raised access flooring repairs and alterations": {
+    desc: "Raised access flooring repairs and alterations involve lifting panels to access services, replacing damaged panels or adjusting layouts. The work may be carried out in live offices with staff present, making falls through openings and trip hazards a key concern. Panels must be reinstated securely.",
+    hazards: ["slips_trips", "manual_handling", "public_interface"],
+    questions: [
+      { id: "q1", label: "Have you marked and controlled the working area for raised access flooring repairs and alterations?" },
+      { id: "q2", label: "Are temporary barriers or covers used when panels are removed during raised access flooring repairs and alterations?" },
+      { id: "q3", label: "Are replacement panels compatible and correctly seated during raised access flooring repairs and alterations?" },
+      { id: "q4", label: "Are staff and IT cabling protected during raised access flooring repairs and alterations?" },
+      { id: "q5", label: "Is a final walk-through completed to check for rocking panels after raised access flooring repairs and alterations?" }
+    ]
+  },
+
+  "Industrial resin flooring installation": {
+    desc: "Industrial resin flooring installation involves preparing the substrate and applying multi-coat resin systems such as epoxy or polyurethane. The work often includes mechanical preparation, mixing reactive chemicals and working in large open areas. Ventilation, temperature control and product handling are critical.",
+    hazards: ["chemical_coshh", "dust_fumes", "manual_handling", "plant_machinery"],
+    questions: [
+      { id: "q1", label: "Have COSHH assessments and ventilation arrangements been reviewed for industrial resin flooring installation?" },
+      { id: "q2", label: "Is mechanical preparation and dust extraction suitable for industrial resin flooring installation?" },
+      { id: "q3", label: "Are correct mixing ratios and pot lives being followed during industrial resin flooring installation?" },
+      { id: "q4", label: "Is access restricted to prevent others walking through wet resin during industrial resin flooring installation?" },
+      { id: "q5", label: "Have curing times and re-traffic dates been agreed for industrial resin flooring installation?" }
+    ]
+  },
+
+  "Garage floor epoxy coating": {
+    desc: "Garage floor epoxy coating involves cleaning, preparing and coating concrete floors in garages with epoxy or similar systems. The work may include degreasing, etching, repair of defects and applying multiple coats. Vehicle access, ventilation and compatibility with existing coatings must be managed.",
+    hazards: ["chemical_coshh", "dust_fumes", "manual_handling", "environmental_weather"],
+    questions: [
+      { id: "q1", label: "Have oil and contaminants been removed before garage floor epoxy coating?" },
+      { id: "q2", label: "Is ventilation sufficient for fumes generated during garage floor epoxy coating?" },
+      { id: "q3", label: "Are edges, upstands and joints detailed correctly during garage floor epoxy coating?" },
+      { id: "q4", label: "Are vehicle movements controlled during and after garage floor epoxy coating?" },
+      { id: "q5", label: "Have curing times been agreed before vehicles are returned after garage floor epoxy coating?" }
+    ]
+  },
+
+  "Rubber flooring installation to gym": {
+    desc: "Rubber flooring installation to a gym involves fitting resilient tiles or rolls that absorb impact and reduce noise. The job includes subfloor preparation, cutting around equipment bases and ensuring joints are tight. Heavy materials and crowded layouts can complicate manual handling.",
+    hazards: ["manual_handling", "slips_trips", "noise_vibration"],
+    questions: [
+      { id: "q1", label: "Have you agreed equipment removal or relocation before rubber flooring installation to gym?" },
+      { id: "q2", label: "Is manual handling of heavy rolls or tiles controlled during rubber flooring installation to gym?" },
+      { id: "q3", label: "Are joints and edges checked to avoid trip hazards after rubber flooring installation to gym?" },
+      { id: "q4", label: "Is dust and noise from preparation managed during rubber flooring installation to gym?" },
+      { id: "q5", label: "Have you agreed reopening times with the client following rubber flooring installation to gym?" }
+    ]
+  },
+
+  "Rubber safety flooring to play area": {
+    desc: "Rubber safety flooring to a play area involves installing wet-pour systems, tiles or mats designed to cushion falls. Work is often outdoors and may involve groundwork, edging and dealing with playground equipment. Weather conditions, curing times and access control around children are key factors.",
+    hazards: ["manual_handling", "environmental_weather", "public_interface", "chemical_coshh"],
+    questions: [
+      { id: "q1", label: "Have you planned exclusion zones to keep children away during rubber safety flooring to play area?" },
+      { id: "q2", label: "Is the base prepared and levels set correctly for rubber safety flooring to play area?" },
+      { id: "q3", label: "Are weather and temperature suitable for mixing and curing during rubber safety flooring to play area?" },
+      { id: "q4", label: "Is manual handling of materials controlled during rubber safety flooring to play area?" },
+      { id: "q5", label: "Are edges and fall zones checked against requirements for rubber safety flooring to play area?" }
+    ]
+  },
+
+  "Sports hall flooring installation": {
+    desc: "Sports hall flooring installation involves fitting timber, vinyl or synthetic sports surfaces over prepared subfloors, often with line markings and impact-resistant underlays. The work usually takes place in large open areas with high ceilings and may involve high volumes of materials. Joint quality, levelness and surface finish are critical.",
+    hazards: ["manual_handling", "slips_trips", "noise_vibration"],
+    questions: [
+      { id: "q1", label: "Have you agreed the specification and line marking layout before sports hall flooring installation?" },
+      { id: "q2", label: "Is the subfloor tested and prepared to the required tolerances for sports hall flooring installation?" },
+      { id: "q3", label: "Are materials and equipment stored safely within the hall during sports hall flooring installation?" },
+      { id: "q4", label: "Is dust and noise controlled during sports hall flooring installation?" },
+      { id: "q5", label: "Will final testing and cleaning be carried out before handover after sports hall flooring installation?" }
+    ]
+  },
+
+  "Sports hall floor line marking and recoating": {
+    desc: "Sports hall floor line marking and recoating involves abrading existing surfaces, applying new line markings and recoating the floor with sealers or finishes. The work generates dust and fumes and is often done out-of-hours. Accurate setting out and curing times are important to obtain a durable and legible finish.",
+    hazards: ["dust_fumes", "noise_vibration", "chemical_coshh"],
+    questions: [
+      { id: "q1", label: "Have you confirmed layout, colours and court markings for sports hall floor line marking and recoating?" },
+      { id: "q2", label: "Is dust extraction adequate during sanding for sports hall floor line marking and recoating?" },
+      { id: "q3", label: "Are fumes from coatings controlled and ventilated during sports hall floor line marking and recoating?" },
+      { id: "q4", label: "Is access to the hall restricted until coatings cure following sports hall floor line marking and recoating?" },
+      { id: "q5", label: "Are waste materials disposed of safely after sports hall floor line marking and recoating?" }
+    ]
+  },
+
+  "Non-slip stair edging and tread installation": {
+    desc: "Non-slip stair edging and tread installation involves fitting proprietary nosings, strips or adhesives to stair treads to improve grip and visibility. Work is carried out on active staircases and may require drilling or bonding. Precise positioning and secure fixing are essential.",
+    hazards: ["work_at_height", "slips_trips", "sharp_objects"],
+    questions: [
+      { id: "q1", label: "Have you planned how to control access during non-slip stair edging and tread installation?" },
+      { id: "q2", label: "Are nosings cut and drilled safely during non-slip stair edging and tread installation?" },
+      { id: "q3", label: "Are adhesives and fixings appropriate for substrates during non-slip stair edging and tread installation?" },
+      { id: "q4", label: "Will contrast and visibility of nosings be checked after non-slip stair edging and tread installation?" },
+      { id: "q5", label: "Is the staircase left clean and free of debris after non-slip stair edging and tread installation?" }
+    ]
+  },
+
+  "Tactile paving and internal tactile tile installation": {
+    desc: "Tactile paving and internal tactile tile installation involves fitting raised stud or ribbed tiles to assist visually impaired users. The work includes precise set-out relative to hazards such as steps and crossings. Fixing must ensure durability without creating new trip hazards.",
+    hazards: ["manual_handling", "slips_trips", "public_interface"],
+    questions: [
+      { id: "q1", label: "Have you confirmed positions and layouts from design for tactile paving and internal tactile tile installation?" },
+      { id: "q2", label: "Is public access controlled during tactile paving and internal tactile tile installation?" },
+      { id: "q3", label: "Are adhesives or fixings suited to the substrate for tactile paving and internal tactile tile installation?" },
+      { id: "q4", label: "Are finished levels checked to avoid lips after tactile paving and internal tactile tile installation?" },
+      { id: "q5", label: "Is the area cleaned and signage removed after tactile paving and internal tactile tile installation?" }
+    ]
+  },
+
+  "Tile backer board installation to floors": {
+    desc: "Tile backer board installation to floors involves fixing cementitious or foam-core boards to provide a stable substrate for tiling, particularly over timber or uneven floors. The work includes cutting boards, fixing with screws or adhesives and treating joints. Correct installation prevents cracking and water damage.",
+    hazards: ["manual_handling", "sharp_objects", "dust_fumes"],
+    questions: [
+      { id: "q1", label: "Have you checked floor structure and deflection before tile backer board installation to floors?" },
+      { id: "q2", label: "Is dust controlled when cutting boards during tile backer board installation to floors?" },
+      { id: "q3", label: "Are fixings and adhesives used to manufacturer instructions for tile backer board installation to floors?" },
+      { id: "q4", label: "Are board joints and transitions detailed correctly during tile backer board installation to floors?" },
+      { id: "q5", label: "Is the surface checked for level and fixity before tiling after tile backer board installation to floors?" }
+    ]
+  },
+
+  "Stone or ceramic floor tiling to kitchen": {
+    desc: "Stone or ceramic floor tiling to a kitchen involves setting out and fixing rigid tiles over a prepared substrate, often around units and appliances. The work requires accurate cuts, appropriate adhesives and grouts, and attention to movement joints. Tiles are often heavy and brittle.",
+    hazards: ["manual_handling", "sharp_objects", "slips_trips", "dust_fumes"],
+    questions: [
+      { id: "q1", label: "Have you agreed tile layout and cuts before stone or ceramic floor tiling to kitchen?" },
+      { id: "q2", label: "Is the substrate suitable and primed for stone or ceramic floor tiling to kitchen?" },
+      { id: "q3", label: "Are cutting operations controlled to manage dust and sharp edges during stone or ceramic floor tiling to kitchen?" },
+      { id: "q4", label: "Are movement joints and perimeter gaps detailed for stone or ceramic floor tiling to kitchen?" },
+      { id: "q5", label: "Have you agreed reoccupation and cleaning instructions after stone or ceramic floor tiling to kitchen?" }
+    ]
+  },
+
+  "Stone or ceramic floor tiling to bathroom": {
+    desc: "Stone or ceramic floor tiling to a bathroom involves tiling in a smaller, often confined space with sanitaryware and drainage considerations. The work includes ensuring suitable falls, slip resistance and watertight joints. Careful coordination is required with plumbing and wall tiling.",
+    hazards: ["manual_handling", "slips_trips", "sharp_objects", "dust_fumes"],
+    questions: [
+      { id: "q1", label: "Have you checked substrate, waterproofing and falls before stone or ceramic floor tiling to bathroom?" },
+      { id: "q2", label: "Is ventilation adequate when cutting and grouting during stone or ceramic floor tiling to bathroom?" },
+      { id: "q3", label: "Are tile edges and trims detailed safely for stone or ceramic floor tiling to bathroom?" },
+      { id: "q4", label: "Will you test drainage and water-tightness after stone or ceramic floor tiling to bathroom?" },
+      { id: "q5", label: "Is waste tile and grout disposed of safely during stone or ceramic floor tiling to bathroom?" }
+    ]
+  },
+
+  "Removal and disposal of existing floor coverings": {
+    desc: "Removal and disposal of existing floor coverings involves uplifting carpets, vinyl, tiles or timber finishes and managing the associated waste. The work can expose staples, nails, adhesives and dust, and may reveal damaged subfloors or hidden services. Safe lifting and segregation of waste streams is important.",
+    hazards: ["manual_handling", "slips_trips", "sharp_objects", "dust_fumes"],
+    questions: [
+      { id: "q1", label: "Have you checked for potential hazardous materials before removal and disposal of existing floor coverings?" },
+      { id: "q2", label: "Are sharp fixings and edging strips controlled during removal and disposal of existing floor coverings?" },
+      { id: "q3", label: "Is dust and debris contained and cleaned during removal and disposal of existing floor coverings?" },
+      { id: "q4", label: "Is manual handling of rolled carpets and waste controlled during removal and disposal of existing floor coverings?" },
+      { id: "q5", label: "Are waste streams correctly segregated and disposed of during removal and disposal of existing floor coverings?" }
+    ]
+  },
+
+  "Floor tile uplift and adhesive removal": {
+    desc: "Floor tile uplift and adhesive removal involves breaking out rigid tiles and removing residual adhesive to leave a clean subfloor. The work generates noise, vibration and dust, and may require mechanical breakers or grinders. Substrate damage must be avoided or repaired.",
+    hazards: ["noise_vibration", "dust_fumes", "manual_handling", "sharp_objects"],
+    questions: [
+      { id: "q1", label: "Have you assessed tools and method for floor tile uplift and adhesive removal to minimise damage?" },
+      { id: "q2", label: "Is dust extraction and respiratory protection in place for floor tile uplift and adhesive removal?" },
+      { id: "q3", label: "Are hearing and vibration risks controlled during floor tile uplift and adhesive removal?" },
+      { id: "q4", label: "Are loose fragments and sharp debris cleared promptly during floor tile uplift and adhesive removal?" },
+      { id: "q5", label: "Is the substrate inspected and repaired as needed after floor tile uplift and adhesive removal?" }
+    ]
+  },
+
+  "Concrete grinding and surface preparation": {
+    desc: "Concrete grinding and surface preparation involves using mechanical grinders or planers to abrade concrete surfaces and remove coatings or high spots. The task generates high levels of dust and noise and requires effective extraction and hearing protection. Work is often done in open or industrial environments.",
+    hazards: ["dust_fumes", "noise_vibration", "plant_machinery", "manual_handling"],
+    questions: [
+      { id: "q1", label: "Is dust extraction suitable and correctly connected for concrete grinding and surface preparation?" },
+      { id: "q2", label: "Are hearing protection and vibration controls in place for concrete grinding and surface preparation?" },
+      { id: "q3", label: "Is the working area segregated and signed during concrete grinding and surface preparation?" },
+      { id: "q4", label: "Are cables and hoses managed to avoid trips during concrete grinding and surface preparation?" },
+      { id: "q5", label: "Will the finished surface be checked against specification after concrete grinding and surface preparation?" }
+    ]
+  },
+
+  "Making good floor penetrations and service openings": {
+    desc: "Making good floor penetrations and service openings involves infilling or sealing around new or redundant service penetrations in floors. The work may be linked to fire-stopping, acoustic control or structural repair. Correct materials and detailing are needed to restore performance.",
+    hazards: ["manual_handling", "dust_fumes", "slips_trips"],
+    questions: [
+      { id: "q1", label: "Have you identified fire, acoustic and structural requirements before making good floor penetrations and service openings?" },
+      { id: "q2", label: "Are appropriate materials and systems selected for making good floor penetrations and service openings?" },
+      { id: "q3", label: "Is dust and waste controlled while making good floor penetrations and service openings?" },
+      { id: "q4", label: "Are openings guarded or covered safely during making good floor penetrations and service openings?" },
+      { id: "q5", label: "Will the finished area be inspected and documented after making good floor penetrations and service openings?" }
+    ]
+  },
+
+  "Small patch flooring repairs and snagging": {
+    desc: "Small patch flooring repairs and snagging involves localised corrections such as filling, replacing tiles, re-fixing trims or addressing minor defects. Work is often carried out in live environments with occupants present. Good housekeeping is essential to avoid trips and contamination.",
+    hazards: ["slips_trips", "manual_handling", "public_interface"],
+    questions: [
+      { id: "q1", label: "Have you agreed locations and access times for small patch flooring repairs and snagging?" },
+      { id: "q2", label: "Are tools and materials kept under tight control during small patch flooring repairs and snagging?" },
+      { id: "q3", label: "Are repaired areas blended and level to prevent trips after small patch flooring repairs and snagging?" },
+      { id: "q4", label: "Is waste promptly removed during small patch flooring repairs and snagging?" },
+      { id: "q5", label: "Have you communicated with occupants before and after small patch flooring repairs and snagging?" }
+    ]
+  },
+
+  "Floor protection installation during refurbishment": {
+    desc: "Floor protection installation during refurbishment involves laying temporary protection such as boards, films or sheets over finished floors. The aim is to prevent damage from subsequent trades while maintaining safe access. Incorrect installation can create slip and trip hazards.",
+    hazards: ["slips_trips", "manual_handling"],
+    questions: [
+      { id: "q1", label: "Have you checked compatibility of protection materials before floor protection installation during refurbishment?" },
+      { id: "q2", label: "Are joints and edges secured to avoid trip hazards during floor protection installation during refurbishment?" },
+      { id: "q3", label: "Is access for occupants and trades considered during floor protection installation during refurbishment?" },
+      { id: "q4", label: "Is manual handling of boards and rolls controlled for floor protection installation during refurbishment?" },
+      { id: "q5", label: "Have you agreed when protection will be removed after floor protection installation during refurbishment?" }
+    ]
+  },
+
+  "Out-of-hours flooring works in live premises": {
+    desc: "Out-of-hours flooring works in live premises involve carrying out flooring tasks when buildings are closed to minimise disruption. The work may include late-night access, security coordination and working under time pressure. Extra care is needed around lone working, lighting and alarm systems.",
+    hazards: ["lone_working", "slips_trips", "poor_lighting"],
+    questions: [
+      { id: "q1", label: "Have you put in place check-in procedures for out-of-hours flooring works in live premises?" },
+      { id: "q2", label: "Is temporary lighting adequate for out-of-hours flooring works in live premises?" },
+      { id: "q3", label: "Are security and alarm arrangements agreed for out-of-hours flooring works in live premises?" },
+      { id: "q4", label: "Are escape routes and exits checked and kept clear during out-of-hours flooring works in live premises?" },
+      { id: "q5", label: "Is the site left secure after completing out-of-hours flooring works in live premises?" }
+    ]
+  },
+
+  "Flooring works in occupied dwelling with residents in situ": {
+    desc: "Flooring works in an occupied dwelling with residents in situ covers any flooring activity undertaken while people continue living in the property. Work is phased and coordinated around daily routines, safeguarding vulnerable persons and maintaining hygiene. Communication and housekeeping are critical.",
+    hazards: ["slips_trips", "manual_handling", "public_interface"],
+    questions: [
+      { id: "q1", label: "Have you agreed a detailed schedule for flooring works in occupied dwelling with residents in situ?" },
+      { id: "q2", label: "Are vulnerable residents, children and pets safeguarded during flooring works in occupied dwelling with residents in situ?" },
+      { id: "q3", label: "Are tools and materials kept secure when unattended during flooring works in occupied dwelling with residents in situ?" },
+      { id: "q4", label: "Is housekeeping maintained to avoid slips and trips during flooring works in occupied dwelling with residents in situ?" },
+      { id: "q5", label: "Have you explained noise, dust and access implications to the household for flooring works in occupied dwelling with residents in situ?" }
+    ]
+  },
+
+  "Flooring works in healthcare environment": {
+    desc: "Flooring works in a healthcare environment involve installing or repairing floors in hospitals, clinics or care settings. The work must account for infection control, vulnerable patients, clinical traffic and specialised cleaning regimes. Close coordination with clinical staff is necessary.",
+    hazards: ["slips_trips", "biological", "public_interface", "chemical_coshh"],
+    questions: [
+      { id: "q1", label: "Have infection control requirements been agreed before flooring works in healthcare environment?" },
+      { id: "q2", label: "Are patient routes and emergency access maintained during flooring works in healthcare environment?" },
+      { id: "q3", label: "Are adhesives and chemicals suitable and controlled for flooring works in healthcare environment?" },
+      { id: "q4", label: "Are dust, noise and odours minimised during flooring works in healthcare environment?" },
+      { id: "q5", label: "Have cleaning and handover procedures been agreed following flooring works in healthcare environment?" }
+    ]
+  },
+
+  "Flooring works in education environment": {
+    desc: "Flooring works in an education environment involve working in schools, colleges or nurseries, often around pupils and staff. Work is typically scheduled out-of-term or out-of-hours, but safeguarding, noise and access control remain critical. Surfaces must be robust and easy to clean.",
+    hazards: ["slips_trips", "public_interface", "manual_handling"],
+    questions: [
+      { id: "q1", label: "Have term dates and safe working times been agreed for flooring works in education environment?" },
+      { id: "q2", label: "Is pupil and staff access controlled around work areas during flooring works in education environment?" },
+      { id: "q3", label: "Are materials and tools secured when not attended during flooring works in education environment?" },
+      { id: "q4", label: "Is housekeeping maintained to avoid slips and trips during flooring works in education environment?" },
+      { id: "q5", label: "Have you agreed durability and cleaning expectations with the client for flooring works in education environment?" }
+    ]
+  },
+
+  "Other (Custom)": {
+    desc: "",
+    hazards: [],
+    questions: [
+      { id: "q1", label: "Have you identified all specific hazards associated with this custom flooring task (including manual handling, dust, chemicals and work in occupied areas)?" },
+      { id: "q2", label: "Is the subfloor condition, moisture level and structural integrity verified for this custom flooring task?" },
+      { id: "q3", label: "Have you planned how access, escape routes and housekeeping will be maintained safely during this custom flooring task?" },
+      { id: "q4", label: "Do you have the correct materials, tools, PPE and ventilation arrangements in place for this custom flooring task?" },
+      { id: "q5", label: "Have you agreed the scope, working hours and controls with the client or building management for this custom flooring task?" }
+    ]
+  }
+};
+
+// ==========================================
 // MASTER TRADE REGISTRY
 // ==========================================
 
@@ -6818,5 +7424,9 @@ export const TRADES: Record<
   "Painter & Decorator": {
     jobs: Object.keys(PAINTER_DECORATOR_CLUSTERS).map((name) => ({ name })),
     clusters: PAINTER_DECORATOR_CLUSTERS,
+  },
+  "Flooring Contractor": {
+    jobs: Object.keys(FLOORING_CONTRACTOR_CLUSTERS).map((name) => ({ name })),
+    clusters: FLOORING_CONTRACTOR_CLUSTERS,
   },
 };
