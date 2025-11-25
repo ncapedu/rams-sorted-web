@@ -7374,6 +7374,1216 @@ const FLOORING_CONTRACTOR_CLUSTERS: Record<string, JobCluster> = {
 };
 
 // ==========================================
+//  FACILITIES MAINTENANCE CLUSTERS
+// ==========================================
+const FACILITIES_MAINTENANCE_CLUSTERS: Record<string, JobCluster> = {
+  "Reactive maintenance call-out – minor repairs": {
+    desc: "Reactive maintenance call-out – minor repairs covers small jobs raised via helpdesk or client, such as adjusting doors, tightening fittings or dealing with minor leaks. Works are usually short duration, varied in nature and often in occupied areas.",
+    hazards: ["slips_trips", "manual_handling", "public_interface", "poor_lighting"],
+    questions: [
+      { id: "q1", label: "Have you reviewed the job description before starting the reactive maintenance call-out – minor repairs?" },
+      { id: "q2", label: "Do you have the correct tools and materials for the reactive maintenance call-out – minor repairs?" },
+      { id: "q3", label: "Have you assessed the work area for immediate hazards before starting the reactive maintenance call-out – minor repairs?" },
+      { id: "q4", label: "Are building users aware of your presence during the reactive maintenance call-out – minor repairs?" },
+      { id: "q5", label: "Have you planned how to leave the area safe on completion of the reactive maintenance call-out – minor repairs?" }
+    ]
+  },
+
+  "Reactive maintenance call-out – make safe only": {
+    desc: "Reactive maintenance call-out – make safe only involves attending unsafe situations and carrying out temporary actions to remove immediate risk, such as isolating services, fencing off areas or securing loose materials.",
+    hazards: ["slips_trips", "electrical", "water_ingress", "public_interface"],
+    questions: [
+      { id: "q1", label: "Have you identified and prioritised immediate risks for the reactive maintenance call-out – make safe only?" },
+      { id: "q2", label: "Are you competent to isolate any relevant services during the reactive maintenance call-out – make safe only?" },
+      { id: "q3", label: "Do you have suitable barriers or signage to use during the reactive maintenance call-out – make safe only?" },
+      { id: "q4", label: "Have you notified the client of any residual risks remaining after the reactive maintenance call-out – make safe only?" },
+      { id: "q5", label: "Is follow-up work clearly recorded after the reactive maintenance call-out – make safe only?" }
+    ]
+  },
+
+  "Planned preventative maintenance visit (PPM general)": {
+    desc: "Planned preventative maintenance visit (PPM general) covers scheduled inspections and basic maintenance tasks as per asset registers and PPM plans, such as lubrication, tightening fixings and visual checks.",
+    hazards: ["manual_handling", "slips_trips", "poor_lighting"],
+    questions: [
+      { id: "q1", label: "Have you reviewed the PPM schedule before the planned preventative maintenance visit (PPM general)?" },
+      { id: "q2", label: "Are all required tools, parts and paperwork available for the planned preventative maintenance visit (PPM general)?" },
+      { id: "q3", label: "Have you checked access routes are safe for the planned preventative maintenance visit (PPM general)?" },
+      { id: "q4", label: "Are you recording all findings during the planned preventative maintenance visit (PPM general)?" },
+      { id: "q5", label: "Have any defects found during the planned preventative maintenance visit (PPM general) been escalated properly?" }
+    ]
+  },
+
+  "Emergency call-out – out of hours": {
+    desc: "Emergency call-out – out of hours involves responding to urgent issues outside normal working hours, often with reduced site support. Tasks may include leaks, power loss or security issues.",
+    hazards: ["poor_lighting", "lone_working", "security_risk", "slips_trips"],
+    questions: [
+      { id: "q1", label: "Do you have clear instructions and contact details for the emergency call-out – out of hours?" },
+      { id: "q2", label: "Is the site safe to enter when attending the emergency call-out – out of hours?" },
+      { id: "q3", label: "Is a lone working or check-in procedure in place for the emergency call-out – out of hours?" },
+      { id: "q4", label: "Have you identified any immediate life-safety issues during the emergency call-out – out of hours?" },
+      { id: "q5", label: "Have you updated the client or helpdesk with the outcome of the emergency call-out – out of hours?" }
+    ]
+  },
+
+  "Statutory fire alarm weekly testing": {
+    desc: "Statutory fire alarm weekly testing involves activating call points in rotation, confirming sounders operate, recording results and resetting the system in line with current standards and site procedures.",
+    hazards: ["noise_vibration", "public_interface", "work_at_height"],
+    questions: [
+      { id: "q1", label: "Has the building been notified in advance of the statutory fire alarm weekly testing?" },
+      { id: "q2", label: "Are you familiar with the fire alarm panel and procedures for statutory fire alarm weekly testing?" },
+      { id: "q3", label: "Is access to call points for statutory fire alarm weekly testing safe and clear?" },
+      { id: "q4", label: "Are results recorded during the statutory fire alarm weekly testing?" },
+      { id: "q5", label: "Have you confirmed all zones have reset correctly after the statutory fire alarm weekly testing?" }
+    ]
+  },
+
+  "Statutory emergency lighting testing": {
+    desc: "Statutory emergency lighting testing covers monthly or annual functional and duration tests of emergency fittings, including isolating supplies, checking operation and recording outcomes in the logbook.",
+    hazards: ["poor_lighting", "work_at_height", "electrical"],
+    questions: [
+      { id: "q1", label: "Are you familiar with the test procedures for statutory emergency lighting testing?" },
+      { id: "q2", label: "Is safe access available to fittings during statutory emergency lighting testing?" },
+      { id: "q3", label: "Are lighting levels acceptable during and after statutory emergency lighting testing?" },
+      { id: "q4", label: "Are all results of statutory emergency lighting testing recorded in the logbook?" },
+      { id: "q5", label: "Have defective fittings identified during statutory emergency lighting testing been reported or tagged?" }
+    ]
+  },
+
+  "Portable appliance testing (PAT)": {
+    desc: "Portable appliance testing (PAT) involves inspecting and electrically testing portable electrical equipment, applying labels and recording results in line with relevant guidance.",
+    hazards: ["electrical", "manual_handling", "slips_trips"],
+    questions: [
+      { id: "q1", label: "Are you trained and competent to undertake portable appliance testing (PAT)?" },
+      { id: "q2", label: "Is the PAT equipment calibrated and suitable for portable appliance testing (PAT)?" },
+      { id: "q3", label: "Are cables and leads managed to avoid trip hazards during portable appliance testing (PAT)?" },
+      { id: "q4", label: "Are failed items from portable appliance testing (PAT) clearly labelled and removed from service?" },
+      { id: "q5", label: "Are PAT records updated promptly after portable appliance testing (PAT)?" }
+    ]
+  },
+
+  "Fixed wire test support – access & making safe": {
+    desc: "Fixed wire test support – access and making safe includes providing access, removing and refitting fittings and making good minor works for external test engineers during periodic inspection and testing.",
+    hazards: ["work_at_height", "manual_handling", "electrical"],
+    questions: [
+      { id: "q1", label: "Have you agreed roles and responsibilities for fixed wire test support – access & making safe?" },
+      { id: "q2", label: "Is safe access in place before starting fixed wire test support – access & making safe?" },
+      { id: "q3", label: "Are all circuits isolated as required before fixed wire test support – access & making safe?" },
+      { id: "q4", label: "Is communication clear between you and the test engineer during fixed wire test support – access & making safe?" },
+      { id: "q5", label: "Is any making good identified from fixed wire test support – access & making safe recorded for follow-up?" }
+    ]
+  },
+
+  "Water hygiene – flushing little-used outlets": {
+    desc: "Water hygiene – flushing little-used outlets involves running taps and showers on a flushing regime to minimise stagnation and control Legionella risk, in line with site water hygiene plans.",
+    hazards: ["water_ingress", "biological", "slips_trips"],
+    questions: [
+      { id: "q1", label: "Have you reviewed the water hygiene schedule for flushing little-used outlets?" },
+      { id: "q2", label: "Are outlet locations for flushing little-used outlets clearly identified?" },
+      { id: "q3", label: "Are you controlling spray and splashing when flushing little-used outlets?" },
+      { id: "q4", label: "Are flush times and temperatures recorded during water hygiene – flushing little-used outlets?" },
+      { id: "q5", label: "Are areas kept dry and safe after water hygiene – flushing little-used outlets?" }
+    ]
+  },
+
+  "Water hygiene – temperature monitoring rounds": {
+    desc: "Water hygiene – temperature monitoring rounds cover taking and recording water temperatures at sentinel points, calorifiers and other outlets to monitor Legionella control.",
+    hazards: ["water_ingress", "biological", "manual_handling"],
+    questions: [
+      { id: "q1", label: "Do you have the correct equipment for water hygiene – temperature monitoring rounds?" },
+      { id: "q2", label: "Are temperature points for water hygiene – temperature monitoring rounds clearly identified?" },
+      { id: "q3", label: "Are readings for water hygiene – temperature monitoring rounds recorded accurately?" },
+      { id: "q4", label: "Are any abnormal readings from water hygiene – temperature monitoring rounds escalated immediately?" },
+      { id: "q5", label: "Are safe access and surfaces considered during water hygiene – temperature monitoring rounds?" }
+    ]
+  },
+
+  "Water hygiene – simple remedial works": {
+    desc: "Water hygiene – simple remedial works includes low-risk tasks such as cleaning shower heads, removing dead legs and adjusting blending valves under guidance from a competent water hygiene specialist.",
+    hazards: ["biological", "chemical_coshh", "manual_handling"],
+    questions: [
+      { id: "q1", label: "Have you received clear instructions for water hygiene – simple remedial works?" },
+      { id: "q2", label: "Are you using suitable PPE for water hygiene – simple remedial works?" },
+      { id: "q3", label: "Are chemicals for water hygiene – simple remedial works used in line with COSHH data?" },
+      { id: "q4", label: "Is waste from water hygiene – simple remedial works disposed of appropriately?" },
+      { id: "q5", label: "Are completed water hygiene – simple remedial works recorded in the logbook?" }
+    ]
+  },
+
+  "Air conditioning filter and grille cleaning": {
+    desc: "Air conditioning filter and grille cleaning involves removing, cleaning or replacing filters and cleaning supply and return grilles in occupied buildings to maintain air quality and system efficiency.",
+    hazards: ["dust_fumes", "work_at_height", "manual_handling"],
+    questions: [
+      { id: "q1", label: "Is the system safely isolated where needed for air conditioning filter and grille cleaning?" },
+      { id: "q2", label: "Is safe access in place for high-level air conditioning filter and grille cleaning?" },
+      { id: "q3", label: "Are filters handled and cleaned for air conditioning filter and grille cleaning without spreading dust?" },
+      { id: "q4", label: "Are used filters from air conditioning filter and grille cleaning disposed of correctly?" },
+      { id: "q5", label: "Have you reinstated panels and covers securely after air conditioning filter and grille cleaning?" }
+    ]
+  },
+
+  "Fan coil unit inspection and filter change": {
+    desc: "Fan coil unit inspection and filter change includes opening units, inspecting coils and drains, replacing filters and checking operation in line with maintenance schedules.",
+    hazards: ["work_at_height", "dust_fumes", "manual_handling"],
+    questions: [
+      { id: "q1", label: "Are isolation procedures followed for fan coil unit inspection and filter change?" },
+      { id: "q2", label: "Is access to fan coil units safe and free from obstructions for inspection and filter change?" },
+      { id: "q3", label: "Are filters for fan coil unit inspection and filter change correctly sized and specified?" },
+      { id: "q4", label: "Are pans and drains checked for cleanliness during fan coil unit inspection and filter change?" },
+      { id: "q5", label: "Are covers refitted securely after fan coil unit inspection and filter change?" }
+    ]
+  },
+
+  "Boiler plant visual checks (non-intrusive)": {
+    desc: "Boiler plant visual checks (non-intrusive) cover basic visual inspections of boiler and plant rooms without removing covers or working inside live plant, checking for leaks, unusual noises and general condition.",
+    hazards: ["poor_lighting", "hot_surfaces", "slips_trips"],
+    questions: [
+      { id: "q1", label: "Are you aware of plant room access rules before boiler plant visual checks (non-intrusive)?" },
+      { id: "q2", label: "Is the environment safe (ventilation, lighting) for boiler plant visual checks (non-intrusive)?" },
+      { id: "q3", label: "Are any obvious leaks or defects recorded during boiler plant visual checks (non-intrusive)?" },
+      { id: "q4", label: "Are you staying outside guards and enclosures during boiler plant visual checks (non-intrusive)?" },
+      { id: "q5", label: "Have you reported significant issues found during boiler plant visual checks (non-intrusive)?" }
+    ]
+  },
+
+  "Plant room housekeeping and checks": {
+    desc: "Plant room housekeeping and checks involve tidying, clearing obstructions, checking signage and ensuring safe access routes around plant and equipment.",
+    hazards: ["slips_trips", "manual_handling", "poor_lighting"],
+    questions: [
+      { id: "q1", label: "Have you identified and removed trip hazards during plant room housekeeping and checks?" },
+      { id: "q2", label: "Are materials stored correctly during plant room housekeeping and checks?" },
+      { id: "q3", label: "Are access routes to plant and valves clear after plant room housekeeping and checks?" },
+      { id: "q4", label: "Are safety signs present and legible following plant room housekeeping and checks?" },
+      { id: "q5", label: "Have you recorded any outstanding issues from plant room housekeeping and checks?" }
+    ]
+  },
+
+  "Pump and valve inspection rounds": {
+    desc: "Pump and valve inspection rounds consist of routine walkrounds to check pumps, valves and associated equipment for leaks, noise, temperature and unusual vibration.",
+    hazards: ["hot_surfaces", "manual_handling", "slips_trips"],
+    questions: [
+      { id: "q1", label: "Are pump and valve inspection routes planned and known?" },
+      { id: "q2", label: "Are you keeping clear of rotating parts during pump and valve inspection rounds?" },
+      { id: "q3", label: "Are leaks or unusual noises identified during pump and valve inspection rounds recorded?" },
+      { id: "q4", label: "Are access routes safe during pump and valve inspection rounds?" },
+      { id: "q5", label: "Have you escalated any urgent defects from pump and valve inspection rounds?" }
+    ]
+  },
+
+  "Building fabric checks and inspection walkround": {
+    desc: "Building fabric checks and inspection walkround involves visually inspecting walls, ceilings, floors, doors and external elements for defects, damage or deterioration, and recording findings.",
+    hazards: ["slips_trips", "work_at_height", "public_interface"],
+    questions: [
+      { id: "q1", label: "Have you defined the route for the building fabric checks and inspection walkround?" },
+      { id: "q2", label: "Are high-level areas for the building fabric checks and inspection walkround accessed safely?" },
+      { id: "q3", label: "Are defects found during the building fabric checks and inspection walkround recorded with enough detail?" },
+      { id: "q4", label: "Are occupants informed if any immediate risks are identified during the building fabric checks and inspection walkround?" },
+      { id: "q5", label: "Have you raised any follow-up tasks from the building fabric checks and inspection walkround?" }
+    ]
+  },
+
+  "Internal door and ironmongery repairs": {
+    desc: "Internal door and ironmongery repairs cover adjustment, repair or replacement of hinges, locks, latches, closers and handles on internal doors to maintain safe operation and fire compartmentation.",
+    hazards: ["manual_handling", "sharp_objects", "slips_trips"],
+    questions: [
+      { id: "q1", label: "Have you checked whether the door is a fire door before internal door and ironmongery repairs?" },
+      { id: "q2", label: "Are you using the correct fixings and components for internal door and ironmongery repairs?" },
+      { id: "q3", label: "Is the door adequately supported during internal door and ironmongery repairs?" },
+      { id: "q4", label: "Are work areas kept clear of tools and offcuts during internal door and ironmongery repairs?" },
+      { id: "q5", label: "Have you confirmed correct operation after internal door and ironmongery repairs?" }
+    ]
+  },
+
+  "Fire door inspections and minor adjustments": {
+    desc: "Fire door inspections and minor adjustments involve checking door condition, gaps, seals, closers and ironmongery, carrying out minor remedial works to maintain fire performance and recording findings.",
+    hazards: ["manual_handling", "slips_trips"],
+    questions: [
+      { id: "q1", label: "Are you competent to carry out fire door inspections and minor adjustments?" },
+      { id: "q2", label: "Are inspection findings from fire door inspections and minor adjustments properly recorded?" },
+      { id: "q3", label: "Are gaps, seals and closers checked thoroughly during fire door inspections and minor adjustments?" },
+      { id: "q4", label: "Are any non-minor issues found during fire door inspections and minor adjustments escalated?" },
+      { id: "q5", label: "Have you confirmed fire doors close fully after fire door inspections and minor adjustments?" }
+    ]
+  },
+
+  "Ceiling tile replacement and grid repairs": {
+    desc: "Ceiling tile replacement and grid repairs include accessing suspended ceilings, replacing damaged tiles and making minor adjustments or repairs to the grid system, usually using steps or podiums.",
+    hazards: ["work_at_height", "manual_handling", "dust_fumes"],
+    questions: [
+      { id: "q1", label: "Is safe access provided for ceiling tile replacement and grid repairs?" },
+      { id: "q2", label: "Are tiles handled carefully during ceiling tile replacement and grid repairs to avoid breakage and dust?" },
+      { id: "q3", label: "Are services above the ceiling checked for safety before ceiling tile replacement and grid repairs?" },
+      { id: "q4", label: "Are removed tiles and waste from ceiling tile replacement and grid repairs cleared promptly?" },
+      { id: "q5", label: "Have you checked the ceiling grid is stable after ceiling tile replacement and grid repairs?" }
+    ]
+  },
+
+  "Flooring patch repairs – carpet tiles": {
+    desc: "Flooring patch repairs – carpet tiles cover lifting and replacing damaged or stained carpet tiles, cutting and fitting new tiles to match existing layouts and patterns.",
+    hazards: ["manual_handling", "slips_trips", "sharp_objects"],
+    questions: [
+      { id: "q1", label: "Are work areas cordoned off during flooring patch repairs – carpet tiles?" },
+      { id: "q2", label: "Are knives used safely when cutting tiles for flooring patch repairs – carpet tiles?" },
+      { id: "q3", label: "Are loose tiles and offcuts removed promptly during flooring patch repairs – carpet tiles?" },
+      { id: "q4", label: "Are new tiles fixed securely during flooring patch repairs – carpet tiles?" },
+      { id: "q5", label: "Have you checked level and trip risk after flooring patch repairs – carpet tiles?" }
+    ]
+  },
+
+  "Flooring patch repairs – vinyl / safety floor": {
+    desc: "Flooring patch repairs – vinyl / safety floor include cutting out damaged sections, preparing the substrate and fitting new vinyl or safety flooring patches using appropriate adhesives.",
+    hazards: ["sharp_objects", "chemical_coshh", "slips_trips"],
+    questions: [
+      { id: "q1", label: "Are cutting tools managed safely during flooring patch repairs – vinyl / safety floor?" },
+      { id: "q2", label: "Are suitable adhesives used during flooring patch repairs – vinyl / safety floor in line with COSHH?" },
+      { id: "q3", label: "Are edge transitions smooth after flooring patch repairs – vinyl / safety floor?" },
+      { id: "q4", label: "Are work areas restricted until flooring patch repairs – vinyl / safety floor have cured?" },
+      { id: "q5", label: "Is waste from flooring patch repairs – vinyl / safety floor disposed of properly?" }
+    ]
+  },
+
+  "Toilet and washroom fixture repairs": {
+    desc: "Toilet and washroom fixture repairs include fixing or replacing taps, flush mechanisms, seats, dispensers and other fittings in WCs and washrooms to keep them functional and safe.",
+    hazards: ["water_ingress", "biological", "manual_handling"],
+    questions: [
+      { id: "q1", label: "Have you isolated water supplies where needed for toilet and washroom fixture repairs?" },
+      { id: "q2", label: "Are you using gloves and hygiene precautions during toilet and washroom fixture repairs?" },
+      { id: "q3", label: "Are replaced fixtures in toilet and washroom fixture repairs securely fixed and leak-free?" },
+      { id: "q4", label: "Are floors kept dry after toilet and washroom fixture repairs?" },
+      { id: "q5", label: "Have you confirmed operation with the client after toilet and washroom fixture repairs?" }
+    ]
+  },
+
+  "Blocked waste and simple drain clearance": {
+    desc: "Blocked waste and simple drain clearance covers low-risk unblocking of basins, sinks and small drains using plungers, basic tools or mild chemicals, without confined space entry.",
+    hazards: ["biological", "chemical_coshh", "slips_trips"],
+    questions: [
+      { id: "q1", label: "Have you assessed risks before blocked waste and simple drain clearance?" },
+      { id: "q2", label: "Are chemicals used in blocked waste and simple drain clearance handled in line with COSHH?" },
+      { id: "q3", label: "Are you wearing appropriate PPE for blocked waste and simple drain clearance?" },
+      { id: "q4", label: "Are areas cleaned and dried after blocked waste and simple drain clearance?" },
+      { id: "q5", label: "Have you reported any recurring issues found during blocked waste and simple drain clearance?" }
+    ]
+  },
+
+  "Roof access for visual checks (flat roof)": {
+    desc: "Roof access for visual checks (flat roof) involves safely accessing flat roofs to visually inspect coverings, outlets and plant, without intrusive works, and recording condition.",
+    hazards: ["work_at_height", "environmental_weather", "slips_trips"],
+    questions: [
+      { id: "q1", label: "Is roof access for visual checks (flat roof) authorised and controlled?" },
+      { id: "q2", label: "Are edge protection and fall risks considered for roof access for visual checks (flat roof)?" },
+      { id: "q3", label: "Are weather conditions suitable for roof access for visual checks (flat roof)?" },
+      { id: "q4", label: "Are roof outlets and penetrations checked during roof access for visual checks (flat roof)?" },
+      { id: "q5", label: "Have you recorded findings from roof access for visual checks (flat roof)?" }
+    ]
+  },
+
+  "Gutter and downpipe clearance (low level)": {
+    desc: "Gutter and downpipe clearance (low level) includes clearing leaves and debris from accessible gutters and downpipes using steps or towers where appropriate.",
+    hazards: ["work_at_height", "manual_handling", "water_ingress"],
+    questions: [
+      { id: "q1", label: "Is access equipment safe for gutter and downpipe clearance (low level)?" },
+      { id: "q2", label: "Are you avoiding overreaching during gutter and downpipe clearance (low level)?" },
+      { id: "q3", label: "Is debris from gutter and downpipe clearance (low level) collected and disposed of safely?" },
+      { id: "q4", label: "Have you checked outlets run clear after gutter and downpipe clearance (low level)?" },
+      { id: "q5", label: "Have you inspected for any damage during gutter and downpipe clearance (low level)?" }
+    ]
+  },
+
+  "External lighting lamp replacements": {
+    desc: "External lighting lamp replacements involve changing lamps and simple components in external fittings around buildings, often using steps, towers or small MEWPs.",
+    hazards: ["work_at_height", "electrical", "environmental_weather"],
+    questions: [
+      { id: "q1", label: "Have you isolated supplies where required for external lighting lamp replacements?" },
+      { id: "q2", label: "Is access safe for external lighting lamp replacements, considering ground conditions?" },
+      { id: "q3", label: "Are correct lamps and parts used during external lighting lamp replacements?" },
+      { id: "q4", label: "Are glass and waste from external lighting lamp replacements disposed of safely?" },
+      { id: "q5", label: "Have you tested operation after external lighting lamp replacements?" }
+    ]
+  },
+
+  "Internal lighting lamp and diffuser changes": {
+    desc: "Internal lighting lamp and diffuser changes cover replacement of lamps and cleaning or refitting of diffusers within internal light fittings, typically using steps or podiums.",
+    hazards: ["work_at_height", "manual_handling", "sharp_objects"],
+    questions: [
+      { id: "q1", label: "Is access equipment secure for internal lighting lamp and diffuser changes?" },
+      { id: "q2", label: "Are lamps allowed to cool before internal lighting lamp and diffuser changes?" },
+      { id: "q3", label: "Are diffusers handled carefully during internal lighting lamp and diffuser changes to prevent breakage?" },
+      { id: "q4", label: "Is broken glass from internal lighting lamp and diffuser changes cleared immediately?" },
+      { id: "q5", label: "Have you tested fittings after internal lighting lamp and diffuser changes?" }
+    ]
+  },
+
+  "Lamp replacements using steps or podiums": {
+    desc: "Lamp replacements using steps or podiums focuses on repeat lamp change tasks where access is through portable steps or podiums, often in circulation areas.",
+    hazards: ["work_at_height", "slips_trips", "public_interface"],
+    questions: [
+      { id: "q1", label: "Is the steps or podium inspected before lamp replacements using steps or podiums?" },
+      { id: "q2", label: "Is the steps or podium positioned on level ground for lamp replacements using steps or podiums?" },
+      { id: "q3", label: "Are public areas controlled during lamp replacements using steps or podiums?" },
+      { id: "q4", label: "Are you avoiding overreach during lamp replacements using steps or podiums?" },
+      { id: "q5", label: "Have you moved tools and materials away from walkways after lamp replacements using steps or podiums?" }
+    ]
+  },
+
+  "Small power and accessory checks (visual)": {
+    desc: "Small power and accessory checks (visual) involve visually checking sockets, switches and accessories for damage, overheating or signs of misuse, without intrusive electrical work.",
+    hazards: ["electrical", "public_interface"],
+    questions: [
+      { id: "q1", label: "Are you aware of limits to your role during small power and accessory checks (visual)?" },
+      { id: "q2", label: "Are damaged items identified during small power and accessory checks (visual) taken out of service?" },
+      { id: "q3", label: "Are records kept of issues found during small power and accessory checks (visual)?" },
+      { id: "q4", label: "Are occupants informed about any isolated points from small power and accessory checks (visual)?" },
+      { id: "q5", label: "Are you avoiding work on live parts during small power and accessory checks (visual)?" }
+    ]
+  },
+
+  "Minor redecoration and touch-up works": {
+    desc: "Minor redecoration and touch-up works include small-scale painting and making good to walls, woodwork and trims following repairs or general wear.",
+    hazards: ["dust_fumes", "slips_trips", "public_interface"],
+    questions: [
+      { id: "q1", label: "Are work areas protected before minor redecoration and touch-up works?" },
+      { id: "q2", label: "Is ventilation adequate during minor redecoration and touch-up works?" },
+      { id: "q3", label: "Are wet paint areas clearly identified during minor redecoration and touch-up works?" },
+      { id: "q4", label: "Is waste paint from minor redecoration and touch-up works disposed of properly?" },
+      { id: "q5", label: "Have you left the area clean and safe after minor redecoration and touch-up works?" }
+    ]
+  },
+
+  "Suspended ceiling access for inspections": {
+    desc: "Suspended ceiling access for inspections involves lifting ceiling tiles or hatches to allow inspection of services, with care taken not to damage tiles or disturb dust unnecessarily.",
+    hazards: ["work_at_height", "dust_fumes", "manual_handling"],
+    questions: [
+      { id: "q1", label: "Is access equipment safe for suspended ceiling access for inspections?" },
+      { id: "q2", label: "Are tiles removed and refitted carefully during suspended ceiling access for inspections?" },
+      { id: "q3", label: "Are you controlling dust during suspended ceiling access for inspections?" },
+      { id: "q4", label: "Are services identified and treated as live during suspended ceiling access for inspections?" },
+      { id: "q5", label: "Have tiles and openings been reinstated after suspended ceiling access for inspections?" }
+    ]
+  },
+
+  "Plant shutdown and restart assistance": {
+    desc: "Plant shutdown and restart assistance covers supporting planned shutdowns and restarts of building services, following agreed sequences and instructions from competent engineers.",
+    hazards: ["plant_machinery", "electrical", "hot_surfaces"],
+    questions: [
+      { id: "q1", label: "Are you following an agreed procedure for plant shutdown and restart assistance?" },
+      { id: "q2", label: "Are roles clear between you and engineers for plant shutdown and restart assistance?" },
+      { id: "q3", label: "Is communication maintained during plant shutdown and restart assistance?" },
+      { id: "q4", label: "Are you keeping clear of moving parts during plant shutdown and restart assistance?" },
+      { id: "q5", label: "Have you recorded any issues encountered during plant shutdown and restart assistance?" }
+    ]
+  },
+
+  "Office moves – furniture and layout changes": {
+    desc: "Office moves – furniture and layout changes involve moving desks, cabinets and equipment, altering layouts and ensuring safe access and escape routes are maintained.",
+    hazards: ["manual_handling", "slips_trips"],
+    questions: [
+      { id: "q1", label: "Have you planned manual handling for office moves – furniture and layout changes?" },
+      { id: "q2", label: "Are access routes clear for office moves – furniture and layout changes?" },
+      { id: "q3", label: "Are escape routes maintained during office moves – furniture and layout changes?" },
+      { id: "q4", label: "Is heavy furniture for office moves – furniture and layout changes moved with sufficient manpower or equipment?" },
+      { id: "q5", label: "Have you checked new layouts are safe after office moves – furniture and layout changes?" }
+    ]
+  },
+
+  "Whiteboard / noticeboard / small item fixing": {
+    desc: "Whiteboard / noticeboard / small item fixing covers securely fixing small items to walls, ensuring correct fixings are used and services in walls are avoided.",
+    hazards: ["manual_handling", "sharp_objects"],
+    questions: [
+      { id: "q1", label: "Have you checked for hidden services before whiteboard / noticeboard / small item fixing?" },
+      { id: "q2", label: "Are appropriate fixings used for whiteboard / noticeboard / small item fixing?" },
+      { id: "q3", label: "Is work at height controlled during whiteboard / noticeboard / small item fixing?" },
+      { id: "q4", label: "Are tools managed safely during whiteboard / noticeboard / small item fixing?" },
+      { id: "q5", label: "Have you checked the item is secure after whiteboard / noticeboard / small item fixing?" }
+    ]
+  },
+
+  "Signage installation and replacement": {
+    desc: "Signage installation and replacement involves fitting internal and external signs, including directional, safety and tenant signs, often at height or in public areas.",
+    hazards: ["work_at_height", "public_interface", "manual_handling"],
+    questions: [
+      { id: "q1", label: "Have you agreed locations before signage installation and replacement?" },
+      { id: "q2", label: "Is access safe for signage installation and replacement?" },
+      { id: "q3", label: "Are fixings suitable for the substrate during signage installation and replacement?" },
+      { id: "q4", label: "Are public areas controlled during signage installation and replacement?" },
+      { id: "q5", label: "Is signage legible and secure after signage installation and replacement?" }
+    ]
+  },
+
+  "Building fabric making good after works": {
+    desc: "Building fabric making good after works covers patch repairs, filling, simple redecoration and tidying of areas affected by previous works or installations.",
+    hazards: ["dust_fumes", "slips_trips"],
+    questions: [
+      { id: "q1", label: "Have you agreed the standard required for building fabric making good after works?" },
+      { id: "q2", label: "Are dust-generating activities controlled during building fabric making good after works?" },
+      { id: "q3", label: "Are surfaces left clean and safe after building fabric making good after works?" },
+      { id: "q4", label: "Is waste removed promptly during building fabric making good after works?" },
+      { id: "q5", label: "Have you recorded completion of building fabric making good after works with the client?" }
+    ]
+  },
+
+  "Void inspection and securing vacant area": {
+    desc: "Void inspection and securing vacant area includes inspecting empty units or spaces, identifying hazards, and securing doors, windows and services to prevent unauthorised access and damage.",
+    hazards: ["security_risk", "poor_lighting", "slips_trips"],
+    questions: [
+      { id: "q1", label: "Is it safe to enter for void inspection and securing vacant area?" },
+      { id: "q2", label: "Have you identified hazards during void inspection and securing vacant area?" },
+      { id: "q3", label: "Are doors and windows made secure during void inspection and securing vacant area?" },
+      { id: "q4", label: "Are services isolated or set to safe modes during void inspection and securing vacant area?" },
+      { id: "q5", label: "Have you recorded findings from void inspection and securing vacant area?" }
+    ]
+  },
+
+  "Key holding and alarm response attendance": {
+    desc: "Key holding and alarm response attendance involves attending alarm activations, unlocking premises, carrying out basic checks and liaising with monitoring centres or police where required.",
+    hazards: ["security_risk", "lone_working", "poor_lighting"],
+    questions: [
+      { id: "q1", label: "Is there a clear procedure for key holding and alarm response attendance?" },
+      { id: "q2", label: "Do you have correct keys and codes for key holding and alarm response attendance?" },
+      { id: "q3", label: "Is the site safe to enter during key holding and alarm response attendance?" },
+      { id: "q4", label: "Is lone working controlled during key holding and alarm response attendance?" },
+      { id: "q5", label: "Have you completed required reports after key holding and alarm response attendance?" }
+    ]
+  },
+
+  "Meter reading and energy data collection": {
+    desc: "Meter reading and energy data collection includes safely accessing and reading utility meters and sub-meters, entering readings and reporting anomalies.",
+    hazards: ["slips_trips", "poor_lighting"],
+    questions: [
+      { id: "q1", label: "Are routes safe for meter reading and energy data collection?" },
+      { id: "q2", label: "Are you clear which meters to read during meter reading and energy data collection?" },
+      { id: "q3", label: "Are readings recorded accurately during meter reading and energy data collection?" },
+      { id: "q4", label: "Are any abnormal readings from meter reading and energy data collection escalated?" },
+      { id: "q5", label: "Have you left meter areas secure after meter reading and energy data collection?" }
+    ]
+  },
+
+  "External area litter picking and tidy": {
+    desc: "External area litter picking and tidy involves collecting litter and debris from external areas, keeping paths, car parks and entrances clean and presentable.",
+    hazards: ["slips_trips", "moving_vehicles", "biological"],
+    questions: [
+      { id: "q1", label: "Have you planned safe routes for external area litter picking and tidy?" },
+      { id: "q2", label: "Are you wearing suitable gloves during external area litter picking and tidy?" },
+      { id: "q3", label: "Are you aware of vehicle movements during external area litter picking and tidy?" },
+      { id: "q4", label: "Is waste from external area litter picking and tidy bagged and disposed of correctly?" },
+      { id: "q5", label: "Have you checked entrances and key areas at the end of external area litter picking and tidy?" }
+    ]
+  },
+
+  "Ice and snow monitoring and gritting checks": {
+    desc: "Ice and snow monitoring and gritting checks include monitoring weather, checking for ice on paths, applying grit where required and recording actions to maintain safe access.",
+    hazards: ["slips_trips", "environmental_weather", "manual_handling"],
+    questions: [
+      { id: "q1", label: "Are you monitoring forecasts for ice and snow monitoring and gritting checks?" },
+      { id: "q2", label: "Are priority routes clear for ice and snow monitoring and gritting checks?" },
+      { id: "q3", label: "Is manual handling of grit for ice and snow monitoring and gritting checks assessed?" },
+      { id: "q4", label: "Are actions and times recorded for ice and snow monitoring and gritting checks?" },
+      { id: "q5", label: "Have you checked for slip risks after ice and snow monitoring and gritting checks?" }
+    ]
+  },
+
+  "Waste store checks and bin compound housekeeping": {
+    desc: "Waste store checks and bin compound housekeeping involve checking bin areas for overflowing waste, cleanliness, pest risks and clear access for collections.",
+    hazards: ["biological", "fire_explosion", "slips_trips"],
+    questions: [
+      { id: "q1", label: "Are waste types separated correctly during waste store checks and bin compound housekeeping?" },
+      { id: "q2", label: "Are bin lids closed and areas tidy during waste store checks and bin compound housekeeping?" },
+      { id: "q3", label: "Are signs of pests reported from waste store checks and bin compound housekeeping?" },
+      { id: "q4", label: "Are fire risks considered during waste store checks and bin compound housekeeping?" },
+      { id: "q5", label: "Are access routes clear for collections after waste store checks and bin compound housekeeping?" }
+    ]
+  },
+
+  "Contractor escort and permit-to-work support": {
+    desc: "Contractor escort and permit-to-work support includes accompanying contractors, ensuring permits are in place, and monitoring that site rules are followed for the duration of their work.",
+    hazards: ["public_interface", "security_risk", "plant_machinery"],
+    questions: [
+      { id: "q1", label: "Are permits in place before contractor escort and permit-to-work support begins?" },
+      { id: "q2", label: "Have contractors been briefed on rules during contractor escort and permit-to-work support?" },
+      { id: "q3", label: "Are you monitoring work areas during contractor escort and permit-to-work support?" },
+      { id: "q4", label: "Are access and fire routes maintained during contractor escort and permit-to-work support?" },
+      { id: "q5", label: "Have you signed off permits after contractor escort and permit-to-work support ends?" }
+    ]
+  },
+
+  "Simple access equipment inspections (steps, podiums)": {
+    desc: "Simple access equipment inspections (steps, podiums) involve routine visual inspections of low-level access equipment to ensure it is in good condition and safe to use.",
+    hazards: ["work_at_height", "manual_handling"],
+    questions: [
+      { id: "q1", label: "Are you familiar with inspection criteria for simple access equipment inspections (steps, podiums)?" },
+      { id: "q2", label: "Are defective items identified during simple access equipment inspections (steps, podiums) taken out of use?" },
+      { id: "q3", label: "Are inspection records kept for simple access equipment inspections (steps, podiums)?" },
+      { id: "q4", label: "Are labels or tags updated during simple access equipment inspections (steps, podiums)?" },
+      { id: "q5", label: "Are users informed if equipment fails simple access equipment inspections (steps, podiums)?" }
+    ]
+  },
+
+  "Weekly building walk-round and report": {
+    desc: "Weekly building walk-round and report covers a regular tour of the building to note defects, housekeeping issues and safety concerns, compiling them into a report for action.",
+    hazards: ["slips_trips", "public_interface"],
+    questions: [
+      { id: "q1", label: "Is a route agreed for the weekly building walk-round and report?" },
+      { id: "q2", label: "Are all key areas covered during the weekly building walk-round and report?" },
+      { id: "q3", label: "Are hazards identified during the weekly building walk-round and report recorded clearly?" },
+      { id: "q4", label: "Are urgent issues raised immediately during the weekly building walk-round and report?" },
+      { id: "q5", label: "Is the final weekly building walk-round and report shared with the client or manager?" }
+    ]
+  },
+
+  "Minor leak investigation and initial response": {
+    desc: "Minor leak investigation and initial response involves tracing the source of small leaks, containing water, placing protection and arranging further works as required.",
+    hazards: ["water_ingress", "slips_trips", "electrical"],
+    questions: [
+      { id: "q1", label: "Have you checked for electrical risks before minor leak investigation and initial response?" },
+      { id: "q2", label: "Are you containing water safely during minor leak investigation and initial response?" },
+      { id: "q3", label: "Are floors and routes kept safe during minor leak investigation and initial response?" },
+      { id: "q4", label: "Have you identified the likely source during minor leak investigation and initial response?" },
+      { id: "q5", label: "Have you raised follow-up works after minor leak investigation and initial response?" }
+    ]
+  },
+
+  "Temporary hoarding or barrier installation": {
+    desc: "Temporary hoarding or barrier installation includes erecting temporary partitions or barriers to segregate works, protect the public and maintain site security.",
+    hazards: ["manual_handling", "slips_trips", "public_interface"],
+    questions: [
+      { id: "q1", label: "Have you agreed layout and locations for temporary hoarding or barrier installation?" },
+      { id: "q2", label: "Is manual handling of panels considered for temporary hoarding or barrier installation?" },
+      { id: "q3", label: "Are fixings adequate for temporary hoarding or barrier installation?" },
+      { id: "q4", label: "Are escape routes maintained after temporary hoarding or barrier installation?" },
+      { id: "q5", label: "Is stability checked for temporary hoarding or barrier installation?" }
+    ]
+  },
+
+  "Plant hire delivery / collection coordination": {
+    desc: "Plant hire delivery / collection coordination involves arranging access, segregation and safe handover of hired plant and equipment, including checking documentation and condition on arrival and departure.",
+    hazards: ["moving_vehicles", "plant_machinery", "public_interface"],
+    questions: [
+      { id: "q1", label: "Have you agreed delivery routes for plant hire delivery / collection coordination?" },
+      { id: "q2", label: "Are exclusion zones in place during plant hire delivery / collection coordination?" },
+      { id: "q3", label: "Are checks made on plant condition during plant hire delivery / collection coordination?" },
+      { id: "q4", label: "Are documents and certificates checked during plant hire delivery / collection coordination?" },
+      { id: "q5", label: "Have you recorded times and details for plant hire delivery / collection coordination?" }
+    ]
+  },
+
+  "Small tool and equipment checks": {
+    desc: "Small tool and equipment checks include inspecting hand tools and portable equipment used by the facilities team, ensuring they are safe, labelled and removed from use if defective.",
+    hazards: ["manual_handling", "plant_machinery"],
+    questions: [
+      { id: "q1", label: "Are you familiar with inspection requirements for small tool and equipment checks?" },
+      { id: "q2", label: "Are defective items identified during small tool and equipment checks clearly labelled and removed?" },
+      { id: "q3", label: "Are records kept for small tool and equipment checks?" },
+      { id: "q4", label: "Are guards and safety features checked during small tool and equipment checks?" },
+      { id: "q5", label: "Are users informed about outcomes of small tool and equipment checks?" }
+    ]
+  },
+
+  "Other (Custom)": {
+    desc: "",
+    hazards: [],
+    questions: [
+      { id: "q1", label: "Have you identified all specific hazards associated with this custom facilities maintenance task?" },
+      { id: "q2", label: "Do you have the correct tools, equipment and access arrangements for this custom facilities maintenance task?" },
+      { id: "q3", label: "Have you carried out a dynamic risk assessment for this custom facilities maintenance task before starting work?" },
+      { id: "q4", label: "Are you competent and authorised to undertake this specific custom facilities maintenance task?" },
+      { id: "q5", label: "Have you agreed the scope, working area and any isolation or access restrictions with the client for this custom facilities maintenance task?" }
+    ]
+  }
+};
+
+// ==========================================
+//  CLEANING & SPECIALIST CLEANING CLUSTERS
+// ==========================================
+const CLEANING_SPECIALIST_CLUSTERS: Record<string, JobCluster> = {
+  "Daily office cleaning – general areas": {
+    desc: "Daily office cleaning – general areas covers routine cleaning of offices, corridors and shared spaces, including dusting, wiping surfaces, emptying bins and vacuuming floors during normal or out-of-hours operations.",
+    hazards: ["slips_trips", "manual_handling", "dust_fumes", "public_interface"],
+    questions: [
+      { id: "q1", label: "Are walkways kept clear of leads, equipment and waste during daily office cleaning – general areas?" },
+      { id: "q2", label: "Are correct cleaning products used for surfaces during daily office cleaning – general areas in line with COSHH information?" },
+      { id: "q3", label: "Are wet floor signs used when mopping during daily office cleaning – general areas?" },
+      { id: "q4", label: "Is manual handling of waste bags and equipment assessed during daily office cleaning – general areas?" },
+      { id: "q5", label: "Have you agreed safe access times with the client for daily office cleaning – general areas?" }
+    ]
+  },
+
+  "Daily toilet and washroom cleaning": {
+    desc: "Daily toilet and washroom cleaning involves routine cleaning and disinfection of WCs, urinals, basins and touchpoints, topping up consumables and managing waste to maintain hygiene standards.",
+    hazards: ["biological", "chemical_coshh", "slips_trips"],
+    questions: [
+      { id: "q1", label: "Are you using appropriate PPE for daily toilet and washroom cleaning (e.g. gloves, eye protection where needed)?" },
+      { id: "q2", label: "Are cleaning chemicals for daily toilet and washroom cleaning diluted and used in line with COSHH assessments?" },
+      { id: "q3", label: "Are wet floors clearly signed and controlled during daily toilet and washroom cleaning?" },
+      { id: "q4", label: "Are sanitary and general waste from daily toilet and washroom cleaning removed and stored safely?" },
+      { id: "q5", label: "Have touchpoints and high-contact areas been prioritised in daily toilet and washroom cleaning?" }
+    ]
+  },
+
+  "Daily school cleaning": {
+    desc: "Daily school cleaning covers routine cleaning of classrooms, corridors, toilets and other school spaces, often within tight time windows before or after teaching hours.",
+    hazards: ["slips_trips", "manual_handling", "public_interface", "dust_fumes"],
+    questions: [
+      { id: "q1", label: "Have you coordinated timings to avoid pupils and staff during daily school cleaning where possible?" },
+      { id: "q2", label: "Are appropriate child-safe chemicals used during daily school cleaning in line with COSHH?" },
+      { id: "q3", label: "Are cables, vacuums and equipment positioned to avoid trip hazards during daily school cleaning?" },
+      { id: "q4", label: "Is manual handling of furniture and waste considered during daily school cleaning?" },
+      { id: "q5", label: "Are safeguarding and site security rules followed during daily school cleaning?" }
+    ]
+  },
+
+  "Daily healthcare / GP practice cleaning": {
+    desc: "Daily healthcare / GP practice cleaning involves routine cleaning of clinical and non-clinical areas in healthcare settings, with particular emphasis on infection control and contact surfaces.",
+    hazards: ["biological", "chemical_coshh", "slips_trips"],
+    questions: [
+      { id: "q1", label: "Have you been briefed on infection control procedures for daily healthcare / GP practice cleaning?" },
+      { id: "q2", label: "Are disinfectants and detergents for daily healthcare / GP practice cleaning used as per manufacturer and COSHH guidance?" },
+      { id: "q3", label: "Are clinical and domestic waste streams separated correctly during daily healthcare / GP practice cleaning?" },
+      { id: "q4", label: "Are high-touch surfaces prioritised during daily healthcare / GP practice cleaning?" },
+      { id: "q5", label: "Are spillages and body fluid incidents managed in line with protocols during daily healthcare / GP practice cleaning?" }
+    ]
+  },
+
+  "Daily retail store cleaning": {
+    desc: "Daily retail store cleaning covers routine cleaning of shop floors, back-of-house areas and staff facilities, usually outside customer trading hours but sometimes around staff and public.",
+    hazards: ["slips_trips", "public_interface", "manual_handling"],
+    questions: [
+      { id: "q1", label: "Are you working at times agreed with the retailer for daily retail store cleaning?" },
+      { id: "q2", label: "Are wet floor areas clearly signed during daily retail store cleaning?" },
+      { id: "q3", label: "Is manual handling of stock, displays and waste considered during daily retail store cleaning?" },
+      { id: "q4", label: "Are you controlling access to areas where daily retail store cleaning is in progress?" },
+      { id: "q5", label: "Have you checked exits and aisles are clear after daily retail store cleaning?" }
+    ]
+  },
+
+  "Communal area cleaning – blocks and flats": {
+    desc: "Communal area cleaning – blocks and flats includes cleaning stairwells, lobbies, lifts, corridors and entrance areas in residential buildings, often with residents passing through.",
+    hazards: ["slips_trips", "public_interface", "manual_handling"],
+    questions: [
+      { id: "q1", label: "Are stairwells and landings kept free from trip hazards during communal area cleaning – blocks and flats?" },
+      { id: "q2", label: "Are wet surfaces clearly identified during communal area cleaning – blocks and flats?" },
+      { id: "q3", label: "Is waste removed promptly during communal area cleaning – blocks and flats?" },
+      { id: "q4", label: "Are residents informed or diverted if access routes are affected by communal area cleaning – blocks and flats?" },
+      { id: "q5", label: "Is manual handling of equipment between floors assessed for communal area cleaning – blocks and flats?" }
+    ]
+  },
+
+  "Reception and front-of-house cleaning": {
+    desc: "Reception and front-of-house cleaning focuses on front entrances, reception desks and customer-facing areas where appearance and safety are critical.",
+    hazards: ["slips_trips", "public_interface", "manual_handling"],
+    questions: [
+      { id: "q1", label: "Are cleaning times for reception and front-of-house cleaning agreed to avoid peak visitor periods?" },
+      { id: "q2", label: "Are wet floor signs prominent during reception and front-of-house cleaning?" },
+      { id: "q3", label: "Is equipment kept discreetly and safely during reception and front-of-house cleaning?" },
+      { id: "q4", label: "Are glass and display surfaces cleaned safely during reception and front-of-house cleaning?" },
+      { id: "q5", label: "Have entry mats and thresholds been checked for slip risk after reception and front-of-house cleaning?" }
+    ]
+  },
+
+  "Night cleaning – offices and commercial": {
+    desc: "Night cleaning – offices and commercial involves carrying out cleaning activities outside normal work hours, typically in largely empty buildings with reduced supervision.",
+    hazards: ["slips_trips", "poor_lighting", "lone_working"],
+    questions: [
+      { id: "q1", label: "Is there a lone working or check-in procedure for night cleaning – offices and commercial?" },
+      { id: "q2", label: "Are lighting levels sufficient for safe night cleaning – offices and commercial?" },
+      { id: "q3", label: "Are fire exits and routes kept clear during night cleaning – offices and commercial?" },
+      { id: "q4", label: "Are doors and windows secured after night cleaning – offices and commercial?" },
+      { id: "q5", label: "Do you know how to raise an alarm during night cleaning – offices and commercial?" }
+    ]
+  },
+
+  "Periodic office deep clean": {
+    desc: "Periodic office deep clean covers more intensive cleaning tasks, including behind furniture, high-level dusting, descaling, and detailed cleaning of fixtures in office environments.",
+    hazards: ["manual_handling", "dust_fumes", "slips_trips"],
+    questions: [
+      { id: "q1", label: "Have you planned furniture moves for the periodic office deep clean to avoid strain and damage?" },
+      { id: "q2", label: "Are dust-generating activities controlled during the periodic office deep clean?" },
+      { id: "q3", label: "Are suitable chemicals used and COSHH followed for the periodic office deep clean?" },
+      { id: "q4", label: "Are all tools and materials kept tidy during the periodic office deep clean?" },
+      { id: "q5", label: "Is the area returned to a safe layout after the periodic office deep clean?" }
+    ]
+  },
+
+  "Periodic school holiday deep clean": {
+    desc: "Periodic school holiday deep clean involves intensive cleaning of classrooms, corridors and facilities during holiday periods, often including high-level work and floor maintenance.",
+    hazards: ["manual_handling", "dust_fumes", "slips_trips", "work_at_height"],
+    questions: [
+      { id: "q1", label: "Have you agreed work areas and sequence for the periodic school holiday deep clean?" },
+      { id: "q2", label: "Is access equipment safe and inspected for any high-level tasks in the periodic school holiday deep clean?" },
+      { id: "q3", label: "Are floors closed off when wet during the periodic school holiday deep clean?" },
+      { id: "q4", label: "Are chemicals stored safely when not in use during the periodic school holiday deep clean?" },
+      { id: "q5", label: "Have you checked all rooms are left secure after the periodic school holiday deep clean?" }
+    ]
+  },
+
+  "Warehouse and industrial deep clean": {
+    desc: "Warehouse and industrial deep clean includes intensive cleaning of warehouse floors, racking bases, plant areas and back-of-house spaces, often around static machinery and racking.",
+    hazards: ["slips_trips", "manual_handling", "plant_machinery", "dust_fumes"],
+    questions: [
+      { id: "q1", label: "Have you agreed segregation from traffic and plant for the warehouse and industrial deep clean?" },
+      { id: "q2", label: "Are suitable machines and pads used on floors during the warehouse and industrial deep clean?" },
+      { id: "q3", label: "Are racking and plant areas clearly controlled during the warehouse and industrial deep clean?" },
+      { id: "q4", label: "Are dust and residues managed during the warehouse and industrial deep clean?" },
+      { id: "q5", label: "Has all waste been removed safely after the warehouse and industrial deep clean?" }
+    ]
+  },
+
+  "Builders pre-clean": {
+    desc: "Builders pre-clean is an initial clean after construction works to remove heavy dust, debris and residues prior to finer finishing and sparkle cleans.",
+    hazards: ["dust_fumes", "manual_handling", "slips_trips"],
+    questions: [
+      { id: "q1", label: "Is the work area safe and handed over for the builders pre-clean?" },
+      { id: "q2", label: "Are dust masks and eye protection used as required during the builders pre-clean?" },
+      { id: "q3", label: "Are loose debris and sharps controlled during the builders pre-clean?" },
+      { id: "q4", label: "Is manual handling of rubble and waste assessed for the builders pre-clean?" },
+      { id: "q5", label: "Are extraction and ventilation considered during the builders pre-clean?" }
+    ]
+  },
+
+  "Builders sparkle / handover clean": {
+    desc: "Builders sparkle / handover clean is a detailed clean to present the building to client-ready standard, following construction completion and initial pre-cleans.",
+    hazards: ["dust_fumes", "slips_trips"],
+    questions: [
+      { id: "q1", label: "Has the site been made safe and snagging controlled before the builders sparkle / handover clean?" },
+      { id: "q2", label: "Are glass and high-finish surfaces protected during the builders sparkle / handover clean?" },
+      { id: "q3", label: "Are mops and equipment kept clean to avoid smearing during the builders sparkle / handover clean?" },
+      { id: "q4", label: "Is all waste cleared from the building during the builders sparkle / handover clean?" },
+      { id: "q5", label: "Have you agreed completion standards with the client for the builders sparkle / handover clean?" }
+    ]
+  },
+
+  "End of tenancy clean – standard": {
+    desc: "End of tenancy clean – standard covers general deep cleaning of residential properties on tenant changeover, including kitchens, bathrooms and surfaces, excluding heavy contamination.",
+    hazards: ["manual_handling", "chemical_coshh", "slips_trips"],
+    questions: [
+      { id: "q1", label: "Have you documented the condition before starting the end of tenancy clean – standard?" },
+      { id: "q2", label: "Are appropriate chemicals used in line with COSHH during the end of tenancy clean – standard?" },
+      { id: "q3", label: "Is ventilation adequate during the end of tenancy clean – standard?" },
+      { id: "q4", label: "Are stairs and small spaces managed to avoid slips and trips during the end of tenancy clean – standard?" },
+      { id: "q5", label: "Has all waste and unwanted items been removed after the end of tenancy clean – standard?" }
+    ]
+  },
+
+  "End of tenancy clean – HMO / student": {
+    desc: "End of tenancy clean – HMO / student involves deep cleaning multi-occupancy or student properties which may have heavier soiling, more rooms and increased waste.",
+    hazards: ["manual_handling", "chemical_coshh", "biological", "slips_trips"],
+    questions: [
+      { id: "q1", label: "Have you allowed sufficient time and resources for the end of tenancy clean – HMO / student?" },
+      { id: "q2", label: "Are hygiene risks and waste volumes assessed for the end of tenancy clean – HMO / student?" },
+      { id: "q3", label: "Are suitable PPE and chemicals used for the end of tenancy clean – HMO / student?" },
+      { id: "q4", label: "Are stairs and access routes kept clear during the end of tenancy clean – HMO / student?" },
+      { id: "q5", label: "Have you recorded any damage found during the end of tenancy clean – HMO / student?" }
+    ]
+  },
+
+  "Commercial kitchen deep clean": {
+    desc: "Commercial kitchen deep clean covers intensive cleaning of commercial kitchen equipment, walls, floors and fixtures, often including degreasing and scale removal.",
+    hazards: ["chemical_coshh", "hot_work", "slips_trips"],
+    questions: [
+      { id: "q1", label: "Are gas and electrical supplies isolated where required for the commercial kitchen deep clean?" },
+      { id: "q2", label: "Are degreasers and descalers used safely during the commercial kitchen deep clean?" },
+      { id: "q3", label: "Are hot surfaces and edges managed during the commercial kitchen deep clean?" },
+      { id: "q4", label: "Are floors kept as dry as possible during the commercial kitchen deep clean?" },
+      { id: "q5", label: "Is equipment reassembled and tested after the commercial kitchen deep clean?" }
+    ]
+  },
+
+  "Small catering kitchen deep clean": {
+    desc: "Small catering kitchen deep clean covers intensive cleaning of smaller kitchens in offices, schools or community settings, focusing on hygiene and removal of grease and residues.",
+    hazards: ["chemical_coshh", "slips_trips", "manual_handling"],
+    questions: [
+      { id: "q1", label: "Have you agreed access times for the small catering kitchen deep clean?" },
+      { id: "q2", label: "Are chemicals used in the small catering kitchen deep clean in line with COSHH?" },
+      { id: "q3", label: "Are floors kept clear of leads and equipment during the small catering kitchen deep clean?" },
+      { id: "q4", label: "Is manual handling of white goods and furniture assessed for the small catering kitchen deep clean?" },
+      { id: "q5", label: "Are food-contact surfaces rinsed correctly after the small catering kitchen deep clean?" }
+    ]
+  },
+
+  "Washroom deep clean and descaling": {
+    desc: "Washroom deep clean and descaling involves intensive cleaning of toilets, urinals, showers and tiles, using descaling agents and disinfectants to remove build-up and staining.",
+    hazards: ["chemical_coshh", "biological", "slips_trips"],
+    questions: [
+      { id: "q1", label: "Are COSHH controls in place for acids and descalers during washroom deep clean and descaling?" },
+      { id: "q2", label: "Are you using appropriate PPE during washroom deep clean and descaling?" },
+      { id: "q3", label: "Are washroom floors controlled for slips during washroom deep clean and descaling?" },
+      { id: "q4", label: "Is ventilation adequate for fumes during washroom deep clean and descaling?" },
+      { id: "q5", label: "Are fixtures checked for damage after washroom deep clean and descaling?" }
+    ]
+  },
+
+  "Hard floor machine scrub – small areas": {
+    desc: "Hard floor machine scrub – small areas uses scrubber dryers or rotary machines to clean and maintain hard floors in relatively small, controlled spaces.",
+    hazards: ["slips_trips", "manual_handling", "plant_machinery"],
+    questions: [
+      { id: "q1", label: "Is the machine inspected before use for hard floor machine scrub – small areas?" },
+      { id: "q2", label: "Are cables and hoses managed to prevent trips during hard floor machine scrub – small areas?" },
+      { id: "q3", label: "Are warning signs in place during hard floor machine scrub – small areas?" },
+      { id: "q4", label: "Is chemical dosing correct for hard floor machine scrub – small areas?" },
+      { id: "q5", label: "Have you checked the floor is safe to walk on after hard floor machine scrub – small areas?" }
+    ]
+  },
+
+  "Hard floor strip and seal": {
+    desc: "Hard floor strip and seal involves stripping old seal or polish from hard floors, thoroughly cleaning and applying new seal or polish in multiple coats.",
+    hazards: ["chemical_coshh", "slips_trips", "manual_handling"],
+    questions: [
+      { id: "q1", label: "Are stripping chemicals used safely during hard floor strip and seal in line with COSHH?" },
+      { id: "q2", label: "Are floors closed to traffic during hard floor strip and seal?" },
+      { id: "q3", label: "Is ventilation managed during hard floor strip and seal?" },
+      { id: "q4", label: "Is manual handling of machines and containers assessed for hard floor strip and seal?" },
+      { id: "q5", label: "Has the floor dried fully before reopening after hard floor strip and seal?" }
+    ]
+  },
+
+  "Machine scrub of car park decks": {
+    desc: "Machine scrub of car park decks covers mechanical cleaning of multi-storey or surface car park floors using scrubber dryers or sweepers, often around vehicle routes.",
+    hazards: ["moving_vehicles", "plant_machinery", "slips_trips", "environmental_weather"],
+    questions: [
+      { id: "q1", label: "Is a traffic management plan in place for machine scrub of car park decks?" },
+      { id: "q2", label: "Are exclusion zones or spotters in place during machine scrub of car park decks?" },
+      { id: "q3", label: "Are edges and ramps considered during machine scrub of car park decks?" },
+      { id: "q4", label: "Is waste water managed correctly from machine scrub of car park decks?" },
+      { id: "q5", label: "Are machines inspected and maintained for machine scrub of car park decks?" }
+    ]
+  },
+
+  "Carpet vacuum and spot cleaning": {
+    desc: "Carpet vacuum and spot cleaning involves routine vacuuming and targeted treatment of small stains and spills on carpeted floors in office or residential environments.",
+    hazards: ["slips_trips", "manual_handling", "chemical_coshh"],
+    questions: [
+      { id: "q1", label: "Are vacuum leads controlled during carpet vacuum and spot cleaning?" },
+      { id: "q2", label: "Are spot cleaning products used in line with COSHH during carpet vacuum and spot cleaning?" },
+      { id: "q3", label: "Are test patches carried out where needed during carpet vacuum and spot cleaning?" },
+      { id: "q4", label: "Is manual handling of vacuums assessed for carpet vacuum and spot cleaning?" },
+      { id: "q5", label: "Are treated areas left clearly safe after carpet vacuum and spot cleaning?" }
+    ]
+  },
+
+  "Carpet extraction cleaning – offices": {
+    desc: "Carpet extraction cleaning – offices uses hot water extraction or similar methods to deep clean carpets, often out of hours, with extended drying times.",
+    hazards: ["slips_trips", "manual_handling", "chemical_coshh"],
+    questions: [
+      { id: "q1", label: "Are extraction machines inspected before carpet extraction cleaning – offices?" },
+      { id: "q2", label: "Are hoses and leads managed during carpet extraction cleaning – offices to avoid trips?" },
+      { id: "q3", label: "Is ventilation and drying time planned for carpet extraction cleaning – offices?" },
+      { id: "q4", label: "Are detergents dosed correctly during carpet extraction cleaning – offices?" },
+      { id: "q5", label: "Have you agreed out-of-hours access for carpet extraction cleaning – offices?" }
+    ]
+  },
+
+  "Upholstery and seating deep clean": {
+    desc: "Upholstery and seating deep clean involves cleaning fabric or leather seating using specialist machines and chemicals to remove soiling and staining.",
+    hazards: ["chemical_coshh", "manual_handling", "slips_trips"],
+    questions: [
+      { id: "q1", label: "Are cleaning products suitable for the upholstery material during upholstery and seating deep clean?" },
+      { id: "q2", label: "Are machines and hoses positioned safely during upholstery and seating deep clean?" },
+      { id: "q3", label: "Is drying time and ventilation considered for upholstery and seating deep clean?" },
+      { id: "q4", label: "Is manual handling of heavy or fixed seating assessed during upholstery and seating deep clean?" },
+      { id: "q5", label: "Have test areas been completed before full upholstery and seating deep clean?" }
+    ]
+  },
+
+  "High level internal dusting (steps/podium)": {
+    desc: "High level internal dusting (steps/podium) includes dusting and wiping high shelves, ledges and fittings inside buildings using steps or podiums for access.",
+    hazards: ["work_at_height", "slips_trips", "manual_handling"],
+    questions: [
+      { id: "q1", label: "Is steps or podium inspected and stable for high level internal dusting (steps/podium)?" },
+      { id: "q2", label: "Are you avoiding overreaching during high level internal dusting (steps/podium)?" },
+      { id: "q3", label: "Are floors below protected from falling dust and debris during high level internal dusting (steps/podium)?" },
+      { id: "q4", label: "Is manual handling of equipment to height considered for high level internal dusting (steps/podium)?" },
+      { id: "q5", label: "Are areas reopened safely after high level internal dusting (steps/podium)?" }
+    ]
+  },
+
+  "High level internal cleaning (MEWP)": {
+    desc: "High level internal cleaning (MEWP) involves using mobile elevating work platforms to clean internal roofs, steelwork, cladding or glazing at significant height.",
+    hazards: ["work_at_height", "plant_machinery", "falling_objects"],
+    questions: [
+      { id: "q1", label: "Are MEWP operators trained and authorised for high level internal cleaning (MEWP)?" },
+      { id: "q2", label: "Is the ground suitable and checked before high level internal cleaning (MEWP)?" },
+      { id: "q3", label: "Are exclusion zones in place below during high level internal cleaning (MEWP)?" },
+      { id: "q4", label: "Is harness and fall arrest used where required during high level internal cleaning (MEWP)?" },
+      { id: "q5", label: "Have rescue arrangements been considered for high level internal cleaning (MEWP)?" }
+    ]
+  },
+
+  "Clinical cleaning – treatment rooms": {
+    desc: "Clinical cleaning – treatment rooms covers cleaning and disinfection of clinical rooms, couches and equipment surfaces in line with infection control standards.",
+    hazards: ["biological", "chemical_coshh"],
+    questions: [
+      { id: "q1", label: "Have you been trained in infection control for clinical cleaning – treatment rooms?" },
+      { id: "q2", label: "Are appropriate disinfectants used for clinical cleaning – treatment rooms?" },
+      { id: "q3", label: "Are sharps and clinical waste handled correctly during clinical cleaning – treatment rooms?" },
+      { id: "q4", label: "Are touchpoints prioritised during clinical cleaning – treatment rooms?" },
+      { id: "q5", label: "Are records kept as required for clinical cleaning – treatment rooms?" }
+    ]
+  },
+
+  "Theatre / critical clinical deep clean": {
+    desc: "Theatre / critical clinical deep clean involves intensive cleaning of operating theatres or high-risk clinical areas, often to a strict protocol and schedule.",
+    hazards: ["biological", "chemical_coshh"],
+    questions: [
+      { id: "q1", label: "Are you following site-specific protocols for theatre / critical clinical deep clean?" },
+      { id: "q2", label: "Is PPE suitable for theatre / critical clinical deep clean?" },
+      { id: "q3", label: "Are equipment and surfaces cleaned in the correct sequence during theatre / critical clinical deep clean?" },
+      { id: "q4", label: "Are disinfectants used correctly during theatre / critical clinical deep clean?" },
+      { id: "q5", label: "Is sign-off documented after theatre / critical clinical deep clean?" }
+    ]
+  },
+
+  "Decontamination clean – body fluids": {
+    desc: "Decontamination clean – body fluids includes cleaning and disinfecting areas contaminated with blood, vomit or other body fluids, following strict biohazard procedures.",
+    hazards: ["biological", "chemical_coshh", "sharp_objects"],
+    questions: [
+      { id: "q1", label: "Are biohazard procedures followed for decontamination clean – body fluids?" },
+      { id: "q2", label: "Is appropriate PPE used for decontamination clean – body fluids (gloves, masks, eye protection)?" },
+      { id: "q3", label: "Are sharps and contaminated waste handled in line with guidance during decontamination clean – body fluids?" },
+      { id: "q4", label: "Are disinfectants contact times observed during decontamination clean – body fluids?" },
+      { id: "q5", label: "Is the area clearly signed and controlled during decontamination clean – body fluids?" }
+    ]
+  },
+
+  "Trauma and crime scene clean": {
+    desc: "Trauma and crime scene clean involves specialist cleaning after traumatic incidents, often with biohazards and strict evidence and confidentiality controls.",
+    hazards: ["biological", "chemical_coshh", "sharp_objects"],
+    questions: [
+      { id: "q1", label: "Are you trained and authorised for trauma and crime scene clean?" },
+      { id: "q2", label: "Are liaison arrangements with police or authorities agreed for trauma and crime scene clean?" },
+      { id: "q3", label: "Is PPE and decontamination process in place for trauma and crime scene clean?" },
+      { id: "q4", label: "Are sharps and contaminated items managed as clinical waste during trauma and crime scene clean?" },
+      { id: "q5", label: "Is documentation and confidentiality respected during trauma and crime scene clean?" }
+    ]
+  },
+
+  "Sharps and needle sweep": {
+    desc: "Sharps and needle sweep involves carefully searching and removing discarded needles, blades and other sharps from sites, using appropriate tools and containers.",
+    hazards: ["sharp_objects", "biological"],
+    questions: [
+      { id: "q1", label: "Are staff trained and briefed before sharps and needle sweep?" },
+      { id: "q2", label: "Is correct PPE used (gloves, puncture-resistant where needed) during sharps and needle sweep?" },
+      { id: "q3", label: "Are sharps picked up with tools rather than hands during sharps and needle sweep?" },
+      { id: "q4", label: "Are sharps disposed of into approved containers during sharps and needle sweep?" },
+      { id: "q5", label: "Is the area thoroughly checked at the end of sharps and needle sweep?" }
+    ]
+  },
+
+  "Pigeon guano and bird fouling cleaning": {
+    desc: "Pigeon guano and bird fouling cleaning deals with removal of bird droppings from ledges, roofs, plant and access areas, controlling dust and infection risks.",
+    hazards: ["biological", "dust_fumes", "work_at_height"],
+    questions: [
+      { id: "q1", label: "Is access safe and controlled for pigeon guano and bird fouling cleaning?" },
+      { id: "q2", label: "Are suitable respiratory and skin protection used for pigeon guano and bird fouling cleaning?" },
+      { id: "q3", label: "Is dust suppression used during pigeon guano and bird fouling cleaning?" },
+      { id: "q4", label: "Is waste from pigeon guano and bird fouling cleaning double-bagged and disposed of appropriately?" },
+      { id: "q5", label: "Have exclusion zones been set for pigeon guano and bird fouling cleaning?" }
+    ]
+  },
+
+  "Fire damage clean-up – light smoke": {
+    desc: "Fire damage clean-up – light smoke covers cleaning light soot and smoke staining after small fires or incidents, including surfaces, fixtures and contents.",
+    hazards: ["dust_fumes", "chemical_coshh"],
+    questions: [
+      { id: "q1", label: "Has the area been declared structurally and electrically safe before fire damage clean-up – light smoke?" },
+      { id: "q2", label: "Are smoke residues damped down or extracted during fire damage clean-up – light smoke?" },
+      { id: "q3", label: "Are suitable cleaners and PPE used during fire damage clean-up – light smoke?" },
+      { id: "q4", label: "Is waste from fire damage clean-up – light smoke contained and removed safely?" },
+      { id: "q5", label: "Is ventilation considered during fire damage clean-up – light smoke?" }
+    ]
+  },
+
+  "Fire damage clean-up – heavy contamination": {
+    desc: "Fire damage clean-up – heavy contamination involves intensive cleaning, removal of debris and possible strip-out following significant fire incidents, alongside other contractors.",
+    hazards: ["dust_fumes", "manual_handling", "sharp_objects", "structural_collapse"],
+    questions: [
+      { id: "q1", label: "Has a structural assessment been completed before fire damage clean-up – heavy contamination?" },
+      { id: "q2", label: "Are you coordinating with other contractors during fire damage clean-up – heavy contamination?" },
+      { id: "q3", label: "Is suitable respiratory protection used during fire damage clean-up – heavy contamination?" },
+      { id: "q4", label: "Is manual handling of debris controlled during fire damage clean-up – heavy contamination?" },
+      { id: "q5", label: "Are sharps and hazardous materials segregated during fire damage clean-up – heavy contamination?" }
+    ]
+  },
+
+  "Flood damage clean and dry out": {
+    desc: "Flood damage clean and dry out covers removal of standing water, cleaning affected areas and installing drying equipment after flood or escape-of-water incidents.",
+    hazards: ["water_ingress", "slips_trips", "biological", "live_electricity"],
+    questions: [
+      { id: "q1", label: "Have electrical risks been controlled before flood damage clean and dry out?" },
+      { id: "q2", label: "Are pumps and extraction equipment safely set up during flood damage clean and dry out?" },
+      { id: "q3", label: "Is contamination level assessed during flood damage clean and dry out?" },
+      { id: "q4", label: "Are drying equipment and cables managed to avoid trips during flood damage clean and dry out?" },
+      { id: "q5", label: "Is waste water disposed of appropriately after flood damage clean and dry out?" }
+    ]
+  },
+
+  "Graffiti removal – small areas": {
+    desc: "Graffiti removal – small areas includes applying graffiti removal products and rinsing small patches on walls, doors or street furniture.",
+    hazards: ["chemical_coshh", "public_interface", "environmental_weather"],
+    questions: [
+      { id: "q1", label: "Are graffiti removal chemicals selected appropriately for graffiti removal – small areas?" },
+      { id: "q2", label: "Are you protecting yourself and the public from splashes during graffiti removal – small areas?" },
+      { id: "q3", label: "Is run-off controlled during graffiti removal – small areas to protect drains?" },
+      { id: "q4", label: "Are barriers or signs used during graffiti removal – small areas in public locations?" },
+      { id: "q5", label: "Is the surface rinsed and neutralised after graffiti removal – small areas?" }
+    ]
+  },
+
+  "Graffiti removal – large elevations": {
+    desc: "Graffiti removal – large elevations covers large external walls or structures, often requiring access equipment or pressure washing and extended working areas.",
+    hazards: ["chemical_coshh", "work_at_height", "public_interface", "environmental_weather"],
+    questions: [
+      { id: "q1", label: "Is access equipment safe and suitable for graffiti removal – large elevations?" },
+      { id: "q2", label: "Are exclusion zones set up around graffiti removal – large elevations?" },
+      { id: "q3", label: "Are run-off and overspray controlled during graffiti removal – large elevations?" },
+      { id: "q4", label: "Are chemicals handled and stored safely during graffiti removal – large elevations?" },
+      { id: "q5", label: "Are weather conditions acceptable for graffiti removal – large elevations?" }
+    ]
+  },
+
+  "Chewing gum removal – pavements": {
+    desc: "Chewing gum removal – pavements uses specialist steam, chemical or mechanical methods to remove gum from external paving and walkways.",
+    hazards: ["slips_trips", "chemical_coshh", "environmental_weather"],
+    questions: [
+      { id: "q1", label: "Are walkways controlled during chewing gum removal – pavements?" },
+      { id: "q2", label: "Are steam or chemical systems used safely during chewing gum removal – pavements?" },
+      { id: "q3", label: "Is run-off to drains considered for chewing gum removal – pavements?" },
+      { id: "q4", label: "Are hoses and leads managed during chewing gum removal – pavements?" },
+      { id: "q5", label: "Are treated areas checked for slip risk after chewing gum removal – pavements?" }
+    ]
+  },
+
+  "Pressure washing – external hard surfaces": {
+    desc: "Pressure washing – external hard surfaces involves cleaning paths, yards, walls and other external surfaces using pressure washers or similar equipment.",
+    hazards: ["environmental_weather", "slips_trips", "water_ingress", "plant_machinery"],
+    questions: [
+      { id: "q1", label: "Are exclusion zones and warning signs used during pressure washing – external hard surfaces?" },
+      { id: "q2", label: "Is water spray controlled to prevent affecting the public during pressure washing – external hard surfaces?" },
+      { id: "q3", label: "Are cables and hoses managed safely during pressure washing – external hard surfaces?" },
+      { id: "q4", label: "Is overspray on doors, windows and plant avoided during pressure washing – external hard surfaces?" },
+      { id: "q5", label: "Are surfaces checked for slip risk after pressure washing – external hard surfaces?" }
+    ]
+  },
+
+  "Bin store and waste area deep clean": {
+    desc: "Bin store and waste area deep clean includes washing down hard surfaces, cleaning bins and treating odours and residues in bin rooms and compounds.",
+    hazards: ["biological", "chemical_coshh", "slips_trips"],
+    questions: [
+      { id: "q1", label: "Is ventilation adequate for bin store and waste area deep clean?" },
+      { id: "q2", label: "Is appropriate PPE worn during bin store and waste area deep clean?" },
+      { id: "q3", label: "Is run-off managed during bin store and waste area deep clean?" },
+      { id: "q4", label: "Are bins moved and handled safely during bin store and waste area deep clean?" },
+      { id: "q5", label: "Has the area been left secure and tidy after bin store and waste area deep clean?" }
+    ]
+  },
+
+  "Plant room and back-of-house deep clean": {
+    desc: "Plant room and back-of-house deep clean covers thorough cleaning of plant rooms, service areas and back corridors, often around fixed equipment and services.",
+    hazards: ["slips_trips", "plant_machinery", "dust_fumes"],
+    questions: [
+      { id: "q1", label: "Has plant room access been agreed before plant room and back-of-house deep clean?" },
+      { id: "q2", label: "Are plant and valves kept clear and not interfered with during plant room and back-of-house deep clean?" },
+      { id: "q3", label: "Are dust and residues controlled during plant room and back-of-house deep clean?" },
+      { id: "q4", label: "Are cables and pipework protected during plant room and back-of-house deep clean?" },
+      { id: "q5", label: "Is the area left safe for plant access after plant room and back-of-house deep clean?" }
+    ]
+  },
+
+  "Duct and kitchen extract cleaning": {
+    desc: "Duct and kitchen extract cleaning involves cleaning internal surfaces of kitchen extract ductwork, canopies and associated components to remove grease and contamination.",
+    hazards: ["hot_work", "dust_fumes", "manual_handling", "work_at_height"],
+    questions: [
+      { id: "q1", label: "Have you isolated fans and relevant services for duct and kitchen extract cleaning?" },
+      { id: "q2", label: "Is access to ductwork safe for duct and kitchen extract cleaning?" },
+      { id: "q3", label: "Are access panels managed safely during duct and kitchen extract cleaning?" },
+      { id: "q4", label: "Are chemicals and degreasers used safely during duct and kitchen extract cleaning?" },
+      { id: "q5", label: "Are waste and residues removed properly after duct and kitchen extract cleaning?" }
+    ]
+  },
+
+  "Ventilation grille and terminal cleaning": {
+    desc: "Ventilation grille and terminal cleaning covers removal, cleaning and refitting of ventilation grilles, diffusers and terminals to maintain appearance and airflow.",
+    hazards: ["dust_fumes", "work_at_height", "manual_handling"],
+    questions: [
+      { id: "q1", label: "Is access equipment safe for ventilation grille and terminal cleaning?" },
+      { id: "q2", label: "Are grilles removed carefully and cleaned without creating excessive dust during ventilation grille and terminal cleaning?" },
+      { id: "q3", label: "Are fixings checked and secure after ventilation grille and terminal cleaning?" },
+      { id: "q4", label: "Is area below protected from falling dust during ventilation grille and terminal cleaning?" },
+      { id: "q5", label: "Have you verified correct reinstatement after ventilation grille and terminal cleaning?" }
+    ]
+  },
+
+  "Clean room / controlled environment cleaning": {
+    desc: "Clean room / controlled environment cleaning involves cleaning in environments with strict contamination controls, following agreed methods, equipment and clothing protocols.",
+    hazards: ["chemical_coshh", "manual_handling"],
+    questions: [
+      { id: "q1", label: "Are you trained and inducted for clean room / controlled environment cleaning?" },
+      { id: "q2", label: "Are correct garments and PPE worn for clean room / controlled environment cleaning?" },
+      { id: "q3", label: "Are approved materials and methods used for clean room / controlled environment cleaning?" },
+      { id: "q4", label: "Are entry/exit protocols followed during clean room / controlled environment cleaning?" },
+      { id: "q5", label: "Is documentation completed as required for clean room / controlled environment cleaning?" }
+    ]
+  },
+
+  "Data centre / comms room cleaning": {
+    desc: "Data centre / comms room cleaning covers low-dust, controlled cleaning of server rooms and comms spaces, avoiding disruption to critical equipment.",
+    hazards: ["dust_fumes", "slips_trips", "live_electricity"],
+    questions: [
+      { id: "q1", label: "Has access been authorised before data centre / comms room cleaning?" },
+      { id: "q2", label: "Are only approved low-lint materials used for data centre / comms room cleaning?" },
+      { id: "q3", label: "Are cables and sensitive equipment protected during data centre / comms room cleaning?" },
+      { id: "q4", label: "Are liquids controlled and kept away from equipment during data centre / comms room cleaning?" },
+      { id: "q5", label: "Are static and ESD considerations followed during data centre / comms room cleaning?" }
+    ]
+  },
+
+  "Confined space cleaning – simple chambers": {
+    desc: "Confined space cleaning – simple chambers involves cleaning in basic confined spaces such as shallow chambers or tanks, under a permit and with suitable controls.",
+    hazards: ["confined_space", "biological", "chemical_coshh"],
+    questions: [
+      { id: "q1", label: "Is a permit and confined space risk assessment completed for confined space cleaning – simple chambers?" },
+      { id: "q2", label: "Are gas tests carried out before confined space cleaning – simple chambers?" },
+      { id: "q3", label: "Are rescue arrangements in place for confined space cleaning – simple chambers?" },
+      { id: "q4", label: "Is suitable PPE and communication used during confined space cleaning – simple chambers?" },
+      { id: "q5", label: "Are entrants and top-men clearly defined for confined space cleaning – simple chambers?" }
+    ]
+  },
+
+  "Food factory production area cleaning": {
+    desc: "Food factory production area cleaning includes controlled cleaning of production lines, floors and equipment in food manufacturing environments, often around production schedules.",
+    hazards: ["chemical_coshh", "plant_machinery", "slips_trips"],
+    questions: [
+      { id: "q1", label: "Are lockout and isolation procedures followed during food factory production area cleaning?" },
+      { id: "q2", label: "Are food-grade chemicals used appropriately during food factory production area cleaning?" },
+      { id: "q3", label: "Is floor drainage and slip risk managed during food factory production area cleaning?" },
+      { id: "q4", label: "Are fixed guards and safety devices reinstated after food factory production area cleaning?" },
+      { id: "q5", label: "Is production scheduling agreed to avoid contamination during food factory production area cleaning?" }
+    ]
+  },
+
+  "Bakery / flour dust area cleaning": {
+    desc: "Bakery / flour dust area cleaning focuses on cleaning bakery environments where flour dust can present hygiene and dust explosion risks, controlling dust movement and residues.",
+    hazards: ["dust_fumes", "fire_explosion", "manual_handling"],
+    questions: [
+      { id: "q1", label: "Are dust control methods used during bakery / flour dust area cleaning to minimise airborne dust?" },
+      { id: "q2", label: "Are ignition sources controlled during bakery / flour dust area cleaning?" },
+      { id: "q3", label: "Is manual handling of trays, racks and equipment assessed for bakery / flour dust area cleaning?" },
+      { id: "q4", label: "Are approved vacuums and tools used during bakery / flour dust area cleaning?" },
+      { id: "q5", label: "Are residues and waste from bakery / flour dust area cleaning disposed of safely?" }
+    ]
+  },
+
+  "Other (Custom)": {
+    desc: "",
+    hazards: [],
+    questions: [
+      { id: "q1", label: "Have you identified all specific hazards associated with this custom cleaning or specialist cleaning task?" },
+      { id: "q2", label: "Do you have the correct equipment, chemicals and PPE for this custom cleaning or specialist cleaning task?" },
+      { id: "q3", label: "Have you carried out a dynamic risk assessment before starting this custom cleaning or specialist cleaning task?" },
+      { id: "q4", label: "Are you competent and authorised to undertake this specific custom cleaning or specialist cleaning task?" },
+      { id: "q5", label: "Have you agreed the scope, access arrangements and any isolation requirements with the client for this custom cleaning or specialist cleaning task?" }
+    ]
+  }
+};
+
+// ==========================================
 // MASTER TRADE REGISTRY
 // ==========================================
 
@@ -7428,5 +8638,13 @@ export const TRADES: Record<
   "Flooring Contractor": {
     jobs: Object.keys(FLOORING_CONTRACTOR_CLUSTERS).map((name) => ({ name })),
     clusters: FLOORING_CONTRACTOR_CLUSTERS,
+  },
+  "Facilities Maintenance": {
+    jobs: Object.keys(FACILITIES_MAINTENANCE_CLUSTERS).map((name) => ({ name })),
+    clusters: FACILITIES_MAINTENANCE_CLUSTERS,
+  },
+  "Cleaning & Specialist Cleaning": {
+    jobs: Object.keys(CLEANING_SPECIALIST_CLUSTERS).map((name) => ({ name })),
+    clusters: CLEANING_SPECIALIST_CLUSTERS,
   },
 };
