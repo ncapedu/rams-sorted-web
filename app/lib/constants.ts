@@ -8584,6 +8584,1263 @@ const CLEANING_SPECIALIST_CLUSTERS: Record<string, JobCluster> = {
 };
 
 // ==========================================
+//  WINDOW CLEANING & ACCESS CLUSTERS
+// ==========================================
+const WINDOW_CLEANING_ACCESS_CLUSTERS: Record<string, JobCluster> = {
+  // 1
+  "Ground floor internal window cleaning": {
+    desc: "Ground floor internal window cleaning involves cleaning internal panes, partition glass and vision panels from floor level using hand tools and small step-ups. Work is usually carried out around office furniture and occupants, with frequent movement between rooms. Liquids, sprayers and cloths are used in close proximity to floor finishes and IT equipment. Care is taken to avoid splashes, trip hazards from tools and disruption to normal activities.",
+    hazards: ["slips_trips", "manual_handling", "public_interface", "water_ingress"],
+    questions: [
+      { id: "q1", label: "Have you positioned your equipment to avoid creating trip hazards during ground floor internal window cleaning?" },
+      { id: "q2", label: "Are you protecting nearby furniture, flooring and electrical equipment from overspray and drips during ground floor internal window cleaning?" },
+      { id: "q3", label: "Have you agreed with the client which rooms or areas will be accessed during ground floor internal window cleaning?" },
+      { id: "q4", label: "Are cleaning chemicals for ground floor internal window cleaning being used in line with COSHH information and labels?" },
+      { id: "q5", label: "Will you remove all waste, cloths and empty containers at the end of ground floor internal window cleaning?" }
+    ]
+  },
+
+  // 2
+  "Ground floor external window cleaning": {
+    desc: "Ground floor external window cleaning covers external glazing at low level reachable from the ground or short steps. The work is often carried out adjacent to footpaths, entrances and parked vehicles. Water, detergents and squeegees are used which can make surfaces temporarily slippery. The operative must manage interaction with the public and prevent overspray affecting passers-by or neighbouring property.",
+    hazards: ["slips_trips", "public_interface", "water_ingress", "environmental_weather"],
+    questions: [
+      { id: "q1", label: "Have you set out signs or barriers where ground floor external window cleaning may affect public walkways?" },
+      { id: "q2", label: "Are you managing overspray and run-off during ground floor external window cleaning so it does not affect pedestrians or traffic?" },
+      { id: "q3", label: "Have you checked weather conditions are suitable for ground floor external window cleaning?" },
+      { id: "q4", label: "Are hoses and buckets positioned to avoid creating trip hazards during ground floor external window cleaning?" },
+      { id: "q5", label: "Will you ensure all surfaces are left safe and reasonably dry after ground floor external window cleaning?" }
+    ]
+  },
+
+  // 3
+  "Low rise external window cleaning - ladders": {
+    desc: "Low rise external window cleaning - ladders involves cleaning windows up to around first or second floor using portable ladders. The work requires repeated ladder set-ups on varying ground conditions and close control of reach and body position. The operative may be working over doorways, paths or soft ground. Stability, angle, foot protection and safe carrying of tools are critical to prevent falls.",
+    hazards: ["work_at_height", "slips_trips", "environmental_weather", "public_interface"],
+    questions: [
+      { id: "q1", label: "Have you inspected ladders and checked for damage before low rise external window cleaning - ladders?" },
+      { id: "q2", label: "Is the ground level, firm and free from slip risks where ladders will be set up for low rise external window cleaning - ladders?" },
+      { id: "q3", label: "Are you avoiding overreaching and keeping belt buckle within the stiles during low rise external window cleaning - ladders?" },
+      { id: "q4", label: "Have you controlled access below the working area during low rise external window cleaning - ladders?" },
+      { id: "q5", label: "Have you assessed wind and weather conditions before starting low rise external window cleaning - ladders?" }
+    ]
+  },
+
+  // 4
+  "Low rise external window cleaning - short-reach poles": {
+    desc: "Low rise external window cleaning - short-reach poles uses squeegee or applicator poles to extend reach from ground or small steps. This reduces some ladder use but introduces manual handling and control issues, especially around parked cars and pedestrians. Water and detergents are directed upwards, increasing the chance of drips on passers-by if not controlled. The work is typically completed from pavements or small forecourts with limited space.",
+    hazards: ["manual_handling", "public_interface", "water_ingress", "slips_trips"],
+    questions: [
+      { id: "q1", label: "Have you checked there is sufficient space to operate short-reach poles safely without striking people or vehicles?" },
+      { id: "q2", label: "Are you controlling overspray and drips during low rise external window cleaning - short-reach poles?" },
+      { id: "q3", label: "Have you considered manual handling and repetitive strain when using short-reach poles for extended periods?" },
+      { id: "q4", label: "Have you positioned buckets and hoses to avoid trip risks during low rise external window cleaning - short-reach poles?" },
+      { id: "q5", label: "Are you communicating with building users about any entrances temporarily affected by low rise external window cleaning - short-reach poles?" }
+    ]
+  },
+
+  // 5
+  "Low rise external window cleaning - water-fed pole system": {
+    desc: "Low rise external window cleaning - water-fed pole system involves using purified water and telescopic poles to reach windows from the ground, often up to third floor. It reduces the need for ladders but requires careful management of long poles, hoses and water run-off. Work is typically undertaken from pavements, car parks or landscaped areas with changing levels. Vehicle movements, public access and overhead obstructions must all be considered.",
+    hazards: ["manual_handling", "slips_trips", "public_interface", "environmental_weather", "water_ingress"],
+    questions: [
+      { id: "q1", label: "Have you checked for overhead obstructions such as cables or signage before using a water-fed pole system?" },
+      { id: "q2", label: "Are hoses routed to minimise trip hazards during low rise external window cleaning - water-fed pole system?" },
+      { id: "q3", label: "Have you assessed manual handling and fatigue risks for prolonged use of water-fed poles?" },
+      { id: "q4", label: "Are you controlling run-off so that it does not create slip hazards or enter sensitive areas during low rise external window cleaning - water-fed pole system?" },
+      { id: "q5", label: "Have you agreed safe working zones with the client before starting low rise external window cleaning - water-fed pole system?" }
+    ]
+  },
+
+  // 6
+  "Single storey shopfront window cleaning": {
+    desc: "Single storey shopfront window cleaning focuses on retail frontages at ground level, often carried out while the shop is trading or just before opening. The operative works in close proximity to customers, staff and displays. Hard paving, roadside kerbs and signage can all create obstruction. The task relies on rapid, tidy working and clear visual warnings to avoid slips and collisions.",
+    hazards: ["public_interface", "slips_trips", "water_ingress"],
+    questions: [
+      { id: "q1", label: "Have you positioned signs or cones to warn customers during single storey shopfront window cleaning?" },
+      { id: "q2", label: "Are you coordinating with staff to avoid blocking entrances during single storey shopfront window cleaning?" },
+      { id: "q3", label: "Are you managing water and detergents to avoid slippery thresholds during single storey shopfront window cleaning?" },
+      { id: "q4", label: "Is your equipment stored neatly and safely while single storey shopfront window cleaning is in progress?" },
+      { id: "q5", label: "Have you checked the frontage is clean, dry and unobstructed on completion of single storey shopfront window cleaning?" }
+    ]
+  },
+
+  // 7
+  "Two-storey domestic window cleaning - ladders": {
+    desc: "Two-storey domestic window cleaning - ladders involves cleaning house windows at first floor level using portable ladders, often on driveways, gardens and uneven ground. The operative may need to work around flowerbeds, steps and parked vehicles. Ladder position, angle and top contact all vary from window to window. Safe access, stability and limiting overreach are key to controlling the risk of falls.",
+    hazards: ["work_at_height", "slips_trips", "environmental_weather"],
+    questions: [
+      { id: "q1", label: "Have you checked ground conditions and avoided soft or sloping areas when setting ladders for two-storey domestic window cleaning - ladders?" },
+      { id: "q2", label: "Are ladders correctly angled and securely footed during two-storey domestic window cleaning - ladders?" },
+      { id: "q3", label: "Are you avoiding standing on top rungs or overreaching during two-storey domestic window cleaning - ladders?" },
+      { id: "q4", label: "Have you considered weather conditions such as wind and rain before two-storey domestic window cleaning - ladders?" },
+      { id: "q5", label: "Have you agreed access with the householder to reduce people passing directly under your work during two-storey domestic window cleaning - ladders?" }
+    ]
+  },
+
+  // 8
+  "Two-storey domestic window cleaning - water-fed pole": {
+    desc: "Two-storey domestic window cleaning - water-fed pole uses telescopic poles from ground level to reach upper storey windows on houses and small blocks. It avoids ladder use but introduces hose routing across driveways and shared paths. The operative works around parked vehicles and neighbouring properties, sometimes in tight spaces. Control of spray, hose placement and parking arrangements are essential.",
+    hazards: ["manual_handling", "slips_trips", "public_interface", "environmental_weather", "water_ingress"],
+    questions: [
+      { id: "q1", label: "Have you planned safe hose routes to avoid trip hazards during two-storey domestic window cleaning - water-fed pole?" },
+      { id: "q2", label: "Are you controlling overspray to avoid affecting neighbours, vehicles and open windows during two-storey domestic window cleaning - water-fed pole?" },
+      { id: "q3", label: "Are you using suitable manual handling techniques when lifting and extending poles during two-storey domestic window cleaning - water-fed pole?" },
+      { id: "q4", label: "Have you agreed parking and access arrangements with the client for two-storey domestic window cleaning - water-fed pole?" },
+      { id: "q5", label: "Are weather conditions acceptable for safe control of the pole during two-storey domestic window cleaning - water-fed pole?" }
+    ]
+  },
+
+  // 9
+  "Three-storey townhouse window cleaning": {
+    desc: "Three-storey townhouse window cleaning covers taller domestic properties where upper floors are often reached by extended water-fed poles or specialist access equipment. Work areas are usually tight, with shared paths, steps and on-street parking. The operative must manage longer pole lengths, visibility of the work zone and more complex hose routes. Communication with occupants is important to avoid disturbance and accidental opening of windows during cleaning.",
+    hazards: ["manual_handling", "slips_trips", "public_interface", "environmental_weather", "work_at_height"],
+    questions: [
+      { id: "q1", label: "Have you assessed whether ladders, poles or MEWP are the safest option for three-storey townhouse window cleaning?" },
+      { id: "q2", label: "Are hose and pole routes planned to avoid doorways and narrow pinch points during three-storey townhouse window cleaning?" },
+      { id: "q3", label: "Are you able to maintain good control and visibility of the pole during three-storey townhouse window cleaning?" },
+      { id: "q4", label: "Have you agreed timing and access with occupants for three-storey townhouse window cleaning?" },
+      { id: "q5", label: "Have weather and ground conditions been checked before three-storey townhouse window cleaning?" }
+    ]
+  },
+
+  // 10
+  "Apartment block balcony glazing cleaning": {
+    desc: "Apartment block balcony glazing cleaning involves cleaning glass balustrades and doors to private or communal balconies. Work takes place at height, typically inside the balcony edge but often close to unprotected drops. Access is restricted, with furniture and residents’ belongings present. The operative must maintain safe positioning and avoid leaning over guarding or climbing on furniture.",
+    hazards: ["work_at_height", "slips_trips", "fragile_surfaces", "public_interface"],
+    questions: [
+      { id: "q1", label: "Have you confirmed balcony guarding is in place and in good condition before apartment block balcony glazing cleaning?" },
+      { id: "q2", label: "Are you avoiding leaning or climbing on balcony rails or furniture during apartment block balcony glazing cleaning?" },
+      { id: "q3", label: "Have you requested residents to clear items that could cause trip hazards during apartment block balcony glazing cleaning?" },
+      { id: "q4", label: "Are you preventing water and tools falling from balconies to areas below during apartment block balcony glazing cleaning?" },
+      { id: "q5", label: "Have you checked emergency escape routes are not obstructed during apartment block balcony glazing cleaning?" }
+    ]
+  },
+
+  // 11
+  "Atrium glazing internal cleaning - steps/podium": {
+    desc: "Atrium glazing internal cleaning - steps/podium uses mobile steps or podiums to reach internal glazing and framing in atria and high circulation spaces. Work is carried out above open floor areas which may still be partially in use. Careful positioning, inspection and use of access equipment is required. Exclusion zones below must be managed to protect building users from falling tools or drips.",
+    hazards: ["work_at_height", "slips_trips", "falling_objects", "public_interface"],
+    questions: [
+      { id: "q1", label: "Has the steps or podium been inspected and tagged before atrium glazing internal cleaning - steps/podium?" },
+      { id: "q2", label: "Are you using guardrails and maintaining three points of contact where required during atrium glazing internal cleaning - steps/podium?" },
+      { id: "q3", label: "Have you set up suitable barriers or signs below the work area for atrium glazing internal cleaning - steps/podium?" },
+      { id: "q4", label: "Are tools and materials secured to prevent falling during atrium glazing internal cleaning - steps/podium?" },
+      { id: "q5", label: "Have you agreed access restrictions with the client for the duration of atrium glazing internal cleaning - steps/podium?" }
+    ]
+  },
+
+  // 12
+  "Atrium glazing internal cleaning - MEWP": {
+    desc: "Atrium glazing internal cleaning - MEWP involves using mobile elevating work platforms to reach extensive high-level glass and framing inside buildings. Work takes place over public or communal areas which must be fully controlled. The MEWP route, set-up and emergency procedures must be planned in advance. Operators require specific training and must manage boom movements carefully around structures and services.",
+    hazards: ["work_at_height", "plant_machinery", "falling_objects", "public_interface"],
+    questions: [
+      { id: "q1", label: "Are MEWP operators trained and authorised for atrium glazing internal cleaning - MEWP?" },
+      { id: "q2", label: "Has the MEWP route and set-up location been planned and checked for atrium glazing internal cleaning - MEWP?" },
+      { id: "q3", label: "Are exclusion zones and barriers in place beneath the MEWP during atrium glazing internal cleaning - MEWP?" },
+      { id: "q4", label: "Are you aware of overhead services and structures that could be struck during atrium glazing internal cleaning - MEWP?" },
+      { id: "q5", label: "Have emergency lowering and rescue procedures been agreed for atrium glazing internal cleaning - MEWP?" }
+    ]
+  },
+
+  // 13
+  "Internal partition and office glazing cleaning": {
+    desc: "Internal partition and office glazing cleaning covers framed partitions, doors and internal glazed panels throughout offices and commercial buildings. Work is often done while staff are present and using adjacent desks and circulation routes. Cleaners move between rooms with sprayers, cloths and small steps. Managing privacy, avoiding streaks and preventing slips from overspray are key outcomes.",
+    hazards: ["slips_trips", "manual_handling", "public_interface"],
+    questions: [
+      { id: "q1", label: "Have you agreed access times for internal partition and office glazing cleaning to minimise disruption?" },
+      { id: "q2", label: "Are you protecting IT and electrical equipment from overspray during internal partition and office glazing cleaning?" },
+      { id: "q3", label: "Are any small steps inspected and used correctly during internal partition and office glazing cleaning?" },
+      { id: "q4", label: "Are walkways kept clear of buckets and tools during internal partition and office glazing cleaning?" },
+      { id: "q5", label: "Have you ensured confidential or sensitive areas are treated appropriately during internal partition and office glazing cleaning?" }
+    ]
+  },
+
+  // 14
+  "Internal glass balustrade and handrail cleaning": {
+    desc: "Internal glass balustrade and handrail cleaning involves cleaning glazed guarding to stairs, landings and balconies inside buildings. Work takes place adjacent to changes in level and pedestrian routes. The operative may lean or reach around balustrades if not controlled. It is essential to maintain safe footing, avoid overreaching and protect people below from drips and dropped items.",
+    hazards: ["work_at_height", "slips_trips", "falling_objects", "public_interface"],
+    questions: [
+      { id: "q1", label: "Have you assessed where there is a fall risk while carrying out internal glass balustrade and handrail cleaning?" },
+      { id: "q2", label: "Are you avoiding leaning over open edges during internal glass balustrade and handrail cleaning?" },
+      { id: "q3", label: "Are you controlling drips and splashes to avoid stairs becoming slippery during internal glass balustrade and handrail cleaning?" },
+      { id: "q4", label: "Have you set up any necessary barriers or diversions below your work area during internal glass balustrade and handrail cleaning?" },
+      { id: "q5", label: "Are your tools and cloths managed to prevent them falling from height during internal glass balustrade and handrail cleaning?" }
+    ]
+  },
+
+  // 15
+  "Internal stairwell glazing and high windows": {
+    desc: "Internal stairwell glazing and high windows involves cleaning windows over stairwells and voids using poles, steps or small MEWPs. Access is restricted and there are significant fall hazards if equipment is not positioned correctly. Work areas are also key escape routes which must remain available. Planning of sequencing, access control and rescue arrangements is critical.",
+    hazards: ["work_at_height", "slips_trips", "falling_objects", "public_interface"],
+    questions: [
+      { id: "q1", label: "Have you selected suitable access equipment for internal stairwell glazing and high windows?" },
+      { id: "q2", label: "Are stairs, landings and edges protected and controlled during internal stairwell glazing and high windows?" },
+      { id: "q3", label: "Are tools and cleaning heads secured during internal stairwell glazing and high windows?" },
+      { id: "q4", label: "Have you agreed how fire escape routes will be maintained during internal stairwell glazing and high windows?" },
+      { id: "q5", label: "Are you using a safe system of work and not overreaching during internal stairwell glazing and high windows?" }
+    ]
+  },
+
+  // 16
+  "Skylight and rooflight cleaning - single storey": {
+    desc: "Skylight and rooflight cleaning - single storey involves accessing single-storey roofs or low-level flat roofs to clean rooflights and domes. Access is usually via fixed stairs, ladders or hatches. Roof surfaces may be slippery and unguarded at the edges. Careful planning is required to avoid falls from the roof or through fragile materials.",
+    hazards: ["work_at_height", "slips_trips", "fragile_surfaces", "environmental_weather"],
+    questions: [
+      { id: "q1", label: "Is roof access authorised and controlled for skylight and rooflight cleaning - single storey?" },
+      { id: "q2", label: "Have you identified roof edges and any fragile areas before skylight and rooflight cleaning - single storey?" },
+      { id: "q3", label: "Are weather conditions suitable for safe footing during skylight and rooflight cleaning - single storey?" },
+      { id: "q4", label: "Are you maintaining a safe distance from unprotected edges during skylight and rooflight cleaning - single storey?" },
+      { id: "q5", label: "Is there a safe method of getting tools and water to the roof for skylight and rooflight cleaning - single storey?" }
+    ]
+  },
+
+  // 17
+  "Skylight and rooflight cleaning - multi-storey": {
+    desc: "Skylight and rooflight cleaning - multi-storey involves cleaning rooflights on taller buildings where access is more complex and consequences of a fall are severe. Access may use fixed ladders, internal hatches, mansafe systems or MEWPs. The work area may include fragile panels, plant and uneven surfaces. A formal work at height plan and edge protection are usually required.",
+    hazards: ["work_at_height", "fragile_surfaces", "environmental_weather", "falling_objects"],
+    questions: [
+      { id: "q1", label: "Has a work at height plan been produced for skylight and rooflight cleaning - multi-storey?" },
+      { id: "q2", label: "Have fragile roofs or panels been identified and controlled during skylight and rooflight cleaning - multi-storey?" },
+      { id: "q3", label: "Are harness systems or edge protection in place where needed for skylight and rooflight cleaning - multi-storey?" },
+      { id: "q4", label: "Are access ladders, hatches and anchor points inspected and suitable for skylight and rooflight cleaning - multi-storey?" },
+      { id: "q5", label: "Have you considered wind, rain and lightning when planning skylight and rooflight cleaning - multi-storey?" }
+    ]
+  },
+
+  // 18
+  "Canopy and entrance glazing cleaning": {
+    desc: "Canopy and entrance glazing cleaning covers canopies, porch roofs and glazed entrance structures over public doors and walkways. Work positions the operative above or adjacent to high-traffic areas. Water, tools and debris may fall if not controlled. Close coordination with the client is needed to temporarily divert pedestrians and protect entrance thresholds.",
+    hazards: ["work_at_height", "public_interface", "slips_trips", "falling_objects"],
+    questions: [
+      { id: "q1", label: "Have you set up adequate barriers under the work area for canopy and entrance glazing cleaning?" },
+      { id: "q2", label: "Are you preventing tools, fittings and debris from dropping during canopy and entrance glazing cleaning?" },
+      { id: "q3", label: "Is access equipment stable and correctly positioned for canopy and entrance glazing cleaning?" },
+      { id: "q4", label: "Are entrances either closed or closely managed while canopy and entrance glazing cleaning is carried out?" },
+      { id: "q5", label: "Are you managing overspray and run-off to avoid slippery entrance surfaces after canopy and entrance glazing cleaning?" }
+    ]
+  },
+
+  // 19
+  "Shopfront fascia and signage cleaning": {
+    desc: "Shopfront fascia and signage cleaning involves cleaning signboards, fascias and decorative elements above shop entrances using ladders or small access platforms. Work is carried out over public walkways and often near the carriageway. The operative must control access below, ensure safe ladder set-up and avoid contact with electrical signage components. Cleaning agents and tools must be handled to prevent splashes onto the public and stock.",
+    hazards: ["work_at_height", "public_interface", "slips_trips", "live_electricity"],
+    questions: [
+      { id: "q1", label: "Have live electrical signage components been identified and isolated if necessary for shopfront fascia and signage cleaning?" },
+      { id: "q2", label: "Are ladders or platforms set up safely and away from vehicle doors for shopfront fascia and signage cleaning?" },
+      { id: "q3", label: "Have you provided warning signs and barriers for pedestrians during shopfront fascia and signage cleaning?" },
+      { id: "q4", label: "Are you preventing chemicals and dirty water from affecting the public or displayed goods during shopfront fascia and signage cleaning?" },
+      { id: "q5", label: "Have you checked that all fixings and sign elements are secure after shopfront fascia and signage cleaning?" }
+    ]
+  },
+
+  // 20
+  "High rise façade window cleaning - BMU cradle": {
+    desc: "High rise façade window cleaning - BMU cradle uses permanent building maintenance units and cradles to access full-height facades at significant altitude. Work requires rigorous pre-use checks, communication systems and emergency rescue arrangements. Operators are exposed to wind, temperature and long working durations at height. Strict exclusion zones are enforced below for falling object protection.",
+    hazards: ["work_at_height", "falling_objects", "environmental_weather", "public_interface"],
+    questions: [
+      { id: "q1", label: "Has the BMU been inspected, certified and released for use before high rise façade window cleaning - BMU cradle?" },
+      { id: "q2", label: "Are harness and fall arrest systems correctly used during high rise façade window cleaning - BMU cradle?" },
+      { id: "q3", label: "Are exclusion zones at ground level in place and monitored during high rise façade window cleaning - BMU cradle?" },
+      { id: "q4", label: "Have you considered wind thresholds and weather limits for high rise façade window cleaning - BMU cradle?" },
+      { id: "q5", label: "Are rescue and emergency communication procedures in place for high rise façade window cleaning - BMU cradle?" }
+    ]
+  },
+
+  // 21
+  "High rise façade window cleaning - rope access": {
+    desc: "High rise façade window cleaning - rope access uses IRATA-style or equivalent rope systems to position operatives on high structures. The work involves complex rigging, twin-rope systems and strict supervision by competent rope access technicians. Loads are suspended above the public realm and entrances. Anchor integrity, edge protection and dropped-object controls are critical.",
+    hazards: ["work_at_height", "falling_objects", "environmental_weather", "public_interface"],
+    questions: [
+      { id: "q1", label: "Are all rope access operatives competent and supervised for high rise façade window cleaning - rope access?" },
+      { id: "q2", label: "Have you verified anchor points and rigging plans for high rise façade window cleaning - rope access?" },
+      { id: "q3", label: "Are tool lanyards and materials management in place to prevent dropped objects during high rise façade window cleaning - rope access?" },
+      { id: "q4", label: "Are ground-level exclusion zones clearly set and maintained during high rise façade window cleaning - rope access?" },
+      { id: "q5", label: "Have you considered weather, rescue and suspension intolerance risks for high rise façade window cleaning - rope access?" }
+    ]
+  },
+
+  // 22
+  "High rise façade window cleaning - MEWP": {
+    desc: "High rise façade window cleaning - MEWP uses large mobile elevating work platforms to reach building facades from the ground. Routes often pass over pavements and car parks, requiring traffic management and careful siting. Outrigger loads, underground services and overhead cables must all be checked. Operators work from enclosed baskets at height with hoses, lances and tools.",
+    hazards: ["work_at_height", "plant_machinery", "moving_vehicles", "environmental_weather", "falling_objects"],
+    questions: [
+      { id: "q1", label: "Has a MEWP-specific risk assessment and traffic management plan been completed for high rise façade window cleaning - MEWP?" },
+      { id: "q2", label: "Have underground services and ground bearing capacity been checked before siting MEWPs for high rise façade window cleaning - MEWP?" },
+      { id: "q3", label: "Are operators trained and wearing harnesses where required during high rise façade window cleaning - MEWP?" },
+      { id: "q4", label: "Are exclusion zones and banksmen in place to control vehicle and pedestrian movements during high rise façade window cleaning - MEWP?" },
+      { id: "q5", label: "Are weather conditions within limits for safe boom operation during high rise façade window cleaning - MEWP?" }
+    ]
+  },
+
+  // 23
+  "High rise atrium façade cleaning - rope and MEWP": {
+    desc: "High rise atrium façade cleaning - rope and MEWP combines internal rope access or work positioning systems with MEWPs or other platforms in complex atrium spaces. Work is often carried out above occupied circulation areas and delicate finishes. Detailed coordination is required to manage anchor points, plant movement and public exclusion. Lighting, reflections and access logistics can all complicate the task.",
+    hazards: ["work_at_height", "plant_machinery", "falling_objects", "public_interface"],
+    questions: [
+      { id: "q1", label: "Has an integrated plan been agreed for rope access and MEWP use during high rise atrium façade cleaning - rope and MEWP?" },
+      { id: "q2", label: "Are anchors, rigging and rescue arrangements in place for high rise atrium façade cleaning - rope and MEWP?" },
+      { id: "q3", label: "Are MEWP routes, set-up locations and clearances confirmed for high rise atrium façade cleaning - rope and MEWP?" },
+      { id: "q4", label: "Are robust exclusion zones implemented beneath the work area during high rise atrium façade cleaning - rope and MEWP?" },
+      { id: "q5", label: "Have lighting and visibility issues been considered when planning high rise atrium façade cleaning - rope and MEWP?" }
+    ]
+  },
+
+  // 24
+  "Curtain wall glazing detail clean - new build": {
+    desc: "Curtain wall glazing detail clean - new build focuses on final cleaning of new façade systems before handover, including removal of labels, sealant smears and construction residues. Work may be undertaken from MEWPs, cradles or internally via opening windows. The façade may still be surrounded by construction activities and incomplete landscaping. Close coordination is required to avoid conflict with other trades and protect new finishes.",
+    hazards: ["work_at_height", "dust_fumes", "plant_machinery", "public_interface"],
+    questions: [
+      { id: "q1", label: "Has the façade been formally handed over or access agreed with the principal contractor for curtain wall glazing detail clean - new build?" },
+      { id: "q2", label: "Are you using suitable tools and chemicals that will not damage coatings during curtain wall glazing detail clean - new build?" },
+      { id: "q3", label: "Are MEWPs, cradles or internal access routes safe and coordinated during curtain wall glazing detail clean - new build?" },
+      { id: "q4", label: "Have you considered interaction with other trades and site traffic during curtain wall glazing detail clean - new build?" },
+      { id: "q5", label: "Are you protecting newly installed finishes below from drips and debris during curtain wall glazing detail clean - new build?" }
+    ]
+  },
+
+  // 25
+  "Construction handover window and frame clean": {
+    desc: "Construction handover window and frame clean involves final cleaning of glass and frames internally and externally as part of project completion. Residues of plaster, tape and sealant must be removed without scratching or damaging surfaces. The work is often undertaken on a tight programme, alongside snagging and final inspections. Access can be from internal floors, ladders, towers or MEWPs depending on building form.",
+    hazards: ["work_at_height", "dust_fumes", "manual_handling"],
+    questions: [
+      { id: "q1", label: "Has safe access been agreed and checked with the main contractor for construction handover window and frame clean?" },
+      { id: "q2", label: "Are you using appropriate scrapers and pads to avoid scratching during construction handover window and frame clean?" },
+      { id: "q3", label: "Are access platforms or ladders used in accordance with guidance for construction handover window and frame clean?" },
+      { id: "q4", label: "Is waste from construction handover window and frame clean collected and removed regularly to keep areas tidy?" },
+      { id: "q5", label: "Have you confirmed which windows are complete and ready for construction handover window and frame clean?" }
+    ]
+  },
+
+  // 26
+  "Post-builder sparkle clean - glazing and frames": {
+    desc: "Post-builder sparkle clean - glazing and frames is a detailed, presentation-level clean following the initial builder clean. It targets smears, marks and fine dust on glass, frames and cills. The building may already be partially occupied or being shown to clients. High standards of appearance and protection of finishes are required, with minimal disruption to occupants.",
+    hazards: ["manual_handling", "slips_trips", "public_interface"],
+    questions: [
+      { id: "q1", label: "Have you agreed occupied and sensitive areas before post-builder sparkle clean - glazing and frames?" },
+      { id: "q2", label: "Are you using clean, suitable cloths and tools to avoid scratching during post-builder sparkle clean - glazing and frames?" },
+      { id: "q3", label: "Are leads, buckets and access steps managed to avoid trip risks during post-builder sparkle clean - glazing and frames?" },
+      { id: "q4", label: "Are you coordinating with other finishing trades during post-builder sparkle clean - glazing and frames?" },
+      { id: "q5", label: "Have you carried out a final visual check with the client after post-builder sparkle clean - glazing and frames?" }
+    ]
+  },
+
+  // 27
+  "Window frame and cill restoration clean": {
+    desc: "Window frame and cill restoration clean involves intensive cleaning of frames and cills to remove ingrained dirt, algae or atmospheric staining. The task may include specialist chemicals, abrasives and extended dwell times. Work can be at low or medium height, indoors or outdoors. Protection and test areas are essential to avoid damaging coatings or substrates.",
+    hazards: ["chemical_coshh", "manual_handling", "slips_trips"],
+    questions: [
+      { id: "q1", label: "Have you carried out a small test patch before full window frame and cill restoration clean?" },
+      { id: "q2", label: "Are restoration chemicals used in line with COSHH during window frame and cill restoration clean?" },
+      { id: "q3", label: "Are you controlling run-off and residue from window frame and cill restoration clean?" },
+      { id: "q4", label: "Is manual handling of equipment and pads considered for window frame and cill restoration clean?" },
+      { id: "q5", label: "Have you agreed the expected finish and limitations with the client for window frame and cill restoration clean?" }
+    ]
+  },
+
+  // 28
+  "Heritage building window cleaning - traditional": {
+    desc: "Heritage building window cleaning - traditional covers older buildings where glazing and frames may be delicate or listed. Access may be restricted and surfaces uneven. Specialist techniques and milder cleaning products are usually needed to protect historic fabric. There may also be additional constraints around working hours, noise and public access.",
+    hazards: ["work_at_height", "fragile_surfaces", "public_interface"],
+    questions: [
+      { id: "q1", label: "Have you reviewed conservation requirements before heritage building window cleaning - traditional?" },
+      { id: "q2", label: "Are you using suitable non-abrasive tools and products for heritage building window cleaning - traditional?" },
+      { id: "q3", label: "Is access equipment positioned to avoid damage to stonework and steps during heritage building window cleaning - traditional?" },
+      { id: "q4", label: "Are public routes around the heritage building controlled during window cleaning - traditional?" },
+      { id: "q5", label: "Have you agreed any restrictions on water use or run-off for heritage building window cleaning - traditional?" }
+    ]
+  },
+
+  // 29
+  "Lead and stained glass window cleaning - low level": {
+    desc: "Lead and stained glass window cleaning - low level focuses on delicate decorative glazing panels that may be susceptible to scratching and moisture damage. Work is normally undertaken internally or externally from stable, low-level positions. Only gentle cleaning methods should be used. Protection of frames, leading and painted surfaces is a key consideration.",
+    hazards: ["fragile_surfaces", "manual_handling"],
+    questions: [
+      { id: "q1", label: "Have you checked with the client or specialist guidance before lead and stained glass window cleaning - low level?" },
+      { id: "q2", label: "Are you using mild cleaning agents and non-abrasive cloths during lead and stained glass window cleaning - low level?" },
+      { id: "q3", label: "Are you avoiding excessive pressure on panes and leadwork during lead and stained glass window cleaning - low level?" },
+      { id: "q4", label: "Is the area beneath protected from drips and debris during lead and stained glass window cleaning - low level?" },
+      { id: "q5", label: "Have you inspected for pre-existing damage before lead and stained glass window cleaning - low level?" }
+    ]
+  },
+
+  // 30
+  "Lead and stained glass window cleaning - access equipment": {
+    desc: "Lead and stained glass window cleaning - access equipment is similar to low-level work but requires ladders, towers or MEWPs to reach higher decorative glazing. The fragility of the glass combines with work at height risks. Careful positioning and padding of equipment is essential. Operatives must avoid leaning frames or tools directly on delicate surfaces.",
+    hazards: ["work_at_height", "fragile_surfaces", "falling_objects"],
+    questions: [
+      { id: "q1", label: "Have you chosen the safest method of access for lead and stained glass window cleaning - access equipment?" },
+      { id: "q2", label: "Are ladders, towers or MEWPs positioned clear of delicate frames during lead and stained glass window cleaning - access equipment?" },
+      { id: "q3", label: "Are tools, buckets and cloths secured to prevent drops during lead and stained glass window cleaning - access equipment?" },
+      { id: "q4", label: "Are you using gentle cleaning techniques suitable for heritage glazing during lead and stained glass window cleaning - access equipment?" },
+      { id: "q5", label: "Is the working area below controlled while you carry out lead and stained glass window cleaning - access equipment?" }
+    ]
+  },
+
+  // 31
+  "Church or listed building high-level window cleaning": {
+    desc: "Church or listed building high-level window cleaning covers tall, often complex buildings with towers, clerestory windows and traceried openings. Access may involve towers, MEWPs or rope systems. Surface condition and structural integrity can be variable. Work must be planned in conjunction with conservation bodies and building owners, with strong emphasis on heritage protection.",
+    hazards: ["work_at_height", "fragile_surfaces", "falling_objects", "public_interface"],
+    questions: [
+      { id: "q1", label: "Have you developed a specific access and heritage protection plan for church or listed building high-level window cleaning?" },
+      { id: "q2", label: "Are conservation constraints understood and followed during church or listed building high-level window cleaning?" },
+      { id: "q3", label: "Are access routes and set-up positions safe and protected during church or listed building high-level window cleaning?" },
+      { id: "q4", label: "Are exclusion zones in place to protect the public and congregation during church or listed building high-level window cleaning?" },
+      { id: "q5", label: "Are tools and cleaning media suitable for the age and condition of glazing during church or listed building high-level window cleaning?" }
+    ]
+  },
+
+  // 32
+  "Rooflight and atrium glass algae removal": {
+    desc: "Rooflight and atrium glass algae removal involves treating and cleaning glass surfaces affected by algae or organic growth, typically on external rooflights or atrium tops. The work uses biocides or detergents and may require brushing or low-pressure rinsing. Access is usually via roof or MEWP. Control of run-off and protection of adjacent surfaces and drainage is important.",
+    hazards: ["work_at_height", "chemical_coshh", "environmental_weather", "slips_trips"],
+    questions: [
+      { id: "q1", label: "Are biocides or detergents used in line with COSHH during rooflight and atrium glass algae removal?" },
+      { id: "q2", label: "Is a safe access method agreed for rooflight and atrium glass algae removal?" },
+      { id: "q3", label: "Are you controlling run-off and protecting gutters and drains during rooflight and atrium glass algae removal?" },
+      { id: "q4", label: "Are weather conditions suitable for safe footing during rooflight and atrium glass algae removal?" },
+      { id: "q5", label: "Are you limiting overspray and drift during rooflight and atrium glass algae removal?" }
+    ]
+  },
+
+  // 33
+  "Solar control film preparation clean": {
+    desc: "Solar control film preparation clean is a precise cleaning of internal glazing prior to application of window films. The aim is to remove all contaminants without scratching or damaging glass and seals. Work is carried out from floor level or small steps in occupied buildings. Dust control, lint-free materials and careful chemical selection are critical.",
+    hazards: ["manual_handling", "slips_trips", "chemical_coshh"],
+    questions: [
+      { id: "q1", label: "Are you using approved glass-safe chemicals for solar control film preparation clean?" },
+      { id: "q2", label: "Are cloths and tools low-lint and suitable for solar control film preparation clean?" },
+      { id: "q3", label: "Have you controlled dust and other trades in the area during solar control film preparation clean?" },
+      { id: "q4", label: "Are small steps or stools stable and inspected during solar control film preparation clean?" },
+      { id: "q5", label: "Have you agreed environmental conditions (temperature, humidity) needed for solar control film preparation clean?" }
+    ]
+  },
+
+  // 34
+  "High level signage and logo panel cleaning": {
+    desc: "High level signage and logo panel cleaning includes cleaning illuminated or non-illuminated sign boxes and fascia panels on building exteriors. Access is usually via ladders, MEWPs or cradles over public areas and car parks. Electrical components and fixings may be exposed. The task must control falling objects, overspray and interference with live circuits.",
+    hazards: ["work_at_height", "live_electricity", "falling_objects", "public_interface"],
+    questions: [
+      { id: "q1", label: "Have sign electrics been isolated or checked safe before high level signage and logo panel cleaning?" },
+      { id: "q2", label: "Is your access equipment suitable and inspected for high level signage and logo panel cleaning?" },
+      { id: "q3", label: "Are you using tool lanyards and exclusion zones for high level signage and logo panel cleaning?" },
+      { id: "q4", label: "Are you controlling overspray so it does not affect traffic or pedestrians during high level signage and logo panel cleaning?" },
+      { id: "q5", label: "Have you checked fixings and panels for looseness during high level signage and logo panel cleaning?" }
+    ]
+  },
+
+  // 35
+  "Bus shelter and street furniture glazing cleaning": {
+    desc: "Bus shelter and street furniture glazing cleaning covers transparent panels on shelters, kiosks and similar structures in public spaces. Work is performed adjacent to live carriageways and pedestrian routes. Vandalism, broken glass and graffiti residues may be present. The operative must manage traffic proximity, sharps and public interaction.",
+    hazards: ["public_interface", "moving_vehicles", "glass_sharps", "slips_trips"],
+    questions: [
+      { id: "q1", label: "Have you considered traffic and set up safe working zones for bus shelter and street furniture glazing cleaning?" },
+      { id: "q2", label: "Are you checking for broken glass and sharps before bus shelter and street furniture glazing cleaning?" },
+      { id: "q3", label: "Are cleaning agents and water controlled to avoid creating slippery pavements during bus shelter and street furniture glazing cleaning?" },
+      { id: "q4", label: "Are you aware of local authority or client requirements for working near the highway during bus shelter and street furniture glazing cleaning?" },
+      { id: "q5", label: "Are tools and materials kept compact and under control during bus shelter and street furniture glazing cleaning?" }
+    ]
+  },
+
+  // 36
+  "Rail/transport hub glazing cleaning - concourse": {
+    desc: "Rail/transport hub glazing cleaning - concourse involves cleaning large internal or semi-external glazed areas in busy stations and terminals. Work is scheduled around passenger flows and train timetables. Security and access rules are strict, and announcements or signage may be required. The task must minimise disruption while preventing slips and contact with overhead equipment.",
+    hazards: ["public_interface", "slips_trips", "security_risk"],
+    questions: [
+      { id: "q1", label: "Have you coordinated with station management for rail/transport hub glazing cleaning - concourse?" },
+      { id: "q2", label: "Are you following security and access procedures during rail/transport hub glazing cleaning - concourse?" },
+      { id: "q3", label: "Are work areas clearly signed and protected from passengers during rail/transport hub glazing cleaning - concourse?" },
+      { id: "q4", label: "Are you avoiding wetting large walking areas during rail/transport hub glazing cleaning - concourse?" },
+      { id: "q5", label: "Have you assessed emergency evacuation routes during rail/transport hub glazing cleaning - concourse?" }
+    ]
+  },
+
+  // 37
+  "Rail/transport hub glazing cleaning - platforms": {
+    desc: "Rail/transport hub glazing cleaning - platforms deals with glazing and screens adjacent to active rail lines and platforms. Work must be coordinated with rail operations and potentially require possession or isolation. The operative works near platform edges, moving trains and overhead systems. Control of access, equipment and communication is vital.",
+    hazards: ["moving_vehicles", "public_interface", "slips_trips"],
+    questions: [
+      { id: "q1", label: "Has rail authority permission or possession been obtained for rail/transport hub glazing cleaning - platforms?" },
+      { id: "q2", label: "Are you controlling access to platform edges during rail/transport hub glazing cleaning - platforms?" },
+      { id: "q3", label: "Is equipment kept clear of the trackside and overhead equipment during rail/transport hub glazing cleaning - platforms?" },
+      { id: "q4", label: "Are staff briefed on emergency procedures for rail/transport hub glazing cleaning - platforms?" },
+      { id: "q5", label: "Are water and cleaning agents used in a way that avoids contamination of the track during rail/transport hub glazing cleaning - platforms?" }
+    ]
+  },
+
+  // 38
+  "Hospital and clinical facility glazing cleaning": {
+    desc: "Hospital and clinical facility glazing cleaning covers internal and external glazing in healthcare settings, including wards, corridors and waiting areas. Infection control, patient privacy and noise must all be managed. Work may be limited to certain times or require chaperoning. The operative must follow local hygiene protocols and avoid disturbing clinical activities.",
+    hazards: ["biological", "public_interface", "slips_trips"],
+    questions: [
+      { id: "q1", label: "Are you following local infection control procedures for hospital and clinical facility glazing cleaning?" },
+      { id: "q2", label: "Have you agreed access times with clinical staff for hospital and clinical facility glazing cleaning?" },
+      { id: "q3", label: "Are work areas controlled to maintain patient privacy during hospital and clinical facility glazing cleaning?" },
+      { id: "q4", label: "Are cleaning products suitable and approved for hospital and clinical facility glazing cleaning?" },
+      { id: "q5", label: "Are floors and routes checked for slip risk after hospital and clinical facility glazing cleaning?" }
+    ]
+  },
+
+  // 39
+  "School and college window cleaning - term time": {
+    desc: "School and college window cleaning - term time involves cleaning glazing while pupils and staff are present on site. Supervision, safeguarding and movement planning are crucial. Work areas may need to be fenced or scheduled outside lesson changes. The operative must avoid creating attractive hazards for children and maintain strict separation.",
+    hazards: ["public_interface", "slips_trips", "security_risk"],
+    questions: [
+      { id: "q1", label: "Have you agreed safeguarding arrangements for school and college window cleaning - term time?" },
+      { id: "q2", label: "Are work areas fenced or clearly controlled during school and college window cleaning - term time?" },
+      { id: "q3", label: "Are you avoiding working in playgrounds or high-traffic areas at peak times during school and college window cleaning - term time?" },
+      { id: "q4", label: "Are tools and chemicals kept secure and out of reach of pupils during school and college window cleaning - term time?" },
+      { id: "q5", label: "Have you planned how to maintain safe access and egress during school and college window cleaning - term time?" }
+    ]
+  },
+
+  // 40
+  "School and college window cleaning - holiday period": {
+    desc: "School and college window cleaning - holiday period takes advantage of reduced occupancy to complete more extensive internal and external cleaning. Access to roofs, courtyards and internal atria may be available. However, construction works or maintenance may also be taking place on site. Coordination with caretaking, contractors and security is necessary.",
+    hazards: ["work_at_height", "slips_trips", "security_risk"],
+    questions: [
+      { id: "q1", label: "Have you coordinated with site management and other contractors for school and college window cleaning - holiday period?" },
+      { id: "q2", label: "Are roof and high-level access routes safe and authorised during school and college window cleaning - holiday period?" },
+      { id: "q3", label: "Are you managing waste and equipment storage securely during school and college window cleaning - holiday period?" },
+      { id: "q4", label: "Are routes and exits kept clear despite works during school and college window cleaning - holiday period?" },
+      { id: "q5", label: "Have you checked alarms and security are reinstated after school and college window cleaning - holiday period?" }
+    ]
+  },
+
+  // 41
+  "Shopping centre mall glazing cleaning": {
+    desc: "Shopping centre mall glazing cleaning includes internal and external mall glazing, balustrades and rooflights within large retail complexes. Work is usually undertaken out of trading hours but still within strict time windows. MEWPs, towers and specialist tools may all be involved. Coordination with centre management and security is essential to manage access and emergency routes.",
+    hazards: ["work_at_height", "slips_trips", "public_interface", "plant_machinery"],
+    questions: [
+      { id: "q1", label: "Have you agreed a detailed work schedule with centre management for shopping centre mall glazing cleaning?" },
+      { id: "q2", label: "Are MEWPs or towers inspected and authorised before shopping centre mall glazing cleaning?" },
+      { id: "q3", label: "Are escape routes and fire exits available and signed during shopping centre mall glazing cleaning?" },
+      { id: "q4", label: "Are you managing water, cables and hoses to avoid slip and trip hazards during shopping centre mall glazing cleaning?" },
+      { id: "q5", label: "Is the mall reinstated to a safe, clean condition before trading resumes after shopping centre mall glazing cleaning?" }
+    ]
+  },
+
+  // 42
+  "Hotel and leisure facility window cleaning": {
+    desc: "Hotel and leisure facility window cleaning covers guestroom windows, spa areas, poolsides and public lounges. Work must respect guest privacy and schedules while maintaining high aesthetic standards. Surfaces around pools and terraces can be particularly slippery when wet. The operative must coordinate with hotel staff and manage water carefully indoors.",
+    hazards: ["slips_trips", "public_interface", "water_ingress"],
+    questions: [
+      { id: "q1", label: "Have you coordinated with hotel management for hotel and leisure facility window cleaning times?" },
+      { id: "q2", label: "Are you controlling water use around pools and tiled areas during hotel and leisure facility window cleaning?" },
+      { id: "q3", label: "Are you respecting guest privacy and room occupancy during hotel and leisure facility window cleaning?" },
+      { id: "q4", label: "Are internal walkways and pool edges kept free from hoses and buckets during hotel and leisure facility window cleaning?" },
+      { id: "q5", label: "Have you ensured all areas are safe and dry after hotel and leisure facility window cleaning?" }
+    ]
+  },
+
+  // 43
+  "Restaurant and café frontage window cleaning": {
+    desc: "Restaurant and café frontage window cleaning targets frontage glazing and doors for food outlets which operate long hours and rely heavily on presentation. Work often takes place around outdoor seating, customers and deliveries. Spillages and food waste may already be present on pavements. Managing slips, trip hazards and interactions with diners is important.",
+    hazards: ["public_interface", "slips_trips", "water_ingress"],
+    questions: [
+      { id: "q1", label: "Have you agreed suitable timing with the operator for restaurant and café frontage window cleaning?" },
+      { id: "q2", label: "Are you controlling overspray and drips so they do not affect diners during restaurant and café frontage window cleaning?" },
+      { id: "q3", label: "Are tables, chairs and barriers arranged safely during restaurant and café frontage window cleaning?" },
+      { id: "q4", label: "Are pavements and thresholds left safe and clean after restaurant and café frontage window cleaning?" },
+      { id: "q5", label: "Is equipment stored safely out of customers' reach during restaurant and café frontage window cleaning?" }
+    ]
+  },
+
+  // 44
+  "Petrol station canopy and shopfront cleaning": {
+    desc: "Petrol station canopy and shopfront cleaning covers external canopies, columns and glazing at fuel stations and forecourt shops. Work takes place in a hazardous environment with vehicle movements and fuel pumps. Strict coordination with site management is required to avoid ignition sources and control traffic. The operative must also manage work around fuel lines and vents.",
+    hazards: ["moving_vehicles", "fire_explosion", "public_interface", "work_at_height"],
+    questions: [
+      { id: "q1", label: "Have you obtained permission and briefing from the site operator for petrol station canopy and shopfront cleaning?" },
+      { id: "q2", label: "Are vehicle movements controlled during petrol station canopy and shopfront cleaning?" },
+      { id: "q3", label: "Are you avoiding high-pressure spraying directly at pumps, dispensers and vents during petrol station canopy and shopfront cleaning?" },
+      { id: "q4", label: "Is access equipment set up clear of traffic routes and fuel equipment during petrol station canopy and shopfront cleaning?" },
+      { id: "q5", label: "Are ignition sources and smoking strictly controlled during petrol station canopy and shopfront cleaning?" }
+    ]
+  },
+
+  // 45
+  "Roadside building window cleaning - traffic management": {
+    desc: "Roadside building window cleaning - traffic management addresses glazing on buildings immediately adjacent to busy roads, where operatives may need to work near the carriageway or in the verge. Temporary traffic management, cones or lane closures may be required. Vehicle striking risk, distraction and noise are significant. Planning must align with highway authority requirements.",
+    hazards: ["moving_vehicles", "public_interface", "work_at_height"],
+    questions: [
+      { id: "q1", label: "Has a traffic management plan been agreed with the relevant authority for roadside building window cleaning - traffic management?" },
+      { id: "q2", label: "Are operatives wearing high-visibility clothing during roadside building window cleaning - traffic management?" },
+      { id: "q3", label: "Are cones, signs and barriers set out correctly for roadside building window cleaning - traffic management?" },
+      { id: "q4", label: "Are access equipment and hoses kept within protected zones during roadside building window cleaning - traffic management?" },
+      { id: "q5", label: "Are you monitoring traffic and adjusting the work if conditions change during roadside building window cleaning - traffic management?" }
+    ]
+  },
+
+  // 46
+  "Industrial unit high-level window and panel cleaning": {
+    desc: "Industrial unit high-level window and panel cleaning involves cleaning glazing bands and cladding panels high on warehouse or factory facades. Access is usually via MEWPs from yards or loading areas with active vehicle and plant movements. Surfaces may be heavily soiled with dust or exhaust deposits. Coordination with site logistics and careful siting of plant is essential.",
+    hazards: ["work_at_height", "plant_machinery", "moving_vehicles", "environmental_weather"],
+    questions: [
+      { id: "q1", label: "Have you coordinated with site management for industrial unit high-level window and panel cleaning?" },
+      { id: "q2", label: "Are MEWPs set up outside of loading and turning areas during industrial unit high-level window and panel cleaning?" },
+      { id: "q3", label: "Are weather and wind conditions acceptable for industrial unit high-level window and panel cleaning?" },
+      { id: "q4", label: "Are exclusion zones set for forklifts and lorries during industrial unit high-level window and panel cleaning?" },
+      { id: "q5", label: "Is dirty run-off managed to avoid affecting goods and drains during industrial unit high-level window and panel cleaning?" }
+    ]
+  },
+
+  // 47
+  "Warehouse clerestory window cleaning": {
+    desc: "Warehouse clerestory window cleaning targets high-level glazing strips that bring light into warehouse or industrial buildings. Access may be internal from platforms or external from MEWPs. The work is carried out above storage racks and working areas. Maintaining safe segregation from warehouse operations and protecting stock from drips is important.",
+    hazards: ["work_at_height", "plant_machinery", "falling_objects"],
+    questions: [
+      { id: "q1", label: "Have you agreed isolation or segregation from warehouse operations for warehouse clerestory window cleaning?" },
+      { id: "q2", label: "Is access equipment correctly positioned and inspected for warehouse clerestory window cleaning?" },
+      { id: "q3", label: "Are racks and stored goods protected from drips and debris during warehouse clerestory window cleaning?" },
+      { id: "q4", label: "Are you using tool lanyards and controls to prevent falls of objects during warehouse clerestory window cleaning?" },
+      { id: "q5", label: "Have you planned and briefed emergency procedures for warehouse clerestory window cleaning?" }
+    ]
+  },
+
+  // 48
+  "Glazing access equipment inspection and cleaning": {
+    desc: "Glazing access equipment inspection and cleaning covers pre-use checks and cleaning of tracks, cradles, davits or other dedicated access systems used for window cleaning. The focus is on maintaining safe, reliable access equipment rather than cleaning glazing itself. Work may involve working at height near edges, handling components and lubricants. Documentation and coordination with building management are vital.",
+    hazards: ["work_at_height", "manual_handling", "falling_objects"],
+    questions: [
+      { id: "q1", label: "Have you isolated or secured access systems before glazing access equipment inspection and cleaning?" },
+      { id: "q2", label: "Are you working within safe areas and using harnesses where required during glazing access equipment inspection and cleaning?" },
+      { id: "q3", label: "Are components handled safely to avoid strain during glazing access equipment inspection and cleaning?" },
+      { id: "q4", label: "Are tools and small parts controlled to prevent drops during glazing access equipment inspection and cleaning?" },
+      { id: "q5", label: "Are inspection findings recorded and reported after glazing access equipment inspection and cleaning?" }
+    ]
+  },
+
+  // 49
+  "Abseil access equipment set-up and demobilisation clean-down": {
+    desc: "Abseil access equipment set-up and demobilisation clean-down involves preparing, rigging and later de-rigging rope access systems used for window cleaning, plus cleaning and checking the equipment afterwards. Work takes place at roof level near edges and anchor points. It includes handling ropes, anchors and PPE, alongside storage and inspection. Correct rigging practices and record keeping are crucial.",
+    hazards: ["work_at_height", "stored_energy", "falling_objects"],
+    questions: [
+      { id: "q1", label: "Are competent technicians supervising abseil access equipment set-up and demobilisation clean-down?" },
+      { id: "q2", label: "Have anchors and edge protection been checked before abseil access equipment set-up and demobilisation clean-down?" },
+      { id: "q3", label: "Are exclusion zones in place below while abseil access equipment set-up and demobilisation clean-down is being carried out?" },
+      { id: "q4", label: "Are ropes and hardware inspected, cleaned and stored correctly after abseil access equipment set-up and demobilisation clean-down?" },
+      { id: "q5", label: "Are records updated following abseil access equipment set-up and demobilisation clean-down?" }
+    ]
+  },
+
+  // 50 - Other
+  "Other (Custom)": {
+    desc: "",
+    hazards: [],
+    questions: [
+      { id: "q1", label: "Have you identified all specific hazards associated with this custom window cleaning or access task (including work at height, public areas and fragile surfaces)?" },
+      { id: "q2", label: "Is the chosen access method for this custom window cleaning or access task the safest reasonably practicable option?" },
+      { id: "q3", label: "Do you have the correct equipment, PPE and competence for this custom window cleaning or access task?" },
+      { id: "q4", label: "Have you planned how to control the public interface, falling objects and water run-off for this custom window cleaning or access task?" },
+      { id: "q5", label: "Have you agreed the scope, exclusion zones and any traffic or building management requirements with the client for this custom window cleaning or access task?" }
+    ]
+  }
+};
+
+const LANDSCAPING_GROUNDS_MAINTENANCE_CLUSTERS: Record<string, JobCluster> = {
+  "General grounds maintenance - routine visits": {
+    desc: "General grounds maintenance - routine visits covers regular scheduled upkeep of lawns, beds, paths and communal external areas. Tasks typically include light mowing, weeding, litter removal and visual checks of features. Work is often carried out around the public or site users, so tidiness and safe segregation are important throughout.",
+    hazards: ["manual_handling", "slips_trips", "environmental_weather", "sharp_objects", "public_interface"],
+    questions: [
+      { id: "q1", label: "Have you confirmed the exact areas and tasks included in this general grounds maintenance - routine visits before starting?" },
+      { id: "q2", label: "Have you walked the site for obvious hazards (holes, trip risks, debris, low branches) before starting the general grounds maintenance - routine visits?" },
+      { id: "q3", label: "Are you keeping clear separation between your work area and members of the public during the general grounds maintenance - routine visits?" },
+      { id: "q4", label: "Are suitable manual handling techniques being used when moving tools, bags and small equipment during the general grounds maintenance - routine visits?" },
+      { id: "q5", label: "Is there a plan for collecting and disposing of green waste and litter generated during the general grounds maintenance - routine visits?" }
+    ]
+  },
+
+  "Lawn mowing - pedestrian rotary mower": {
+    desc: "Lawn mowing - pedestrian rotary mower involves using a walk-behind rotary mower to cut grassed areas. Operators typically work close to paths, vehicles and the public and may need to manoeuvre on uneven or sloping ground. Regular checks on guards, cables and emergency stops are essential.",
+    hazards: ["manual_handling", "slips_trips", "noise_vibration", "plant_machinery", "environmental_weather"],
+    questions: [
+      { id: "q1", label: "Has the lawn been walked and checked for stones, litter and obstacles before lawn mowing - pedestrian rotary mower begins?" },
+      { id: "q2", label: "Is the mower used for lawn mowing - pedestrian rotary mower in good condition with guards, cables and safety devices intact?" },
+      { id: "q3", label: "Are you maintaining a safe distance from other people, vehicles and windows during lawn mowing - pedestrian rotary mower?" },
+      { id: "q4", label: "Are you limiting trigger time and using appropriate hearing and eye protection during lawn mowing - pedestrian rotary mower?" },
+      { id: "q5", label: "Have you assessed slopes and wet ground before lawn mowing - pedestrian rotary mower to avoid loss of footing or control?" }
+    ]
+  },
+
+  "Lawn mowing - ride-on mower": {
+    desc: "Lawn mowing - ride-on mower covers the use of sit-on or stand-on mowing machines for larger grassed areas. Machines may operate close to banks, ditches, trees and parked vehicles. Only trained operators should use ride-on mowers and must follow safe routes and exclusion zones.",
+    hazards: ["plant_machinery", "moving_vehicles", "noise_vibration", "environmental_weather", "slips_trips"],
+    questions: [
+      { id: "q1", label: "Is the operator trained and authorised for the lawn mowing - ride-on mower task?" },
+      { id: "q2", label: "Have mowing routes, turning areas and exclusion zones been agreed before starting lawn mowing - ride-on mower?" },
+      { id: "q3", label: "Have slopes, banks and soft ground been assessed for rollover or bogging risks before lawn mowing - ride-on mower?" },
+      { id: "q4", label: "Is the lawn mowing - ride-on mower fitted with working ROPS, seat belt and safety devices where specified?" },
+      { id: "q5", label: "Are the public and other workers kept at a safe distance during lawn mowing - ride-on mower operations?" }
+    ]
+  },
+
+  "Lawn edging and strimming": {
+    desc: "Lawn edging and strimming involves using line trimmers or brushcutters to cut grass around obstacles, edges and tight areas. The task generates flying debris and noise and often takes place close to glazing, vehicles and pedestrians. Good control of the machine and eye/face protection are critical.",
+    hazards: ["noise_vibration", "plant_machinery", "sharp_objects", "environmental_weather", "public_interface"],
+    questions: [
+      { id: "q1", label: "Has the work area been checked and cleared of loose stones and debris before lawn edging and strimming starts?" },
+      { id: "q2", label: "Are guards and harnesses correctly fitted and used for lawn edging and strimming?" },
+      { id: "q3", label: "Are you using appropriate eye, face and hearing protection during lawn edging and strimming?" },
+      { id: "q4", label: "Are vehicles, windows and members of the public kept outside the throw zone during lawn edging and strimming?" },
+      { id: "q5", label: "Are breaks and rotation planned to control vibration exposure during lawn edging and strimming?" }
+    ]
+  },
+
+  "Hedge trimming - handheld trimmers": {
+    desc: "Hedge trimming - handheld trimmers involves using short-reach powered trimmers from ground level or low steps. It includes cutting, shaping and tidying hedges and then clearing arisings. Work may be adjacent to paths, roads and boundaries and can involve overhead cutting.",
+    hazards: ["work_at_height", "sharp_objects", "noise_vibration", "manual_handling", "environmental_weather"],
+    questions: [
+      { id: "q1", label: "Is the hedge line inspected for hidden hazards (wire, rubbish, nesting birds) before hedge trimming - handheld trimmers starts?" },
+      { id: "q2", label: "Are steps or small platforms used for hedge trimming - handheld trimmers stable and appropriate for the height needed?" },
+      { id: "q3", label: "Are guards, two-hand controls and dead-man switches working on the equipment used for hedge trimming - handheld trimmers?" },
+      { id: "q4", label: "Are suitable gloves, eye and hearing protection being worn during hedge trimming - handheld trimmers?" },
+      { id: "q5", label: "Is there a safe system for collecting, stacking and removing cuttings after hedge trimming - handheld trimmers?" }
+    ]
+  },
+
+  "Hedge trimming - long-reach trimmers": {
+    desc: "Hedge trimming - long-reach trimmers uses extended-shaft machines to reach higher hedges from the ground or low platforms. The equipment can be top-heavy and awkward, increasing strain and loss-of-control risks. Work is often near roads, boundaries and neighbouring properties.",
+    hazards: ["work_at_height", "manual_handling", "sharp_objects", "environmental_weather", "slips_trips"],
+    questions: [
+      { id: "q1", label: "Have you assessed the reach and height before hedge trimming - long-reach trimmers to avoid overstretching?" },
+      { id: "q2", label: "Is footing secure and free from trip hazards where hedge trimming - long-reach trimmers is taking place?" },
+      { id: "q3", label: "Are you using the correct harness or support systems during hedge trimming - long-reach trimmers to reduce fatigue?" },
+      { id: "q4", label: "Have you checked for overhead cables or obstructions before hedge trimming - long-reach trimmers?" },
+      { id: "q5", label: "Is there a plan for controlling access below the work area during hedge trimming - long-reach trimmers?" }
+    ]
+  },
+
+  "Shrub bed maintenance and pruning": {
+    desc: "Shrub bed maintenance and pruning includes weeding, pruning, mulching and general upkeep of planted borders. Work often involves kneeling or bending, handling thorny or spiky plants and working close to paths and parking. Chemical weed control may also be used.",
+    hazards: ["manual_handling", "biological", "sharp_objects", "slips_trips", "environmental_weather"],
+    questions: [
+      { id: "q1", label: "Have you identified any thorny or irritant species before shrub bed maintenance and pruning starts?" },
+      { id: "q2", label: "Are suitable gloves, eye protection and long sleeves worn during shrub bed maintenance and pruning?" },
+      { id: "q3", label: "Is the work area kept tidy to avoid tools and arisings creating trip hazards during shrub bed maintenance and pruning?" },
+      { id: "q4", label: "Are safe kneeling or seating positions used to reduce strain during shrub bed maintenance and pruning?" },
+      { id: "q5", label: "Is there an agreed method for removing and disposing of prunings from shrub bed maintenance and pruning?" }
+    ]
+  },
+
+  "Tree pruning - hand tools from ground": {
+    desc: "Tree pruning - hand tools from ground involves removing low branches and epicormic growth using hand saws, loppers or pole pruners whilst standing on the ground. Work focuses on clearance over paths, roads and structures and must control falling branches and debris.",
+    hazards: ["falling_objects", "manual_handling", "sharp_objects", "environmental_weather", "public_interface"],
+    questions: [
+      { id: "q1", label: "Has a visual inspection of the tree been carried out before tree pruning - hand tools from ground begins?" },
+      { id: "q2", label: "Are exclusion zones set up beneath the work area during tree pruning - hand tools from ground?" },
+      { id: "q3", label: "Are hand saws and pole pruners used for tree pruning - hand tools from ground in good condition and suitable for the branch sizes?" },
+      { id: "q4", label: "Are cuts planned to control the direction of branch fall during tree pruning - hand tools from ground?" },
+      { id: "q5", label: "Are you using appropriate PPE (helmet, eye protection, gloves) during tree pruning - hand tools from ground?" }
+    ]
+  },
+
+  "Tree pruning - chainsaw from ground": {
+    desc: "Tree pruning - chainsaw from ground involves using a chainsaw at ground level to remove low branches or sections of felled trees. Only trained and competent chainsaw operators should undertake this work. Control of kick-back, chain condition and escape routes is critical.",
+    hazards: ["falling_objects", "plant_machinery", "noise_vibration", "sharp_objects", "environmental_weather"],
+    questions: [
+      { id: "q1", label: "Is the operator trained and competent for tree pruning - chainsaw from ground?" },
+      { id: "q2", label: "Is the chainsaw used for tree pruning - chainsaw from ground inspected, sharp and correctly maintained?" },
+      { id: "q3", label: "Are escape routes, cutting positions and branch tensions assessed before tree pruning - chainsaw from ground cuts are made?" },
+      { id: "q4", label: "Is full chainsaw PPE (helmet, visor, ear defenders, chainsaw trousers, boots, gloves) worn during tree pruning - chainsaw from ground?" },
+      { id: "q5", label: "Are bystanders kept outside the hazard zone during tree pruning - chainsaw from ground?" }
+    ]
+  },
+
+  "Tree works - MEWP access": {
+    desc: "Tree works - MEWP access involves using a mobile elevating work platform to access the canopy for pruning or removal. The MEWP must be set on suitable ground with outriggers deployed and operated by trained personnel. Rescue plans and clear drop zones are required.",
+    hazards: ["work_at_height", "plant_machinery", "falling_objects", "moving_vehicles", "environmental_weather"],
+    questions: [
+      { id: "q1", label: "Is the MEWP used for tree works - MEWP access operated by trained and authorised personnel?" },
+      { id: "q2", label: "Has the ground condition and slope been checked for MEWP stability before tree works - MEWP access?" },
+      { id: "q3", label: "Are harnesses and lanyards correctly attached while in the basket during tree works - MEWP access?" },
+      { id: "q4", label: "Are exclusion zones and drop zones established below the work area for tree works - MEWP access?" },
+      { id: "q5", label: "Is there an agreed emergency rescue plan in case of MEWP failure during tree works - MEWP access?" }
+    ]
+  },
+
+  "Tree works - climbing and rope access": {
+    desc: "Tree works - climbing and rope access involves arborists climbing the tree using ropes, harnesses and work positioning systems. This is high-risk work requiring specific training, equipment checks and rescue arrangements. Ground staff support is essential for communication and managing drop zones.",
+    hazards: ["work_at_height", "falling_objects", "environmental_weather", "manual_handling", "sharp_objects"],
+    questions: [
+      { id: "q1", label: "Are all climbers undertaking tree works - climbing and rope access trained, competent and medically fit?" },
+      { id: "q2", label: "Have climbing and lowering gear inspections been checked and recorded before tree works - climbing and rope access?" },
+      { id: "q3", label: "Is there a dedicated, equipped and briefed aerial rescue climber on site during tree works - climbing and rope access?" },
+      { id: "q4", label: "Are drop zones clearly marked and kept clear during tree works - climbing and rope access?" },
+      { id: "q5", label: "Have weather conditions (wind, lightning) been checked and deemed suitable for tree works - climbing and rope access?" }
+    ]
+  },
+
+  "Stump grinding operations": {
+    desc: "Stump grinding operations use a dedicated grinding machine to mechanically remove tree stumps and roots. The work involves rotating cutting wheels, flying debris and noise, often in confined external spaces. Access, guarding and exclusion areas are critical controls.",
+    hazards: ["plant_machinery", "noise_vibration", "dust_fumes", "sharp_objects", "environmental_weather"],
+    questions: [
+      { id: "q1", label: "Is the stump grinder used for stump grinding operations inspected and maintained in line with manufacturer guidance?" },
+      { id: "q2", label: "Are guards and deflectors correctly fitted to control debris during stump grinding operations?" },
+      { id: "q3", label: "Are exclusion zones established to keep others clear of the grinding area during stump grinding operations?" },
+      { id: "q4", label: "Are operators wearing appropriate PPE including face/eye, hearing and leg protection during stump grinding operations?" },
+      { id: "q5", label: "Is there a plan for backfilling or making safe the void left after stump grinding operations?" }
+    ]
+  },
+
+  "Leaf blowing and collection": {
+    desc: "Leaf blowing and collection involves using blowers or vacuums to gather leaves and light debris, followed by manual bagging or loading. Work is often done near buildings, vehicles and the public and can create noise and airborne dust. Slips on wet leaves are a key concern.",
+    hazards: ["noise_vibration", "plant_machinery", "slips_trips", "dust_fumes", "environmental_weather"],
+    questions: [
+      { id: "q1", label: "Have you checked wind direction and sensitivity of nearby areas before starting leaf blowing and collection?" },
+      { id: "q2", label: "Are you using appropriate hearing and respiratory protection during leaf blowing and collection where needed?" },
+      { id: "q3", label: "Are windows, vehicles and entrances being protected from blown debris during leaf blowing and collection?" },
+      { id: "q4", label: "Are leaf piles and bags kept clear of walkways to avoid trip hazards during leaf blowing and collection?" },
+      { id: "q5", label: "Is there an agreed method for removal and disposal of collected leaves after leaf blowing and collection?" }
+    ]
+  },
+
+  "Litter picking and site tidying": {
+    desc: "Litter picking and site tidying includes collecting litter, fly-tipped items and small debris from grounds and external areas. Work may be alongside roads, car parks and public paths. Hazards include sharp or contaminated items and moving vehicles.",
+    hazards: ["slips_trips", "biological", "sharp_objects", "moving_vehicles", "environmental_weather"],
+    questions: [
+      { id: "q1", label: "Are litter pickers, gloves and suitable bags provided for litter picking and site tidying?" },
+      { id: "q2", label: "Have you planned how to work safely near traffic and parking areas during litter picking and site tidying?" },
+      { id: "q3", label: "Is any suspicious, hazardous or fly-tipped waste identified during litter picking and site tidying being reported and dealt with under a specific procedure?" },
+      { id: "q4", label: "Are routes kept clear and bags removed promptly to avoid trip hazards during litter picking and site tidying?" },
+      { id: "q5", label: "Is there suitable hand hygiene and welfare available after litter picking and site tidying?" }
+    ]
+  },
+
+  "Weed control - manual removal": {
+    desc: "Weed control - manual removal covers digging, hoeing and pulling weeds from beds, paths and hard standings without chemicals. The work can be repetitive and physically demanding and often involves kneeling and bending. Care is needed to avoid damaging wanted plants or buried services.",
+    hazards: ["manual_handling", "slips_trips", "biological", "environmental_weather"],
+    questions: [
+      { id: "q1", label: "Has the area been reviewed for buried services or irrigation before weed control - manual removal?" },
+      { id: "q2", label: "Are suitable hand tools in good condition being used for weed control - manual removal?" },
+      { id: "q3", label: "Are kneeling pads or suitable postures used to reduce strain during weed control - manual removal?" },
+      { id: "q4", label: "Is the work area kept tidy to avoid trip hazards from tools and spoil during weed control - manual removal?" },
+      { id: "q5", label: "Is there a plan for disposing of arisings from weed control - manual removal?" }
+    ]
+  },
+
+  "Weed control - handheld herbicide spraying": {
+    desc: "Weed control - handheld herbicide spraying involves applying approved herbicides using knapsack or lance equipment to control weeds on hard and soft surfaces. Operators must be trained and follow product labels, including weather and drift limitations. Public access and nearby vegetation must be protected.",
+    hazards: ["chemical_coshh", "environmental_weather", "manual_handling", "biological", "public_interface"],
+    questions: [
+      { id: "q1", label: "Is the operator trained and authorised for weed control - handheld herbicide spraying and familiar with the product label?" },
+      { id: "q2", label: "Has the COSHH assessment and PPE requirements been reviewed before weed control - handheld herbicide spraying?" },
+      { id: "q3", label: "Are you controlling drift and overspray to protect non-target plants and the public during weed control - handheld herbicide spraying?" },
+      { id: "q4", label: "Are weather conditions (wind, rain) suitable for weed control - handheld herbicide spraying?" },
+      { id: "q5", label: "Is equipment cleaned and rinsings disposed of correctly after weed control - handheld herbicide spraying?" }
+    ]
+  },
+
+  "Weed control - vehicle/boom herbicide spraying": {
+    desc: "Weed control - vehicle/boom herbicide spraying uses mounted equipment on vehicles or tractors to treat larger areas. It involves higher application rates and greater drift potential, often near roads, watercourses and public areas. Strict control of routes, speeds and calibration is needed.",
+    hazards: ["chemical_coshh", "moving_vehicles", "plant_machinery", "environmental_weather", "public_interface"],
+    questions: [
+      { id: "q1", label: "Is the driver/operator trained and certificated for weed control - vehicle/boom herbicide spraying?" },
+      { id: "q2", label: "Has the boom sprayer calibration been checked before weed control - vehicle/boom herbicide spraying?" },
+      { id: "q3", label: "Are routes and exclusion zones agreed to protect the public and traffic during weed control - vehicle/boom herbicide spraying?" },
+      { id: "q4", label: "Are weather and wind conditions within limits for safe weed control - vehicle/boom herbicide spraying?" },
+      { id: "q5", label: "Is there an emergency procedure for spills or accidental exposure during weed control - vehicle/boom herbicide spraying?" }
+    ]
+  },
+
+  "Fence line and boundary vegetation clearance": {
+    desc: "Fence line and boundary vegetation clearance involves cutting back and removing growth along fences, walls and boundaries. Work may be near neighbouring properties, public paths and buried services. The task often combines hand tools, strimmers and manual clearance.",
+    hazards: ["manual_handling", "sharp_objects", "slips_trips", "environmental_weather", "biological"],
+    questions: [
+      { id: "q1", label: "Have you checked for boundaries, cables and other services before fence line and boundary vegetation clearance?" },
+      { id: "q2", label: "Are you maintaining good housekeeping to avoid brash piles causing trip hazards during fence line and boundary vegetation clearance?" },
+      { id: "q3", label: "Are suitable gloves and eye protection used for fence line and boundary vegetation clearance?" },
+      { id: "q4", label: "Have neighbours or adjacent landowners been informed where access is affected by fence line and boundary vegetation clearance?" },
+      { id: "q5", label: "Is there a plan for chipping, burning or removing arisings from fence line and boundary vegetation clearance?" }
+    ]
+  },
+
+  "Soft landscaping - planting beds and borders": {
+    desc: "Soft landscaping - planting beds and borders covers installing new planting schemes, including soil preparation, planting, mulching and initial watering. Work often involves close coordination with designs and other trades. Manual handling of plants, compost and materials can be significant.",
+    hazards: ["manual_handling", "biological", "slips_trips", "environmental_weather", "sharp_objects"],
+    questions: [
+      { id: "q1", label: "Have plant locations, species and layouts been confirmed before starting soft landscaping - planting beds and borders?" },
+      { id: "q2", label: "Are safe lifting techniques used for handling plants, compost and materials during soft landscaping - planting beds and borders?" },
+      { id: "q3", label: "Is the ground checked for buried services before digging for soft landscaping - planting beds and borders?" },
+      { id: "q4", label: "Are paths and access routes kept clear of tools and materials during soft landscaping - planting beds and borders?" },
+      { id: "q5", label: "Is there a plan for initial watering and aftercare following soft landscaping - planting beds and borders?" }
+    ]
+  },
+
+  "Turf laying and lawn renovation": {
+    desc: "Turf laying and lawn renovation includes ground preparation, importing topsoil, laying turf or seeding, and topdressing. The work can be labour-intensive and often uses small machinery for cultivation. Control of levels, drainage and access routes is important.",
+    hazards: ["manual_handling", "slips_trips", "environmental_weather", "plant_machinery", "water_ingress"],
+    questions: [
+      { id: "q1", label: "Has the area been stripped, levelled and checked for obstructions before turf laying and lawn renovation?" },
+      { id: "q2", label: "Are manual handling risks from rolls of turf and bags of material controlled during turf laying and lawn renovation?" },
+      { id: "q3", label: "Are small machines or rotavators used for turf laying and lawn renovation operated by competent persons?" },
+      { id: "q4", label: "Is access protected to prevent people walking on new surfaces after turf laying and lawn renovation?" },
+      { id: "q5", label: "Have drainage and watering requirements been considered as part of turf laying and lawn renovation?" }
+    ]
+  },
+
+  "Sports pitch mowing and line marking": {
+    desc: "Sports pitch mowing and line marking involves regular cutting and marking of sports surfaces such as football or rugby pitches. Work often takes place to tight timescales around fixtures and training. Machines and marking equipment may operate near players, spectators and vehicles.",
+    hazards: ["plant_machinery", "moving_vehicles", "noise_vibration", "environmental_weather", "public_interface"],
+    questions: [
+      { id: "q1", label: "Are mowing and marking routes agreed before sports pitch mowing and line marking starts?" },
+      { id: "q2", label: "Are operators trained and competent for all machines used in sports pitch mowing and line marking?" },
+      { id: "q3", label: "Have players, coaches and site users been briefed to keep clear during sports pitch mowing and line marking?" },
+      { id: "q4", label: "Are line marking materials stored and used safely during sports pitch mowing and line marking?" },
+      { id: "q5", label: "Has weather and ground condition been checked to avoid damaging the surface during sports pitch mowing and line marking?" }
+    ]
+  },
+
+  "Artificial sports surface brushing and maintenance": {
+    desc: "Artificial sports surface brushing and maintenance includes regular brushing, drag-mating, infill top-ups and inspections of synthetic pitches or courts. Specialist machinery is often used and must be set to manufacturer guidelines. Controlling access while equipment is operating is essential.",
+    hazards: ["plant_machinery", "noise_vibration", "slips_trips", "dust_fumes", "environmental_weather"],
+    questions: [
+      { id: "q1", label: "Has the manufacturer’s guidance been checked before artificial sports surface brushing and maintenance?" },
+      { id: "q2", label: "Are brushes and attachments correctly set to avoid surface damage during artificial sports surface brushing and maintenance?" },
+      { id: "q3", label: "Is access controlled so that players and the public are kept off the surface during artificial sports surface brushing and maintenance?" },
+      { id: "q4", label: "Are suitable dust controls used when handling infill during artificial sports surface brushing and maintenance?" },
+      { id: "q5", label: "Is there a record of inspections and defects found during artificial sports surface brushing and maintenance?" }
+    ]
+  },
+
+  "Playground inspection and grounds maintenance": {
+    desc: "Playground inspection and grounds maintenance involves checking play equipment, surfacing and surrounds, and carrying out routine grounds work nearby. The work must consider entrapment, impact surfacing levels and public safety. Findings should be recorded and unsafe items isolated.",
+    hazards: ["slips_trips", "public_interface", "sharp_objects", "environmental_weather", "biological"],
+    questions: [
+      { id: "q1", label: "Are inspection checklists used for playground inspection and grounds maintenance?" },
+      { id: "q2", label: "Are defects found during playground inspection and grounds maintenance recorded and reported immediately?" },
+      { id: "q3", label: "Is unsafe or damaged equipment isolated or signed off-limits during playground inspection and grounds maintenance?" },
+      { id: "q4", label: "Are surfacing levels and fall zones checked during playground inspection and grounds maintenance?" },
+      { id: "q5", label: "Are litter, glass and dog fouling removed safely during playground inspection and grounds maintenance?" }
+    ]
+  },
+
+  "Cemetery and memorial grounds maintenance": {
+    desc: "Cemetery and memorial grounds maintenance includes grass cutting, planting, path maintenance and care of memorial areas. Work is sensitive and may coincide with funerals or visitors. Care is needed around headstones, graves and uneven ground.",
+    hazards: ["manual_handling", "slips_trips", "public_interface", "environmental_weather", "biological"],
+    questions: [
+      { id: "q1", label: "Have you checked planned services so cemetery and memorial grounds maintenance avoids funerals and services where possible?" },
+      { id: "q2", label: "Is machinery kept at a respectful distance from headstones during cemetery and memorial grounds maintenance?" },
+      { id: "q3", label: "Are unstable memorials identified and reported during cemetery and memorial grounds maintenance?" },
+      { id: "q4", label: "Is work sequenced to minimise noise and disturbance to visitors during cemetery and memorial grounds maintenance?" },
+      { id: "q5", label: "Are trip hazards from uneven ground managed during cemetery and memorial grounds maintenance?" }
+    ]
+  },
+
+  "Bank and steep slope grass cutting": {
+    desc: "Bank and steep slope grass cutting covers mowing or strimming on slopes and embankments where loss of footing or machine stability is a key risk. It may involve pedestrian mowers, brushcutters or remote-controlled equipment. Weather and ground conditions can change risk rapidly.",
+    hazards: ["work_at_height", "slips_trips", "plant_machinery", "environmental_weather", "moving_vehicles"],
+    questions: [
+      { id: "q1", label: "Has the gradient and ground condition been assessed before bank and steep slope grass cutting?" },
+      { id: "q2", label: "Are suitable machines or methods selected for bank and steep slope grass cutting (e.g. remote mowers, winch assist)?" },
+      { id: "q3", label: "Are operators working across, not directly up and down, where possible during bank and steep slope grass cutting?" },
+      { id: "q4", label: "Is there a plan to stop bank and steep slope grass cutting if ground becomes too wet or unstable?" },
+      { id: "q5", label: "Is there adequate segregation from roads or watercourses during bank and steep slope grass cutting?" }
+    ]
+  },
+
+  "Watercourse and ditch vegetation clearance": {
+    desc: "Watercourse and ditch vegetation clearance involves cutting, raking and removing vegetation from ditches, streams and culverts. Work may be from banks or within shallow channels and must control the risk of slips into water and contamination. Environmental considerations are important.",
+    hazards: ["slips_trips", "water_ingress", "biological", "manual_handling", "environmental_weather"],
+    questions: [
+      { id: "q1", label: "Have water depth, flow and bank stability been assessed before watercourse and ditch vegetation clearance?" },
+      { id: "q2", label: "Are life jackets or buoyancy aids used where appropriate during watercourse and ditch vegetation clearance?" },
+      { id: "q3", label: "Is there a plan for safe access and egress to the work area during watercourse and ditch vegetation clearance?" },
+      { id: "q4", label: "Are arisings from watercourse and ditch vegetation clearance placed away from the bank edge and managed to avoid pollution?" },
+      { id: "q5", label: "Are hygiene precautions in place after watercourse and ditch vegetation clearance?" }
+    ]
+  },
+
+  "Pond and water feature maintenance": {
+    desc: "Pond and water feature maintenance covers cleaning, vegetation control, pump checks and minor repairs to ponds and water features. Work often combines electrical equipment with water, and access can be awkward around edges and stones. Algae and wet surfaces increase slip risk.",
+    hazards: ["water_ingress", "slips_trips", "biological", "live_electricity", "manual_handling"],
+    questions: [
+      { id: "q1", label: "Have pumps and electrical supplies been isolated where necessary before pond and water feature maintenance?" },
+      { id: "q2", label: "Is edge protection or safe working platforms provided during pond and water feature maintenance where falls into water are possible?" },
+      { id: "q3", label: "Are suitable gloves, footwear and hygiene measures used during pond and water feature maintenance?" },
+      { id: "q4", label: "Is silt and debris removed and stored safely during pond and water feature maintenance?" },
+      { id: "q5", label: "Have children and the public been kept away from work areas during pond and water feature maintenance?" }
+    ]
+  },
+
+  "Winter gritting - pedestrian routes": {
+    desc: "Winter gritting - pedestrian routes includes applying grit or de-icer to paths, steps and entrances. Work is typically carried out in cold, dark conditions when slips are more likely. Operators may use spreaders or manual methods and must avoid creating new trip hazards.",
+    hazards: ["slips_trips", "environmental_weather", "manual_handling", "moving_vehicles", "poor_lighting"],
+    questions: [
+      { id: "q1", label: "Has a route plan been agreed for winter gritting - pedestrian routes?" },
+      { id: "q2", label: "Are staff equipped with suitable footwear and clothing for winter gritting - pedestrian routes?" },
+      { id: "q3", label: "Is lighting adequate or are headtorches used during early or late winter gritting - pedestrian routes?" },
+      { id: "q4", label: "Are bags, spreaders and tools positioned safely to avoid obstruction during winter gritting - pedestrian routes?" },
+      { id: "q5", label: "Are treated areas checked and re-treated as necessary after winter gritting - pedestrian routes?" }
+    ]
+  },
+
+  "Winter gritting - vehicle routes and car parks": {
+    desc: "Winter gritting - vehicle routes and car parks involves using vehicles and larger spreaders to treat access roads and parking areas. Work often occurs in the early hours or during low visibility. Coordination with site traffic and pedestrians is essential.",
+    hazards: ["moving_vehicles", "environmental_weather", "slips_trips", "manual_handling", "plant_machinery"],
+    questions: [
+      { id: "q1", label: "Are drivers briefed on routes and speeds for winter gritting - vehicle routes and car parks?" },
+      { id: "q2", label: "Are beacons, lights and reversing alarms working on vehicles used for winter gritting - vehicle routes and car parks?" },
+      { id: "q3", label: "Is pedestrian access controlled or signed during winter gritting - vehicle routes and car parks?" },
+      { id: "q4", label: "Is grit stock stored and handled safely for winter gritting - vehicle routes and car parks?" },
+      { id: "q5", label: "Are treated areas monitored and recorded after winter gritting - vehicle routes and car parks?" }
+    ]
+  },
+
+  "Hard surface sweeping and path cleaning": {
+    desc: "Hard surface sweeping and path cleaning includes brushing, scraping and occasionally washing external paths, steps and hard standings. Work removes moss, algae, litter and debris that can cause slips. Wet cleaning must be managed to avoid creating new slip or splash hazards.",
+    hazards: ["slips_trips", "dust_fumes", "manual_handling", "environmental_weather", "moving_vehicles"],
+    questions: [
+      { id: "q1", label: "Have you identified slippery or uneven areas before hard surface sweeping and path cleaning starts?" },
+      { id: "q2", label: "Are suitable brooms, scrapers or small machines used for hard surface sweeping and path cleaning?" },
+      { id: "q3", label: "Is dust controlled or dampening used where needed during hard surface sweeping and path cleaning?" },
+      { id: "q4", label: "Are warning signs used where surfaces remain wet after hard surface sweeping and path cleaning?" },
+      { id: "q5", label: "Is work sequenced to avoid conflict with vehicle movements during hard surface sweeping and path cleaning?" }
+    ]
+  },
+
+  "Minor paved area and slab reinstatement": {
+    desc: "Minor paved area and slab reinstatement covers lifting, re-bedding and replacing small areas of paving or kerbs. Tasks include cutting, compacting and levelling. Small excavations may be required and must avoid buried services.",
+    hazards: ["manual_handling", "slips_trips", "sharp_objects", "environmental_weather", "excavation"],
+    questions: [
+      { id: "q1", label: "Have services and utilities been checked before minor paved area and slab reinstatement?" },
+      { id: "q2", label: "Are safe lifting techniques and mechanical aids used for heavy slabs during minor paved area and slab reinstatement?" },
+      { id: "q3", label: "Are open excavations or lifted areas protected and signed during minor paved area and slab reinstatement?" },
+      { id: "q4", label: "Are cutting tools and saws used safely with dust control during minor paved area and slab reinstatement?" },
+      { id: "q5", label: "Is the finished surface checked for level and trip hazards after minor paved area and slab reinstatement?" }
+    ]
+  },
+
+  "Fencing installation - posts and panels": {
+    desc: "Fencing installation - posts and panels includes setting posts, concreting, fixing rails and attaching panels or mesh. Work involves digging post holes, mixing concrete and handling long, heavy components. Access along boundaries can be tight and uneven.",
+    hazards: ["manual_handling", "sharp_objects", "excavation", "plant_machinery", "environmental_weather"],
+    questions: [
+      { id: "q1", label: "Has a service scan or check been completed before digging for fencing installation - posts and panels?" },
+      { id: "q2", label: "Are post holes for fencing installation - posts and panels protected or backfilled if left open?" },
+      { id: "q3", label: "Are safe lifting and team lifts planned for heavy panels during fencing installation - posts and panels?" },
+      { id: "q4", label: "Is concrete mixing and handling controlled with appropriate PPE during fencing installation - posts and panels?" },
+      { id: "q5", label: "Is the finished fence checked for stability and sharp edges after fencing installation - posts and panels?" }
+    ]
+  },
+
+  "Fencing maintenance and minor repairs": {
+    desc: "Fencing maintenance and minor repairs includes replacing individual boards, rails or fixings, and treating or painting fences. Work is often localised but may be close to footpaths and neighbours. Access may require working from steps or small platforms.",
+    hazards: ["manual_handling", "sharp_objects", "slips_trips", "environmental_weather"],
+    questions: [
+      { id: "q1", label: "Have you checked for hidden nails or wire before starting fencing maintenance and minor repairs?" },
+      { id: "q2", label: "Is access equipment stable and suitable where used for fencing maintenance and minor repairs?" },
+      { id: "q3", label: "Are treated or painted surfaces protected from public contact after fencing maintenance and minor repairs?" },
+      { id: "q4", label: "Are old fixings and timber safely removed during fencing maintenance and minor repairs?" },
+      { id: "q5", label: "Have you maintained clear access routes for others during fencing maintenance and minor repairs?" }
+    ]
+  },
+
+  "Gate installation, adjustment and lubrication": {
+    desc: "Gate installation, adjustment and lubrication involves hanging new gates, adjusting hinges and closers and maintaining hardware. Work includes handling heavy gates, working close to traffic routes and dealing with springs or closers under tension.",
+    hazards: ["manual_handling", "sharp_objects", "moving_vehicles", "environmental_weather", "stored_energy"],
+    questions: [
+      { id: "q1", label: "Are safe lifting methods or mechanical aids used for gate installation, adjustment and lubrication?" },
+      { id: "q2", label: "Are hinges, closers and springs controlled during adjustment to avoid sudden movement in gate installation, adjustment and lubrication?" },
+      { id: "q3", label: "Have you planned safe working areas away from traffic for gate installation, adjustment and lubrication?" },
+      { id: "q4", label: "Are pinch points and trapping risks considered during gate installation, adjustment and lubrication?" },
+      { id: "q5", label: "Is the gate checked for safe closing speeds and latching after gate installation, adjustment and lubrication?" }
+    ]
+  },
+
+  "Car park shrub and planting bed maintenance": {
+    desc: "Car park shrub and planting bed maintenance includes pruning, weeding and tidying around parking bays and circulation routes. Operators work in close proximity to moving vehicles and pedestrians. Clear segregation and visibility are key controls.",
+    hazards: ["moving_vehicles", "manual_handling", "slips_trips", "biological", "environmental_weather"],
+    questions: [
+      { id: "q1", label: "Have you agreed safe working zones and timing with site management for car park shrub and planting bed maintenance?" },
+      { id: "q2", label: "Are cones or barriers used to protect workers during car park shrub and planting bed maintenance?" },
+      { id: "q3", label: "Are high-visibility garments worn during car park shrub and planting bed maintenance?" },
+      { id: "q4", label: "Are tools and arisings kept out of traffic routes during car park shrub and planting bed maintenance?" },
+      { id: "q5", label: "Is there a plan for safely moving waste to skips during car park shrub and planting bed maintenance?" }
+    ]
+  },
+
+  "Public park daily inspection and litter removal": {
+    desc: "Public park daily inspection and litter removal covers daily checks of paths, furniture, play areas and open spaces, combined with litter picking and minor tidying. Work is done in live public environments with children, dogs and cyclists present.",
+    hazards: ["slips_trips", "biological", "sharp_objects", "public_interface", "environmental_weather"],
+    questions: [
+      { id: "q1", label: "Are inspection routes defined for public park daily inspection and litter removal?" },
+      { id: "q2", label: "Are suitable tools and PPE used for litter and sharps during public park daily inspection and litter removal?" },
+      { id: "q3", label: "Are hazards such as damaged furniture or paths promptly reported during public park daily inspection and litter removal?" },
+      { id: "q4", label: "Are members of the public given priority and space during public park daily inspection and litter removal?" },
+      { id: "q5", label: "Are waste bags handled and disposed of correctly after public park daily inspection and litter removal?" }
+    ]
+  },
+
+  "Amenity grass cutting - large open spaces": {
+    desc: "Amenity grass cutting - large open spaces uses larger ride-on or tractor-mounted mowers over parks, verges and amenity fields. Machines operate near dog walkers, children and other users. Safe routes, visibility and exclusion zones are crucial.",
+    hazards: ["plant_machinery", "moving_vehicles", "noise_vibration", "environmental_weather", "public_interface"],
+    questions: [
+      { id: "q1", label: "Have mowing routes and turning areas been agreed before amenity grass cutting - large open spaces?" },
+      { id: "q2", label: "Are guards, ROPS and seat belts in place where required for amenity grass cutting - large open spaces?" },
+      { id: "q3", label: "Are public areas temporarily closed or segregated during amenity grass cutting - large open spaces?" },
+      { id: "q4", label: "Is ground checked for debris and hazards before amenity grass cutting - large open spaces?" },
+      { id: "q5", label: "Are weather and visibility suitable for amenity grass cutting - large open spaces?" }
+    ]
+  },
+
+  "Roadside verge grass cutting": {
+    desc: "Roadside verge grass cutting involves mowing or strimming narrow strips of grass alongside live traffic. The work presents significant traffic and line-of-sight risks. Traffic management measures and high-visibility clothing are essential.",
+    hazards: ["moving_vehicles", "plant_machinery", "environmental_weather", "slips_trips", "noise_vibration"],
+    questions: [
+      { id: "q1", label: "Is an appropriate traffic management arrangement in place for roadside verge grass cutting?" },
+      { id: "q2", label: "Are workers wearing high-visibility clothing during roadside verge grass cutting?" },
+      { id: "q3", label: "Are working positions and machine orientations chosen to face traffic during roadside verge grass cutting?" },
+      { id: "q4", label: "Are breaks and rotations planned to manage fatigue during roadside verge grass cutting?" },
+      { id: "q5", label: "Has work been scheduled to avoid peak traffic where possible for roadside verge grass cutting?" }
+    ]
+  },
+
+  "Strimming around street furniture and obstacles": {
+    desc: "Strimming around street furniture and obstacles includes trimming grass around bollards, signs, trees and other features. The work is close to hard surfaces, glazing and the public and generates flying debris. Good control of machine angle and clearance is important.",
+    hazards: ["noise_vibration", "plant_machinery", "sharp_objects", "public_interface", "environmental_weather"],
+    questions: [
+      { id: "q1", label: "Have vulnerable items such as parked cars and windows been identified before strimming around street furniture and obstacles?" },
+      { id: "q2", label: "Is the correct guard and line length used during strimming around street furniture and obstacles?" },
+      { id: "q3", label: "Are bystanders kept clear of the throw zone during strimming around street furniture and obstacles?" },
+      { id: "q4", label: "Is PPE (eye, face, hearing, legs) worn throughout strimming around street furniture and obstacles?" },
+      { id: "q5", label: "Are you checking for damage to street furniture after strimming around street furniture and obstacles?" }
+    ]
+  },
+
+  "Grounds machinery basic on-site checks": {
+    desc: "Grounds machinery basic on-site checks includes carrying out pre-use inspections, fluid checks, basic adjustments and cleaning of grounds equipment. Work involves access to moving parts, fuels, batteries and stored energy systems. Only competent staff should undertake these checks.",
+    hazards: ["plant_machinery", "stored_energy", "manual_handling", "noise_vibration", "fire_explosion"],
+    questions: [
+      { id: "q1", label: "Are machines isolated and made safe before grounds machinery basic on-site checks?" },
+      { id: "q2", label: "Are only competent persons carrying out grounds machinery basic on-site checks?" },
+      { id: "q3", label: "Are guards and safety devices re-fitted correctly after grounds machinery basic on-site checks?" },
+      { id: "q4", label: "Are fuels, oils and batteries handled and stored safely during grounds machinery basic on-site checks?" },
+      { id: "q5", label: "Are any defects found during grounds machinery basic on-site checks reported and logged?" }
+    ]
+  },
+
+  "Green waste handling, chipping and composting": {
+    desc: "Green waste handling, chipping and composting involves transporting, feeding and processing branches, brush and arisings through chippers or into composting areas. The work uses powerful machinery and can expose staff to dust, noise and biological risks.",
+    hazards: ["plant_machinery", "manual_handling", "biological", "sharp_objects", "noise_vibration"],
+    questions: [
+      { id: "q1", label: "Is the chipper or plant used for green waste handling, chipping and composting operated by trained staff?" },
+      { id: "q2", label: "Are feed procedures followed and no hands entering infeed zones during green waste handling, chipping and composting?" },
+      { id: "q3", label: "Are manual handling and stacking of waste controlled during green waste handling, chipping and composting?" },
+      { id: "q4", label: "Are dust and spores controlled and appropriate respiratory protection used for green waste handling, chipping and composting?" },
+      { id: "q5", label: "Is access to chipping and composting areas restricted during green waste handling, chipping and composting?" }
+    ]
+  },
+
+  "Greenhouse and plant nursery routine work": {
+    desc: "Greenhouse and plant nursery routine work includes potting, watering, staking, pruning and general care of plants under cover. Conditions can be hot and humid and involve frequent bending and lifting. Slips from wet floors and chemical use are common issues.",
+    hazards: ["manual_handling", "slips_trips", "biological", "environmental_weather", "water_ingress"],
+    questions: [
+      { id: "q1", label: "Are ventilation and temperature checked for greenhouse and plant nursery routine work?" },
+      { id: "q2", label: "Are safe lifting and working heights used during greenhouse and plant nursery routine work?" },
+      { id: "q3", label: "Are wet floors managed to prevent slips during greenhouse and plant nursery routine work?" },
+      { id: "q4", label: "Are any fertilisers or treatments used under COSHH controls during greenhouse and plant nursery routine work?" },
+      { id: "q5", label: "Is good hygiene maintained after greenhouse and plant nursery routine work?" }
+    ]
+  },
+
+  "Irrigation hose and sprinkler installation": {
+    desc: "Irrigation hose and sprinkler installation involves trenching, laying pipe or hose, fitting sprinklers and connecting to water supplies. The work may cross paths and beds and requires coordination with other services. Excavations and water leaks must be managed safely.",
+    hazards: ["manual_handling", "slips_trips", "water_ingress", "environmental_weather", "excavation"],
+    questions: [
+      { id: "q1", label: "Have existing services been located before irrigation hose and sprinkler installation trenches are dug?" },
+      { id: "q2", label: "Are trenches and open holes protected during irrigation hose and sprinkler installation?" },
+      { id: "q3", label: "Are pipes, fittings and sprinklers handled using safe lifting methods during irrigation hose and sprinkler installation?" },
+      { id: "q4", label: "Is testing for leaks carried out safely during irrigation hose and sprinkler installation?" },
+      { id: "q5", label: "Are backfilling and reinstatement completed promptly after irrigation hose and sprinkler installation?" }
+    ]
+  },
+
+  "Tree planting, staking and aftercare": {
+    desc: "Tree planting, staking and aftercare covers setting out, excavating pits, planting trees, installing stakes and guards and watering. Work involves repetitive lifting and digging, often in tight timescales and varying ground conditions. Ongoing visits for watering and checking are required.",
+    hazards: ["manual_handling", "excavation", "slips_trips", "environmental_weather", "sharp_objects"],
+    questions: [
+      { id: "q1", label: "Has the planting layout, spacing and species been confirmed before tree planting, staking and aftercare?" },
+      { id: "q2", label: "Are hand tools and augers used safely for pits during tree planting, staking and aftercare?" },
+      { id: "q3", label: "Are stakes, ties and guards securely installed during tree planting, staking and aftercare?" },
+      { id: "q4", label: "Are manual handling risks from trees, stakes and soil controlled during tree planting, staking and aftercare?" },
+      { id: "q5", label: "Is there a clear aftercare schedule for watering and inspections following tree planting, staking and aftercare?" }
+    ]
+  },
+
+  "Wildflower meadow establishment and maintenance": {
+    desc: "Wildflower meadow establishment and maintenance involves ground preparation, sowing, cutting regimes and selective weed control to establish meadows. Work may use mowers, strimmers and light cultivation equipment and must consider ecological timing and arisings management.",
+    hazards: ["plant_machinery", "manual_handling", "slips_trips", "environmental_weather", "biological"],
+    questions: [
+      { id: "q1", label: "Has the specification for wildflower meadow establishment and maintenance been agreed (seed mix, timings)?" },
+      { id: "q2", label: "Are machines used for wildflower meadow establishment and maintenance suitable for uneven ground and vegetation height?" },
+      { id: "q3", label: "Are arisings removed or managed to support habitat aims during wildflower meadow establishment and maintenance?" },
+      { id: "q4", label: "Are staff aware of nesting seasons or protected species for wildflower meadow establishment and maintenance?" },
+      { id: "q5", label: "Are manual handling and access risks controlled during wildflower meadow establishment and maintenance?" }
+    ]
+  },
+
+  "Play area bark, mulch and sand top-up": {
+    desc: "Play area bark, mulch and sand top-up includes replenishing impact-absorbing surfacing in play areas. Work involves moving bulk materials, raking to levels and working around play equipment. Public access must be controlled while surfaces are disturbed.",
+    hazards: ["manual_handling", "slips_trips", "biological", "environmental_weather", "moving_vehicles"],
+    questions: [
+      { id: "q1", label: "Has delivery and tipping been planned safely for play area bark, mulch and sand top-up?" },
+      { id: "q2", label: "Are manual handling controls in place for shovelling and barrowing during play area bark, mulch and sand top-up?" },
+      { id: "q3", label: "Is the play area closed or segregated during play area bark, mulch and sand top-up?" },
+      { id: "q4", label: "Are finished depths and levels checked after play area bark, mulch and sand top-up?" },
+      { id: "q5", label: "Is all packaging and waste removed after play area bark, mulch and sand top-up?" }
+    ]
+  },
+
+  "Gravel path and aggregate surface maintenance": {
+    desc: "Gravel path and aggregate surface maintenance includes raking, topping up and repairing gravel paths, drives and aggregate areas. Work aims to maintain levels and remove ruts and potholes. Materials and tools must be stored to avoid new hazards.",
+    hazards: ["manual_handling", "slips_trips", "dust_fumes", "environmental_weather", "moving_vehicles"],
+    questions: [
+      { id: "q1", label: "Has the extent of repairs been agreed before gravel path and aggregate surface maintenance?" },
+      { id: "q2", label: "Are manual handling risks of aggregate bags controlled during gravel path and aggregate surface maintenance?" },
+      { id: "q3", label: "Are paths kept partially open or signed appropriately during gravel path and aggregate surface maintenance?" },
+      { id: "q4", label: "Is dust controlled and respiratory protection used if needed during gravel path and aggregate surface maintenance?" },
+      { id: "q5", label: "Are finished surfaces checked for trip hazards after gravel path and aggregate surface maintenance?" }
+    ]
+  },
+
+  "External seating, bins and street furniture cleaning": {
+    desc: "External seating, bins and street furniture cleaning includes washing, wiping, disinfecting and occasionally repainting benches, bins, rails and similar items. Work is done in public spaces and uses cleaning chemicals, water and sometimes pressure washers.",
+    hazards: ["manual_handling", "slips_trips", "chemical_coshh", "environmental_weather", "biological"],
+    questions: [
+      { id: "q1", label: "Have COSHH assessments and dilution instructions been checked for external seating, bins and street furniture cleaning?" },
+      { id: "q2", label: "Are slip risks from water and detergents controlled during external seating, bins and street furniture cleaning?" },
+      { id: "q3", label: "Is suitable PPE (gloves, eye protection) worn during external seating, bins and street furniture cleaning?" },
+      { id: "q4", label: "Are members of the public kept clear of wet surfaces during external seating, bins and street furniture cleaning?" },
+      { id: "q5", label: "Are waste materials and cloths disposed of safely after external seating, bins and street furniture cleaning?" }
+    ]
+  },
+
+  "Estate and campus grounds presentation walk-round": {
+    desc: "Estate and campus grounds presentation walk-round involves a final visual sweep of an estate or campus to check standards, signage, litter and any safety defects. The work may be combined with small reactive tidy-ups. Findings should be documented and passed to the client or management.",
+    hazards: ["slips_trips", "moving_vehicles", "public_interface", "environmental_weather", "biological"],
+    questions: [
+      { id: "q1", label: "Is there a checklist for estate and campus grounds presentation walk-round?" },
+      { id: "q2", label: "Are routes for estate and campus grounds presentation walk-round planned to minimise crossing busy vehicle areas?" },
+      { id: "q3", label: "Are hazards such as damaged surfaces or obstructions recorded during estate and campus grounds presentation walk-round?" },
+      { id: "q4", label: "Are any immediate safety issues dealt with or escalated promptly during estate and campus grounds presentation walk-round?" },
+      { id: "q5", label: "Are findings from estate and campus grounds presentation walk-round communicated to the client or supervisor?" }
+    ]
+  },
+
+  "Other (Custom)": {
+    desc: "",
+    hazards: [],
+    questions: [
+      { id: "q1", label: "Have you identified all specific risks associated with this custom landscaping or grounds maintenance task (including machinery, slopes and public interface)?" },
+      { id: "q2", label: "Is the machinery, access equipment and PPE suitable and in good condition for this custom landscaping or grounds maintenance task?" },
+      { id: "q3", label: "Have you checked for underground and overhead services before starting this custom landscaping or grounds maintenance task?" },
+      { id: "q4", label: "Have you planned how traffic, pedestrians and the public will be controlled around this custom landscaping or grounds maintenance task?" },
+      { id: "q5", label: "Have you agreed the exact scope, waste removal arrangements and any ecological constraints with the client for this custom landscaping or grounds maintenance task?" }
+    ]
+  }
+};
+
+// ==========================================
 // MASTER TRADE REGISTRY
 // ==========================================
 
@@ -8646,5 +9903,13 @@ export const TRADES: Record<
   "Cleaning & Specialist Cleaning": {
     jobs: Object.keys(CLEANING_SPECIALIST_CLUSTERS).map((name) => ({ name })),
     clusters: CLEANING_SPECIALIST_CLUSTERS,
+  },
+  "Window Cleaning & Access": {
+    jobs: Object.keys(WINDOW_CLEANING_ACCESS_CLUSTERS).map((name) => ({ name })),
+    clusters: WINDOW_CLEANING_ACCESS_CLUSTERS,
+  },
+  "Landscaping & Grounds Maintenance": {
+    jobs: Object.keys(LANDSCAPING_GROUNDS_MAINTENANCE_CLUSTERS).map((name) => ({ name })),
+    clusters: LANDSCAPING_GROUNDS_MAINTENANCE_CLUSTERS,
   },
 };
