@@ -2939,7 +2939,7 @@ const CARPENTER_JOINER_CLUSTERS: Record<string, JobCluster> = {
     ]
   },
 
-  "Other (Custom carpenter/joiner)": {
+  "Other (Custom)": {
     desc: "",
     hazards: [],
     questions: [
@@ -3556,6 +3556,18 @@ const DRYLINING_CEILINGS_CLUSTERS: Record<string, JobCluster> = {
       { id: "q5", label: "Have you arranged protection and signage under areas affected by ceiling survey and access panel installation?" }
     ]
   }
+};
+
+"Other (Custom)": {
+  desc: "",
+  hazards: [],
+  questions: [
+    { id: "q1", label: "Have you identified all specific risks associated with this custom drylining or ceilings task (e.g. work at height, dust, hidden services)?" },
+    { id: "q2", label: "Is the access equipment or platform for this custom drylining or ceilings task safe, stable and suitable for the height and duration of work?" },
+    { id: "q3", label: "Have you confirmed that existing ceilings, walls and fixings affected by this custom drylining or ceilings task are structurally sound?" },
+    { id: "q4", label: "Have you planned how dust, debris and waste from this custom drylining or ceilings task will be controlled and cleared safely?" },
+    { id: "q5", label: "Have you agreed the exact scope, working areas and any live services to avoid with the client for this custom drylining or ceilings task?" }
+  ]
 };
 
 const GROUNDWORKS_CIVILS_CLUSTERS: Record<string, JobCluster> = {
@@ -4816,6 +4828,18 @@ const DEMOLITION_STRIPOUT_CLUSTERS: Record<string, JobCluster> = {
   }
 };
 
+"Other (Custom)": {
+  desc: "",
+  hazards: [],
+  questions: [
+    { id: "q1", label: "Have you confirmed structural stability and any temporary supports required before starting this custom demolition or strip-out task?" },
+    { id: "q2", label: "Have all relevant services (electric, gas, water, data etc.) that may be affected by this custom demolition or strip-out task been located and isolated where required?" },
+    { id: "q3", label: "Have you checked asbestos and other hazardous material information before carrying out this custom demolition or strip-out task?" },
+    { id: "q4", label: "Is there a clear plan for controlling dust, noise, debris and flying fragments during this custom demolition or strip-out task, including exclusion zones if needed?" },
+    { id: "q5", label: "Have you agreed the sequence of works, waste removal routes and safe access/egress with the client or site management for this custom demolition or strip-out task?" }
+  ]
+};
+
 // ==========================================
 // X. JOB CLUSTERS (HVAC / AIR CONDITIONING)
 // ==========================================
@@ -5420,6 +5444,18 @@ const HVAC_AIRCON_CLUSTERS: Record<string, JobCluster> = {
       { id: "q5", label: "Are systems refilled, vented and checked for leaks after expansion vessel replacement (HVAC circuit)?" }
     ]
   }
+};
+
+"Other (Custom)": {
+  desc: "",
+  hazards: [],
+  questions: [
+    { id: "q1", label: "Have you identified all specific risks associated with this custom HVAC or air conditioning task, including work at height and plant room access?" },
+    { id: "q2", label: "Have all electrical and mechanical isolations for this custom HVAC or air conditioning task been agreed, labelled and locked off where required?" },
+    { id: "q3", label: "If refrigerants or gases are involved in this custom HVAC or air conditioning task, have you reviewed the relevant COSHH data and recovery or leak procedures?" },
+    { id: "q4", label: "Is the work area for this custom HVAC or air conditioning task adequately ventilated and safe to enter, especially plant rooms and roof spaces?" },
+    { id: "q5", label: "Have you agreed how this custom HVAC or air conditioning task will be tested, commissioned and handed over, including any disruption to building users?" }
+  ]
 };
 
 // ==========================================
