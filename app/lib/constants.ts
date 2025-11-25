@@ -6162,6 +6162,612 @@ const GAS_HEATING_CLUSTERS: Record<string, JobCluster> = {
 };
 
 // ==========================================
+// PAINTER & DECORATOR
+// ==========================================
+
+const PAINTER_DECORATOR_CLUSTERS: Record<string, JobCluster> = {
+  "Internal wall painting (occupied dwelling)": {
+    desc: "Internal wall painting (occupied dwelling) involves protecting floors and furnishings, preparing wall surfaces (washing down, filling, sanding) and applying primer and finish coats in lived-in homes. Work is sequenced to minimise disruption to occupants and manage drying times safely.",
+    hazards: ["manual_handling", "dust_fumes", "slips_trips", "public_interface"],
+    questions: [
+      { id: "q1", label: "Have you agreed working hours and affected rooms with the occupier for the internal wall painting (occupied dwelling)?" },
+      { id: "q2", label: "Are floors, furniture and belongings adequately protected before internal wall painting (occupied dwelling) starts?" },
+      { id: "q3", label: "Will all sanding and preparation dust from internal wall painting (occupied dwelling) be controlled and cleaned as you go?" },
+      { id: "q4", label: "Are suitable low-VOC products selected where possible for internal wall painting (occupied dwelling)?" },
+      { id: "q5", label: "Have you planned safe access and clear walkways around the work area for internal wall painting (occupied dwelling)?" }
+    ]
+  },
+
+  "Internal ceiling painting (occupied dwelling)": {
+    desc: "Internal ceiling painting (occupied dwelling) involves using steps or small platforms to access ceilings, preparing surfaces and applying coatings above head height. Extra care is required to control splashes, manage overhead work and protect occupants and furnishings below.",
+    hazards: ["work_at_height", "manual_handling", "dust_fumes", "slips_trips", "public_interface"],
+    questions: [
+      { id: "q1", label: "Is access equipment for internal ceiling painting (occupied dwelling) suitable, stable and inspected?" },
+      { id: "q2", label: "Have you protected floors and furniture against drips and splashes during internal ceiling painting (occupied dwelling)?" },
+      { id: "q3", label: "Will you avoid over-reaching and reposition access equipment frequently when internal ceiling painting (occupied dwelling)?" },
+      { id: "q4", label: "Is there adequate lighting to see defects and coverage during internal ceiling painting (occupied dwelling)?" },
+      { id: "q5", label: "Have occupants been briefed to stay clear of the work zone during internal ceiling painting (occupied dwelling)?" }
+    ]
+  },
+
+  "Woodwork glossing and trim painting": {
+    desc: "Woodwork glossing and trim painting covers preparation and painting of skirtings, architraves, doors, frames and other timber trims. Work involves sanding, filling, priming and applying hard-wearing topcoats, often at low level and around floor edges and doorways.",
+    hazards: ["manual_handling", "dust_fumes", "slips_trips"],
+    questions: [
+      { id: "q1", label: "Have you masked and protected adjacent finishes before woodwork glossing and trim painting?" },
+      { id: "q2", label: "Are you controlling sanding dust during woodwork glossing and trim painting with extraction or damp methods?" },
+      { id: "q3", label: "Have you planned safe access to doorways and escape routes while woodwork glossing and trim painting is in progress?" },
+      { id: "q4", label: "Are suitable fillers, primers and topcoats selected for the substrate during woodwork glossing and trim painting?" },
+      { id: "q5", label: "Will wet paint areas from woodwork glossing and trim painting be clearly identified to prevent contact and slips?" }
+    ]
+  },
+
+  "Metalwork painting to railings and balustrades": {
+    desc: "Metalwork painting to railings and balustrades involves preparation (including rust removal), priming and applying protective and decorative coatings to metal handrails, guardrails and external railings. Work may be at height or over edges and often near public areas.",
+    hazards: ["work_at_height", "manual_handling", "dust_fumes", "sharp_objects", "public_interface"],
+    questions: [
+      { id: "q1", label: "Have you controlled public access around metalwork painting to railings and balustrades?" },
+      { id: "q2", label: "Are edges, drops or stairs protected when metalwork painting to railings and balustrades?" },
+      { id: "q3", label: "Are rust removal and surface preparation methods for metalwork painting to railings and balustrades producing dust controlled?" },
+      { id: "q4", label: "Are you using compatible metal primers and topcoats for metalwork painting to railings and balustrades?" },
+      { id: "q5", label: "Have you planned drying times and weather conditions for external metalwork painting to railings and balustrades?" }
+    ]
+  },
+
+  "External masonry painting to elevations": {
+    desc: "External masonry painting to elevations involves washing down, treating defects and applying masonry coatings to outside walls. Works are often completed from towers, ladders or MEWPs and are exposed to weather and the public realm.",
+    hazards: ["work_at_height", "environmental_weather", "manual_handling", "dust_fumes", "public_interface"],
+    questions: [
+      { id: "q1", label: "Is your access equipment safe and suitable for external masonry painting to elevations?" },
+      { id: "q2", label: "Have you checked the forecast and wind conditions before external masonry painting to elevations?" },
+      { id: "q3", label: "Are areas below cordoned off during external masonry painting to elevations to protect the public?" },
+      { id: "q4", label: "Have you allowed for substrate moisture and curing times when external masonry painting to elevations?" },
+      { id: "q5", label: "Are all materials for external masonry painting to elevations stored and mixed safely on site?" }
+    ]
+  },
+
+  "Facade repaint using mobile access tower": {
+    desc: "Facade repaint using mobile access tower involves erecting, adjusting and working from a mobile scaffold tower to prepare and repaint external facades. Proper erection, inspection and tying-in of the tower are critical to safe working.",
+    hazards: ["work_at_height", "manual_handling", "environmental_weather", "slips_trips", "public_interface"],
+    questions: [
+      { id: "q1", label: "Is the mobile access tower for facade repaint inspected, tagged and erected by competent persons?" },
+      { id: "q2", label: "Is the ground suitable and level for the mobile access tower used for facade repaint?" },
+      { id: "q3", label: "Are you using correct guardrails and toe-boards on platforms when facade repaint using mobile access tower?" },
+      { id: "q4", label: "Have you excluded the public from the base area during facade repaint using mobile access tower?" },
+      { id: "q5", label: "Will you avoid moving the tower while operatives or loose materials are on the platform during facade repaint?" }
+    ]
+  },
+
+  "Facade repaint using MEWP": {
+    desc: "Facade repaint using MEWP involves operating a mobile elevating work platform to access high level or difficult facade areas. Work combines paint application with strict MEWP operation controls, exclusion zones and weather monitoring.",
+    hazards: ["work_at_height", "plant_machinery", "moving_vehicles", "environmental_weather", "public_interface"],
+    questions: [
+      { id: "q1", label: "Is the MEWP for facade repaint operated by trained and authorised personnel with in-date certification?" },
+      { id: "q2", label: "Have you established exclusion zones for facade repaint using MEWP to keep pedestrians and traffic clear?" },
+      { id: "q3", label: "Has a pre-use inspection been completed on the MEWP for facade repaint?" },
+      { id: "q4", label: "Are weather and wind conditions suitable for safe facade repaint using MEWP?" },
+      { id: "q5", label: "Is there a rescue plan in place for operatives working at height during facade repaint using MEWP?" }
+    ]
+  },
+
+  "Stairwell redecoration in occupied block": {
+    desc: "Stairwell redecoration in occupied block involves working in shared stair cores, usually at height, while maintaining safe access for residents. Work includes preparing and painting walls, ceilings, trims and balustrades.",
+    hazards: ["work_at_height", "slips_trips", "public_interface", "manual_handling"],
+    questions: [
+      { id: "q1", label: "Have you agreed phasing and access arrangements for stairwell redecoration in occupied block?" },
+      { id: "q2", label: "Is access equipment safely positioned and not obstructing escape routes during stairwell redecoration in occupied block?" },
+      { id: "q3", label: "Are wet paint areas and trip hazards clearly identified during stairwell redecoration in occupied block?" },
+      { id: "q4", label: "Will you maintain at least one safe route at all times during stairwell redecoration in occupied block?" },
+      { id: "q5", label: "Have residents been informed about noise, odours and restricted access during stairwell redecoration in occupied block?" }
+    ]
+  },
+
+  "Corridor redecoration in occupied block": {
+    desc: "Corridor redecoration in occupied block covers preparation and painting of corridor walls, ceilings and doors while maintaining safe passage for residents or staff. Work is sequenced to avoid blocking escape routes.",
+    hazards: ["slips_trips", "public_interface", "manual_handling", "dust_fumes"],
+    questions: [
+      { id: "q1", label: "Have you agreed a phasing plan for corridor redecoration in occupied block to keep escape routes usable?" },
+      { id: "q2", label: "Will all leads, tools and protection for corridor redecoration in occupied block be kept out of walkways where possible?" },
+      { id: "q3", label: "Are you using suitable low-odour products for corridor redecoration in occupied block?" },
+      { id: "q4", label: "Are wet paint areas in corridors clearly signed and protected during corridor redecoration in occupied block?" },
+      { id: "q5", label: "Have you agreed quiet hours or sensitive times with building management for corridor redecoration in occupied block?" }
+    ]
+  },
+
+  "Feature wall painting": {
+    desc: "Feature wall painting involves preparing and painting a selected wall in a contrasting colour or finish. Work focuses on sharp lines, clean edges and protecting adjacent surfaces and finishes.",
+    hazards: ["manual_handling", "dust_fumes", "slips_trips"],
+    questions: [
+      { id: "q1", label: "Have edges and adjacent surfaces been masked or protected before feature wall painting?" },
+      { id: "q2", label: "Is the wall suitably prepared and dry prior to feature wall painting?" },
+      { id: "q3", label: "Are materials for feature wall painting clearly labelled and checked for colour and sheen?" },
+      { id: "q4", label: "Are you keeping the work area tidy and free from trip hazards during feature wall painting?" },
+      { id: "q5", label: "Have you agreed drying and re-entry times with the client for feature wall painting?" }
+    ]
+  },
+
+  "Internal spray painting to walls and ceilings": {
+    desc: "Internal spray painting to walls and ceilings uses airless or HVLP equipment to apply coatings over larger internal areas. Overspray control, masking, ventilation and equipment safety are key considerations.",
+    hazards: ["dust_fumes", "manual_handling", "slips_trips", "noise_vibration"],
+    questions: [
+      { id: "q1", label: "Is spray equipment for internal spray painting to walls and ceilings inspected and suitable for the products used?" },
+      { id: "q2", label: "Have you masked and sheeted all non-painted surfaces before internal spray painting to walls and ceilings?" },
+      { id: "q3", label: "Is ventilation and fume control adequate for internal spray painting to walls and ceilings?" },
+      { id: "q4", label: "Are operatives wearing appropriate respiratory and eye protection during internal spray painting to walls and ceilings?" },
+      { id: "q5", label: "Have you controlled access to rooms during and after internal spray painting to walls and ceilings?" }
+    ]
+  },
+
+  "External spray painting to cladding": {
+    desc: "External spray painting to cladding involves surface preparation and spray application of specialist coatings to metal or composite cladding, usually from towers or MEWPs. Weather and overspray control are critical.",
+    hazards: ["work_at_height", "environmental_weather", "plant_machinery", "dust_fumes", "public_interface"],
+    questions: [
+      { id: "q1", label: "Have you assessed wind, overspray risk and adjacent properties before external spray painting to cladding?" },
+      { id: "q2", label: "Is access for external spray painting to cladding via safe towers or MEWPs with inspection records?" },
+      { id: "q3", label: "Are you using appropriate respiratory protection and ventilation for external spray painting to cladding?" },
+      { id: "q4", label: "Has an exclusion zone been established below and downwind of external spray painting to cladding?" },
+      { id: "q5", label: "Are cladding surfaces suitably cleaned and prepared before external spray painting to cladding?" }
+    ]
+  },
+
+  "Intumescent paint application to structural steel": {
+    desc: "Intumescent paint application to structural steel provides fire protection to steel members. Work involves strict preparation, thickness control, curing requirements and coordination with other trades.",
+    hazards: ["dust_fumes", "manual_handling", "work_at_height", "chemical_coshh"],
+    questions: [
+      { id: "q1", label: "Have you checked specification and required film thickness for intumescent paint application to structural steel?" },
+      { id: "q2", label: "Are steel surfaces suitably prepared and primed before intumescent paint application to structural steel?" },
+      { id: "q3", label: "Are COSHH controls in place for products used in intumescent paint application to structural steel?" },
+      { id: "q4", label: "Is temperature and humidity within the product limits during intumescent paint application to structural steel?" },
+      { id: "q5", label: "Will you record applied thickness and areas treated during intumescent paint application to structural steel?" }
+    ]
+  },
+
+  "Fire door and frame painting": {
+    desc: "Fire door and frame painting involves decorating fire-rated doors and frames without compromising their certification. Care is taken not to paint over hinges, seals, closers and information labels.",
+    hazards: ["manual_handling", "dust_fumes", "public_interface"],
+    questions: [
+      { id: "q1", label: "Have you checked manufacturer guidance before fire door and frame painting?" },
+      { id: "q2", label: "Will you avoid painting intumescent seals, hinges and safety signage during fire door and frame painting?" },
+      { id: "q3", label: "Are suitable, compatible coatings being used for fire door and frame painting?" },
+      { id: "q4", label: "Will fire doors remain self-closing and unblocked during and after fire door and frame painting?" },
+      { id: "q5", label: "Have you agreed access control and opening times with the client for fire door and frame painting?" }
+    ]
+  },
+
+  "Warehouse floor line marking": {
+    desc: "Warehouse floor line marking involves marking walkways, vehicle routes and storage areas within a warehouse using durable floor coatings or tapes. Work is coordinated around live operations and traffic.",
+    hazards: ["moving_vehicles", "slips_trips", "dust_fumes", "manual_handling"],
+    questions: [
+      { id: "q1", label: "Have you agreed a traffic management and isolation plan for warehouse floor line marking?" },
+      { id: "q2", label: "Are floor surfaces clean, dry and prepared before warehouse floor line marking?" },
+      { id: "q3", label: "Have vehicle and pedestrian routes been clearly planned for warehouse floor line marking?" },
+      { id: "q4", label: "Are operatives visible and protected from FLTs during warehouse floor line marking?" },
+      { id: "q5", label: "Are drying times and re-opening of routes controlled after warehouse floor line marking?" }
+    ]
+  },
+
+  "Car park line marking and symbols": {
+    desc: "Car park line marking and symbols covers marking bays, arrows, symbols and wording on external car parks. Work must control traffic, weather risk and public interface while materials cure.",
+    hazards: ["moving_vehicles", "environmental_weather", "slips_trips", "public_interface"],
+    questions: [
+      { id: "q1", label: "Is there a traffic management plan and diversion in place for car park line marking and symbols?" },
+      { id: "q2", label: "Have you checked weather and surface conditions before car park line marking and symbols?" },
+      { id: "q3", label: "Are areas safely coned and barriered off during car park line marking and symbols?" },
+      { id: "q4", label: "Are products used for car park line marking and symbols suitable for skid resistance and durability?" },
+      { id: "q5", label: "Have you planned how to keep pedestrians away from wet markings during car park line marking and symbols?" }
+    ]
+  },
+
+  "Anti-graffiti coating application": {
+    desc: "Anti-graffiti coating application involves preparing cleaned surfaces and applying sacrificial or permanent anti-graffiti coatings to facades, walls or structures. Products may have specific curing and weather limitations.",
+    hazards: ["chemical_coshh", "dust_fumes", "manual_handling", "environmental_weather"],
+    questions: [
+      { id: "q1", label: "Have you confirmed substrate compatibility before anti-graffiti coating application?" },
+      { id: "q2", label: "Are COSHH assessments in place for products used in anti-graffiti coating application?" },
+      { id: "q3", label: "Is the surface clean, dry and prepared before anti-graffiti coating application?" },
+      { id: "q4", label: "Are weather and temperature conditions suitable for anti-graffiti coating application?" },
+      { id: "q5", label: "Will treated areas be clearly recorded and communicated after anti-graffiti coating application?" }
+    ]
+  },
+
+  "Graffiti removal and redecoration": {
+    desc: "Graffiti removal and redecoration involves using chemical cleaners, hot pressure washing or abrasion to remove graffiti, before repainting as needed. Work may be close to the public and involves strong cleaning agents.",
+    hazards: ["chemical_coshh", "dust_fumes", "manual_handling", "slips_trips", "public_interface"],
+    questions: [
+      { id: "q1", label: "Are the selected products and methods suitable for graffiti removal without damaging the substrate?" },
+      { id: "q2", label: "Are COSHH controls in place for graffiti removal and redecoration products?" },
+      { id: "q3", label: "Have you put barriers or signage in place to protect the public during graffiti removal and redecoration?" },
+      { id: "q4", label: "Is there a plan to manage run-off and waste from graffiti removal and redecoration?" },
+      { id: "q5", label: "Will any redecoration after graffiti removal match existing finishes where required?" }
+    ]
+  },
+
+  "Wallpaper hanging to single feature wall": {
+    desc: "Wallpaper hanging to single feature wall involves preparing the wall, applying paste and carefully aligning patterned or plain wallcovering to a single wall, while protecting adjacent surfaces.",
+    hazards: ["manual_handling", "slips_trips", "dust_fumes"],
+    questions: [
+      { id: "q1", label: "Is the wall surface for wallpaper hanging to single feature wall smooth, clean and suitably primed?" },
+      { id: "q2", label: "Have you checked batch numbers and pattern direction for wallpaper hanging to single feature wall?" },
+      { id: "q3", label: "Is paste mixed and applied in line with manufacturer instructions for wallpaper hanging to single feature wall?" },
+      { id: "q4", label: "Are tools, tables and offcuts kept tidy during wallpaper hanging to single feature wall?" },
+      { id: "q5", label: "Have you agreed the finish level and joints visibility with the client for wallpaper hanging to single feature wall?" }
+    ]
+  },
+
+  "Full room wallpaper strip and rehang": {
+    desc: "Full room wallpaper strip and rehang includes stripping existing wallpapers, preparing the substrate and hanging new coverings across all walls. Steamers or solvents may be used for removal.",
+    hazards: ["dust_fumes", "manual_handling", "slips_trips", "chemical_coshh"],
+    questions: [
+      { id: "q1", label: "Are you controlling steam, moisture and run-off during full room wallpaper strip and rehang?" },
+      { id: "q2", label: "Is adequate ventilation provided when using strippers during full room wallpaper strip and rehang?" },
+      { id: "q3", label: "Have you checked for loose plaster or defects uncovered during full room wallpaper strip and rehang?" },
+      { id: "q4", label: "Are work areas kept clear of paste spills and offcuts during full room wallpaper strip and rehang?" },
+      { id: "q5", label: "Have you allowed time to fully dry surfaces between strip and rehang stages in full room wallpaper strip and rehang?" }
+    ]
+  },
+
+  "Lining paper installation and painting": {
+    desc: "Lining paper installation and painting involves hanging lining paper to improve wall surface quality before painting. Joints and seams must be properly fixed, then coated with suitable paints.",
+    hazards: ["manual_handling", "dust_fumes", "slips_trips"],
+    questions: [
+      { id: "q1", label: "Are walls prepared and stable before lining paper installation and painting?" },
+      { id: "q2", label: "Have you planned joint directions and overlaps for lining paper installation and painting?" },
+      { id: "q3", label: "Is paste and adhesive suitable for the lining paper installation and painting system?" },
+      { id: "q4", label: "Will lining paper be allowed to dry before painting in the lining paper installation and painting process?" },
+      { id: "q5", label: "Are cutting tools handled safely during lining paper installation and painting?" }
+    ]
+  },
+
+  "Ceiling stain blocking and repaint": {
+    desc: "Ceiling stain blocking and repaint involves isolating stains (e.g. from leaks, smoke or mould) using specialist primers before repainting ceilings to an even finish, often via steps or platforms.",
+    hazards: ["work_at_height", "dust_fumes", "manual_handling"],
+    questions: [
+      { id: "q1", label: "Have you identified and resolved the source of staining before ceiling stain blocking and repaint?" },
+      { id: "q2", label: "Is access equipment safe and suitable for ceiling stain blocking and repaint?" },
+      { id: "q3", label: "Are stain-blocking primers used in accordance with manufacturer guidance during ceiling stain blocking and repaint?" },
+      { id: "q4", label: "Is ventilation adequate when using stain-blocking products for ceiling stain blocking and repaint?" },
+      { id: "q5", label: "Have you agreed with the client that stains may require multiple coats during ceiling stain blocking and repaint?" }
+    ]
+  },
+
+  "Mould treatment and redecoration": {
+    desc: "Mould treatment and redecoration involves treating mould-affected surfaces with biocidal washes, removing damaged coatings and reapplying suitable breathable or anti-mould finishes.",
+    hazards: ["biological", "chemical_coshh", "dust_fumes", "manual_handling"],
+    questions: [
+      { id: "q1", label: "Are you using suitable biocidal products and PPE for mould treatment and redecoration?" },
+      { id: "q2", label: "Is ventilation adequate during mould treatment and redecoration?" },
+      { id: "q3", label: "Have you identified underlying causes (ventilation, leaks) before mould treatment and redecoration?" },
+      { id: "q4", label: "Are waste materials from mould treatment and redecoration handled and bagged safely?" },
+      { id: "q5", label: "Are you using appropriate anti-mould or breathable coatings during redecoration after mould treatment?" }
+    ]
+  },
+
+  "Kitchen unit respray (on site)": {
+    desc: "Kitchen unit respray (on site) involves degreasing, sanding, masking and spray-painting existing kitchen doors and carcasses within an occupied property. Overspray, odour and dust control are key.",
+    hazards: ["dust_fumes", "chemical_coshh", "manual_handling", "slips_trips", "public_interface"],
+    questions: [
+      { id: "q1", label: "Are units cleaned and degreased thoroughly before kitchen unit respray (on site)?" },
+      { id: "q2", label: "Is masking to worktops, floors and appliances in place for kitchen unit respray (on site)?" },
+      { id: "q3", label: "Is suitable ventilation and respiratory protection used during kitchen unit respray (on site)?" },
+      { id: "q4", label: "Are spray areas segregated from the rest of the dwelling during kitchen unit respray (on site)?" },
+      { id: "q5", label: "Have you agreed colour, sheen and sample panels with the client before full kitchen unit respray (on site)?" }
+    ]
+  },
+
+  "Hand painting of kitchen cabinets": {
+    desc: "Hand painting of kitchen cabinets involves manual brush and roller application to cabinet doors and carcasses after thorough cleaning, sanding and priming. Work is done in occupied homes with close attention to finishes.",
+    hazards: ["dust_fumes", "manual_handling", "slips_trips", "public_interface"],
+    questions: [
+      { id: "q1", label: "Have you removed or masked hardware appropriately for hand painting of kitchen cabinets?" },
+      { id: "q2", label: "Are suitable primers and topcoats selected for hand painting of kitchen cabinets?" },
+      { id: "q3", label: "Is sanding dust controlled and cleaned regularly during hand painting of kitchen cabinets?" },
+      { id: "q4", label: "Are residents aware of restricted access to the kitchen during hand painting of kitchen cabinets?" },
+      { id: "q5", label: "Have you protected all adjoining surfaces and floors during hand painting of kitchen cabinets?" }
+    ]
+  },
+
+  "Bathroom redecoration (high humidity)": {
+    desc: "Bathroom redecoration (high humidity) involves preparing and repainting walls and ceilings in moisture-prone rooms using mould-resistant and washable coatings. Surfaces may need additional preparation due to condensation damage.",
+    hazards: ["dust_fumes", "manual_handling", "slips_trips"],
+    questions: [
+      { id: "q1", label: "Are suitable moisture-resistant and mould-inhibiting paints specified for bathroom redecoration (high humidity)?" },
+      { id: "q2", label: "Have you resolved any active leaks or moisture issues before bathroom redecoration (high humidity)?" },
+      { id: "q3", label: "Is ventilation sufficient when painting small bathrooms during bathroom redecoration (high humidity)?" },
+      { id: "q4", label: "Are fittings, sanitaryware and floors adequately protected during bathroom redecoration (high humidity)?" },
+      { id: "q5", label: "Have you allowed for extra drying time in cool or damp conditions during bathroom redecoration (high humidity)?" }
+    ]
+  },
+
+  "External timber window preparation and painting": {
+    desc: "External timber window preparation and painting involves scraping, sanding, repairing and painting external timber frames and sashes, often from ladders or towers, while managing weather exposure.",
+    hazards: ["work_at_height", "environmental_weather", "dust_fumes", "manual_handling"],
+    questions: [
+      { id: "q1", label: "Is access equipment safe and stable for external timber window preparation and painting?" },
+      { id: "q2", label: "Are you controlling dust and old coatings during external timber window preparation and painting?" },
+      { id: "q3", label: "Are appropriate primers and flexible coatings specified for external timber window preparation and painting?" },
+      { id: "q4", label: "Have you checked weather and temperature before external timber window preparation and painting?" },
+      { id: "q5", label: "Are windows secured safely while sashes are open during external timber window preparation and painting?" }
+    ]
+  },
+
+  "External door and frame repainting": {
+    desc: "External door and frame repainting covers the preparation and repainting of external doors and frames exposed to weather, including repairs to damaged timber and seals where required.",
+    hazards: ["manual_handling", "environmental_weather", "dust_fumes"],
+    questions: [
+      { id: "q1", label: "Have you confirmed security and access arrangements for external door and frame repainting?" },
+      { id: "q2", label: "Are doors adequately supported and safe to work on during external door and frame repainting?" },
+      { id: "q3", label: "Are suitable weather-resistant coatings used for external door and frame repainting?" },
+      { id: "q4", label: "Is preparation dust controlled and cleared up during external door and frame repainting?" },
+      { id: "q5", label: "Have you coordinated with occupants regarding drying times during external door and frame repainting?" }
+    ]
+  },
+
+  "Render repair and touch-up before painting": {
+    desc: "Render repair and touch-up before painting involves patching cracks, hollow or damaged render and blending repairs prior to final masonry coatings. Some areas may require hacking off loose material.",
+    hazards: ["dust_fumes", "manual_handling", "work_at_height", "sharp_objects"],
+    questions: [
+      { id: "q1", label: "Have loose or hollow areas been identified and removed safely before render repair and touch-up before painting?" },
+      { id: "q2", label: "Is dust and debris from render repair and touch-up before painting being controlled and cleared safely?" },
+      { id: "q3", label: "Are suitable repair materials being used during render repair and touch-up before painting?" },
+      { id: "q4", label: "Is access equipment safe for high-level render repair and touch-up before painting?" },
+      { id: "q5", label: "Have you allowed adequate curing time before overcoating during render repair and touch-up before painting?" }
+    ]
+  },
+
+  "Patch repair and snagging decoration works": {
+    desc: "Patch repair and snagging decoration works include small localised filling, spot priming and touch-up painting to address defects or snags before handover.",
+    hazards: ["dust_fumes", "slips_trips", "manual_handling"],
+    questions: [
+      { id: "q1", label: "Have snag lists and patch areas been clearly identified before patch repair and snagging decoration works?" },
+      { id: "q2", label: "Are you using compatible fillers and paints for patch repair and snagging decoration works?" },
+      { id: "q3", label: "Are tools and materials kept tidy during patch repair and snagging decoration works?" },
+      { id: "q4", label: "Have you planned access and timing to avoid wet paint in high traffic areas during patch repair and snagging decoration works?" },
+      { id: "q5", label: "Will final checks be completed after patch repair and snagging decoration works?" }
+    ]
+  },
+
+  "Plant room floor painting (epoxy)": {
+    desc: "Plant room floor painting (epoxy) involves preparing concrete floors and applying epoxy or similar high-build coatings in plant or service rooms, often around fixed equipment.",
+    hazards: ["chemical_coshh", "dust_fumes", "slips_trips", "manual_handling"],
+    questions: [
+      { id: "q1", label: "Have you checked compatibility of primers and epoxy for plant room floor painting (epoxy)?" },
+      { id: "q2", label: "Is ventilation adequate for plant room floor painting (epoxy)?" },
+      { id: "q3", label: "Are floor surfaces clean, dry and mechanically prepared before plant room floor painting (epoxy)?" },
+      { id: "q4", label: "Have you planned access routes to avoid walking on wet coatings during plant room floor painting (epoxy)?" },
+      { id: "q5", label: "Are COSHH controls and spill kits in place for materials used in plant room floor painting (epoxy)?" }
+    ]
+  },
+
+  "Non-slip floor coating to corridors": {
+    desc: "Non-slip floor coating to corridors involves applying textured or aggregate coatings to corridor floors to improve slip resistance, typically in schools, hospitals or commercial buildings.",
+    hazards: ["slips_trips", "chemical_coshh", "dust_fumes", "public_interface"],
+    questions: [
+      { id: "q1", label: "Have you closed or diverted areas appropriately before non-slip floor coating to corridors?" },
+      { id: "q2", label: "Are products for non-slip floor coating to corridors suitable for substrate and slip resistance requirements?" },
+      { id: "q3", label: "Are you controlling access to prevent pedestrians walking through wet non-slip floor coating to corridors?" },
+      { id: "q4", label: "Is ventilation and COSHH control adequate during non-slip floor coating to corridors?" },
+      { id: "q5", label: "Will line marking, thresholds and transitions be clearly defined after non-slip floor coating to corridors?" }
+    ]
+  },
+
+  "Painting to radiators and exposed pipework": {
+    desc: "Painting to radiators and exposed pipework includes preparing and painting heating radiators, pipework and associated metalwork. Surfaces may be warm and near floor level or ceiling level runs.",
+    hazards: ["hot_work", "manual_handling", "dust_fumes", "slips_trips"],
+    questions: [
+      { id: "q1", label: "Have heating systems been isolated or cooled before painting to radiators and exposed pipework?" },
+      { id: "q2", label: "Are appropriate heat-resistant paints used for painting to radiators and exposed pipework?" },
+      { id: "q3", label: "Are floors protected and kept clear during painting to radiators and exposed pipework?" },
+      { id: "q4", label: "Will you avoid restricting valves or controls during painting to radiators and exposed pipework?" },
+      { id: "q5", label: "Is access equipment safe for any high-level painting to radiators and exposed pipework?" }
+    ]
+  },
+
+  "Industrial unit full internal redecoration": {
+    desc: "Industrial unit full internal redecoration involves large-scale painting of walls, ceilings, steelwork and sometimes floors within industrial sheds or warehouses, usually around plant and storage areas.",
+    hazards: ["work_at_height", "plant_machinery", "dust_fumes", "manual_handling", "moving_vehicles"],
+    questions: [
+      { id: "q1", label: "Has a full access and traffic management plan been agreed for industrial unit full internal redecoration?" },
+      { id: "q2", label: "Are MEWPs, towers or platforms suitable and inspected for industrial unit full internal redecoration?" },
+      { id: "q3", label: "Are operations and plant isolated or segregated during industrial unit full internal redecoration?" },
+      { id: "q4", label: "Are COSHH and ventilation controls in place for coatings used in industrial unit full internal redecoration?" },
+      { id: "q5", label: "Have you planned phased working to minimise disruption during industrial unit full internal redecoration?" }
+    ]
+  },
+
+  "Office redecoration outside business hours": {
+    desc: "Office redecoration outside business hours involves redecoration of office spaces in evenings or weekends to reduce disruption, while managing lone working and security arrangements.",
+    hazards: ["slips_trips", "manual_handling", "lone_working", "dust_fumes"],
+    questions: [
+      { id: "q1", label: "Are lone working procedures in place for office redecoration outside business hours?" },
+      { id: "q2", label: "Have you agreed access, alarms and security procedures for office redecoration outside business hours?" },
+      { id: "q3", label: "Is the work area kept tidy and free from trailing leads during office redecoration outside business hours?" },
+      { id: "q4", label: "Are low-odour products used during office redecoration outside business hours where possible?" },
+      { id: "q5", label: "Will you leave the office safe, secure and free from hazards after each shift of office redecoration outside business hours?" }
+    ]
+  },
+
+  "New build final coat and snagging completion": {
+    desc: "New build final coat and snagging completion covers final decoration coats, touch-ups and snagging in new-build properties prior to practical completion.",
+    hazards: ["slips_trips", "manual_handling", "dust_fumes"],
+    questions: [
+      { id: "q1", label: "Have all prior trades finished in areas scheduled for new build final coat and snagging completion?" },
+      { id: "q2", label: "Are surfaces clean and dust-free before new build final coat and snagging completion?" },
+      { id: "q3", label: "Is the snag list agreed before starting new build final coat and snagging completion?" },
+      { id: "q4", label: "Are you protecting finished floors and fittings during new build final coat and snagging completion?" },
+      { id: "q5", label: "Will a final quality check be completed with the client after new build final coat and snagging completion?" }
+    ]
+  },
+
+  "Primer and undercoat application only": {
+    desc: "Primer and undercoat application only involves applying base coats to new or bare substrates, ready for future finishing coats by the same or other trades.",
+    hazards: ["manual_handling", "dust_fumes", "slips_trips"],
+    questions: [
+      { id: "q1", label: "Are substrates correctly prepared and dry before primer and undercoat application only?" },
+      { id: "q2", label: "Are chosen primers and undercoats compatible with finishing systems in primer and undercoat application only?" },
+      { id: "q3", label: "Are containers, tools and spillages controlled during primer and undercoat application only?" },
+      { id: "q4", label: "Is labelling or marking in place to confirm areas that only received base coats in primer and undercoat application only?" },
+      { id: "q5", label: "Have you allowed enough drying time between coats in primer and undercoat application only?" }
+    ]
+  },
+
+  "Ceiling grid and tile re-spray": {
+    desc: "Ceiling grid and tile re-spray involves spray painting suspended ceiling tiles and grids in situ, usually out of hours, with extensive masking of services and fittings.",
+    hazards: ["work_at_height", "dust_fumes", "noise_vibration", "manual_handling"],
+    questions: [
+      { id: "q1", label: "Is access safe for working above head height during ceiling grid and tile re-spray?" },
+      { id: "q2", label: "Have you masked sprinklers, smoke detectors and services correctly before ceiling grid and tile re-spray?" },
+      { id: "q3", label: "Is suitable respiratory protection provided for ceiling grid and tile re-spray?" },
+      { id: "q4", label: "Are tiles and grids suitable to accept coatings during ceiling grid and tile re-spray?" },
+      { id: "q5", label: "Have you coordinated with fire and building management systems before ceiling grid and tile re-spray?" }
+    ]
+  },
+
+  "Soffit and eaves painting": {
+    desc: "Soffit and eaves painting involves working at height to prepare and coat soffits, fascias and eaves boards, usually from ladders or access towers around a building.",
+    hazards: ["work_at_height", "manual_handling", "environmental_weather", "slips_trips"],
+    questions: [
+      { id: "q1", label: "Is ladder or tower access safe and correctly positioned for soffit and eaves painting?" },
+      { id: "q2", label: "Are weather and wind conditions suitable for soffit and eaves painting?" },
+      { id: "q3", label: "Are gutters and nearby features protected from debris during soffit and eaves painting?" },
+      { id: "q4", label: "Are you maintaining three points of contact when using ladders during soffit and eaves painting?" },
+      { id: "q5", label: "Have you controlled ground-level trip hazards from tools and materials during soffit and eaves painting?" }
+    ]
+  },
+
+  "Fence and boundary treatment painting": {
+    desc: "Fence and boundary treatment painting covers preparation and coating of timber or metal fences and boundary structures with preservative or decorative products, typically in gardens or external areas.",
+    hazards: ["manual_handling", "environmental_weather", "slips_trips"],
+    questions: [
+      { id: "q1", label: "Have you checked boundaries and access rights before fence and boundary treatment painting?" },
+      { id: "q2", label: "Are plants, paving and neighbouring properties protected during fence and boundary treatment painting?" },
+      { id: "q3", label: "Are coatings for fence and boundary treatment painting suitable for external use?" },
+      { id: "q4", label: "Are you keeping walkways and garden access clear during fence and boundary treatment painting?" },
+      { id: "q5", label: "Have you checked the forecast and drying conditions before fence and boundary treatment painting?" }
+    ]
+  },
+
+  "Stair balustrade and handrail painting": {
+    desc: "Stair balustrade and handrail painting involves preparing and painting stair handrails, spindles and balustrades, often in live buildings where safe access must be maintained.",
+    hazards: ["slips_trips", "public_interface", "manual_handling"],
+    questions: [
+      { id: "q1", label: "Have you planned how to maintain safe handholds during stair balustrade and handrail painting?" },
+      { id: "q2", label: "Are stairs and landings kept clear of tools and materials during stair balustrade and handrail painting?" },
+      { id: "q3", label: "Are you using coatings that provide a durable, cleanable finish for stair balustrade and handrail painting?" },
+      { id: "q4", label: "Are wet handrails clearly marked during stair balustrade and handrail painting?" },
+      { id: "q5", label: "Have you agreed working hours to minimise impact on building users during stair balustrade and handrail painting?" }
+    ]
+  },
+
+  "Off-site spray painting to metal gates and railings": {
+    desc: "Off-site spray painting to metal gates and railings involves transporting items to a workshop or spray booth, preparing and coating them under controlled conditions, and returning them to site.",
+    hazards: ["manual_handling", "plant_machinery", "dust_fumes", "chemical_coshh"],
+    questions: [
+      { id: "q1", label: "Have you planned safe lifting and transport arrangements for off-site spray painting to metal gates and railings?" },
+      { id: "q2", label: "Is the spray area or booth suitable and ventilated for off-site spray painting to metal gates and railings?" },
+      { id: "q3", label: "Are COSHH and PPE requirements in place for off-site spray painting to metal gates and railings?" },
+      { id: "q4", label: "Are items securely stored and cured before transport back after off-site spray painting to metal gates and railings?" },
+      { id: "q5", label: "Have you coordinated site removal and refit times for off-site spray painting to metal gates and railings?" }
+    ]
+  },
+
+  "Heritage property redecoration (listed features)": {
+    desc: "Heritage property redecoration (listed features) involves careful preparation and painting of historic or listed building elements under strict conservation constraints and specifications.",
+    hazards: ["work_at_height", "dust_fumes", "manual_handling", "public_interface"],
+    questions: [
+      { id: "q1", label: "Have you reviewed conservation requirements before heritage property redecoration (listed features)?" },
+      { id: "q2", label: "Are you using specified materials and methods for heritage property redecoration (listed features)?" },
+      { id: "q3", label: "Is access equipment suitable for delicate structures during heritage property redecoration (listed features)?" },
+      { id: "q4", label: "Are you protecting original features and surfaces during heritage property redecoration (listed features)?" },
+      { id: "q5", label: "Are records and photographs taken before and after heritage property redecoration (listed features) where required?" }
+    ]
+  },
+
+  "High-level painting over stair voids": {
+    desc: "High-level painting over stair voids involves accessing ceilings and high walls above staircases using specialist towers, platforms or fixed scaffold, with significant fall risk if not controlled.",
+    hazards: ["work_at_height", "slips_trips", "public_interface"],
+    questions: [
+      { id: "q1", label: "Is a designed access solution in place for high-level painting over stair voids?" },
+      { id: "q2", label: "Are guardrails, toe-boards and fall protection installed for high-level painting over stair voids?" },
+      { id: "q3", label: "Have you prevented access underneath during high-level painting over stair voids?" },
+      { id: "q4", label: "Is the scaffold or tower inspected before use for high-level painting over stair voids?" },
+      { id: "q5", label: "Are tools and materials secured to prevent drops during high-level painting over stair voids?" }
+    ]
+  },
+
+  "Night shift redecoration in live retail store": {
+    desc: "Night shift redecoration in live retail store involves working out of hours in a trading environment, coordinating with store management while managing stock, displays and security systems.",
+    hazards: ["slips_trips", "manual_handling", "lone_working", "dust_fumes"],
+    questions: [
+      { id: "q1", label: "Are night working and lone working procedures agreed for night shift redecoration in live retail store?" },
+      { id: "q2", label: "Have you protected stock and displays before night shift redecoration in live retail store?" },
+      { id: "q3", label: "Are alarms and security arrangements understood during night shift redecoration in live retail store?" },
+      { id: "q4", label: "Will floors be left clean, dry and clear before opening after night shift redecoration in live retail store?" },
+      { id: "q5", label: "Are low-odour and fast-drying products used where possible during night shift redecoration in live retail store?" }
+    ]
+  },
+
+  "Anti-slip stair nosing painting": {
+    desc: "Anti-slip stair nosing painting involves applying high-grip paint or strips to stair nosings to improve slip resistance and visibility, often in public or workplace staircases.",
+    hazards: ["slips_trips", "public_interface", "manual_handling"],
+    questions: [
+      { id: "q1", label: "Have stairs been closed or controlled during anti-slip stair nosing painting?" },
+      { id: "q2", label: "Are nosing products for anti-slip stair nosing painting suitable for expected foot traffic?" },
+      { id: "q3", label: "Are stair treads clean, dry and prepared before anti-slip stair nosing painting?" },
+      { id: "q4", label: "Are clear markings provided to prevent pedestrians using wet nosings during anti-slip stair nosing painting?" },
+      { id: "q5", label: "Have you planned phased work to keep safe alternative routes during anti-slip stair nosing painting?" }
+    ]
+  },
+
+  "Hygienic coating application to food prep areas": {
+    desc: "Hygienic coating application to food prep areas involves applying specialist washable, anti-bacterial or food-safe coatings to walls and ceilings in kitchens and food preparation zones.",
+    hazards: ["chemical_coshh", "dust_fumes", "manual_handling", "slips_trips"],
+    questions: [
+      { id: "q1", label: "Are hygienic coatings specified suitable and certified for food prep areas?" },
+      { id: "q2", label: "Have food operations been stopped and equipment covered before hygienic coating application to food prep areas?" },
+      { id: "q3", label: "Are COSHH controls and ventilation in place for hygienic coating application to food prep areas?" },
+      { id: "q4", label: "Are joints, corners and service penetrations detailed properly during hygienic coating application to food prep areas?" },
+      { id: "q5", label: "Have you agreed curing times before recommissioning the area after hygienic coating application to food prep areas?" }
+    ]
+  },
+
+  "Washable coating application to healthcare corridors": {
+    desc: "Washable coating application to healthcare corridors involves applying robust, cleanable coatings in hospital or care environments while controlling infection risks and maintaining safe access.",
+    hazards: ["public_interface", "slips_trips", "dust_fumes", "manual_handling"],
+    questions: [
+      { id: "q1", label: "Have infection control requirements been agreed before washable coating application to healthcare corridors?" },
+      { id: "q2", label: "Are patient and staff routes maintained safely during washable coating application to healthcare corridors?" },
+      { id: "q3", label: "Are low-VOC, healthcare-appropriate coatings used for washable coating application to healthcare corridors?" },
+      { id: "q4", label: "Are tools and materials kept out of escape routes during washable coating application to healthcare corridors?" },
+      { id: "q5", label: "Have you planned work times to minimise disruption during washable coating application to healthcare corridors?" }
+    ]
+  },
+
+  "End-of-tenancy full internal redecoration (domestic)": {
+    desc: "End-of-tenancy full internal redecoration (domestic) involves a full internal repaint of a domestic property between tenants, often to a standard, agreed colour and finish schedule.",
+    hazards: ["manual_handling", "dust_fumes", "slips_trips"],
+    questions: [
+      { id: "q1", label: "Have you agreed the specification and colours for end-of-tenancy full internal redecoration (domestic)?" },
+      { id: "q2", label: "Is the property cleared and cleaned before end-of-tenancy full internal redecoration (domestic)?" },
+      { id: "q3", label: "Are all rooms sequenced logically to avoid blocking access during end-of-tenancy full internal redecoration (domestic)?" },
+      { id: "q4", label: "Are suitable fillers and stain blockers available for end-of-tenancy full internal redecoration (domestic)?" },
+      { id: "q5", label: "Will a final walk-through be completed with the landlord/agent after end-of-tenancy full internal redecoration (domestic)?" }
+    ]
+  },
+
+  "Other (Custom)": {
+    desc: "",
+    hazards: [],
+    questions: [
+      { id: "q1", label: "Have you identified all specific risks associated with this custom painting or decorating task (including work at height, dust, fumes and public interface)?" },
+      { id: "q2", label: "Is your access equipment and work area for this custom painting or decorating task safe, stable and suitable for the height and duration of work?" },
+      { id: "q3", label: "Have you confirmed surface condition, existing coatings and any sensitive finishes before starting this custom painting or decorating task?" },
+      { id: "q4", label: "Have you planned how dust, fumes, overspray and waste from this custom painting or decorating task will be controlled and cleared safely?" },
+      { id: "q5", label: "Have you agreed the exact scope, working hours and any areas that must remain in use with the client for this custom painting or decorating task?" }
+    ]
+  }
+};
+
+// ==========================================
 // MASTER TRADE REGISTRY
 // ==========================================
 
@@ -6208,5 +6814,9 @@ export const TRADES: Record<
   "Gas & Heating Engineer": {
     jobs: Object.keys(GAS_HEATING_CLUSTERS).map((name) => ({ name })),
     clusters: GAS_HEATING_CLUSTERS,
+  },
+  "Painter & Decorator": {
+    jobs: Object.keys(PAINTER_DECORATOR_CLUSTERS).map((name) => ({ name })),
+    clusters: PAINTER_DECORATOR_CLUSTERS,
   },
 };
