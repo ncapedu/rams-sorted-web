@@ -5520,30 +5520,28 @@ const HVAC_AIRCON_CLUSTERS: Record<string, JobCluster> = {
   },
 
   "Expansion vessel replacement (HVAC circuit)": {
-    desc: "Expansion vessel replacement (HVAC circuit) includes isolating, draining and replacing vessels that accommodate thermal expansion in heating or cooling systems. Vessels may be located at height or in plantrooms. Correct pre-charge and reconnection are essential.",
-    hazards: ["manual_handling", "water_ingress", "work_at_height"],
+    desc: "Expansion vessel replacement (HVAC circuit) involves isolating, draining and replacing pressurised expansion vessels on heating or chilled water systems. The task typically includes checking system pressure, fitting the correct size and type of vessel, re-pressurising the circuit and checking for leaks. Care is taken to manage hot water, weight of the vessel and any discharge of water to drains.",
+    hazards: ["hot_work", "manual_handling", "water_ingress", "stored_energy"],
     questions: [
-      { id: "q1", label: "Are systems safely isolated and depressurised before expansion vessel replacement (HVAC circuit)?" },
-      { id: "q2", label: "Is suitable access in place for expansion vessel replacement (HVAC circuit), especially at height?" },
-      { id: "q3", label: "Are lifting aids used where necessary during expansion vessel replacement (HVAC circuit)?" },
-      { id: "q4", label: "Is vessel pre-charge set correctly during expansion vessel replacement (HVAC circuit)?" },
-      { id: "q5", label: "Are systems refilled, vented and checked for leaks after expansion vessel replacement (HVAC circuit)?" }
+      { id: "q1", label: "Has the HVAC circuit been safely isolated, cooled and depressurised before expansion vessel replacement (HVAC circuit) starts?" },
+      { id: "q2", label: "Is the replacement vessel for the expansion vessel replacement (HVAC circuit) correctly sized, rated and compatible with the system?" },
+      { id: "q3", label: "Have you planned how to safely support, handle and remove the old vessel during the expansion vessel replacement (HVAC circuit)?" },
+      { id: "q4", label: "Is there a safe route for draining and disposing of system water during the expansion vessel replacement (HVAC circuit)?" },
+      { id: "q5", label: "Will the system be correctly re-pressurised and checked for leaks following the expansion vessel replacement (HVAC circuit)?" }
+    ]
+  },
+  "Other (Custom)": {
+    desc: "",
+    hazards: [],
+    questions: [
+      { id: "q1", label: "Have you identified all specific risks associated with this custom HVAC or air conditioning task, including work at height and plant room access?" },
+      { id: "q2", label: "Have all electrical and mechanical isolations for this custom HVAC or air conditioning task been agreed, labelled and locked off where required?" },
+      { id: "q3", label: "If refrigerants or gases are involved in this custom HVAC or air conditioning task, have you reviewed the relevant COSHH data and recovery or leak procedures?" },
+      { id: "q4", label: "Is the work area for this custom HVAC or air conditioning task adequately ventilated, lit and safe to enter, especially plant rooms and roof spaces?" },
+      { id: "q5", label: "Have you confirmed the sequence of shutdown, testing and re-commissioning with the client for this custom HVAC or air conditioning task?" }
     ]
   }
 };
-
-  "Other (Custom)": {
-  desc: "",
-  hazards: [],
-  questions: [
-    { id: "q1", label: "Have you identified all specific risks associated with this custom HVAC or air conditioning task, including work at height and plant room access?" },
-    { id: "q2", label: "Have all electrical and mechanical isolations for this custom HVAC or air conditioning task been agreed, labelled and locked off where required?" },
-    { id: "q3", label: "If refrigerants or gases are involved in this custom HVAC or air conditioning task, have you reviewed the relevant COSHH data and recovery or leak procedures?" },
-    { id: "q4", label: "Is the work area for this custom HVAC or air conditioning task adequately ventilated and safe to enter, especially plant rooms and roof spaces?" },
-    { id: "q5", label: "Have you agreed how this custom HVAC or air conditioning task will be tested, commissioned and handed over, including any disruption to building users?" }
-  ]
-};
-
 
 // ==========================================
 // MASTER TRADE REGISTRY
@@ -5595,8 +5593,4 @@ export const TRADES = {
     clusters: HVAC_AIRCON_CLUSTERS,
   },
 
-  "Gas & Heating Engineer": {
-    jobs: Object.keys(GAS_HEATING_CLUSTERS).map((name) => ({ name })),
-    clusters: GAS_HEATING_CLUSTERS,
-  },
 };
