@@ -1,10 +1,12 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import Image from "next/image";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import {
   Loader2,
+  ShieldCheck,
   MapPin,
   Briefcase,
   AlertTriangle,
@@ -120,8 +122,6 @@ export default function Home() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [isGenerating, setIsGenerating] = useState(false);
 
-  const contentRef = useRef<HTMLDivElement | null>(null);
-
   const [formData, setFormData] = useState({
     companyName: "",
     officeAddress: "",
@@ -152,10 +152,35 @@ export default function Home() {
   const [questions, setQuestions] = useState<any[]>([]);
   const [answers, setAnswers] = useState<Record<string, string>>({});
 
-  // Scroll the main content panel to top on step change
+  // Job omni-search
+  const [jobSearch, setJobSearch] = useState("");
+  const [jobSearchOpen, setJobSearchOpen] = useState(false);
+
+  // Scroll container for the right (white) panel
+  const mainScrollRef = useRef<HTMLDivElement | null>(null);
+
+  // Precomputed full list of jobs for search
+  const allJobs = Object.entries(TRADES).flatMap(
+    ([tradeName, tradeData]: [string, any]) =>
+      (tradeData.jobs || []).map((j: any) => ({
+        trade: tradeName,
+        name: j.name as string,
+      }))
+  );
+
+  const filteredJobs =
+    jobSearch.trim().length < 2
+      ? []
+      : allJobs
+          .filter((j) =>
+            j.name.toLowerCase().includes(jobSearch.toLowerCase())
+          )
+          .slice(0, 8);
+
+  // Scroll only the main panel to top when step changes
   useEffect(() => {
-    if (contentRef.current) {
-      contentRef.current.scrollTo({ top: 0, behavior: "smooth" });
+    if (mainScrollRef.current) {
+      mainScrollRef.current.scrollTo({ top: 0, behavior: "smooth" });
     }
   }, [step]);
 
@@ -176,6 +201,7 @@ export default function Home() {
     if (!clusterData) {
       setQuestions([]);
       setHazards([]);
+      setAnswers([]);
       setAnswers({});
       return;
     }
@@ -192,7 +218,7 @@ export default function Home() {
     const qs = clusterData.questions || [];
     setQuestions(qs);
 
-    // No default Yes/No
+    // reset answers, no default Yes/No
     setAnswers({});
   }, [formData.jobType, formData.trade]);
 
@@ -230,14 +256,14 @@ export default function Home() {
         !formData.officeAddress ||
         !formData.contactName)
     ) {
-      alert("⚠️ Please fill in Company Name, Office Address and Competent Person.");
+      alert(
+        "⚠️ Please fill in Company Name, Office Address and Competent Person."
+      );
       return;
     }
     if (
       step === 2 &&
-      (!formData.clientName ||
-        !formData.siteAddress ||
-        !formData.jobType)
+      (!formData.clientName || !formData.siteAddress || !formData.jobType)
     ) {
       alert(
         "⚠️ Please fill in Client, Site Address and select a Job Type before continuing."
@@ -748,7 +774,7 @@ export default function Home() {
 
   // --- UI RENDER ---
   return (
-    <div className="h-screen flex bg-[#f5f4f0] text-slate-900 overflow-hidden">
+    <div className="h-screen flex overflow-hidden bg-[#f5f4f0] text-slate-900">
       {/* SIDEBAR */}
       <aside
         className={`relative flex flex-col border-r border-black/5 transition-all duration-300 ease-out ${
@@ -759,13 +785,16 @@ export default function Home() {
           {/* Top brand + toggle */}
           <div className="flex items-center justify-between px-3 pt-3 pb-2">
             {sidebarOpen && (
-              <div className="flex flex-col">
-                <span className="text-[11px] tracking-tight uppercase text-slate-600">
-                  RAMS Sorted
-                </span>
-                <span className="text-sm font-semibold tracking-tight text-slate-900">
-                  RAMS Builder
-                </span>
+              <div className="flex items-center gap-2">
+                {/* Replace src with your own logo path under /public */}
+                <div className="relative h-17 w-22">
+                  <Image
+                    src="/rams-logos.png"
+                    alt="RAMS Sorted logo"
+                    fill
+                    className="object-contain"
+                  />
+                </div>
               </div>
             )}
             <button
@@ -780,30 +809,32 @@ export default function Home() {
             </button>
           </div>
 
-          {/* New file directly under header */}
-          <div className="px-2 pb-2">
-            {sidebarOpen ? (
-              <button
-                className="flex w-full items-center justify-center gap-2 rounded-md bg-[#0b2040] py-2 text-xs font-semibold text-white hover:bg-black transition-colors"
-              >
-                <FileText className="w-3.5 h-3.5" />
-                <span>New RAMS file</span>
-              </button>
-            ) : (
-              <div className="flex justify-end px-1">
-                <button className="flex h-8 w-8 items-center justify-center rounded-md bg-[#0b2040] text-white hover:bg-black transition-colors">
-                  <FileText className="w-4 h-4" />
+          {/* MAIN SIDEBAR CONTENT: SCROLLABLE */}
+          <div className="flex-1 overflow-y-auto px-2 pb-2 flex flex-col">
+            {/* Push things down slightly */}
+            <div className="mt-4">
+              {/* New file button */}
+              {sidebarOpen ? (
+                <button
+                  className="flex w-full items-center justify-center gap-2 rounded-md bg-[#0b2040] py-2 text-xs font-semibold text-white hover:bg-black transition-colors"
+                >
+                  <FileText className="w-3.5 h-3.5" />
+                  <span>New RAMS file</span>
                 </button>
-              </div>
-            )}
-          </div>
+              ) : (
+                <div className="flex justify-center">
+                  <button className="flex h-9 w-9 items-center justify-center rounded-md bg-[#0b2040] text-white hover:bg-black transition-colors">
+                    <FileText className="w-4 h-4" />
+                  </button>
+                </div>
+              )}
+            </div>
 
-          {/* History list with its own scroll – only visible when open */}
-          <div className="flex-1 overflow-y-auto px-2 pb-2">
+            {/* Recent files further down */}
             {sidebarOpen && (
-              <div className="mt-1 space-y-1 text-xs text-slate-800">
-                <div className="px-2 py-1 font-semibold text-[11px] uppercase tracking-wide text-slate-700">
-                  Your RAMS files
+              <div className="mt-6 space-y-1 text-xs text-slate-700">
+                <div className="px-2 py-1 font-semibold text-[11px] uppercase tracking-wide text-slate-500">
+                  Recent files
                 </div>
                 <button className="w-full text-left px-2 py-2 rounded-md hover:bg-slate-200/80 text-xs">
                   Example RAMS – wire this to real data later
@@ -812,11 +843,11 @@ export default function Home() {
             )}
           </div>
 
-          {/* Bottom: profile / settings */}
+          {/* Bottom: profile / settings (fixed) */}
           <div className="mt-auto border-t border-black/5 px-2 py-3">
             <div className="flex items-center justify-between gap-2 text-xs text-slate-800">
               <div className="flex items-center gap-2">
-                <div className="flex h-9 w-9 items-center justify-center rounded-full bg-slate-900 text-white">
+                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-slate-900 text-white">
                   <User className="w-4 h-4" />
                 </div>
                 {sidebarOpen && (
@@ -839,13 +870,18 @@ export default function Home() {
       </aside>
 
       {/* MAIN PANEL */}
-      <main className="flex-1 flex flex-col bg-white">
-        {/* Header with step indicator – no logo, no RAMS Builder text */}
+      <main className="flex-1 flex flex-col bg-white h-full">
+        {/* Header with step indicator */}
         <header className="px-6 pt-4 pb-3 bg-white/90 backdrop-blur-sm">
           <div className="flex items-center justify-between gap-4 mb-3">
-            <h1 className="text-lg font-semibold text-slate-900">
-              Create your RAMS pack in three steps
-            </h1>
+            <div className="flex flex-col">
+              <h1 className="text-lg font-semibold text-slate-900">
+                RS Wizard v1.0
+              </h1>
+              <p className="mt-1 text-xs text-slate-600">
+                Build a compliant RAMS pack in three guided steps.
+              </p>
+            </div>
             <div className="inline-flex items-center rounded-full bg-[#0b2040] px-4 py-1.5 text-[11px] font-semibold uppercase tracking-wide text-white">
               Step {step} of 3
             </div>
@@ -860,12 +896,32 @@ export default function Home() {
           </div>
         </header>
 
-        {/* Content area with its own scroll only */}
-        <section ref={contentRef} className="flex-1 overflow-y-auto">
+        {/* Content area with its own scroll */}
+        <section
+          className="flex-1 overflow-y-auto"
+          ref={mainScrollRef}
+        >
           <div className="max-w-4xl mx-auto px-6 py-8">
             {/* STEP 1: COMPANY */}
             {step === 1 && (
               <div className="space-y-6">
+                {/* WELCOME PANEL */}
+                <div className="rounded-xl bg-slate-50 border border-slate-200 px-4 py-3">
+                  <p className="text-sm font-semibold text-slate-900">
+                    Welcome back
+                    {formData.contactName
+                      ? `, ${formData.contactName}`
+                      : ""}
+                    .
+                  </p>
+                  <p className="text-xs text-slate-600 mt-1">
+                    This is{" "}
+                    <span className="font-semibold">RS Wizard v1.0</span>. Review
+                    your company and project details below, then move through
+                    the steps to generate a new RAMS file.
+                  </p>
+                </div>
+
                 <h2 className="text-xl font-semibold text-slate-900 flex items-center gap-2">
                   <Briefcase className="w-5 h-5 text-[#0b2040]" />
                   Company & Project Details
@@ -986,6 +1042,79 @@ export default function Home() {
                   Job Scope & Pre-Start Checks
                 </h2>
 
+                {/* OMNI SEARCH BAR */}
+                <div className="space-y-2">
+                  <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700">
+                    Quick job search
+                  </label>
+                  <p className="text-[11px] text-slate-500 mb-1">
+                    Start typing (e.g.{" "}
+                    <span className="italic">boiler</span>) to jump straight to
+                    the right trade &amp; job. You can still use the dropdowns
+                    below if you prefer.
+                  </p>
+                  <div className="relative">
+                    <input
+                      className="w-full border border-slate-300 p-3 rounded-lg text-sm bg-white focus:ring-2 focus:ring-[#0b2040] focus:border-transparent outline-none"
+                      placeholder="Search all job types..."
+                      value={jobSearch}
+                      onChange={(e) => {
+                        setJobSearch(e.target.value);
+                        setJobSearchOpen(true);
+                      }}
+                      onFocus={() => setJobSearchOpen(true)}
+                    />
+
+                    {jobSearchOpen && filteredJobs.length > 0 && (
+                      <div className="absolute z-40 mt-1 w-full rounded-lg border border-slate-200 bg-white shadow-lg max-h-64 overflow-auto">
+                        {filteredJobs.map((j, idx) => (
+                          <button
+                            key={j.trade + j.name + idx}
+                            type="button"
+                            onClick={() => {
+                              handleInput("trade", j.trade);
+                              handleInput("jobType", j.name);
+                              setJobSearch(j.name);
+                              setJobSearchOpen(false);
+                            }}
+                            className="w-full px-3 py-2 text-left text-xs hover:bg-slate-50"
+                          >
+                            <div className="font-semibold text-slate-900">
+                              {j.name}
+                            </div>
+                            <div className="text-[11px] text-slate-500">
+                              {j.trade}
+                            </div>
+                          </button>
+                        ))}
+
+                        {/* Always offer an 'Other (Custom)' path */}
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const tradeToUse =
+                              formData.trade ||
+                              filteredJobs[0]?.trade ||
+                              "Electrician";
+                            handleInput("trade", tradeToUse);
+                            handleInput("jobType", "Other (Custom)");
+                            setJobSearch("Other (Custom)");
+                            setJobSearchOpen(false);
+                          }}
+                          className="w-full px-3 py-2 text-left text-xs border-t border-slate-100 bg-slate-50 hover:bg-slate-100"
+                        >
+                          <div className="font-semibold text-slate-900">
+                            Other (Custom)
+                          </div>
+                          <div className="text-[11px] text-slate-500">
+                            For custom or non-standard tasks.
+                          </div>
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
@@ -1079,9 +1208,10 @@ export default function Home() {
                     Job Description & Extra Specific Notes
                   </label>
                   <p className="text-[11px] text-slate-500">
-                    This feeds the{" "}
-                    <span className="font-semibold">Scope of Works</span> in
-                    the RAMS. Add any site-specific details or constraints.
+                    This feeds the <span className="font-semibold">
+                      Scope of Works
+                    </span>{" "}
+                    in the RAMS. Add any site-specific details or constraints.
                   </p>
                   <textarea
                     className="w-full border border-slate-300 p-3 rounded-lg h-32 text-sm focus:ring-2 focus:ring-[#0b2040] focus:border-transparent outline-none bg-white"
@@ -1218,7 +1348,7 @@ export default function Home() {
                     {isGenerating ? (
                       <Loader2 className="w-4 h-4 animate-spin" />
                     ) : (
-                      <FileText className="w-4 h-4" />
+                      <ShieldCheck className="w-4 h-4" />
                     )}
                     {isGenerating ? "Generating..." : "Generate PDF Pack"}
                   </button>
