@@ -201,7 +201,6 @@ export default function Home() {
     if (!clusterData) {
       setQuestions([]);
       setHazards([]);
-      setAnswers([]);
       setAnswers({});
       return;
     }
@@ -787,9 +786,9 @@ export default function Home() {
             {sidebarOpen && (
               <div className="flex items-center gap-2">
                 {/* Replace src with your own logo path under /public */}
-                <div className="relative h-17 w-22">
+                <div className="relative h-8 w-8">
                   <Image
-                    src="/rams-logos.png"
+                    src="/rams-logo.png"
                     alt="RAMS Sorted logo"
                     fill
                     className="object-contain"
