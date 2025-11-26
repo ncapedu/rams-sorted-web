@@ -5,13 +5,12 @@ import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import {
   Loader2,
-  ShieldCheck,
   MapPin,
   Briefcase,
   AlertTriangle,
   Info,
   FileText,
-  Search,
+  User,
   Settings,
   ChevronLeft,
   ChevronRight,
@@ -38,10 +37,10 @@ function sanitizeText(input: any): string {
 // --- UI COMPONENTS ---
 const Tooltip = ({ text }: { text: string }) => (
   <div className="group relative inline-block ml-2">
-    <Info className="w-4 h-4 text-slate-400 hover:text-slate-900 cursor-help transition-colors" />
-    <div className="invisible group-hover:visible absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-64 p-3 bg-slate-900 text-white text-xs rounded-md shadow-xl z-50 text-center leading-relaxed border border-slate-700">
+    <Info className="w-4 h-4 text-gray-400 hover:text-black cursor-help transition-colors" />
+    <div className="invisible group-hover:visible absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-64 p-3 bg-black text-white text-xs rounded-md shadow-xl z-50 text-center leading-relaxed border border-gray-800">
       {text}
-      <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-slate-900" />
+      <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-black" />
     </div>
   </div>
 );
@@ -80,22 +79,22 @@ function AddressSearch({
 
   return (
     <div className="relative group">
-      <label className="flex items-center text-xs font-semibold uppercase tracking-[0.12em] text-slate-600 mb-1.5">
+      <label className="flex items-center text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
         {label}
         {required && <span className="text-red-600 ml-1">*</span>}
         {tooltip && <Tooltip text={tooltip} />}
       </label>
       <div className="relative">
         <input
-          className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-800 focus:border-transparent shadow-sm"
+          className="w-full border border-slate-300 rounded-lg p-3 text-sm focus:ring-2 focus:ring-[#0b2040] focus:border-transparent outline-none transition-all shadow-sm bg-white"
           placeholder="Start typing address..."
           value={query}
           onChange={(e) => searchAddress(e.target.value)}
         />
-        <MapPin className="w-4 h-4 absolute right-3 top-3.5 text-slate-400" />
+        <MapPin className="w-4 h-4 absolute right-3 top-3.5 text-gray-400" />
       </div>
       {showDropdown && results.length > 0 && (
-        <ul className="absolute z-50 w-full bg-white border border-slate-200 rounded-lg shadow-2xl mt-1 max-h-60 overflow-auto text-xs">
+        <ul className="absolute z-50 w-full bg-white border border-gray-200 rounded-lg shadow-2xl mt-1 max-h-60 overflow-auto">
           {results.map((r: any, i: number) => (
             <li
               key={i}
@@ -104,7 +103,7 @@ function AddressSearch({
                 onChange(r.display_name);
                 setShowDropdown(false);
               }}
-              className="p-3 hover:bg-slate-50 cursor-pointer border-b last:border-0 text-slate-700 leading-tight"
+              className="p-3 hover:bg-gray-50 cursor-pointer text-xs border-b last:border-0 text-gray-700 leading-tight"
             >
               {r.display_name}
             </li>
@@ -117,16 +116,15 @@ function AddressSearch({
 
 // --- MAIN APPLICATION ---
 export default function Home() {
-  const [sidebarOpen, setSidebarOpen] = useState(true);
   const [step, setStep] = useState(1);
+  const [sidebarOpen, setSidebarOpen] = useState(true);
   const [isGenerating, setIsGenerating] = useState(false);
 
-  const mainRef = useRef<HTMLDivElement | null>(null);
+  const contentRef = useRef<HTMLDivElement | null>(null);
 
   const [formData, setFormData] = useState({
     companyName: "",
     officeAddress: "",
-    email: "",
     contactName: "",
     contactPhone: "",
     clientName: "",
@@ -154,14 +152,14 @@ export default function Home() {
   const [questions, setQuestions] = useState<any[]>([]);
   const [answers, setAnswers] = useState<Record<string, string>>({});
 
-  // Scroll main panel to top when step changes
+  // Scroll the main content panel to top on step change
   useEffect(() => {
-    if (mainRef.current) {
-      mainRef.current.scrollTo({ top: 0, behavior: "smooth" });
+    if (contentRef.current) {
+      contentRef.current.scrollTo({ top: 0, behavior: "smooth" });
     }
   }, [step]);
 
-  // --- Update hazards/questions when trade/jobType changes ---
+  // Update hazards/questions when trade/jobType changes
   useEffect(() => {
     const currentTrade = TRADES[formData.trade as keyof typeof TRADES];
 
@@ -182,49 +180,42 @@ export default function Home() {
       return;
     }
 
-    // Set description: for "Other (Custom)" start blank, otherwise use library desc
     setFormData((prev) => ({
       ...prev,
       customDescription:
         formData.jobType === "Other (Custom)"
-          ? ""
+          ? prev.customDescription || ""
           : clusterData.desc || "",
     }));
 
-    // Replace hazards with just this job's hazards
     setHazards(clusterData.hazards || []);
-
-    // Replace questions; no default "Yes" anymore
     const qs = clusterData.questions || [];
     setQuestions(qs);
+
+    // No default Yes/No
     setAnswers({});
   }, [formData.jobType, formData.trade]);
 
   const handleInput = (field: string, value: string) => {
-    if (field === "trade") {
-      setFormData((prev) => ({
-        ...prev,
-        trade: value,
-        jobType: "",
-        customJobType: "",
-        customDescription: "",
-      }));
-      setQuestions([]);
-      setHazards([]);
-      setAnswers({});
-      return;
-    }
-
-    if (field === "jobType") {
-      setFormData((prev) => ({
-        ...prev,
-        jobType: value,
-        ...(value !== "Other (Custom)" ? { customJobType: "" } : {}),
-      }));
-      return;
-    }
-
-    setFormData((prev) => ({ ...prev, [field]: value }));
+    setFormData((prev) => {
+      if (field === "trade") {
+        return {
+          ...prev,
+          trade: value,
+          jobType: "",
+          customDescription: "",
+        };
+      }
+      if (field === "jobType") {
+        return {
+          ...prev,
+          jobType: value,
+          customDescription:
+            value === "Other (Custom)" ? "" : prev.customDescription,
+        };
+      }
+      return { ...prev, [field]: value };
+    });
   };
 
   const toggleHazard = (h: string) =>
@@ -239,11 +230,18 @@ export default function Home() {
         !formData.officeAddress ||
         !formData.contactName)
     ) {
-      alert("⚠️ Please fill in Company Name, Office Address and Competent Person Name.");
+      alert("⚠️ Please fill in Company Name, Office Address and Competent Person.");
       return;
     }
-    if (step === 2 && (!formData.clientName || !formData.siteAddress)) {
-      alert("⚠️ Please fill in Client Name and Site Address.");
+    if (
+      step === 2 &&
+      (!formData.clientName ||
+        !formData.siteAddress ||
+        !formData.jobType)
+    ) {
+      alert(
+        "⚠️ Please fill in Client, Site Address and select a Job Type before continuing."
+      );
       return;
     }
     setStep((prev) => prev + 1);
@@ -251,7 +249,6 @@ export default function Home() {
 
   const prevStep = () => setStep((prev) => prev - 1);
 
-  // --- API HANDLER ---
   const generateRAMS = async () => {
     if (
       !formData.supervisorName ||
@@ -260,7 +257,7 @@ export default function Home() {
       !formData.fireAssembly
     ) {
       alert(
-        "⚠️ Please complete the emergency details (Supervisor, First Aider, Nearest Hospital, Fire Assembly Point). If something is not known, enter 'N/A'."
+        "⚠️ Please complete Supervisor, First Aider, Hospital and Fire Assembly details (use 'N/A' if unknown)."
       );
       return;
     }
@@ -275,7 +272,6 @@ export default function Home() {
           hazards,
           answers,
           customDescription: formData.customDescription,
-          extraNotes: formData.extraNotes,
         }),
       });
 
@@ -388,14 +384,7 @@ export default function Home() {
           "Job / Task Title",
           sanitizeText(
             `${formData.trade} - ${
-              formData.jobType
-                ? toTitleCase(
-                    formData.jobType === "Other (Custom)" &&
-                    formData.customJobType.trim().length > 0
-                      ? formData.customJobType
-                      : formData.jobType
-                  )
-                : ""
+              formData.jobType ? toTitleCase(formData.jobType) : ""
             }`
           ),
         ],
@@ -438,16 +427,12 @@ export default function Home() {
     doc.setFontSize(10);
     doc.setFont("helvetica", "normal");
 
-    const scopeBase =
+    const scopeRaw =
       apiData.summary ||
       formData.customDescription ||
       "Standard works as per industry guidelines.";
-    const extra =
-      formData.extraNotes && formData.extraNotes.trim().length > 0
-        ? `\n\nAdditional site-specific notes: ${formData.extraNotes}`
-        : "";
     const scopeText = doc.splitTextToSize(
-      sanitizeText(scopeBase + extra),
+      sanitizeText(scopeRaw),
       contentWidth
     );
     doc.text(scopeText, margin, currentY);
@@ -761,143 +746,139 @@ export default function Home() {
     doc.save(`RAMS_${safeName}.pdf`);
   };
 
-  const inputClass =
-    "w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-800 focus:border-transparent shadow-sm placeholder:text-slate-400";
-
   // --- UI RENDER ---
   return (
-    <div className="h-screen flex bg-slate-200 text-slate-900 font-sans">
+    <div className="h-screen flex bg-[#f5f4f0] text-slate-900 overflow-hidden">
       {/* SIDEBAR */}
       <aside
-        className={`flex flex-col h-full border-r border-slate-300 transition-all duration-300 ease-out ${
-          sidebarOpen ? "w-72 bg-slate-200" : "w-14 bg-white"
+        className={`relative flex flex-col border-r border-black/5 transition-all duration-300 ease-out ${
+          sidebarOpen ? "w-64" : "w-14"
         }`}
       >
-        {sidebarOpen ? (
-          <>
-            {/* Header with title + collapse */}
-            <div className="flex items-center justify-between px-4 pt-4 pb-3">
-              <div className="text-[11px] font-semibold tracking-[0.22em] uppercase text-slate-700">
-                RAMS Builder
+        <div className="flex h-full flex-col bg-[#c8eee6] text-slate-900">
+          {/* Top brand + toggle */}
+          <div className="flex items-center justify-between px-3 pt-3 pb-2">
+            {sidebarOpen && (
+              <div className="flex flex-col">
+                <span className="text-[11px] tracking-tight uppercase text-slate-600">
+                  RAMS Sorted
+                </span>
+                <span className="text-sm font-semibold tracking-tight text-slate-900">
+                  RAMS Builder
+                </span>
               </div>
-              <button
-                onClick={() => setSidebarOpen(false)}
-                className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-800 text-white hover:bg-blue-700 shadow-md"
-              >
-                <ChevronLeft className="w-4 h-4" />
-              </button>
-            </div>
-
-            {/* Search */}
-            <div className="px-4 pb-3">
-              <div className="relative">
-                <Search className="w-4 h-4 absolute left-3 top-3 text-slate-400" />
-                <input
-                  className="w-full rounded-full bg-white border border-slate-200 pl-9 pr-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-blue-800 focus:border-transparent"
-                  placeholder="Search history (coming soon)"
-                  disabled
-                />
-              </div>
-            </div>
-
-            {/* History section with its own scroll */}
-            <div className="flex-1 overflow-y-auto px-4 pb-4">
-              <div className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-500 mb-2">
-                History
-              </div>
-              <div className="text-xs text-slate-400 bg-white border border-dashed border-slate-200 rounded-lg px-3 py-3">
-                No RAMS generated yet.
-              </div>
-            </div>
-
-            {/* Account footer */}
-            <div className="px-4 py-3 border-t border-slate-300 flex items-center justify-between">
-              <button className="flex items-center gap-2.5">
-                <div className="h-8 w-8 rounded-full bg-blue-800 text-[11px] font-semibold text-white flex items-center justify-center">
-                  N
-                </div>
-                <div className="text-left">
-                  <div className="text-xs font-semibold text-slate-800">
-                    Account
-                  </div>
-                  <div className="text-[11px] text-slate-500">
-                    RAMS Sorted
-                  </div>
-                </div>
-              </button>
-              <button className="h-8 w-8 flex items-center justify-center rounded-full border border-slate-200 text-slate-500 hover:bg-slate-50">
-                <Settings className="w-4 h-4" />
-              </button>
-            </div>
-          </>
-        ) : (
-          // Collapsed sidebar
-          <div className="flex flex-col h-full items-center justify-between py-4">
+            )}
             <button
-              onClick={() => setSidebarOpen(true)}
-              className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-800 text-white hover:bg-blue-700 shadow-md"
+              onClick={() => setSidebarOpen((prev) => !prev)}
+              className="flex h-8 w-8 items-center justify-center rounded-lg border border-slate-400/60 bg-[#c8eee6] hover:bg-slate-200/80 transition-colors"
             >
-              <ChevronRight className="w-4 h-4" />
+              {sidebarOpen ? (
+                <ChevronLeft className="w-4 h-4 text-slate-700" />
+              ) : (
+                <ChevronRight className="w-4 h-4 text-slate-700" />
+              )}
             </button>
+          </div>
 
-            <div className="mb-2 flex flex-col items-center gap-3">
-              <button className="flex h-9 w-9 items-center justify-center rounded-full bg-blue-800 text-[10px] font-semibold text-white">
-                N
+          {/* New file directly under header */}
+          <div className="px-2 pb-2">
+            {sidebarOpen ? (
+              <button
+                className="flex w-full items-center justify-center gap-2 rounded-md bg-[#0b2040] py-2 text-xs font-semibold text-white hover:bg-black transition-colors"
+              >
+                <FileText className="w-3.5 h-3.5" />
+                <span>New RAMS file</span>
               </button>
+            ) : (
+              <div className="flex justify-end px-1">
+                <button className="flex h-8 w-8 items-center justify-center rounded-md bg-[#0b2040] text-white hover:bg-black transition-colors">
+                  <FileText className="w-4 h-4" />
+                </button>
+              </div>
+            )}
+          </div>
+
+          {/* History list with its own scroll – only visible when open */}
+          <div className="flex-1 overflow-y-auto px-2 pb-2">
+            {sidebarOpen && (
+              <div className="mt-1 space-y-1 text-xs text-slate-800">
+                <div className="px-2 py-1 font-semibold text-[11px] uppercase tracking-wide text-slate-700">
+                  Your RAMS files
+                </div>
+                <button className="w-full text-left px-2 py-2 rounded-md hover:bg-slate-200/80 text-xs">
+                  Example RAMS – wire this to real data later
+                </button>
+              </div>
+            )}
+          </div>
+
+          {/* Bottom: profile / settings */}
+          <div className="mt-auto border-t border-black/5 px-2 py-3">
+            <div className="flex items-center justify-between gap-2 text-xs text-slate-800">
+              <div className="flex items-center gap-2">
+                <div className="flex h-9 w-9 items-center justify-center rounded-full bg-slate-900 text-white">
+                  <User className="w-4 h-4" />
+                </div>
+                {sidebarOpen && (
+                  <div className="flex flex-col leading-tight">
+                    <span className="text-xs font-semibold">Account</span>
+                    <span className="text-[11px] text-slate-600">
+                      Not signed in
+                    </span>
+                  </div>
+                )}
+              </div>
+              {sidebarOpen && (
+                <button className="rounded-md p-1.5 hover:bg-slate-200/80">
+                  <Settings className="w-4 h-4 text-slate-700" />
+                </button>
+              )}
             </div>
           </div>
-        )}
+        </div>
       </aside>
 
-      {/* MAIN WIZARD PANEL */}
-      <main
-        ref={mainRef}
-        className="flex-1 bg-white overflow-y-auto"
-      >
-        <div className="w-full px-5 sm:px-10 py-6 sm:py-7">
-          {/* Header + progress */}
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-2 text-xs font-semibold tracking-[0.25em] uppercase text-slate-500">
-              <FileText className="w-4 h-4 text-slate-400" />
-              RAMS Wizard
-            </div>
-            <div className="text-[11px] font-medium text-slate-500">
+      {/* MAIN PANEL */}
+      <main className="flex-1 flex flex-col bg-white">
+        {/* Header with step indicator – no logo, no RAMS Builder text */}
+        <header className="px-6 pt-4 pb-3 bg-white/90 backdrop-blur-sm">
+          <div className="flex items-center justify-between gap-4 mb-3">
+            <h1 className="text-lg font-semibold text-slate-900">
+              Create your RAMS pack in three steps
+            </h1>
+            <div className="inline-flex items-center rounded-full bg-[#0b2040] px-4 py-1.5 text-[11px] font-semibold uppercase tracking-wide text-white">
               Step {step} of 3
             </div>
           </div>
 
-          <div className="h-1.5 rounded-full bg-slate-100 mb-6">
+          {/* Progress bar full width */}
+          <div className="h-1.5 w-full rounded-full bg-slate-200 overflow-hidden">
             <div
-              className="h-full rounded-full bg-blue-800 transition-all duration-500 ease-out"
+              className="h-full bg-[#0b2040] transition-all duration-500 ease-out"
               style={{ width: `${(step / 3) * 100}%` }}
             />
           </div>
+        </header>
 
-          {/* STEP 1: COMPANY */}
-          {step === 1 && (
-            <div className="space-y-6">
-              <div className="flex items-center gap-2">
-                <Briefcase className="w-5 h-5 text-slate-900" />
-                <div>
-                  <h2 className="text-lg font-semibold text-slate-900">
-                    Company Details
-                  </h2>
-                  <p className="text-xs text-slate-500 mt-1">
-                    These details feed directly into the header of your RAMS
-                    document.
-                  </p>
-                </div>
-              </div>
+        {/* Content area with its own scroll only */}
+        <section ref={contentRef} className="flex-1 overflow-y-auto">
+          <div className="max-w-4xl mx-auto px-6 py-8">
+            {/* STEP 1: COMPANY */}
+            {step === 1 && (
+              <div className="space-y-6">
+                <h2 className="text-xl font-semibold text-slate-900 flex items-center gap-2">
+                  <Briefcase className="w-5 h-5 text-[#0b2040]" />
+                  Company & Project Details
+                </h2>
 
-              <div className="space-y-5">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-600 mb-1.5">
-                      Company Name <span className="text-red-600">*</span>
+                    <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
+                      Company Name<span className="text-red-600 ml-0.5">*</span>
                     </label>
                     <input
-                      className={inputClass}
-                      placeholder="Your company name"
+                      className="border border-slate-300 p-3 rounded-lg w-full text-sm focus:ring-2 focus:ring-[#0b2040] focus:border-transparent outline-none bg-white"
+                      placeholder="e.g. ACME Electrical Ltd"
                       value={formData.companyName}
                       onChange={(e) =>
                         handleInput("companyName", e.target.value)
@@ -905,22 +886,19 @@ export default function Home() {
                     />
                   </div>
                   <div>
-                    <label className="block text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-600 mb-1.5">
-                      Competent Person Name{" "}
-                      <span className="text-red-600">*</span>
+                    <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
+                      Competent Person<span className="text-red-600 ml-0.5">*</span>
                     </label>
                     <input
-                      className={inputClass}
-                      placeholder="Who is preparing this RAMS?"
+                      className="border border-slate-300 p-3 rounded-lg w-full text-sm focus:ring-2 focus:ring-[#0b2040] focus:border-transparent outline-none bg-white"
+                      placeholder="Person preparing RAMS"
                       value={formData.contactName}
                       onChange={(e) =>
                         handleInput("contactName", e.target.value)
                       }
                     />
                   </div>
-                </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <AddressSearch
                     label="Office Address"
                     required
@@ -928,17 +906,16 @@ export default function Home() {
                     onChange={(val: string) =>
                       handleInput("officeAddress", val)
                     }
+                    tooltip="Registered or main business address."
                   />
+
                   <div>
-                    <label className="block text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-600 mb-1.5">
-                      Phone Number{" "}
-                      <span className="text-slate-400 font-normal">
-                        (optional)
-                      </span>
+                    <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
+                      Phone Number
                     </label>
                     <input
-                      className={inputClass}
-                      placeholder="Optional"
+                      className="border border-slate-300 p-3 rounded-lg w-full text-sm focus:ring-2 focus:ring-[#0b2040] focus:border-transparent outline-none bg-white"
+                      placeholder="Contact number for queries"
                       value={formData.contactPhone}
                       onChange={(e) =>
                         handleInput("contactPhone", e.target.value)
@@ -947,38 +924,18 @@ export default function Home() {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-600 mb-1.5">
-                      Email{" "}
-                      <span className="text-slate-400 font-normal">
-                        (optional)
-                      </span>
-                    </label>
-                    <input
-                      className={inputClass}
-                      placeholder="Optional"
-                      value={formData.email}
-                      onChange={(e) =>
-                        handleInput("email", e.target.value)
-                      }
-                    />
-                  </div>
-                  <div />
-                </div>
-
-                <div className="mt-1 rounded-2xl border border-slate-100 bg-slate-50 px-4 py-4 space-y-4">
-                  <h3 className="text-sm font-semibold text-slate-800">
+                <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-4">
+                  <h3 className="font-semibold text-sm text-slate-900">
                     Project Info
                   </h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-600 mb-1.5">
-                        Client Name <span className="text-red-600">*</span>
+                      <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
+                        Client Name<span className="text-red-600 ml-0.5">*</span>
                       </label>
                       <input
-                        className={inputClass}
-                        placeholder="Client name"
+                        className="border border-slate-300 p-3 rounded-lg w-full text-sm focus:ring-2 focus:ring-[#0b2040] focus:border-transparent outline-none bg-white"
+                        placeholder="Who the RAMS are for"
                         value={formData.clientName}
                         onChange={(e) =>
                           handleInput("clientName", e.target.value)
@@ -986,15 +943,12 @@ export default function Home() {
                       />
                     </div>
                     <div>
-                      <label className="block text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-600 mb-1.5">
-                        Job Ref{" "}
-                        <span className="text-slate-400 font-normal">
-                          (optional)
-                        </span>
+                      <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
+                        Job Ref (Optional)
                       </label>
                       <input
-                        className={inputClass}
-                        placeholder="Optional"
+                        className="border border-slate-300 p-3 rounded-lg w-full text-sm focus:ring-2 focus:ring-[#0b2040] focus:border-transparent outline-none bg-white"
+                        placeholder="Internal or client reference"
                         value={formData.projectRef}
                         onChange={(e) =>
                           handleInput("projectRef", e.target.value)
@@ -1002,7 +956,6 @@ export default function Home() {
                       />
                     </div>
                   </div>
-
                   <AddressSearch
                     label="Site Address"
                     required
@@ -1010,45 +963,36 @@ export default function Home() {
                     onChange={(val: string) =>
                       handleInput("siteAddress", val)
                     }
+                    tooltip="Location where the works are being carried out."
                   />
                 </div>
-              </div>
 
-              <div className="pt-1">
-                <button
-                  onClick={nextStep}
-                  className="w-full md:w-auto px-6 py-3 rounded-full bg-blue-800 text-white text-sm font-semibold shadow-sm hover:bg-blue-700"
-                >
-                  Next: Job Scope
-                </button>
-              </div>
-            </div>
-          )}
-
-          {/* STEP 2: SCOPE */}
-          {step === 2 && (
-            <div className="space-y-8">
-              <div className="flex items-center gap-2">
-                <FileText className="w-5 h-5 text-slate-900" />
-                <div>
-                  <h2 className="text-lg font-semibold text-slate-900">
-                    Job Scope
-                  </h2>
-                  <p className="text-xs text-slate-500 mt-1">
-                    Choose the trade and job type. We auto-fill a description
-                    you can refine.
-                  </p>
+                <div className="flex justify-end gap-3 pt-2">
+                  <button
+                    onClick={nextStep}
+                    className="inline-flex items-center justify-center rounded-lg bg-[#0b2040] px-5 py-2.5 text-sm font-semibold text-white hover:bg-black transition-colors"
+                  >
+                    Next: Job Scope
+                  </button>
                 </div>
               </div>
+            )}
 
+            {/* STEP 2: SCOPE */}
+            {step === 2 && (
               <div className="space-y-6">
+                <h2 className="text-xl font-semibold text-slate-900 flex items-center gap-2">
+                  <FileText className="w-5 h-5 text-[#0b2040]" />
+                  Job Scope & Pre-Start Checks
+                </h2>
+
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-600 mb-1.5">
+                    <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
                       Trade
                     </label>
                     <select
-                      className={inputClass}
+                      className="border border-slate-300 p-3 rounded-lg w-full text-sm bg-white focus:ring-2 focus:ring-[#0b2040] focus:border-transparent outline-none"
                       value={formData.trade}
                       onChange={(e) => handleInput("trade", e.target.value)}
                     >
@@ -1059,12 +1003,12 @@ export default function Home() {
                   </div>
 
                   <div>
-                    <label className="block text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-600 mb-1.5">
-                      Job Type
+                    <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
+                      Job Type<span className="text-red-600 ml-0.5">*</span>
                     </label>
                     {/* @ts-ignore */}
                     <select
-                      className={inputClass}
+                      className="border border-slate-300 p-3 rounded-lg w-full text-sm bg-white focus:ring-2 focus:ring-[#0b2040] focus:border-transparent outline-none"
                       value={formData.jobType}
                       onChange={(e) => handleInput("jobType", e.target.value)}
                     >
@@ -1079,257 +1023,210 @@ export default function Home() {
                   </div>
                 </div>
 
-                {formData.jobType === "Other (Custom)" && (
+                {questions.length > 0 && (
+                  <div className="bg-[#e4ecf7] p-4 rounded-xl border border-slate-200">
+                    <h4 className="font-semibold text-sm text-slate-900 mb-3">
+                      Pre-Start Safety Checks
+                    </h4>
+                    <p className="text-[11px] text-slate-600 mb-3">
+                      Answer each question honestly. Leave as{" "}
+                      <span className="font-semibold">N/A</span> in the PDF
+                      where not applicable.
+                    </p>
+                    <div className="space-y-2">
+                      {questions.map((q: any) => (
+                        <div
+                          key={q.id}
+                          className="flex justify-between items-center gap-4 bg-white p-2.5 rounded-lg border border-slate-200"
+                        >
+                          <span className="text-sm text-slate-900">
+                            {q.label}
+                          </span>
+                          <div className="flex gap-2 shrink-0">
+                            <button
+                              onClick={() =>
+                                setAnswers({ ...answers, [q.id]: "Yes" })
+                              }
+                              className={`px-3 py-1 rounded-md text-[11px] font-semibold ${
+                                answers[q.id] === "Yes"
+                                  ? "bg-[#0b2040] text-white"
+                                  : "bg-slate-100 text-slate-800"
+                              }`}
+                            >
+                              Yes
+                            </button>
+                            <button
+                              onClick={() =>
+                                setAnswers({ ...answers, [q.id]: "No" })
+                              }
+                              className={`px-3 py-1 rounded-md text-[11px] font-semibold ${
+                                answers[q.id] === "No"
+                                  ? "bg-[#0b2040] text-white"
+                                  : "bg-slate-100 text-slate-800"
+                              }`}
+                            >
+                              No
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                <div className="space-y-2">
+                  <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700">
+                    Job Description & Extra Specific Notes
+                  </label>
+                  <p className="text-[11px] text-slate-500">
+                    This feeds the{" "}
+                    <span className="font-semibold">Scope of Works</span> in
+                    the RAMS. Add any site-specific details or constraints.
+                  </p>
+                  <textarea
+                    className="w-full border border-slate-300 p-3 rounded-lg h-32 text-sm focus:ring-2 focus:ring-[#0b2040] focus:border-transparent outline-none bg-white"
+                    value={formData.customDescription}
+                    onChange={(e) =>
+                      handleInput("customDescription", e.target.value)
+                    }
+                    placeholder="Describe the task, location, sequence and any special considerations..."
+                  />
+                </div>
+
+                <div className="flex justify-between gap-3 pt-2">
+                  <button
+                    onClick={prevStep}
+                    className="inline-flex items-center justify-center rounded-lg border border-slate-300 px-4 py-2.5 text-sm font-semibold text-slate-800 hover:bg-slate-50"
+                  >
+                    Back
+                  </button>
+                  <button
+                    onClick={nextStep}
+                    className="inline-flex items-center justify-center rounded-lg bg-[#0b2040] px-5 py-2.5 text-sm font-semibold text-white hover:bg-black transition-colors"
+                  >
+                    Next: Safety & Hazards
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* STEP 3: HAZARDS */}
+            {step === 3 && (
+              <div className="space-y-6">
+                <h2 className="text-xl font-semibold text-slate-900 flex items-center gap-2">
+                  <AlertTriangle className="w-5 h-5 text-[#0b2040]" />
+                  Safety, Hazards & Emergency Info
+                </h2>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-slate-50 p-4 rounded-xl border border-slate-200">
                   <div>
-                    <label className="block text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-600 mb-1.5">
-                      Custom Job Title
+                    <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
+                      Supervisor Name<span className="text-red-600 ml-0.5">*</span>
                     </label>
                     <input
-                      className={inputClass}
-                      placeholder="e.g. Safe isolation before works"
-                      value={formData.customJobType}
+                      className="border border-slate-300 p-2.5 rounded-lg w-full text-sm focus:ring-2 focus:ring-[#0b2040] focus:border-transparent outline-none bg-white"
+                      placeholder="Site supervisor or lead"
+                      value={formData.supervisorName}
                       onChange={(e) =>
-                        handleInput("customJobType", e.target.value)
+                        handleInput("supervisorName", e.target.value)
                       }
                     />
                   </div>
-                )}
-
-                {questions.length > 0 && (
-                  <div className="bg-slate-50 border border-slate-100 rounded-2xl p-4">
-                    <div className="flex items-center justify-between mb-3">
-                      <h4 className="font-semibold text-sm text-slate-900">
-                        Pre-Start Safety Checks
-                      </h4>
-                      <span className="text-[11px] text-slate-500">
-                        Select Yes / No for each – leave blank if not
-                        applicable.
-                      </span>
-                    </div>
-                    {questions.map((q: any) => (
-                      <div
-                        key={q.id}
-                        className="flex justify-between items-center mb-2 bg-white p-2.5 rounded-lg border border-slate-100"
-                      >
-                        <span className="text-sm text-slate-800 pr-4">
-                          {q.label}
-                        </span>
-                        <div className="flex gap-2">
-                          <button
-                            onClick={() =>
-                              setAnswers({ ...answers, [q.id]: "Yes" })
-                            }
-                            className={`px-3 py-1 rounded-full text-[11px] font-semibold ${
-                              answers[q.id] === "Yes"
-                                ? "bg-blue-800 text-white"
-                                : "bg-slate-100 text-slate-700"
-                            }`}
-                          >
-                            Yes
-                          </button>
-                          <button
-                            onClick={() =>
-                              setAnswers({ ...answers, [q.id]: "No" })
-                            }
-                            className={`px-3 py-1 rounded-full text-[11px] font-semibold ${
-                              answers[q.id] === "No"
-                                ? "bg-blue-800 text-white"
-                                : "bg-slate-100 text-slate-700"
-                            }`}
-                          >
-                            No
-                          </button>
-                        </div>
-                      </div>
-                    ))}
+                  <div>
+                    <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
+                      First Aider<span className="text-red-600 ml-0.5">*</span>
+                    </label>
+                    <input
+                      className="border border-slate-300 p-2.5 rounded-lg w-full text-sm focus:ring-2 focus:ring-[#0b2040] focus:border-transparent outline-none bg-white"
+                      placeholder="Appointed person"
+                      value={formData.firstAider}
+                      onChange={(e) =>
+                        handleInput("firstAider", e.target.value)
+                      }
+                    />
                   </div>
-                )}
+                  <div>
+                    <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
+                      Nearest Hospital<span className="text-red-600 ml-0.5">*</span>
+                    </label>
+                    <input
+                      className="border border-slate-300 p-2.5 rounded-lg w-full text-sm focus:ring-2 focus:ring-[#0b2040] focus:border-transparent outline-none bg-white"
+                      placeholder="e.g. Nearest A&E (N/A if unknown)"
+                      value={formData.hospital}
+                      onChange={(e) =>
+                        handleInput("hospital", e.target.value)
+                      }
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
+                      Fire Assembly Point<span className="text-red-600 ml-0.5">*</span>
+                    </label>
+                    <input
+                      className="border border-slate-300 p-2.5 rounded-lg w-full text-sm focus:ring-2 focus:ring-[#0b2040] focus:border-transparent outline-none bg-white"
+                      placeholder="As briefed in induction (or N/A)"
+                      value={formData.fireAssembly}
+                      onChange={(e) =>
+                        handleInput("fireAssembly", e.target.value)
+                      }
+                    />
+                  </div>
+                </div>
 
                 <div className="space-y-4">
-                  <div>
-                    <label className="block text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-600 mb-1.5">
-                      Job Description
-                    </label>
-                    <textarea
-                      className={`${inputClass} h-32 resize-none`}
-                      value={formData.customDescription}
-                      onChange={(e) =>
-                        handleInput("customDescription", e.target.value)
-                      }
-                      placeholder={
-                        formData.jobType
-                          ? "Describe the works to be carried out..."
-                          : "Select a job type first..."
-                      }
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-600 mb-1.5">
-                      Extra site-specific notes{" "}
-                      <span className="text-slate-400 font-normal">
-                        (optional)
-                      </span>
-                    </label>
-                    <textarea
-                      className={`${inputClass} h-24 resize-none`}
-                      value={formData.extraNotes}
-                      onChange={(e) =>
-                        handleInput("extraNotes", e.target.value)
-                      }
-                      placeholder="Any specific constraints, client instructions or unusual risks…"
-                    />
-                  </div>
-                </div>
-              </div>
-
-              <div className="flex gap-4 pt-2">
-                <button
-                  onClick={prevStep}
-                  className="w-1/3 md:w-auto px-4 py-2.5 rounded-full border border-slate-200 text-sm font-semibold text-slate-700 bg-white hover:bg-slate-50"
-                >
-                  Back
-                </button>
-                <button
-                  onClick={nextStep}
-                  className="flex-1 md:flex-none md:w-auto bg-blue-800 text-white py-2.5 px-6 rounded-full text-sm font-semibold shadow-sm hover:bg-blue-700"
-                >
-                  Next: Safety & Hazards
-                </button>
-              </div>
-            </div>
-          )}
-
-          {/* STEP 3: HAZARDS */}
-          {step === 3 && (
-            <div className="space-y-8">
-              <div className="flex items-center gap-2">
-                <AlertTriangle className="w-5 h-5 text-slate-900" />
-                <div>
-                  <h2 className="text-lg font-semibold text-slate-900">
-                    Safety & Hazards
-                  </h2>
-                  <p className="text-xs text-slate-500 mt-1">
-                    Confirm key emergency details and select the hazards that
-                    apply to this job.
-                  </p>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-slate-50 p-4 rounded-2xl border border-slate-100">
-                <div>
-                  <label className="block text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-600 mb-1.5">
-                    Supervisor Name <span className="text-red-600">*</span>
-                  </label>
-                  <input
-                    className={inputClass}
-                    placeholder="Supervisor on site"
-                    value={formData.supervisorName}
-                    onChange={(e) =>
-                      handleInput("supervisorName", e.target.value)
-                    }
-                  />
-                </div>
-                <div>
-                  <label className="block text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-600 mb-1.5">
-                    First Aider <span className="text-red-600">*</span>
-                  </label>
-                  <input
-                    className={inputClass}
-                    placeholder="Designated first aider"
-                    value={formData.firstAider}
-                    onChange={(e) =>
-                      handleInput("firstAider", e.target.value)
-                    }
-                  />
-                </div>
-                <div>
-                  <label className="block text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-600 mb-1.5">
-                    Nearest Hospital <span className="text-red-600">*</span>
-                  </label>
-                  <input
-                    className={inputClass}
-                    placeholder="Nearest A&E"
-                    value={formData.hospital}
-                    onChange={(e) =>
-                      handleInput("hospital", e.target.value)
-                    }
-                  />
-                </div>
-                <div>
-                  <label className="block text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-600 mb-1.5">
-                    Fire Assembly Point <span className="text-red-600">*</span>
-                  </label>
-                  <input
-                    className={inputClass}
-                    placeholder="As inducted / site plan"
-                    value={formData.fireAssembly}
-                    onChange={(e) =>
-                      handleInput("fireAssembly", e.target.value)
-                    }
-                  />
-                </div>
-                <p className="md:col-span-2 text-[11px] text-slate-500">
-                  If you genuinely don’t know something at this stage, type{" "}
-                  <span className="font-semibold">“N/A”</span> – but this should
-                  be agreed with the client or site management before works
-                  start.
-                </p>
-              </div>
-
-              <div className="space-y-4">
-                {Object.entries(HAZARD_GROUPS).map(
-                  ([group, items]: [string, any]) => (
-                    <div
-                      key={group}
-                      className="border border-slate-100 p-4 rounded-2xl"
-                    >
-                      <h4 className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500 mb-2">
-                        {group}
-                      </h4>
-                      <div className="flex flex-wrap gap-2">
-                        {items.map((h: string) => (
-                          <button
-                            key={h}
-                            onClick={() => toggleHazard(h)}
-                            className={`text-xs py-1.5 px-3 rounded-full border ${
-                              hazards.includes(h)
-                                ? "bg-blue-800 text-white border-blue-800"
-                                : "bg-white text-slate-800 border-slate-200"
-                            }`}
-                          >
-                            {(HAZARD_DATA as any)[h]?.label || h}
-                          </button>
-                        ))}
+                  {Object.entries(HAZARD_GROUPS).map(
+                    ([group, items]: [string, any]) => (
+                      <div
+                        key={group}
+                        className="border border-slate-200 rounded-xl p-4"
+                      >
+                        <h4 className="text-xs font-semibold uppercase text-slate-500 mb-2">
+                          {group}
+                        </h4>
+                        <div className="flex flex-wrap gap-2">
+                          {items.map((h: string) => (
+                            <button
+                              key={h}
+                              onClick={() => toggleHazard(h)}
+                              className={`text-[11px] py-1.5 px-3 rounded-full border ${
+                                hazards.includes(h)
+                                  ? "bg-[#0b2040] text-white border-[#0b2040]"
+                                  : "bg-white text-slate-800 border-slate-300"
+                              }`}
+                            >
+                              {(HAZARD_DATA as any)[h]?.label || h}
+                            </button>
+                          ))}
+                        </div>
                       </div>
-                    </div>
-                  )
-                )}
-              </div>
-
-              <div className="mt-6 pt-4 border-t border-slate-100 flex gap-4">
-                <button
-                  onClick={prevStep}
-                  className="w-1/3 md:w-auto border border-slate-200 py-2.5 px-4 rounded-full text-sm font-semibold text-slate-700 bg-white hover:bg-slate-50"
-                >
-                  Back
-                </button>
-                <button
-                  onClick={generateRAMS}
-                  disabled={isGenerating}
-                  className="flex-1 md:flex-none md:w-auto bg-emerald-600 hover:bg-emerald-700 text-white py-2.5 px-6 rounded-full text-sm font-semibold flex justify-center items-center gap-2 shadow-sm disabled:opacity-70"
-                >
-                  {isGenerating ? (
-                    <Loader2 className="animate-spin w-4 h-4" />
-                  ) : (
-                    <ShieldCheck className="w-4 h-4" />
+                    )
                   )}
-                  {isGenerating ? "Generating..." : "Generate PDF Pack"}
-                </button>
+                </div>
+
+                <div className="mt-6 pt-4 border-t border-slate-200 flex justify-between gap-3">
+                  <button
+                    onClick={prevStep}
+                    className="inline-flex items-center justify-center rounded-lg border border-slate-300 px-4 py-2.5 text-sm font-semibold text-slate-800 hover:bg-slate-50"
+                  >
+                    Back
+                  </button>
+                  <button
+                    onClick={generateRAMS}
+                    disabled={isGenerating}
+                    className="inline-flex items-center justify-center gap-2 rounded-lg bg-emerald-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-emerald-700 disabled:opacity-60 disabled:cursor-not-allowed transition-colors"
+                  >
+                    {isGenerating ? (
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                    ) : (
+                      <FileText className="w-4 h-4" />
+                    )}
+                    {isGenerating ? "Generating..." : "Generate PDF Pack"}
+                  </button>
+                </div>
               </div>
-            </div>
-          )}
-        </div>
+            )}
+          </div>
+        </section>
       </main>
     </div>
   );
