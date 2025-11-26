@@ -118,6 +118,7 @@ function AddressSearch({
 
 // --- MAIN APPLICATION ---
 export default function Home() {
+  const [mode, setMode] = useState<"landing" | "wizard">("landing");
   const [step, setStep] = useState(1);
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [isGenerating, setIsGenerating] = useState(false);
@@ -146,6 +147,8 @@ export default function Home() {
     extraNotes: "",
     accessCode: "",
     customDescription: "",
+    customJobTitle: "",
+    customJobDescription: "",
   });
 
   const [hazards, setHazards] = useState<string[]>([]);
@@ -274,6 +277,35 @@ export default function Home() {
 
   const prevStep = () => setStep((prev) => prev - 1);
 
+  // Build Scope of Works string from current form fields
+  const buildScopeFromForm = () => {
+    if (formData.jobType === "Other (Custom)") {
+      const parts: string[] = [];
+      const title = formData.customJobTitle?.trim();
+      const desc = formData.customJobDescription?.trim();
+      const extra = formData.extraNotes?.trim();
+
+      if (title) parts.push(title);
+      if (desc) parts.push(desc);
+      if (extra) parts.push(`Additional notes: ${extra}`);
+
+      return parts.join("\n\n");
+    } else {
+      const base = formData.customDescription?.trim()
+        ? formData.customDescription.trim()
+        : "";
+      const extra = formData.extraNotes?.trim()
+        ? formData.extraNotes.trim()
+        : "";
+
+      if (base && extra)
+        return `${base}\n\nAdditional notes: ${extra}`;
+      if (base) return base;
+      if (extra) return `Additional notes: ${extra}`;
+      return "";
+    }
+  };
+
   const generateRAMS = async () => {
     if (
       !formData.supervisorName ||
@@ -287,6 +319,8 @@ export default function Home() {
       return;
     }
 
+    const composedScope = buildScopeFromForm();
+
     setIsGenerating(true);
     try {
       const res = await fetch("/api/generate", {
@@ -296,7 +330,7 @@ export default function Home() {
           ...formData,
           hazards,
           answers,
-          customDescription: formData.customDescription,
+          customDescription: composedScope,
         }),
       });
 
@@ -452,9 +486,10 @@ export default function Home() {
     doc.setFontSize(10);
     doc.setFont("helvetica", "normal");
 
+    const formScope = buildScopeFromForm();
     const scopeRaw =
       apiData.summary ||
-      formData.customDescription ||
+      formScope ||
       "Standard works as per industry guidelines.";
     const scopeText = doc.splitTextToSize(
       sanitizeText(scopeRaw),
@@ -786,9 +821,9 @@ export default function Home() {
             {sidebarOpen && (
               <div className="flex items-center gap-2">
                 {/* Replace src with your own logo path under /public */}
-                <div className="relative h-8 w-8">
+                <div className="relative h-22 w-30">
                   <Image
-                    src="/rams-logo.png"
+                    src="/rams-logos.png"
                     alt="RAMS Sorted logo"
                     fill
                     className="object-contain"
@@ -815,6 +850,10 @@ export default function Home() {
               {/* New file button */}
               {sidebarOpen ? (
                 <button
+                  onClick={() => {
+                    setMode("wizard");
+                    setStep(1);
+                  }}
                   className="flex w-full items-center justify-center gap-2 rounded-md bg-[#0b2040] py-2 text-xs font-semibold text-white hover:bg-black transition-colors"
                 >
                   <FileText className="w-3.5 h-3.5" />
@@ -822,7 +861,13 @@ export default function Home() {
                 </button>
               ) : (
                 <div className="flex justify-center">
-                  <button className="flex h-9 w-9 items-center justify-center rounded-md bg-[#0b2040] text-white hover:bg-black transition-colors">
+                  <button
+                    onClick={() => {
+                      setMode("wizard");
+                      setStep(1);
+                    }}
+                    className="flex h-9 w-9 items-center justify-center rounded-md bg-[#0b2040] text-white hover:bg-black transition-colors"
+                  >
                     <FileText className="w-4 h-4" />
                   </button>
                 </div>
@@ -870,492 +915,622 @@ export default function Home() {
 
       {/* MAIN PANEL */}
       <main className="flex-1 flex flex-col bg-white h-full">
-        {/* Header with step indicator */}
-        <header className="px-6 pt-4 pb-3 bg-white/90 backdrop-blur-sm">
-          <div className="flex items-center justify-between gap-4 mb-3">
-            <div className="flex flex-col">
-              <h1 className="text-lg font-semibold text-slate-900">
-                RS Wizard v1.0
-              </h1>
-              <p className="mt-1 text-xs text-slate-600">
-                Build a compliant RAMS pack in three guided steps.
+        {mode === "landing" ? (
+          // LANDING SCREEN (ChatGPT-style)
+          <div className="flex-1 flex items-center justify-center px-6">
+            <div className="max-w-xl w-full text-center">
+              <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-500 mb-2">
+                RAMS Sorted
               </p>
-            </div>
-            <div className="inline-flex items-center rounded-full bg-[#0b2040] px-4 py-1.5 text-[11px] font-semibold uppercase tracking-wide text-white">
-              Step {step} of 3
-            </div>
-          </div>
+              <h1 className="text-2xl md:text-3xl font-semibold text-slate-900 mb-3">
+                Welcome back
+                {formData.contactName
+                  ? `, ${formData.contactName}`
+                  : ""}
+                .
+              </h1>
+              <p className="text-sm text-slate-600 mb-6">
+                How can we help you today?
+              </p>
 
-          {/* Progress bar full width */}
-          <div className="h-1.5 w-full rounded-full bg-slate-200 overflow-hidden">
-            <div
-              className="h-full bg-[#0b2040] transition-all duration-500 ease-out"
-              style={{ width: `${(step / 3) * 100}%` }}
-            />
-          </div>
-        </header>
-
-        {/* Content area with its own scroll */}
-        <section
-          className="flex-1 overflow-y-auto"
-          ref={mainScrollRef}
-        >
-          <div className="max-w-4xl mx-auto px-6 py-8">
-            {/* STEP 1: COMPANY */}
-            {step === 1 && (
-              <div className="space-y-6">
-                {/* WELCOME PANEL */}
-                <div className="rounded-xl bg-slate-50 border border-slate-200 px-4 py-3">
-                  <p className="text-sm font-semibold text-slate-900">
-                    Welcome back
-                    {formData.contactName
-                      ? `, ${formData.contactName}`
-                      : ""}
-                    .
+              <div className="grid gap-3 sm:grid-cols-2">
+                <button
+                  onClick={() => {
+                    setMode("wizard");
+                    setStep(1);
+                  }}
+                  className="flex flex-col items-start gap-1 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-left hover:bg-slate-100 transition-colors"
+                >
+                  <div className="flex items-center gap-2">
+                    <FileText className="w-4 h-4 text-[#0b2040]" />
+                    <span className="text-sm font-semibold text-slate-900">
+                      Create RAMS document
+                    </span>
+                  </div>
+                  <p className="text-[11px] text-slate-600">
+                    Launch RS Wizard v1.0 to build a compliant RAMS pack in
+                    three guided steps.
                   </p>
-                  <p className="text-xs text-slate-600 mt-1">
-                    This is{" "}
-                    <span className="font-semibold">RS Wizard v1.0</span>. Review
-                    your company and project details below, then move through
-                    the steps to generate a new RAMS file.
+                </button>
+
+                <div className="flex flex-col items-start gap-1 rounded-xl border border-dashed border-slate-200 px-4 py-3 text-left opacity-60 cursor-not-allowed">
+                  <span className="text-sm font-semibold text-slate-900">
+                    Other tools
+                  </span>
+                  <p className="text-[11px] text-slate-600">
+                    Additional safety and documentation tools coming soon.
                   </p>
-                </div>
-
-                <h2 className="text-xl font-semibold text-slate-900 flex items-center gap-2">
-                  <Briefcase className="w-5 h-5 text-[#0b2040]" />
-                  Company & Project Details
-                </h2>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
-                      Company Name<span className="text-red-600 ml-0.5">*</span>
-                    </label>
-                    <input
-                      className="border border-slate-300 p-3 rounded-lg w-full text-sm focus:ring-2 focus:ring-[#0b2040] focus:border-transparent outline-none bg-white"
-                      placeholder="e.g. ACME Electrical Ltd"
-                      value={formData.companyName}
-                      onChange={(e) =>
-                        handleInput("companyName", e.target.value)
-                      }
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
-                      Competent Person<span className="text-red-600 ml-0.5">*</span>
-                    </label>
-                    <input
-                      className="border border-slate-300 p-3 rounded-lg w-full text-sm focus:ring-2 focus:ring-[#0b2040] focus:border-transparent outline-none bg-white"
-                      placeholder="Person preparing RAMS"
-                      value={formData.contactName}
-                      onChange={(e) =>
-                        handleInput("contactName", e.target.value)
-                      }
-                    />
-                  </div>
-
-                  <AddressSearch
-                    label="Office Address"
-                    required
-                    value={formData.officeAddress}
-                    onChange={(val: string) =>
-                      handleInput("officeAddress", val)
-                    }
-                    tooltip="Registered or main business address."
-                  />
-
-                  <div>
-                    <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
-                      Phone Number
-                    </label>
-                    <input
-                      className="border border-slate-300 p-3 rounded-lg w-full text-sm focus:ring-2 focus:ring-[#0b2040] focus:border-transparent outline-none bg-white"
-                      placeholder="Contact number for queries"
-                      value={formData.contactPhone}
-                      onChange={(e) =>
-                        handleInput("contactPhone", e.target.value)
-                      }
-                    />
-                  </div>
-                </div>
-
-                <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-4">
-                  <h3 className="font-semibold text-sm text-slate-900">
-                    Project Info
-                  </h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
-                        Client Name<span className="text-red-600 ml-0.5">*</span>
-                      </label>
-                      <input
-                        className="border border-slate-300 p-3 rounded-lg w-full text-sm focus:ring-2 focus:ring-[#0b2040] focus:border-transparent outline-none bg-white"
-                        placeholder="Who the RAMS are for"
-                        value={formData.clientName}
-                        onChange={(e) =>
-                          handleInput("clientName", e.target.value)
-                        }
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
-                        Job Ref (Optional)
-                      </label>
-                      <input
-                        className="border border-slate-300 p-3 rounded-lg w-full text-sm focus:ring-2 focus:ring-[#0b2040] focus:border-transparent outline-none bg-white"
-                        placeholder="Internal or client reference"
-                        value={formData.projectRef}
-                        onChange={(e) =>
-                          handleInput("projectRef", e.target.value)
-                        }
-                      />
-                    </div>
-                  </div>
-                  <AddressSearch
-                    label="Site Address"
-                    required
-                    value={formData.siteAddress}
-                    onChange={(val: string) =>
-                      handleInput("siteAddress", val)
-                    }
-                    tooltip="Location where the works are being carried out."
-                  />
-                </div>
-
-                <div className="flex justify-end gap-3 pt-2">
-                  <button
-                    onClick={nextStep}
-                    className="inline-flex items-center justify-center rounded-lg bg-[#0b2040] px-5 py-2.5 text-sm font-semibold text-white hover:bg-black transition-colors"
-                  >
-                    Next: Job Scope
-                  </button>
                 </div>
               </div>
-            )}
-
-            {/* STEP 2: SCOPE */}
-            {step === 2 && (
-              <div className="space-y-6">
-                <h2 className="text-xl font-semibold text-slate-900 flex items-center gap-2">
-                  <FileText className="w-5 h-5 text-[#0b2040]" />
-                  Job Scope & Pre-Start Checks
-                </h2>
-
-                {/* OMNI SEARCH BAR */}
-                <div className="space-y-2">
-                  <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700">
-                    Quick job search
-                  </label>
-                  <p className="text-[11px] text-slate-500 mb-1">
-                    Start typing (e.g.{" "}
-                    <span className="italic">boiler</span>) to jump straight to
-                    the right trade &amp; job. You can still use the dropdowns
-                    below if you prefer.
+            </div>
+          </div>
+        ) : (
+          <>
+            {/* Header with step indicator */}
+            <header className="px-6 pt-4 pb-3 bg-white/90 backdrop-blur-sm">
+              <div className="flex items-center justify-between gap-4 mb-3">
+                <div className="flex flex-col">
+                  <h1 className="text-lg font-semibold text-slate-900">
+                    RS Wizard v1.0
+                  </h1>
+                  <p className="mt-1 text-xs text-slate-600">
+                    Build a compliant RAMS pack in three guided steps.
                   </p>
-                  <div className="relative">
-                    <input
-                      className="w-full border border-slate-300 p-3 rounded-lg text-sm bg-white focus:ring-2 focus:ring-[#0b2040] focus:border-transparent outline-none"
-                      placeholder="Search all job types..."
-                      value={jobSearch}
-                      onChange={(e) => {
-                        setJobSearch(e.target.value);
-                        setJobSearchOpen(true);
-                      }}
-                      onFocus={() => setJobSearchOpen(true)}
-                    />
+                </div>
+                <div className="inline-flex items-center rounded-full bg-[#0b2040] px-4 py-1.5 text-[11px] font-semibold uppercase tracking-wide text-white">
+                  Step {step} of 3
+                </div>
+              </div>
 
-                    {jobSearchOpen && filteredJobs.length > 0 && (
-                      <div className="absolute z-40 mt-1 w-full rounded-lg border border-slate-200 bg-white shadow-lg max-h-64 overflow-auto">
-                        {filteredJobs.map((j, idx) => (
-                          <button
-                            key={j.trade + j.name + idx}
-                            type="button"
-                            onClick={() => {
-                              handleInput("trade", j.trade);
-                              handleInput("jobType", j.name);
-                              setJobSearch(j.name);
-                              setJobSearchOpen(false);
-                            }}
-                            className="w-full px-3 py-2 text-left text-xs hover:bg-slate-50"
-                          >
-                            <div className="font-semibold text-slate-900">
-                              {j.name}
-                            </div>
-                            <div className="text-[11px] text-slate-500">
-                              {j.trade}
-                            </div>
-                          </button>
-                        ))}
+              {/* Progress bar full width */}
+              <div className="h-1.5 w-full rounded-full bg-slate-200 overflow-hidden">
+                <div
+                  className="h-full bg-[#0b2040] transition-all duration-500 ease-out"
+                  style={{ width: `${(step / 3) * 100}%` }}
+                />
+              </div>
+            </header>
 
-                        {/* Always offer an 'Other (Custom)' path */}
-                        <button
-                          type="button"
-                          onClick={() => {
-                            const tradeToUse =
-                              formData.trade ||
-                              filteredJobs[0]?.trade ||
-                              "Electrician";
-                            handleInput("trade", tradeToUse);
-                            handleInput("jobType", "Other (Custom)");
-                            setJobSearch("Other (Custom)");
-                            setJobSearchOpen(false);
-                          }}
-                          className="w-full px-3 py-2 text-left text-xs border-t border-slate-100 bg-slate-50 hover:bg-slate-100"
-                        >
-                          <div className="font-semibold text-slate-900">
-                            Other (Custom)
-                          </div>
-                          <div className="text-[11px] text-slate-500">
-                            For custom or non-standard tasks.
-                          </div>
-                        </button>
+            {/* Content area with its own scroll */}
+            <section
+              className="flex-1 overflow-y-auto"
+              ref={mainScrollRef}
+            >
+              <div className="max-w-4xl mx-auto px-6 py-8">
+                {/* STEP 1: COMPANY */}
+                {step === 1 && (
+                  <div className="space-y-6">
+                    <h2 className="text-2xl font-semibold text-slate-900 flex items-center gap-2">
+                      <Briefcase className="w-5 h-5 text-[#0b2040]" />
+                      Company & Project Details
+                    </h2>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
+                          Company Name
+                          <span className="text-red-600 ml-0.5">*</span>
+                        </label>
+                        <input
+                          className="border border-slate-300 p-3 rounded-lg w-full text-sm focus:ring-2 focus:ring-[#0b2040] focus:border-transparent outline-none bg-white"
+                          placeholder="e.g. ACME Electrical Ltd"
+                          value={formData.companyName}
+                          onChange={(e) =>
+                            handleInput("companyName", e.target.value)
+                          }
+                        />
                       </div>
-                    )}
-                  </div>
-                </div>
+                      <div>
+                        <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
+                          Competent Person
+                          <span className="text-red-600 ml-0.5">*</span>
+                        </label>
+                        <input
+                          className="border border-slate-300 p-3 rounded-lg w-full text-sm focus:ring-2 focus:ring-[#0b2040] focus:border-transparent outline-none bg-white"
+                          placeholder="Person preparing RAMS"
+                          value={formData.contactName}
+                          onChange={(e) =>
+                            handleInput("contactName", e.target.value)
+                          }
+                        />
+                      </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
-                      Trade
-                    </label>
-                    <select
-                      className="border border-slate-300 p-3 rounded-lg w-full text-sm bg-white focus:ring-2 focus:ring-[#0b2040] focus:border-transparent outline-none"
-                      value={formData.trade}
-                      onChange={(e) => handleInput("trade", e.target.value)}
-                    >
-                      {Object.keys(TRADES).map((t) => (
-                        <option key={t}>{t}</option>
-                      ))}
-                    </select>
-                  </div>
+                      <AddressSearch
+                        label="Office Address"
+                        required
+                        value={formData.officeAddress}
+                        onChange={(val: string) =>
+                          handleInput("officeAddress", val)
+                        }
+                        tooltip="Registered or main business address."
+                      />
 
-                  <div>
-                    <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
-                      Job Type<span className="text-red-600 ml-0.5">*</span>
-                    </label>
-                    {/* @ts-ignore */}
-                    <select
-                      className="border border-slate-300 p-3 rounded-lg w-full text-sm bg-white focus:ring-2 focus:ring-[#0b2040] focus:border-transparent outline-none"
-                      value={formData.jobType}
-                      onChange={(e) => handleInput("jobType", e.target.value)}
-                    >
-                      <option value="">Select Job Type</option>
-                      {
-                        // @ts-ignore
-                        TRADES[formData.trade].jobs.map((j: any) => (
-                          <option key={j.name}>{j.name}</option>
-                        ))
-                      }
-                    </select>
-                  </div>
-                </div>
+                      <div>
+                        <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
+                          Phone Number
+                        </label>
+                        <input
+                          className="border border-slate-300 p-3 rounded-lg w-full text-sm focus:ring-2 focus:ring-[#0b2040] focus:border-transparent outline-none bg-white"
+                          placeholder="Contact number for queries"
+                          value={formData.contactPhone}
+                          onChange={(e) =>
+                            handleInput("contactPhone", e.target.value)
+                          }
+                        />
+                      </div>
+                    </div>
 
-                {questions.length > 0 && (
-                  <div className="bg-[#e4ecf7] p-4 rounded-xl border border-slate-200">
-                    <h4 className="font-semibold text-sm text-slate-900 mb-3">
-                      Pre-Start Safety Checks
-                    </h4>
-                    <p className="text-[11px] text-slate-600 mb-3">
-                      Answer each question honestly. Leave as{" "}
-                      <span className="font-semibold">N/A</span> in the PDF
-                      where not applicable.
-                    </p>
-                    <div className="space-y-2">
-                      {questions.map((q: any) => (
-                        <div
-                          key={q.id}
-                          className="flex justify-between items-center gap-4 bg-white p-2.5 rounded-lg border border-slate-200"
-                        >
-                          <span className="text-sm text-slate-900">
-                            {q.label}
-                          </span>
-                          <div className="flex gap-2 shrink-0">
-                            <button
-                              onClick={() =>
-                                setAnswers({ ...answers, [q.id]: "Yes" })
-                              }
-                              className={`px-3 py-1 rounded-md text-[11px] font-semibold ${
-                                answers[q.id] === "Yes"
-                                  ? "bg-[#0b2040] text-white"
-                                  : "bg-slate-100 text-slate-800"
-                              }`}
-                            >
-                              Yes
-                            </button>
-                            <button
-                              onClick={() =>
-                                setAnswers({ ...answers, [q.id]: "No" })
-                              }
-                              className={`px-3 py-1 rounded-md text-[11px] font-semibold ${
-                                answers[q.id] === "No"
-                                  ? "bg-[#0b2040] text-white"
-                                  : "bg-slate-100 text-slate-800"
-                              }`}
-                            >
-                              No
-                            </button>
-                          </div>
+                    <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-4">
+                      <h3 className="font-semibold text-sm text-slate-900">
+                        Project Info
+                      </h3>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                          <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
+                            Client Name
+                            <span className="text-red-600 ml-0.5">*</span>
+                          </label>
+                          <input
+                            className="border border-slate-300 p-3 rounded-lg w-full text-sm focus:ring-2 focus:ring-[#0b2040] focus:border-transparent outline-none bg-white"
+                            placeholder="Who the RAMS are for"
+                            value={formData.clientName}
+                            onChange={(e) =>
+                              handleInput("clientName", e.target.value)
+                            }
+                          />
                         </div>
-                      ))}
+                        <div>
+                          <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
+                            Job Ref (Optional)
+                          </label>
+                          <input
+                            className="border border-slate-300 p-3 rounded-lg w-full text-sm focus:ring-2 focus:ring-[#0b2040] focus:border-transparent outline-none bg-white"
+                            placeholder="Internal or client reference"
+                            value={formData.projectRef}
+                            onChange={(e) =>
+                              handleInput("projectRef", e.target.value)
+                            }
+                          />
+                        </div>
+                      </div>
+                      <AddressSearch
+                        label="Site Address"
+                        required
+                        value={formData.siteAddress}
+                        onChange={(val: string) =>
+                          handleInput("siteAddress", val)
+                        }
+                        tooltip="Location where the works are being carried out."
+                      />
+                    </div>
+
+                    <div className="flex justify-end gap-3 pt-2">
+                      <button
+                        onClick={nextStep}
+                        className="inline-flex items-center justify-center rounded-lg bg-[#0b2040] px-5 py-2.5 text-sm font-semibold text-white hover:bg-black transition-colors"
+                      >
+                        Next: Job Scope
+                      </button>
                     </div>
                   </div>
                 )}
 
-                <div className="space-y-2">
-                  <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700">
-                    Job Description & Extra Specific Notes
-                  </label>
-                  <p className="text-[11px] text-slate-500">
-                    This feeds the <span className="font-semibold">
-                      Scope of Works
-                    </span>{" "}
-                    in the RAMS. Add any site-specific details or constraints.
-                  </p>
-                  <textarea
-                    className="w-full border border-slate-300 p-3 rounded-lg h-32 text-sm focus:ring-2 focus:ring-[#0b2040] focus:border-transparent outline-none bg-white"
-                    value={formData.customDescription}
-                    onChange={(e) =>
-                      handleInput("customDescription", e.target.value)
-                    }
-                    placeholder="Describe the task, location, sequence and any special considerations..."
-                  />
-                </div>
+                {/* STEP 2: SCOPE */}
+                {step === 2 && (
+                  <div className="space-y-6">
+                    <h2 className="text-xl font-semibold text-slate-900 flex items-center gap-2">
+                      <FileText className="w-5 h-5 text-[#0b2040]" />
+                      Job Scope & Pre-Start Checks
+                    </h2>
 
-                <div className="flex justify-between gap-3 pt-2">
-                  <button
-                    onClick={prevStep}
-                    className="inline-flex items-center justify-center rounded-lg border border-slate-300 px-4 py-2.5 text-sm font-semibold text-slate-800 hover:bg-slate-50"
-                  >
-                    Back
-                  </button>
-                  <button
-                    onClick={nextStep}
-                    className="inline-flex items-center justify-center rounded-lg bg-[#0b2040] px-5 py-2.5 text-sm font-semibold text-white hover:bg-black transition-colors"
-                  >
-                    Next: Safety & Hazards
-                  </button>
-                </div>
-              </div>
-            )}
+                    {/* OMNI SEARCH BAR */}
+                    <div className="space-y-2">
+                      <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700">
+                        Quick job search
+                      </label>
+                      <p className="text-[11px] text-slate-500 mb-1">
+                        Start typing (e.g.{" "}
+                        <span className="italic">boiler</span>) to jump
+                        straight to the right trade &amp; job. You can still use
+                        the dropdowns below if you prefer.
+                      </p>
+                      <div className="relative">
+                        <input
+                          className="w-full border border-slate-300 p-3 rounded-lg text-sm bg-white focus:ring-2 focus:ring-[#0b2040] focus:border-transparent outline-none"
+                          placeholder="Search all job types..."
+                          value={jobSearch}
+                          onChange={(e) => {
+                            setJobSearch(e.target.value);
+                            setJobSearchOpen(true);
+                          }}
+                          onFocus={() => setJobSearchOpen(true)}
+                        />
 
-            {/* STEP 3: HAZARDS */}
-            {step === 3 && (
-              <div className="space-y-6">
-                <h2 className="text-xl font-semibold text-slate-900 flex items-center gap-2">
-                  <AlertTriangle className="w-5 h-5 text-[#0b2040]" />
-                  Safety, Hazards & Emergency Info
-                </h2>
+                        {jobSearchOpen && filteredJobs.length > 0 && (
+                          <div className="absolute z-40 mt-1 w-full rounded-lg border border-slate-200 bg-white shadow-lg max-h-64 overflow-auto">
+                            {filteredJobs.map((j, idx) => (
+                              <button
+                                key={j.trade + j.name + idx}
+                                type="button"
+                                onClick={() => {
+                                  handleInput("trade", j.trade);
+                                  handleInput("jobType", j.name);
+                                  setJobSearch(j.name);
+                                  setJobSearchOpen(false);
+                                }}
+                                className="w-full px-3 py-2 text-left text-xs hover:bg-slate-50"
+                              >
+                                <div className="font-semibold text-slate-900">
+                                  {j.name}
+                                </div>
+                                <div className="text-[11px] text-slate-500">
+                                  {j.trade}
+                                </div>
+                              </button>
+                            ))}
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-slate-50 p-4 rounded-xl border border-slate-200">
-                  <div>
-                    <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
-                      Supervisor Name<span className="text-red-600 ml-0.5">*</span>
-                    </label>
-                    <input
-                      className="border border-slate-300 p-2.5 rounded-lg w-full text-sm focus:ring-2 focus:ring-[#0b2040] focus:border-transparent outline-none bg-white"
-                      placeholder="Site supervisor or lead"
-                      value={formData.supervisorName}
-                      onChange={(e) =>
-                        handleInput("supervisorName", e.target.value)
-                      }
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
-                      First Aider<span className="text-red-600 ml-0.5">*</span>
-                    </label>
-                    <input
-                      className="border border-slate-300 p-2.5 rounded-lg w-full text-sm focus:ring-2 focus:ring-[#0b2040] focus:border-transparent outline-none bg-white"
-                      placeholder="Appointed person"
-                      value={formData.firstAider}
-                      onChange={(e) =>
-                        handleInput("firstAider", e.target.value)
-                      }
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
-                      Nearest Hospital<span className="text-red-600 ml-0.5">*</span>
-                    </label>
-                    <input
-                      className="border border-slate-300 p-2.5 rounded-lg w-full text-sm focus:ring-2 focus:ring-[#0b2040] focus:border-transparent outline-none bg-white"
-                      placeholder="e.g. Nearest A&E (N/A if unknown)"
-                      value={formData.hospital}
-                      onChange={(e) =>
-                        handleInput("hospital", e.target.value)
-                      }
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
-                      Fire Assembly Point<span className="text-red-600 ml-0.5">*</span>
-                    </label>
-                    <input
-                      className="border border-slate-300 p-2.5 rounded-lg w-full text-sm focus:ring-2 focus:ring-[#0b2040] focus:border-transparent outline-none bg-white"
-                      placeholder="As briefed in induction (or N/A)"
-                      value={formData.fireAssembly}
-                      onChange={(e) =>
-                        handleInput("fireAssembly", e.target.value)
-                      }
-                    />
-                  </div>
-                </div>
-
-                <div className="space-y-4">
-                  {Object.entries(HAZARD_GROUPS).map(
-                    ([group, items]: [string, any]) => (
-                      <div
-                        key={group}
-                        className="border border-slate-200 rounded-xl p-4"
-                      >
-                        <h4 className="text-xs font-semibold uppercase text-slate-500 mb-2">
-                          {group}
-                        </h4>
-                        <div className="flex flex-wrap gap-2">
-                          {items.map((h: string) => (
+                            {/* Always offer an 'Other (Custom)' path */}
                             <button
-                              key={h}
-                              onClick={() => toggleHazard(h)}
-                              className={`text-[11px] py-1.5 px-3 rounded-full border ${
-                                hazards.includes(h)
-                                  ? "bg-[#0b2040] text-white border-[#0b2040]"
-                                  : "bg-white text-slate-800 border-slate-300"
-                              }`}
+                              type="button"
+                              onClick={() => {
+                                const tradeToUse =
+                                  formData.trade ||
+                                  filteredJobs[0]?.trade ||
+                                  "Electrician";
+                                handleInput("trade", tradeToUse);
+                                handleInput("jobType", "Other (Custom)");
+                                setJobSearch("Other (Custom)");
+                                setJobSearchOpen(false);
+                              }}
+                              className="w-full px-3 py-2 text-left text-xs border-t border-slate-100 bg-slate-50 hover:bg-slate-100"
                             >
-                              {(HAZARD_DATA as any)[h]?.label || h}
+                              <div className="font-semibold text-slate-900">
+                                Other (Custom)
+                              </div>
+                              <div className="text-[11px] text-slate-500">
+                                For custom or non-standard tasks.
+                              </div>
                             </button>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
+                          Trade
+                        </label>
+                        <select
+                          className="border border-slate-300 p-3 rounded-lg w-full text-sm bg-white focus:ring-2 focus:ring-[#0b2040] focus:border-transparent outline-none"
+                          value={formData.trade}
+                          onChange={(e) =>
+                            handleInput("trade", e.target.value)
+                          }
+                        >
+                          {Object.keys(TRADES).map((t) => (
+                            <option key={t}>{t}</option>
+                          ))}
+                        </select>
+                      </div>
+
+                      <div>
+                        <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
+                          Job Type
+                          <span className="text-red-600 ml-0.5">*</span>
+                        </label>
+                        {/* @ts-ignore */}
+                        <select
+                          className="border border-slate-300 p-3 rounded-lg w-full text-sm bg-white focus:ring-2 focus:ring-[#0b2040] focus:border-transparent outline-none"
+                          value={formData.jobType}
+                          onChange={(e) =>
+                            handleInput("jobType", e.target.value)
+                          }
+                        >
+                          <option value="">Select Job Type</option>
+                          {
+                            // @ts-ignore
+                            TRADES[formData.trade].jobs.map((j: any) => (
+                              <option key={j.name}>{j.name}</option>
+                            ))
+                          }
+                        </select>
+                      </div>
+                    </div>
+
+                    {questions.length > 0 && (
+                      <div className="bg-[#e4ecf7] p-4 rounded-xl border border-slate-200">
+                        <h4 className="font-semibold text-sm text-slate-900 mb-3">
+                          Pre-Start Safety Checks
+                        </h4>
+                        <p className="text-[11px] text-slate-600 mb-3">
+                          Answer each question honestly. Leave as{" "}
+                          <span className="font-semibold">N/A</span> in the PDF
+                          where not applicable.
+                        </p>
+                        <div className="space-y-2">
+                          {questions.map((q: any) => (
+                            <div
+                              key={q.id}
+                              className="flex justify-between items-center gap-4 bg-white p-2.5 rounded-lg border border-slate-200"
+                            >
+                              <span className="text-sm text-slate-900">
+                                {q.label}
+                              </span>
+                              <div className="flex gap-2 shrink-0">
+                                <button
+                                  onClick={() =>
+                                    setAnswers({
+                                      ...answers,
+                                      [q.id]: "Yes",
+                                    })
+                                  }
+                                  className={`px-3 py-1 rounded-md text-[11px] font-semibold ${
+                                    answers[q.id] === "Yes"
+                                      ? "bg-[#0b2040] text-white"
+                                      : "bg-slate-100 text-slate-800"
+                                  }`}
+                                >
+                                  Yes
+                                </button>
+                                <button
+                                  onClick={() =>
+                                    setAnswers({ ...answers, [q.id]: "No" })
+                                  }
+                                  className={`px-3 py-1 rounded-md text-[11px] font-semibold ${
+                                    answers[q.id] === "No"
+                                      ? "bg-[#0b2040] text-white"
+                                      : "bg-slate-100 text-slate-800"
+                                  }`}
+                                >
+                                  No
+                                </button>
+                              </div>
+                            </div>
                           ))}
                         </div>
                       </div>
-                    )
-                  )}
-                </div>
-
-                <div className="mt-6 pt-4 border-t border-slate-200 flex justify-between gap-3">
-                  <button
-                    onClick={prevStep}
-                    className="inline-flex items-center justify-center rounded-lg border border-slate-300 px-4 py-2.5 text-sm font-semibold text-slate-800 hover:bg-slate-50"
-                  >
-                    Back
-                  </button>
-                  <button
-                    onClick={generateRAMS}
-                    disabled={isGenerating}
-                    className="inline-flex items-center justify-center gap-2 rounded-lg bg-emerald-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-emerald-700 disabled:opacity-60 disabled:cursor-not-allowed transition-colors"
-                  >
-                    {isGenerating ? (
-                      <Loader2 className="w-4 h-4 animate-spin" />
-                    ) : (
-                      <ShieldCheck className="w-4 h-4" />
                     )}
-                    {isGenerating ? "Generating..." : "Generate PDF Pack"}
-                  </button>
-                </div>
+
+                    {/* JOB DESCRIPTION + EXTRA NOTES */}
+                    {formData.jobType === "Other (Custom)" ? (
+                      <div className="space-y-4">
+                        <div>
+                          <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
+                            Custom job title
+                          </label>
+                          <input
+                            className="w-full border border-slate-300 p-3 rounded-lg text-sm focus:ring-2 focus:ring-[#0b2040] focus:border-transparent outline-none bg-white"
+                            value={formData.customJobTitle}
+                            onChange={(e) =>
+                              handleInput("customJobTitle", e.target.value)
+                            }
+                            placeholder="e.g. Bespoke maintenance task, one-off works, etc."
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700">
+                            Job description
+                          </label>
+                          <p className="text-[11px] text-slate-500 mb-1">
+                            Describe exactly what will be done, where, and in
+                            what sequence.
+                          </p>
+                          <textarea
+                            className="w-full border border-slate-300 p-3 rounded-lg h-32 text-sm focus:ring-2 focus:ring-[#0b2040] focus:border-transparent outline-none bg-white"
+                            value={formData.customJobDescription}
+                            onChange={(e) =>
+                              handleInput(
+                                "customJobDescription",
+                                e.target.value
+                              )
+                            }
+                            placeholder="Describe the task, key stages, and any critical constraints..."
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700">
+                            Extra specific notes (optional)
+                          </label>
+                          <p className="text-[11px] text-slate-500 mb-1">
+                            Anything else the RAMS should capture for this
+                            particular job or site.
+                          </p>
+                          <textarea
+                            className="w-full border border-slate-300 p-3 rounded-lg h-24 text-sm focus:ring-2 focus:ring-[#0b2040] focus:border-transparent outline-none bg-white"
+                            value={formData.extraNotes}
+                            onChange={(e) =>
+                              handleInput("extraNotes", e.target.value)
+                            }
+                            placeholder="Access limitations, client instructions, special tools, out-of-hours work, etc."
+                          />
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="space-y-4">
+                        <div>
+                          <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700">
+                            Job description
+                          </label>
+                          <p className="text-[11px] text-slate-500 mb-1">
+                            This is pre-filled from our library where available.
+                            Adjust it if needed to match the actual scope.
+                          </p>
+                          <textarea
+                            className="w-full border border-slate-300 p-3 rounded-lg h-32 text-sm focus:ring-2 focus:ring-[#0b2040] focus:border-transparent outline-none bg-white"
+                            value={formData.customDescription}
+                            onChange={(e) =>
+                              handleInput(
+                                "customDescription",
+                                e.target.value
+                              )
+                            }
+                            placeholder="Describe the task, location, sequence and any special considerations..."
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700">
+                            Extra specific notes (optional)
+                          </label>
+                          <p className="text-[11px] text-slate-500 mb-1">
+                            Add anything unique to this site, client or job that
+                            the standard description doesn&apos;t cover.
+                          </p>
+                          <textarea
+                            className="w-full border border-slate-300 p-3 rounded-lg h-24 text-sm focus:ring-2 focus:ring-[#0b2040] focus:border-transparent outline-none bg-white"
+                            value={formData.extraNotes}
+                            onChange={(e) =>
+                              handleInput("extraNotes", e.target.value)
+                            }
+                            placeholder="E.g. out-of-hours working, shared access routes, client housekeeping rules..."
+                          />
+                        </div>
+                      </div>
+                    )}
+
+                    <div className="flex justify-between gap-3 pt-2">
+                      <button
+                        onClick={prevStep}
+                        className="inline-flex items-center justify-center rounded-lg border border-slate-300 px-4 py-2.5 text-sm font-semibold text-slate-800 hover:bg-slate-50"
+                      >
+                        Back
+                      </button>
+                      <button
+                        onClick={nextStep}
+                        className="inline-flex items-center justify-center rounded-lg bg-[#0b2040] px-5 py-2.5 text-sm font-semibold text-white hover:bg-black transition-colors"
+                      >
+                        Next: Safety & Hazards
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                {/* STEP 3: HAZARDS */}
+                {step === 3 && (
+                  <div className="space-y-6">
+                    <h2 className="text-xl font-semibold text-slate-900 flex items-center gap-2">
+                      <AlertTriangle className="w-5 h-5 text-[#0b2040]" />
+                      Safety, Hazards & Emergency Info
+                    </h2>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-slate-50 p-4 rounded-xl border border-slate-200">
+                      <div>
+                        <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
+                          Supervisor Name
+                          <span className="text-red-600 ml-0.5">*</span>
+                        </label>
+                        <input
+                          className="border border-slate-300 p-2.5 rounded-lg w-full text-sm focus:ring-2 focus:ring-[#0b2040] focus:border-transparent outline-none bg-white"
+                          placeholder="Site supervisor or lead"
+                          value={formData.supervisorName}
+                          onChange={(e) =>
+                            handleInput("supervisorName", e.target.value)
+                          }
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
+                          First Aider
+                          <span className="text-red-600 ml-0.5">*</span>
+                        </label>
+                        <input
+                          className="border border-slate-300 p-2.5 rounded-lg w-full text-sm focus:ring-2 focus:ring-[#0b2040] focus:border-transparent outline-none bg-white"
+                          placeholder="Appointed person"
+                          value={formData.firstAider}
+                          onChange={(e) =>
+                            handleInput("firstAider", e.target.value)
+                          }
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
+                          Nearest Hospital
+                          <span className="text-red-600 ml-0.5">*</span>
+                        </label>
+                        <input
+                          className="border border-slate-300 p-2.5 rounded-lg w-full text-sm focus:ring-2 focus:ring-[#0b2040] focus:border-transparent outline-none bg-white"
+                          placeholder="e.g. Nearest A&E (N/A if unknown)"
+                          value={formData.hospital}
+                          onChange={(e) =>
+                            handleInput("hospital", e.target.value)
+                          }
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
+                          Fire Assembly Point
+                          <span className="text-red-600 ml-0.5">*</span>
+                        </label>
+                        <input
+                          className="border border-slate-300 p-2.5 rounded-lg w-full text-sm focus:ring-2 focus:ring-[#0b2040] focus:border-transparent outline-none bg-white"
+                          placeholder="As briefed in induction (or N/A)"
+                          value={formData.fireAssembly}
+                          onChange={(e) =>
+                            handleInput("fireAssembly", e.target.value)
+                          }
+                        />
+                      </div>
+                    </div>
+
+                    <div className="space-y-4">
+                      {Object.entries(HAZARD_GROUPS).map(
+                        ([group, items]: [string, any]) => (
+                          <div
+                            key={group}
+                            className="border border-slate-200 rounded-xl p-4"
+                          >
+                            <h4 className="text-xs font-semibold uppercase text-slate-500 mb-2">
+                              {group}
+                            </h4>
+                            <div className="flex flex-wrap gap-2">
+                              {items.map((h: string) => (
+                                <button
+                                  key={h}
+                                  onClick={() => toggleHazard(h)}
+                                  className={`text-[11px] py-1.5 px-3 rounded-full border ${
+                                    hazards.includes(h)
+                                      ? "bg-[#0b2040] text-white border-[#0b2040]"
+                                      : "bg-white text-slate-800 border-slate-300"
+                                  }`}
+                                >
+                                  {(HAZARD_DATA as any)[h]?.label || h}
+                                </button>
+                              ))}
+                            </div>
+                          </div>
+                        )
+                      )}
+                    </div>
+
+                    <div className="mt-6 pt-4 border-t border-slate-200 flex justify-between gap-3">
+                      <button
+                        onClick={prevStep}
+                        className="inline-flex items-center justify-center rounded-lg border border-slate-300 px-4 py-2.5 text-sm font-semibold text-slate-800 hover:bg-slate-50"
+                      >
+                        Back
+                      </button>
+                      <button
+                        onClick={generateRAMS}
+                        disabled={isGenerating}
+                        className="inline-flex items-center justify-center gap-2 rounded-lg bg-emerald-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-emerald-700 disabled:opacity-60 disabled:cursor-not-allowed transition-colors"
+                      >
+                        {isGenerating ? (
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                        ) : (
+                          <ShieldCheck className="w-4 h-4" />
+                        )}
+                        {isGenerating ? "Generating..." : "Generate PDF Pack"}
+                      </button>
+                    </div>
+                  </div>
+                )}
               </div>
-            )}
-          </div>
-        </section>
+            </section>
+          </>
+        )}
       </main>
     </div>
   );
