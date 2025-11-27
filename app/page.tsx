@@ -6,7 +6,6 @@ import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import {
   Loader2,
-  ShieldCheck,
   MapPin,
   Briefcase,
   AlertTriangle,
@@ -39,8 +38,22 @@ function sanitizeText(input: any): string {
 
 // Single greeting – no rotation
 const BASE_GREETING = "Welcome back";
+// Slightly faster typing
+const TYPE_SPEED = 30;
 
-const TITLE_COLORS = ["text-[#0b2040]", "text-red-700", "text-black"];
+const HAZARD_TIP =
+  "Please ensure you select all relevant hazards – this section directly shapes the risk assessment in your document.";
+
+const TITLE_COLORS = ["text-[#0b2040]", "text-red-700", "text-black"] as const;
+
+// Step titles for typewriter
+const STEP_TITLES: Record<number, string> = {
+  1: "Name your RAMS document",
+  2: "Company & Project Details",
+  3: "Job Scope & Pre-Start Checks",
+  4: "Safety & Emergency Info",
+  5: "Hazards & Risk Controls",
+};
 
 // --- UI COMPONENTS ---
 const Tooltip = ({ text }: { text: string }) => (
@@ -125,7 +138,7 @@ function AddressSearch({
 // --- MAIN APPLICATION ---
 function Page() {
   const [mode, setMode] = useState<"landing" | "wizard">("landing");
-  const [step, setStep] = useState(1); // 0 = pre-step (name doc)
+  const [step, setStep] = useState(1); // 1–5 in wizard mode
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [isGenerating, setIsGenerating] = useState(false);
 
@@ -143,6 +156,7 @@ function Page() {
     siteAddress: "",
     startDate: new Date().toISOString().split("T")[0],
     endDate: new Date().toISOString().split("T")[0],
+    expectedEndDate: new Date().toISOString().split("T")[0],
     duration: "1 Day",
     operatives: "1",
     trade: "Electrician",
@@ -152,9 +166,9 @@ function Page() {
     supervisorName: "",
     firstAider: "",
     hospital: "",
-    fireAssembly: "As Inducted",
-    firstAidLoc: "Site Vehicle",
-    welfare: "Client WC",
+    fireAssembly: "",
+    firstAidLoc: "",
+    welfare: "",
     extraNotes: "",
     accessCode: "",
     customDescription: "",
@@ -170,8 +184,14 @@ function Page() {
   const [jobSearch, setJobSearch] = useState("");
   const [jobSearchOpen, setJobSearchOpen] = useState(false);
 
-  // Greeting typing (no rotation)
+  // Greeting typing (landing)
   const [typedGreeting, setTypedGreeting] = useState("");
+
+  // Hazard tip typing (hazard step)
+  const [hazardTipText, setHazardTipText] = useState("");
+
+  // Step title typing
+  const [typedStepTitle, setTypedStepTitle] = useState("");
 
   // Title color rotation
   const [titleColorIndex, setTitleColorIndex] = useState(0);
@@ -197,6 +217,8 @@ function Page() {
           )
           .slice(0, 8);
 
+  const currentStepTitle = STEP_TITLES[step] || "";
+
   // Scroll only the main panel to top when step changes
   useEffect(() => {
     if (mainScrollRef.current) {
@@ -204,7 +226,7 @@ function Page() {
     }
   }, [step]);
 
-  // Type-out effect for greeting once whenever we return to landing
+  // Type-out effect for greeting once whenever we go to landing
   useEffect(() => {
     if (mode !== "landing") return;
     const full = BASE_GREETING;
@@ -216,9 +238,42 @@ function Page() {
       if (i >= full.length) {
         clearInterval(id);
       }
-    }, 35); // smooth typing
+    }, TYPE_SPEED);
     return () => clearInterval(id);
   }, [mode]);
+
+  // Type-out effect for hazard tip when on step 5
+  useEffect(() => {
+    if (mode !== "wizard" || step !== 5) return;
+    const full = HAZARD_TIP;
+    setHazardTipText("");
+    let i = 0;
+    const id = setInterval(() => {
+      i += 1;
+      setHazardTipText(full.slice(0, i));
+      if (i >= full.length) {
+        clearInterval(id);
+      }
+    }, TYPE_SPEED);
+    return () => clearInterval(id);
+  }, [mode, step]);
+
+  // Type-out effect for step titles (1–5)
+  useEffect(() => {
+    if (mode !== "wizard") return;
+    const full = STEP_TITLES[step] || "";
+    setTypedStepTitle("");
+    if (!full) return;
+    let i = 0;
+    const id = setInterval(() => {
+      i += 1;
+      setTypedStepTitle(full.slice(0, i));
+      if (i >= full.length) {
+        clearInterval(id);
+      }
+    }, TYPE_SPEED);
+    return () => clearInterval(id);
+  }, [mode, step]);
 
   // Rotate color of "RS Wizard v1.0" while in wizard mode
   useEffect(() => {
@@ -293,11 +348,15 @@ function Page() {
       prev.includes(h) ? prev.filter((i) => i !== h) : [...prev, h]
     );
 
-  const nextStep = () => {
-    if (step === 0) return;
+  const goBackToHub = () => {
+    setMode("landing");
+    setStep(1);
+  };
 
+  const nextStep = () => {
+    // Step 2 = Company & Project validation
     if (
-      step === 1 &&
+      step === 2 &&
       (!formData.companyName ||
         !formData.officeAddress ||
         !formData.contactName)
@@ -307,8 +366,10 @@ function Page() {
       );
       return;
     }
+
+    // Step 3 = Job Scope validation
     if (
-      step === 2 &&
+      step === 3 &&
       (!formData.clientName || !formData.siteAddress || !formData.jobType)
     ) {
       alert(
@@ -316,15 +377,16 @@ function Page() {
       );
       return;
     }
-    setStep((prev) => prev + 1);
+
+    setStep((prev) => Math.min(prev + 1, 5));
   };
 
   const prevStep = () => {
     if (step === 1) {
-      setStep(0);
+      goBackToHub();
       return;
     }
-    setStep((prev) => prev - 1);
+    setStep((prev) => Math.max(prev - 1, 1));
   };
 
   // Build Scope of Works string from current form fields
@@ -508,8 +570,18 @@ function Page() {
         "Prepared By",
         sanitizeText(`${formData.contactName} (Competent Person)`),
       ],
-      ["Operatives", sanitizeText(formData.operatives)],
+      [
+        "Operatives",
+        sanitizeText(formData.operatives || "1"),
+      ],
     ];
+
+    if (formData.expectedEndDate) {
+      projectRows.splice(6, 0, [
+        "Expected End Date",
+        sanitizeText(formData.expectedEndDate),
+      ]);
+    }
 
     if (formData.contactEmail) {
       projectRows.push([
@@ -812,7 +884,16 @@ function Page() {
           "Supervisor",
           sanitizeText(formData.supervisorName || "TBC"),
         ],
-      ],
+        formData.firstAidLoc
+          ? ["First Aid Kit Location", sanitizeText(formData.firstAidLoc)]
+          : null,
+        formData.welfare
+          ? ["Welfare / WC", sanitizeText(formData.welfare)]
+          : null,
+        formData.accessCode
+          ? ["Access / Lockbox Code", sanitizeText(formData.accessCode)]
+          : null,
+      ].filter(Boolean) as any[],
       theme: "grid",
       styles: {
         fontSize: 9,
@@ -823,7 +904,7 @@ function Page() {
       columnStyles: {
         0: {
           fontStyle: "bold",
-          cellWidth: 50,
+          cellWidth: 55,
           fillColor: [245, 245, 245],
         },
       },
@@ -913,9 +994,9 @@ function Page() {
             <div className="flex items-center justify-between px-3 pt-3 pb-2">
               {sidebarOpen && (
                 <div className="flex items-center gap-2">
-                  <div className="relative h-22 w-30">
+                  <div className="relative h-15 w-23">
                     <Image
-                      src="/rams-logos.png"
+                      src="/rams-logo1.png"
                       alt="RAMS Sorted logo"
                       fill
                       className="object-contain"
@@ -941,10 +1022,7 @@ function Page() {
                 {/* HUB BUTTON */}
                 {sidebarOpen ? (
                   <button
-                    onClick={() => {
-                      setMode("landing");
-                      setStep(1);
-                    }}
+                    onClick={goBackToHub}
                     className="flex w-full items-center justify-center gap-2 rounded-md bg-[#0b2040] py-2 text-xs font-semibold text-white hover:bg-black transition-colors"
                   >
                     <LayoutDashboard className="w-3.5 h-3.5" />
@@ -953,10 +1031,7 @@ function Page() {
                 ) : (
                   <div className="flex justify-center">
                     <button
-                      onClick={() => {
-                        setMode("landing");
-                        setStep(1);
-                      }}
+                      onClick={goBackToHub}
                       className="flex h-9 w-9 items-center justify-center rounded-md bg-[#0b2040] text-white hover:bg-black transition-colors"
                     >
                       <LayoutDashboard className="w-4 h-4" />
@@ -968,7 +1043,7 @@ function Page() {
               {/* Recent files future area */}
               {sidebarOpen && (
                 <div className="mt-6 space-y-1 text-xs text-slate-700">
-                  <div className="px-2 py-1 font-semibold text-[11px] uppercase tracking-wide text-slate-500">
+                  <div className="px-2 py-1 font-semibold text-[12px] uppercase tracking-wide text-slate-500">
                     Recent files
                   </div>
                   <button className="w-full text-left px-2 py-2 rounded-md hover:bg-slate-200/80 text-xs">
@@ -988,7 +1063,7 @@ function Page() {
                   {sidebarOpen && (
                     <div className="flex flex-col leading-tight">
                       <span className="text-xs font-semibold">Account</span>
-                      <span className="text-[11px] text-slate-600">
+                      <span className="text-[12px] text-slate-600">
                         Not signed in
                       </span>
                     </div>
@@ -1010,8 +1085,8 @@ function Page() {
             // LANDING / HUB SCREEN
             <div className="flex-1 flex items-center justify-center px-6 rs-fade-slide-in">
               <div className="max-w-xl w-full text-center">
-                {/* Bigger welcome with typing animation only here */}
-                <h1 className="text-4xl md:text-5xl font-semibold text-slate-900 mb-3">
+                {/* Slightly smaller, typed welcome */}
+                <h1 className="text-3xl md:text-4xl font-semibold text-slate-900 mb-3">
                   {typedGreeting}
                   {typedGreeting.length === BASE_GREETING.length && (
                     <>
@@ -1030,7 +1105,7 @@ function Page() {
                   <button
                     onClick={() => {
                       setMode("wizard");
-                      setStep(0); // pre-step: name document
+                      setStep(1); // Step 1: name document
                     }}
                     className="flex flex-col items-start gap-2 rounded-xl border border-slate-900/10 bg-slate-900 px-5 py-4 text-left hover:bg-black transition-colors rs-fade-slide-in"
                   >
@@ -1040,7 +1115,7 @@ function Page() {
                         Create RAMS document
                       </span>
                     </div>
-                    <p className="text-[11px] text-slate-200">
+                    <p className="text-xs text-slate-200">
                       Launch RS Wizard v1.0 and generate a tailored RAMS pack.
                     </p>
                   </button>
@@ -1049,7 +1124,7 @@ function Page() {
                     <span className="text-sm font-semibold text-slate-900">
                       Other tools
                     </span>
-                    <p className="text-[11px] text-slate-600">
+                    <p className="text-xs text-slate-600">
                       Additional safety and documentation tools coming soon.
                     </p>
                   </div>
@@ -1058,7 +1133,7 @@ function Page() {
             </div>
           ) : (
             <>
-              {/* Header with step indicator */}
+              {/* Header with step indicator (no back-to-hub here now) */}
               <header className="px-6 pt-4 pb-3 bg-white/90 backdrop-blur-sm">
                 <div className="flex items-center justify-between gap-4 mb-3">
                   <div className="flex flex-col">
@@ -1071,19 +1146,17 @@ function Page() {
                     </h1>
                   </div>
                   <div className="inline-flex items-center rounded-full bg-[#0b2040] px-4 py-1.5 text-[11px] font-semibold uppercase tracking-wide text-white">
-                    {step === 0 ? "Setup" : `Step ${step} of 3`}
+                    {`Step ${step} of 5`}
                   </div>
                 </div>
 
-                {/* Progress bar full width (only for steps 1–3) */}
-                {step > 0 && (
-                  <div className="h-1.5 w-full rounded-full bg-slate-200 overflow-hidden">
-                    <div
-                      className="h-full bg-[#0b2040] transition-all duration-500 ease-out"
-                      style={{ width: `${(step / 3) * 100}%` }}
-                    />
-                  </div>
-                )}
+                {/* Progress bar full width */}
+                <div className="h-1.5 w-full rounded-full bg-slate-200 overflow-hidden">
+                  <div
+                    className="h-full bg-[#0b2040] transition-all duration-500 ease-out"
+                    style={{ width: `${(step / 5) * 100}%` }}
+                  />
+                </div>
               </header>
 
               {/* Content area with its own scroll */}
@@ -1095,17 +1168,17 @@ function Page() {
                   key={step}
                   className="max-w-4xl mx-auto px-6 py-8 rs-fade-slide-in"
                 >
-                  {/* STEP 0: NAME DOCUMENT */}
-                  {step === 0 && (
+                  {/* STEP 1: NAME DOCUMENT */}
+                  {step === 1 && (
                     <div className="space-y-6">
                       <h2 className="text-2xl font-semibold text-slate-900">
-                        Name your RAMS document
+                        {typedStepTitle || currentStepTitle}
                       </h2>
                       <p className="text-sm text-slate-600">
                         This name will be used as the saved filename when you
                         download your RAMS pack.
                       </p>
-                      <p className="text-[11px] text-slate-500">
+                      <p className="text-xs text-slate-500">
                         Fields marked <span className="text-red-600">*</span>{" "}
                         are required.
                       </p>
@@ -1123,7 +1196,7 @@ function Page() {
                             setDocumentName(e.target.value)
                           }
                         />
-                        <p className="text-[11px] text-slate-500">
+                        <p className="text-xs text-slate-500">
                           You&apos;ll still be able to change project details
                           and job scope in the next steps.
                         </p>
@@ -1131,40 +1204,39 @@ function Page() {
 
                       <div className="flex justify-between gap-3 pt-4">
                         <button
-                          onClick={() => {
-                            setMode("landing");
-                            setStep(1);
-                          }}
+                          onClick={goBackToHub}
                           className="inline-flex items-center justify-center rounded-lg border border-slate-300 px-4 py-2.5 text-sm font-semibold text-slate-800 hover:bg-slate-50"
                         >
                           Back to hub
                         </button>
-                        <button
-                          onClick={() => {
-                            if (!documentName.trim()) {
-                              alert(
-                                "⚠️ Please enter a document name before continuing."
-                              );
-                              return;
-                            }
-                            setStep(1);
-                          }}
-                          className="inline-flex items-center justify-center rounded-lg bg-[#0b2040] px-5 py-2.5 text-sm font-semibold text-white hover:bg-black transition-colors"
-                        >
-                          Continue to Step 1
-                        </button>
+                        <div className="flex gap-2">
+                          <button
+                            onClick={() => {
+                              if (!documentName.trim()) {
+                                alert(
+                                  "⚠️ Please enter a document name before continuing."
+                                );
+                                return;
+                              }
+                              setStep(2);
+                            }}
+                            className="inline-flex items-center justify-center rounded-lg bg-[#0b2040] px-5 py-2.5 text-sm font-semibold text-white hover:bg-black transition-colors"
+                          >
+                            Continue to Company details
+                          </button>
+                        </div>
                       </div>
                     </div>
                   )}
 
-                  {/* STEP 1: COMPANY */}
-                  {step === 1 && (
+                  {/* STEP 2: COMPANY */}
+                  {step === 2 && (
                     <div className="space-y-6">
                       <h2 className="text-2xl font-semibold text-slate-900 flex items-center gap-2">
                         <Briefcase className="w-5 h-5 text-[#0b2040]" />
-                        Company & Project Details
+                        <span>{typedStepTitle || currentStepTitle}</span>
                       </h2>
-                      <p className="text-[11px] text-slate-500">
+                      <p className="text-xs text-slate-500">
                         Fields marked <span className="text-red-600">*</span>{" "}
                         are required. Others are optional but recommended for a
                         more complete RAMS.
@@ -1300,25 +1372,41 @@ function Page() {
                         />
                       </div>
 
-                      <div className="flex justify-end gap-3 pt-2">
-                        <button
-                          onClick={nextStep}
-                          className="inline-flex items-center justify-center rounded-lg bg-[#0b2040] px-5 py-2.5 text-sm font-semibold text-white hover:bg-black transition-colors"
-                        >
-                          Next: Job Scope
-                        </button>
+                      <div className="flex justify-between gap-3 pt-2">
+                        <div className="flex gap-2">
+                          <button
+                            onClick={prevStep}
+                            className="inline-flex items-center justify-center rounded-lg border border-slate-300 px-4 py-2.5 text-sm font-semibold text-slate-800 hover:bg-slate-50"
+                          >
+                            Back
+                          </button>
+                        </div>
+                        <div className="flex gap-2">
+                          <button
+                            onClick={goBackToHub}
+                            className="inline-flex items-center justify-center rounded-lg border border-slate-300 px-4 py-2.5 text-sm font-semibold text-slate-800 hover:bg-slate-50"
+                          >
+                            Back to hub
+                          </button>
+                          <button
+                            onClick={nextStep}
+                            className="inline-flex items-center justify-center rounded-lg bg-[#0b2040] px-5 py-2.5 text-sm font-semibold text-white hover:bg-black transition-colors"
+                          >
+                            Next: Job Scope
+                          </button>
+                        </div>
                       </div>
                     </div>
                   )}
 
-                  {/* STEP 2: SCOPE */}
-                  {step === 2 && (
+                  {/* STEP 3: SCOPE */}
+                  {step === 3 && (
                     <div className="space-y-6">
                       <h2 className="text-xl font-semibold text-slate-900 flex items-center gap-2">
                         <FileText className="w-5 h-5 text-[#0b2040]" />
-                        Job Scope & Pre-Start Checks
+                        <span>{typedStepTitle || currentStepTitle}</span>
                       </h2>
-                      <p className="text-[11px] text-slate-500">
+                      <p className="text-xs text-slate-500">
                         Fields marked <span className="text-red-600">*</span>{" "}
                         are required. Use the search or dropdowns to lock in the
                         right task.
@@ -1329,7 +1417,7 @@ function Page() {
                         <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700">
                           Quick job search (optional)
                         </label>
-                        <p className="text-[11px] text-slate-500 mb-1">
+                        <p className="text-xs text-slate-500 mb-1">
                           Start typing (e.g.{" "}
                           <span className="italic">boiler</span>) to jump
                           straight to the right trade &amp; job. You can still
@@ -1364,7 +1452,7 @@ function Page() {
                                   <div className="font-semibold text-slate-900">
                                     {j.name}
                                   </div>
-                                  <div className="text-[11px] text-slate-500">
+                                  <div className="text-[12px] text-slate-500">
                                     {j.trade}
                                   </div>
                                 </button>
@@ -1388,7 +1476,7 @@ function Page() {
                                 <div className="font-semibold text-slate-900">
                                   Other (Custom)
                                 </div>
-                                <div className="text-[11px] text-slate-500">
+                                <div className="text-[12px] text-slate-500">
                                   For custom or non-standard tasks.
                                 </div>
                               </button>
@@ -1442,12 +1530,13 @@ function Page() {
                       {/* Schedule & workforce */}
                       <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-4">
                         <h3 className="font-semibold text-sm text-slate-900">
-                          Schedule & Workforce (optional – but useful)
+                          Schedule & Workforce
                         </h3>
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                           <div>
-                            <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
+                            <label className="flex items-center text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
                               Start Date
+                              <Tooltip text="Date the work is planned to start on site." />
                             </label>
                             <input
                               type="date"
@@ -1459,21 +1548,26 @@ function Page() {
                             />
                           </div>
                           <div>
-                            <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
-                              End Date
+                            <label className="flex items-center text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
+                              Expected End Date (optional)
+                              <Tooltip text="Target completion date. If unknown, you can leave this blank or adjust later." />
                             </label>
                             <input
                               type="date"
                               className="border border-slate-300 p-3 rounded-lg w-full text-sm focus:ring-2 focus:ring-[#0b2040] focus:border-transparent outline-none bg-white"
-                              value={formData.endDate}
+                              value={formData.expectedEndDate}
                               onChange={(e) =>
-                                handleInput("endDate", e.target.value)
+                                handleInput(
+                                  "expectedEndDate",
+                                  e.target.value
+                                )
                               }
                             />
                           </div>
                           <div>
-                            <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
-                              Number of operatives (optional)
+                            <label className="flex items-center text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
+                              Number of operatives
+                              <Tooltip text="Total people working under this RAMS. If left blank we assume 1 operative." />
                             </label>
                             <input
                               type="number"
@@ -1486,6 +1580,22 @@ function Page() {
                             />
                           </div>
                         </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                          <div>
+                            <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
+                              Actual End Date (optional)
+                            </label>
+                            <input
+                              type="date"
+                              className="border border-slate-300 p-3 rounded-lg w-full text-sm focus:ring-2 focus:ring-[#0b2040] focus:border-transparent outline-none bg-white"
+                              value={formData.endDate}
+                              onChange={(e) =>
+                                handleInput("endDate", e.target.value)
+                              }
+                            />
+                          </div>
+                        </div>
                       </div>
 
                       {questions.length > 0 && (
@@ -1493,7 +1603,7 @@ function Page() {
                           <h4 className="font-semibold text-sm text-slate-900 mb-3">
                             Pre-Start Safety Checks (optional responses)
                           </h4>
-                          <p className="text-[11px] text-slate-600 mb-3">
+                          <p className="text-xs text-slate-600 mb-3">
                             Answer each question honestly. Where you leave it
                             blank here, the PDF will show N/A.
                           </p>
@@ -1568,7 +1678,7 @@ function Page() {
                             <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700">
                               Job description (optional)
                             </label>
-                            <p className="text-[11px] text-slate-500 mb-1">
+                            <p className="text-xs text-slate-500 mb-1">
                               Describe exactly what will be done, where, and in
                               what sequence.
                             </p>
@@ -1589,7 +1699,7 @@ function Page() {
                             <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700">
                               Extra specific notes (optional)
                             </label>
-                            <p className="text-[11px] text-slate-500 mb-1">
+                            <p className="text-xs text-slate-500 mb-1">
                               Anything else the RAMS should capture for this
                               particular job or site.
                             </p>
@@ -1609,7 +1719,7 @@ function Page() {
                             <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700">
                               Job description (optional)
                             </label>
-                            <p className="text-[11px] text-slate-500 mb-1">
+                            <p className="text-xs text-slate-500 mb-1">
                               This is pre-filled from our library where
                               available. Adjust it if needed to match the actual
                               scope.
@@ -1631,7 +1741,7 @@ function Page() {
                             <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700">
                               Extra specific notes (optional)
                             </label>
-                            <p className="text-[11px] text-slate-500 mb-1">
+                            <p className="text-xs text-slate-500 mb-1">
                               Add anything unique to this site, client or job
                               that the standard description doesn&apos;t cover.
                             </p>
@@ -1648,40 +1758,52 @@ function Page() {
                       )}
 
                       <div className="flex justify-between gap-3 pt-2">
-                        <button
-                          onClick={prevStep}
-                          className="inline-flex items-center justify-center rounded-lg border border-slate-300 px-4 py-2.5 text-sm font-semibold text-slate-800 hover:bg-slate-50"
-                        >
-                          Back
-                        </button>
-                        <button
-                          onClick={nextStep}
-                          className="inline-flex items-center justify-center rounded-lg bg-[#0b2040] px-5 py-2.5 text-sm font-semibold text-white hover:bg-black transition-colors"
-                        >
-                          Next: Safety & Hazards
-                        </button>
+                        <div className="flex gap-2">
+                          <button
+                            onClick={prevStep}
+                            className="inline-flex items-center justify-center rounded-lg border border-slate-300 px-4 py-2.5 text-sm font-semibold text-slate-800 hover:bg-slate-50"
+                          >
+                            Back
+                          </button>
+                        </div>
+                        <div className="flex gap-2">
+                          <button
+                            onClick={goBackToHub}
+                            className="inline-flex items-center justify-center rounded-lg border border-slate-300 px-4 py-2.5 text-sm font-semibold text-slate-800 hover:bg-slate-50"
+                          >
+                            Back to hub
+                          </button>
+                          <button
+                            onClick={nextStep}
+                            className="inline-flex items-center justify-center rounded-lg bg-[#0b2040] px-5 py-2.5 text-sm font-semibold text-white hover:bg-black transition-colors"
+                          >
+                            Next: Emergency Info
+                          </button>
+                        </div>
                       </div>
                     </div>
                   )}
 
-                  {/* STEP 3: HAZARDS */}
-                  {step === 3 && (
+                  {/* STEP 4: EMERGENCY INFO */}
+                  {step === 4 && (
                     <div className="space-y-6">
                       <h2 className="text-xl font-semibold text-slate-900 flex items-center gap-2">
                         <AlertTriangle className="w-5 h-5 text-[#0b2040]" />
-                        Safety, Hazards & Emergency Info
+                        <span>{typedStepTitle || currentStepTitle}</span>
                       </h2>
-                      <p className="text-[11px] text-slate-500">
+                      <p className="text-xs text-slate-500">
                         Fields marked <span className="text-red-600">*</span>{" "}
-                        are required. Use <span className="font-semibold">N/A</span>{" "}
-                        where details are genuinely not available.
+                        are required. Use{" "}
+                        <span className="font-semibold">N/A</span> where
+                        details are genuinely not available.
                       </p>
 
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-slate-50 p-4 rounded-xl border border-slate-200">
                         <div>
-                          <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
+                          <label className="flex items-center text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
                             Supervisor Name
                             <span className="text-red-600 ml-0.5">*</span>
+                            <Tooltip text="Person in overall control of the work on site." />
                           </label>
                           <input
                             className="border border-slate-300 p-2.5 rounded-lg w-full text-sm focus:ring-2 focus:ring-[#0b2040] focus:border-transparent outline-none bg-white"
@@ -1696,9 +1818,10 @@ function Page() {
                           />
                         </div>
                         <div>
-                          <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
+                          <label className="flex items-center text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
                             First Aider
                             <span className="text-red-600 ml-0.5">*</span>
+                            <Tooltip text="Appointed person responsible for first aid on site." />
                           </label>
                           <input
                             className="border border-slate-300 p-2.5 rounded-lg w-full text-sm focus:ring-2 focus:ring-[#0b2040] focus:border-transparent outline-none bg-white"
@@ -1710,9 +1833,10 @@ function Page() {
                           />
                         </div>
                         <div>
-                          <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
+                          <label className="flex items-center text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
                             Nearest Hospital
                             <span className="text-red-600 ml-0.5">*</span>
+                            <Tooltip text="Name or description of the nearest emergency hospital / A&E." />
                           </label>
                           <input
                             className="border border-slate-300 p-2.5 rounded-lg w-full text-sm focus:ring-2 focus:ring-[#0b2040] focus:border-transparent outline-none bg-white"
@@ -1724,9 +1848,10 @@ function Page() {
                           />
                         </div>
                         <div>
-                          <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
+                          <label className="flex items-center text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
                             Fire Assembly Point
                             <span className="text-red-600 ml-0.5">*</span>
+                            <Tooltip text="Where everyone must gather in the event of a fire. Usually explained during induction." />
                           </label>
                           <input
                             className="border border-slate-300 p-2.5 rounded-lg w-full text-sm focus:ring-2 focus:ring-[#0b2040] focus:border-transparent outline-none bg-white"
@@ -1737,7 +1862,93 @@ function Page() {
                             }
                           />
                         </div>
+
+                        <div>
+                          <label className="flex items-center text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
+                            First Aid Kit Location (optional)
+                            <Tooltip text="Where the on-site first aid kit can be found (e.g. site office, van, welfare cabin)." />
+                          </label>
+                          <input
+                            className="border border-slate-300 p-2.5 rounded-lg w-full text-sm focus:ring-2 focus:ring-[#0b2040] focus:border-transparent outline-none bg-white"
+                            placeholder="e.g. Site office, main welfare cabin"
+                            value={formData.firstAidLoc}
+                            onChange={(e) =>
+                              handleInput("firstAidLoc", e.target.value)
+                            }
+                          />
+                        </div>
+
+                        <div>
+                          <label className="flex items-center text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
+                            Welfare / WC Arrangements (optional)
+                            <Tooltip text="Where welfare, toilets and washing facilities are located for this job." />
+                          </label>
+                          <input
+                            className="border border-slate-300 p-2.5 rounded-lg w-full text-sm focus:ring-2 focus:ring-[#0b2040] focus:border-transparent outline-none bg-white"
+                            placeholder="e.g. Client WC, site welfare cabin"
+                            value={formData.welfare}
+                            onChange={(e) =>
+                              handleInput("welfare", e.target.value)
+                            }
+                          />
+                        </div>
+
+                        <div>
+                          <label className="flex items-center text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
+                            Site Access / Lockbox Code (optional)
+                            <Tooltip text="Any code or instruction required to access the site or lockbox (do not put sensitive PINs if not appropriate)." />
+                          </label>
+                          <input
+                            className="border border-slate-300 p-2.5 rounded-lg w-full text-sm focus:ring-2 focus:ring-[#0b2040] focus:border-transparent outline-none bg-white"
+                            placeholder="e.g. Gate code, lockbox instructions"
+                            value={formData.accessCode}
+                            onChange={(e) =>
+                              handleInput("accessCode", e.target.value)
+                            }
+                          />
+                        </div>
                       </div>
+
+                      <div className="mt-6 pt-4 border-t border-slate-200 flex justify-between gap-3">
+                        <div className="flex gap-2">
+                          <button
+                            onClick={prevStep}
+                            className="inline-flex items-center justify-center rounded-lg border border-slate-300 px-4 py-2.5 text-sm font-semibold text-slate-800 hover:bg-slate-50"
+                          >
+                            Back
+                          </button>
+                        </div>
+                        <div className="flex gap-2">
+                          <button
+                            onClick={goBackToHub}
+                            className="inline-flex items-center justify-center rounded-lg border border-slate-300 px-4 py-2.5 text-sm font-semibold text-slate-800 hover:bg-slate-50"
+                          >
+                            Back to hub
+                          </button>
+                          <button
+                            onClick={nextStep}
+                            className="inline-flex items-center justify-center rounded-lg bg-[#0b2040] px-5 py-2.5 text-sm font-semibold text-white hover:bg-black transition-colors"
+                          >
+                            Next: Hazards & Generate
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* STEP 5: HAZARDS & GENERATE */}
+                  {step === 5 && (
+                    <div className="space-y-6">
+                      <h2 className="text-xl font-semibold text-slate-900 flex items-center gap-2">
+                        <AlertTriangle className="w-5 h-5 text-[#0b2040]" />
+                        <span>{typedStepTitle || currentStepTitle}</span>
+                      </h2>
+
+                      {hazardTipText && (
+                        <p className="text-base md:text-lg font-semibold text-[#0b2040]">
+                          {hazardTipText}
+                        </p>
+                      )}
 
                       <div className="space-y-4">
                         {Object.entries(HAZARD_GROUPS).map(
@@ -1770,24 +1981,36 @@ function Page() {
                       </div>
 
                       <div className="mt-6 pt-4 border-t border-slate-200 flex justify-between gap-3">
-                        <button
-                          onClick={prevStep}
-                          className="inline-flex items-center justify-center rounded-lg border border-slate-300 px-4 py-2.5 text-sm font-semibold text-slate-800 hover:bg-slate-50"
-                        >
-                          Back
-                        </button>
-                        <button
-                          onClick={generateRAMS}
-                          disabled={isGenerating}
-                          className="inline-flex items-center justify-center gap-2 rounded-lg bg-emerald-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-emerald-700 disabled:opacity-60 disabled:cursor-not-allowed transition-colors"
-                        >
-                          {isGenerating ? (
-                            <Loader2 className="w-4 h-4 animate-spin" />
-                          ) : (
-                            <ShieldCheck className="w-4 h-4" />
-                          )}
-                          {isGenerating ? "Generating..." : "Generate PDF Pack"}
-                        </button>
+                        <div className="flex gap-2">
+                          <button
+                            onClick={prevStep}
+                            className="inline-flex items-center justify-center rounded-lg border border-slate-300 px-4 py-2.5 text-sm font-semibold text-slate-800 hover:bg-slate-50"
+                          >
+                            Back
+                          </button>
+                        </div>
+                        <div className="flex gap-2">
+                          <button
+                            onClick={goBackToHub}
+                            className="inline-flex items-center justify-center rounded-lg border border-slate-300 px-4 py-2.5 text-sm font-semibold text-slate-800 hover:bg-slate-50"
+                          >
+                            Back to hub
+                          </button>
+                          <button
+                            onClick={generateRAMS}
+                            disabled={isGenerating}
+                            className="inline-flex items-center justify-center gap-2 rounded-lg bg-red-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-red-700 disabled:opacity-60 disabled:cursor-not-allowed transition-colors"
+                          >
+                            {isGenerating ? (
+                              <Loader2 className="w-4 h-4 animate-spin" />
+                            ) : (
+                              <FileText className="w-4 h-4" />
+                            )}
+                            {isGenerating
+                              ? "Generating..."
+                              : "Generate document"}
+                          </button>
+                        </div>
                       </div>
                     </div>
                   )}

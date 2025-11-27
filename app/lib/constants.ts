@@ -33,51 +33,476 @@ export interface JobCluster {
 // ==========================================
 
 export const HAZARD_DATA: Record<string, HazardDef> = {
-  live_electricity: { label: "Live Electricity", risk: "Electrocution, burns, fire, fatal injury.", control: "Safe isolation (LOTO), calibrated voltage indicator, insulated tools, RCD protection.", initial_score: "High (20)", residual_score: "Low (4)" },
-  gas: { label: "Gas Supply", risk: "Explosion, asphyxiation, carbon monoxide poisoning.", control: "Gas Safe registered engineer, leak detection fluid, adequate ventilation, isolation.", initial_score: "High (25)", residual_score: "Low (5)" },
-  work_at_height: { label: "Working at Height", risk: "Falls from height, falling objects, serious injury.", control: "Scaffold/tower preferred, ladder tied off (3-points of contact), exclusion zones below.", initial_score: "High (20)", residual_score: "Low (5)" },
-  manual_handling: { label: "Manual Handling", risk: "Musculoskeletal injury, strains, drops.", control: "Mechanical aids (trolleys), team lifting, load assessment, gloves/boots.", initial_score: "Medium (12)", residual_score: "Low (4)" },
-  dust_fumes: { label: "Dust & Fumes", risk: "Respiratory issues, eye irritation, asthma.", control: "Local exhaust ventilation (LEV), water suppression, FFP3 masks, eye protection.", initial_score: "Medium (12)", residual_score: "Low (4)" },
-  noise_vibration: { label: "Noise & Vibration", risk: "Hearing loss, tinnitus, HAVS.", control: "Ear defenders/plugs, limited trigger time, rotation of tasks, low-vibration tools.", initial_score: "Medium (12)", residual_score: "Low (4)" },
-  hot_work: { label: "Hot Works / Fire", risk: "Ignition of materials, burns, smoke inhalation.", control: "Hot work permit, extinguisher nearby, 1-hour fire watch, removal of combustibles.", initial_score: "High (16)", residual_score: "Medium (8)" },
-  silica_dust: { label: "Silica Dust", risk: "Silicosis, lung disease, cancer.", control: "On-tool extraction, wet cutting, FFP3 respiratory protection (Face Fit tested).", initial_score: "High (20)", residual_score: "Low (5)" },
-  asbestos: { label: "Asbestos Risk", risk: "Lung disease, asbestosis, mesothelioma.", control: "Asbestos survey review, stop work immediately if suspected, licensed contractor only.", initial_score: "High (25)", residual_score: "Low (5)" },
-  chemical_coshh: { label: "Chemicals / COSHH", risk: "Skin burns, dermatitis, inhalation, poisoning.", control: "COSHH assessment read, specific PPE (gloves/goggles), ventilation, spill kit availability.", initial_score: "Medium (12)", residual_score: "Low (4)" },
-  slips_trips: { label: "Slips, Trips & Falls", risk: "Impact injury, fractures, bruising.", control: "Good housekeeping, cable management, adequate lighting, clear walkways.", initial_score: "Medium (9)", residual_score: "Low (3)" },
-  moving_vehicles: { label: "Moving Vehicles", risk: "Crushing, impact, fatal injury.", control: "Traffic management plan, banksman, high-vis clothing, segregated pedestrian routes.", initial_score: "High (20)", residual_score: "Low (5)" },
-  public_interface: { label: "Public / Occupants", risk: "Injury to third parties, unauthorized access.", control: "Barriers, signage, tool supervision, safe access routes, exclusion zones.", initial_score: "High (15)", residual_score: "Low (5)" },
-  lone_working: { label: "Lone Working", risk: "Unable to summon help, increased vulnerability.", control: "Check-in procedure, charged mobile phone, no high-risk tasks alone.", initial_score: "Medium (12)", residual_score: "Low (6)" },
-  confined_space: { label: "Confined Space", risk: "Asphyxiation, toxic gas, entrapment.", control: "Gas monitoring, top man, rescue plan, permit to work, breathing apparatus.", initial_score: "High (25)", residual_score: "Medium (10)" },
-  structural_collapse: { label: "Structural Instability", risk: "Crushing, burial, collapse.", control: "Temporary supports (acrows), structural engineer design, method statement.", initial_score: "High (25)", residual_score: "Low (5)" },
-  excavation: { label: "Excavation", risk: "Trench collapse, striking services, falling in.", control: "CAT scan, trench support (shoring), barriers, safe access/egress (ladder).", initial_score: "High (20)", residual_score: "Low (5)" },
-  plant_machinery: { label: "Plant & Machinery", risk: "Entanglement, crushing, noise.", control: "Trained operators (CPCS), guards in place, isolation keys removed when unattended.", initial_score: "High (20)", residual_score: "Low (5)" },
-  environmental_weather: { label: "Weather / Environment", risk: "Cold/Heat stress, slippery surfaces, wind.", control: "Monitor forecast, appropriate clothing, stop work in high winds.", initial_score: "Medium (10)", residual_score: "Low (4)" },
-  fire_explosion: { label: "Fire & Explosion", risk: "Burns, smoke inhalation, property damage.", control: "Fire extinguishers, clear exit routes, control of ignition sources.", initial_score: "High (20)", residual_score: "Medium (8)" },
-  biological: { label: "Biological Hazards", risk: "Infection, Weil's disease, sickness.", control: "Good hygiene, gloves, cover wounds, welfare facilities.", initial_score: "High (15)", residual_score: "Low (5)" },
-  falling_objects: { label: "Falling Objects", risk: "Head injury, impact.", control: "Hard hats, toe boards, exclusion zones, tool lanyards.", initial_score: "High (15)", residual_score: "Low (3)" },
-  underground_services: { label: "Underground Services", risk: "Electrocution, gas strike, explosion.", control: "CAT scan, safe digging practice, review utility plans.", initial_score: "High (25)", residual_score: "Low (5)" },
-  fragile_surfaces: { label: "Fragile Surfaces", risk: "Falls through roof/skylights.", control: "Crawling boards, harnesses, nets.", initial_score: "High (25)", residual_score: "Medium (10)" },
-  water_ingress: { label: "Water Ingress", risk: "Property damage, electrical short circuits, slips.", control: "Temporary sheeting, pump availability, isolation of water.", initial_score: "Medium (9)", residual_score: "Low (3)" },
-  sharp_objects: { label: "Sharp Objects", risk: "Cuts, lacerations.", control: "Kevlar gloves, safe disposal of blades/sharps.", initial_score: "Medium (9)", residual_score: "Low (3)" },
-  poor_lighting: { label: "Poor Lighting", risk: "Trips, mistakes, eye strain.", control: "Temporary task lighting provided. Torches carried by operatives.", initial_score: "Medium (8)", residual_score: "Low (3)" },
-  lead_exposure: { label: "Lead Exposure", risk: "Poisoning.", control: "Gloves, hygiene, cold cutting.", initial_score: "Medium (10)", residual_score: "Low (3)" },
-  stored_energy: { label: "Stored Energy", risk: "Shock.", control: "Discharge time.", initial_score: "Medium (12)", residual_score: "Low (4)" },
-  scaffold_safety: { label: "Scaffold Safety", risk: "Collapse, falls.", control: "Handover certificate, weekly inspections (Scafftag), load limits respected.", initial_score: "High (20)", residual_score: "Low (5)" },
-  glass_sharps: { label: "Glass & Glazing", risk: "Cuts, severance.", control: "Suction lifters, handling gloves, safety glass.", initial_score: "Medium (12)", residual_score: "Low (4)" },
-  cement: { label: "Wet Cement/Concrete", risk: "Burns, dermatitis.", control: "Impervious gloves, washing facilities, barrier cream.", initial_score: "Medium (10)", residual_score: "Low (3)" },
-  damp_proofing: { label: "Damp Proofing Chemicals", risk: "Inhalation, skin burns.", control: "Ventilation, specific PPE, COSHH data sheet compliance.", initial_score: "Medium (12)", residual_score: "Low (4)" },
-  security_risk: { label: "Security", risk: "Theft, unauthorized entry.", control: "Secure site perimeter, lockable storage, removal of valuables.", initial_score: "Medium (9)", residual_score: "Low (3)" },
-  heavy_plant: { label: "Heavy Plant", risk: "Crushing, impact.", control: "Banksman, exclusion zones, certified operators.", initial_score: "High (20)", residual_score: "Low (5)" },
-  structural_alteration: { label: "Structural Alteration", risk: "Collapse, movement.", control: "Propping, engineering design, sequence of work.", initial_score: "High (25)", residual_score: "Low (5)" },
-  power_tools: { label: "Power Tools", risk: "Cuts, vibration, noise.", control: "Guards in place, PAT tested, PPE used.", initial_score: "Medium (12)", residual_score: "Low (4)" },
-  services_isolation: { label: "Services Isolation", risk: "Electrocution, flood, gas leak.", control: "LOTO, identification, proving dead.", initial_score: "High (20)", residual_score: "Low (4)" }
+  live_electricity: {
+    label: "Live Electricity",
+    risk: "Electrocution, burns or fire from contact with live conductors or exposed terminals.",
+    control:
+      "Isolate and lock off circuits where possible, prove dead, use insulated tools and test equipment, competent electricians only, maintain clear access.",
+    initial_score: "High (20)",
+    residual_score: "Low (4)",
+  },
+  gas: {
+    label: "Gas Supply",
+    risk: "Explosion, fire or asphyxiation from leaks or incorrect connection of gas services.",
+    control:
+      "Only competent gas engineers to work on gas systems, isolate and test before work, leak testing, ventilation, no ignition sources, follow gas safe procedures.",
+    initial_score: "High (25)",
+    residual_score: "Low (5)",
+  },
+  work_at_height: {
+    label: "Working at Height",
+    risk: "Falls from ladders, scaffolds or roofs causing serious injury or fatality.",
+    control:
+      "Avoid work at height where possible, use suitable access equipment, edge protection, fall prevention/arrest systems, inspect equipment, keep work area tidy.",
+    initial_score: "High (20)",
+    residual_score: "Low (5)",
+  },
+  manual_handling: {
+    label: "Manual Handling",
+    risk: "Sprains, strains and back injuries from lifting, carrying or awkward postures.",
+    control:
+      "Assess loads and routes, use mechanical aids where possible, team lifts, keep loads close to the body, avoid twisting, provide manual handling training.",
+    initial_score: "Medium (12)",
+    residual_score: "Low (4)",
+  },
+  dust_fumes: {
+    label: "Dust & Fumes",
+    risk: "Respiratory irritation and long-term lung damage from construction dusts or general fumes.",
+    control:
+      "Use extraction or damping down, local exhaust ventilation where appropriate, suitable RPE, minimise dry sweeping, keep work areas ventilated.",
+    initial_score: "Medium (12)",
+    residual_score: "Low (4)",
+  },
+  silica_dust: {
+    label: "Silica Dust",
+    risk: "Silicosis and other serious lung disease from respirable crystalline silica.",
+    control:
+      "Eliminate dry cutting where possible, on-tool extraction, water suppression, FFP3 or better RPE, limit exposure time, health surveillance where required.",
+    initial_score: "High (20)",
+    residual_score: "Low (5)",
+  },
+  asbestos: {
+    label: "Asbestos",
+    risk: "Serious long-term respiratory disease from disturbance of asbestos-containing materials.",
+    control:
+      "Identify ACMs before work, stop immediately if suspected, only licensed contractors for notifiable work, follow asbestos survey and plan, no unplanned disturbance.",
+    initial_score: "High (25)",
+    residual_score: "Low (5)",
+  },
+  chemical_coshh: {
+    label: "Chemicals / COSHH",
+    risk: "Burns, poisoning, respiratory or skin damage from hazardous substances.",
+    control:
+      "COSHH assessment, use safer alternatives where possible, correct storage and labelling, ventilation, appropriate PPE, training, emergency spill procedures.",
+    initial_score: "Medium (12)",
+    residual_score: "Low (4)",
+  },
+  noise_vibration: {
+    label: "Noise & Vibration",
+    risk: "Hearing damage and fatigue from prolonged noise and vibration exposure.",
+    control:
+      "Select low-noise/low-vibration equipment, limit exposure time, provide hearing protection, implement hearing conservation, maintain tools, health surveillance as required.",
+    initial_score: "Medium (12)",
+    residual_score: "Low (4)",
+  },
+  hot_work: {
+    label: "Hot Works",
+    risk: "Ignition of materials and fire from welding, cutting, grinding or hot surfaces.",
+    control:
+      "Hot work permit where required, clear combustibles, fire-resistant screens, fire extinguishers, fire watch during and after work, check area after completion.",
+    initial_score: "High (16)",
+    residual_score: "Medium (8)",
+  },
+  slips_trips: {
+    label: "Slips, Trips & Falls",
+    risk: "Minor to serious injury from slips, trips and falls on the same level.",
+    control:
+      "Keep routes clear, good housekeeping, suitable footwear, secure cables and hoses, highlight changes in level, maintain clean dry surfaces where possible.",
+    initial_score: "Medium (9)",
+    residual_score: "Low (3)",
+  },
+  moving_vehicles: {
+    label: "Moving Vehicles",
+    risk: "Crushing and impact injuries from contact with site or public vehicles.",
+    control:
+      "Traffic management plan, segregated routes, banksman where needed, speed limits, signage, high-visibility clothing, reversing controls and mirrors/cameras.",
+    initial_score: "High (20)",
+    residual_score: "Low (5)",
+  },
+  public_interface: {
+    label: "Public / Occupants",
+    risk: "Injury to members of the public or building occupants from site activities.",
+    control:
+      "Physical separation, barriers and hoardings, clear signage, supervised access routes, schedule noisy/high-risk tasks out of public hours where possible.",
+    initial_score: "High (15)",
+    residual_score: "Low (5)",
+  },
+  lone_working: {
+    label: "Lone Working",
+    risk: "Delayed emergency response and increased vulnerability when working alone.",
+    control:
+      "Lone working procedure, regular check-in, means of communication, restrict high-risk lone tasks, ensure information on location and emergency arrangements.",
+    initial_score: "Medium (12)",
+    residual_score: "Low (6)",
+  },
+  confined_space: {
+    label: "Confined Space",
+    risk: "Asphyxiation, toxic exposure or entrapment in poorly ventilated or restricted areas.",
+    control:
+      "Formal confined space assessment, permit system, gas monitoring, rescue plan and equipment, trained personnel only, ventilation, standby person outside.",
+    initial_score: "High (25)",
+    residual_score: "Medium (10)",
+  },
+  structural_collapse: {
+    label: "Structural Collapse",
+    risk: "Collapse of building elements or temporary supports causing serious injury.",
+    control:
+      "Structural assessment, temporary works design, no unauthorised alterations, controlled sequencing of work, exclusion zones, inspections by competent person.",
+    initial_score: "High (25)",
+    residual_score: "Low (5)",
+  },
+  structural_alteration: {
+    label: "Structural Alteration",
+    risk: "Loss of stability during alteration of load-bearing or structural elements.",
+    control:
+      "Works designed and checked by competent engineer, install temporary supports, follow sequence, monitor for movement, no removal of supports without approval.",
+    initial_score: "High (25)",
+    residual_score: "Low (5)",
+  },
+  excavation: {
+    label: "Excavation",
+    risk: "Trench or excavation collapse, falls into excavations, striking buried services.",
+    control:
+      "Locate and mark services, design support/shoring, batter back sides where appropriate, edge protection, spoil set back, regular checks especially after rain.",
+    initial_score: "High (20)",
+    residual_score: "Low (5)",
+  },
+  plant_machinery: {
+    label: "Plant & Machinery",
+    risk: "Entanglement, crushing or impact from powered plant and machinery.",
+    control:
+      "Only trained operators, pre-use checks, guards in place, exclusion zones, clear communication, lock-off for maintenance, follow manufacturer guidance.",
+    initial_score: "High (20)",
+    residual_score: "Low (5)",
+  },
+  environmental_weather: {
+    label: "Weather / Environment",
+    risk: "Adverse effects from wind, rain, heat or cold on work and safety.",
+    control:
+      "Monitor forecast, stop work in unsafe conditions (high winds, lightning), provide weather-appropriate PPE, shelters, hydration, additional rest breaks.",
+    initial_score: "Medium (10)",
+    residual_score: "Low (4)",
+  },
+  fire_explosion: {
+    label: "Fire & Explosion",
+    risk: "Burns, smoke inhalation or explosion from uncontrolled fire.",
+    control:
+      "Control ignition sources, safe storage of flammables and gas, hot work controls, clear escape routes, fire detection where applicable, emergency plan and drills.",
+    initial_score: "High (20)",
+    residual_score: "Medium (8)",
+  },
+  biological: {
+    label: "Biological Hazards",
+    risk: "Exposure to bacteria, viruses or biological contamination on site.",
+    control:
+      "Avoid direct contact, appropriate PPE and hygiene facilities, safe waste disposal, vaccinations where recommended, follow relevant health guidance.",
+    initial_score: "Medium (15)",
+    residual_score: "Low (5)",
+  },
+  falling_objects: {
+    label: "Falling Objects",
+    risk: "Head and body injuries from tools or materials falling from height.",
+    control:
+      "Toe boards, netting or fans, tool lanyards, exclusion zones, no stacking near edges, proper storage, wear head protection, good housekeeping at height.",
+    initial_score: "High (15)",
+    residual_score: "Low (3)",
+  },
+  underground_services: {
+    label: "Underground Services",
+    risk: "Electrocution, explosion or flooding from striking buried services.",
+    control:
+      "Obtain and review service drawings, cable avoidance tools, trial holes, mark service routes, hand-dig around known services, permit-to-dig where required.",
+    initial_score: "High (25)",
+    residual_score: "Low (5)",
+  },
+  fragile_surfaces: {
+    label: "Fragile Surfaces",
+    risk: "Falls through fragile roofs, rooflights or non-load-bearing surfaces.",
+    control:
+      "Avoid stepping on fragile areas, use crawling boards and platforms, edge protection, signage, exclusion below, supervision by competent person.",
+    initial_score: "High (25)",
+    residual_score: "Medium (10)",
+  },
+  water_ingress: {
+    label: "Water Ingress",
+    risk: "Flooding, slips and damage from water ingress or leaks.",
+    control:
+      "Plan temporary weatherproofing, control run-off, clear drainage routes, use pumps where needed, keep electrics clear of water, monitor after heavy rain.",
+    initial_score: "Medium (9)",
+    residual_score: "Low (3)",
+  },
+  sharp_objects: {
+    label: "Sharp Objects",
+    risk: "Cuts and puncture wounds from sharp materials or edges.",
+    control:
+      "Gloves and suitable PPE, careful handling, remove nails and sharp edges where possible, segregate scrap, keep walkways free of sharp debris.",
+    initial_score: "Medium (9)",
+    residual_score: "Low (3)",
+  },
+  poor_lighting: {
+    label: "Poor Lighting",
+    risk: "Trips, misjudgement of hazards and poor visibility in low light areas.",
+    control:
+      "Provide adequate task and general lighting, check emergency lighting, keep fittings clean and intact, avoid glare and shadows on work areas.",
+    initial_score: "Medium (8)",
+    residual_score: "Low (3)",
+  },
+  lead_exposure: {
+    label: "Lead Exposure",
+    risk: "Poisoning and long-term health effects from exposure to lead.",
+    control:
+      "Identify lead-containing materials, use low-dust methods, suitable RPE, hygiene facilities, no eating/smoking in work area, health surveillance where required.",
+    initial_score: "Medium (10)",
+    residual_score: "Low (3)",
+  },
+  stored_energy: {
+    label: "Stored Energy",
+    risk: "Sudden release of stored energy causing impact or ejection of parts.",
+    control:
+      "Isolate and de-energise systems, release pressure safely, lock-off, follow written procedures, use guards and barriers, keep people clear during release.",
+    initial_score: "Medium (12)",
+    residual_score: "Low (4)",
+  },
+  scaffold_safety: {
+    label: "Scaffold Safety",
+    risk: "Falls or collapse from incorrectly erected or altered scaffolding.",
+    control:
+      "Erection and alteration only by competent persons, handover certificates, regular inspections, no unauthorised changes, edge protection and access maintained.",
+    initial_score: "High (20)",
+    residual_score: "Low (5)",
+  },
+  glass_sharps: {
+    label: "Glass & Glazing",
+    risk: "Lacerations from broken glass, glazing or sharp brittle materials.",
+    control:
+      "Use correct handling equipment, cut-resistant gloves, safe storage and transport, safe breakage procedures, clear broken glass promptly and safely.",
+    initial_score: "Medium (12)",
+    residual_score: "Low (4)",
+  },
+  cement: {
+    label: "Wet Cement / Concrete",
+    risk: "Skin burns and dermatitis from wet cement or concrete contact.",
+    control:
+      "Avoid direct skin contact, waterproof gloves and boots, barrier creams, wash exposed skin promptly, change contaminated clothing quickly.",
+    initial_score: "Medium (10)",
+    residual_score: "Low (3)",
+  },
+  damp_proofing: {
+    label: "Damp-Proofing Chemicals",
+    risk: "Respiratory or skin effects from damp-proofing products.",
+    control:
+      "Follow COSHH assessment, use correct PPE, avoid spray drift, ventilate work area, prevent skin contact, safe storage and disposal.",
+    initial_score: "Medium (12)",
+    residual_score: "Low (4)",
+  },
+  security_risk: {
+    label: "Security",
+    risk: "Theft, vandalism or unauthorised access to the work area.",
+    control:
+      "Lockable storage, secure perimeter, controlled access points, visitor checks, remove keys and fuel from plant, basic CCTV/alarms where appropriate.",
+    initial_score: "Medium (9)",
+    residual_score: "Low (3)",
+  },
+  heavy_plant: {
+    label: "Heavy Plant / Large Machinery",
+    risk: "Serious injury from collision with, or operation of, heavy plant.",
+    control:
+      "Only trained operators, segregated routes, plant marshalling, visibility aids, daily checks, exclusion zones around operating plant.",
+    initial_score: "High (20)",
+    residual_score: "Low (5)",
+  },
+  power_tools: {
+    label: "Power Tools",
+    risk: "Cuts, vibration, noise and kickback from powered hand tools.",
+    control:
+      "Use correct tool for task, pre-use checks, guards in place, avoid defeating safety devices, limit exposure, suitable PPE including eye and hearing protection.",
+    initial_score: "Medium (12)",
+    residual_score: "Low (4)",
+  },
+  services_isolation: {
+    label: "Services Isolation",
+    risk: "Accidental energisation or release where services are not correctly isolated.",
+    control:
+      "Formal isolation and lock-off, clear labelling, test before touch, permits where required, communication with all affected parties before re-energising.",
+    initial_score: "High (20)",
+    residual_score: "Low (4)",
+  },
+  welding_fumes: {
+    label: "Welding Fumes",
+    risk: "Metal fume fever and long-term lung damage from welding fumes.",
+    control:
+      "On-torch or local exhaust extraction, general ventilation, suitable RPE, minimise welding time, use lower fume processes and consumables where possible.",
+    initial_score: "High (20)",
+    residual_score: "Low (6)",
+  },
+  hand_arm_vibration: {
+    label: "Hand-Arm Vibration (HAVS)",
+    risk: "Hand-arm vibration syndrome and circulation damage from vibrating tools.",
+    control:
+      "Select low-vibration tools, maintain equipment, limit trigger time, job rotation, warming gloves, health surveillance and HAVS monitoring.",
+    initial_score: "Medium (15)",
+    residual_score: "Low (6)",
+  },
+  poor_housekeeping: {
+    label: "Poor Housekeeping",
+    risk: "Trips, blocked access and falling objects from untidy work areas.",
+    control:
+      "Clean-as-you-go approach, regular tidy-ups, designated waste areas, keep exits and routes clear, supervisor checks on housekeeping standards.",
+    initial_score: "Medium (9)",
+    residual_score: "Low (3)",
+  },
+  traffic_management: {
+    label: "Traffic Management / Adjacent Roads",
+    risk: "Struck-by injuries from inadequate segregation of vehicles and pedestrians.",
+    control:
+      "Traffic management plan, physical barriers, signage, reduced speed limits, trained banksman, clearly separated pedestrian walkways.",
+    initial_score: "High (20)",
+    residual_score: "Medium (8)",
+  },
+  work_near_water: {
+    label: "Work Near Water",
+    risk: "Drowning or hypothermia when working adjacent to water.",
+    control:
+      "Edge protection or barriers, lifejackets where appropriate, rescue equipment, buddy system, emergency plan for water rescue.",
+    initial_score: "High (20)",
+    residual_score: "Medium (8)",
+  },
+  hand_tools: {
+    label: "Hand Tools – Non-Powered",
+    risk: "Cuts and impact injuries from misuse or failure of non-powered hand tools.",
+    control:
+      "Use correct tool in good condition, regular inspection and removal of damaged tools, safe storage, training in correct use, eye protection where needed.",
+    initial_score: "Medium (9)",
+    residual_score: "Low (3)",
+  },
+  ladders_steps: {
+    label: "Ladders / Stepladders",
+    risk: "Falls from height or overreaching from ladders and stepladders.",
+    control:
+      "Use only for short-duration light tasks, correct angle and footing, secure at top or bottom, pre-use checks, user training and supervision.",
+    initial_score: "Medium (12)",
+    residual_score: "Low (4)",
+  },
+  repetitive_tasks: {
+    label: "Repetitive Tasks / Fatigue",
+    risk: "Fatigue and musculoskeletal strain from repetitive or sustained tasks.",
+    control:
+      "Task rotation, planned breaks, ergonomic assessment, realistic work rates, supervision to monitor fatigue and fitness for work.",
+    initial_score: "Medium (9)",
+    residual_score: "Low (3)",
+  },
+  extreme_temperatures: {
+    label: "Extreme Heat / Cold",
+    risk: "Heat stress or cold stress when working in extreme temperatures.",
+    control:
+      "Plan work around hottest/coldest periods, provide shade or warming areas, hydration, appropriate clothing, additional breaks and monitoring.",
+    initial_score: "Medium (12)",
+    residual_score: "Low (4)",
+  },
+  crane_lifting: {
+    label: "Crane / Lifting Operations",
+    risk: "Crushing or impact injuries and collapse during lifting operations.",
+    control:
+      "Appointed person planning, certified lifting accessories, competent operator and slinger/signaller, defined exclusion zones, weather checks and clear signals.",
+    initial_score: "High (20)",
+    residual_score: "Medium (8)",
+  },
+  mewp_operations: {
+    label: "MEWPs / Mobile Work Platforms",
+    risk: "Falls, overturning or entrapment when using MEWPs or mobile platforms.",
+    control:
+      "Operator training, pre-use checks, firm level ground, correct outriggers, harness and lanyard where required, avoid overhead obstructions, segregation from traffic.",
+    initial_score: "High (20)",
+    residual_score: "Medium (8)",
+  },
+  demolition_works: {
+    label: "Demolition / Strip-Out Works",
+    risk: "Uncontrolled collapse and flying debris during demolition or strip-out.",
+    control:
+      "Survey and structural assessment, planned sequence, isolation of all services, exclusion zones, dust suppression, competent supervision.",
+    initial_score: "High (25)",
+    residual_score: "Medium (10)",
+  },
+  overhead_services: {
+    label: "Overhead Services / Power Lines",
+    risk: "Electrocution or arcing from contact with overhead power lines.",
+    control:
+      "Identify and mark overhead lines, maintain safe clearances, use goalposts and barriers, brief operators, restrict plant height and slew as required.",
+    initial_score: "High (25)",
+    residual_score: "Medium (10)",
+  },
 };
 
-export const HAZARD_GROUPS = {
-  "High Risk": ["live_electricity", "gas", "work_at_height", "confined_space", "structural_collapse", "fire_explosion", "excavation", "asbestos", "scaffold_safety", "heavy_plant"],
-  "Health": ["dust_fumes", "silica_dust", "noise_vibration", "chemical_coshh", "biological", "lead_exposure", "cement", "damp_proofing"],
-  "Site": ["slips_trips", "moving_vehicles", "public_interface", "lone_working", "environmental_weather", "water_ingress", "poor_lighting", "falling_objects", "security_risk"],
-  "Physical": ["manual_handling", "plant_machinery", "underground_services", "sharp_objects", "stored_energy", "glass_sharps", "power_tools", "services_isolation"]
+export const HAZARD_GROUPS: Record<string, HazardKey[]> = {
+  "High Risk": [
+    "live_electricity",
+    "gas",
+    "work_at_height",
+    "confined_space",
+    "structural_collapse",
+    "structural_alteration",
+    "excavation",
+    "fire_explosion",
+    "hot_work",
+    "asbestos",
+    "scaffold_safety",
+    "heavy_plant",
+    "plant_machinery",
+    "crane_lifting",
+    "mewp_operations",
+    "demolition_works",
+    "overhead_services",
+    "fragile_surfaces",
+    "underground_services",
+    "work_near_water"
+  ],
+  Health: [
+    "dust_fumes",
+    "silica_dust",
+    "chemical_coshh",
+    "biological",
+    "noise_vibration",
+    "welding_fumes",
+    "hand_arm_vibration",
+    "lead_exposure",
+    "cement",
+    "damp_proofing",
+    "extreme_temperatures"
+  ],
+  Site: [
+    "slips_trips",
+    "moving_vehicles",
+    "public_interface",
+    "lone_working",
+    "environmental_weather",
+    "water_ingress",
+    "poor_lighting",
+    "falling_objects",
+    "security_risk",
+    "poor_housekeeping",
+    "traffic_management"
+  ],
+  Physical: [
+    "manual_handling",
+    "sharp_objects",
+    "glass_sharps",
+    "stored_energy",
+    "power_tools",
+    "hand_tools",
+    "services_isolation",
+    "ladders_steps",
+    "repetitive_tasks"
+  ],
 };
 
 // ==========================================
