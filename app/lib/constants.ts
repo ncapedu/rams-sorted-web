@@ -10,8 +10,8 @@ export interface HazardDef {
   label: string;
   risk: string;
   control: string;
-  initial_score: string; 
-  residual_score: string; 
+  initial_score: string;
+  residual_score: string;
 }
 
 export interface QuestionDef {
@@ -25,7 +25,9 @@ export interface JobCluster {
   hazards: string[];
   questions: QuestionDef[];
   ppe?: string[];
-  method_outline?: string[]; 
+  method_outline?: string[];
+  complexity?: "standard" | "high";
+  extraSections?: string[];
 }
 
 // ==========================================
@@ -519,7 +521,9 @@ const ELECTRICIAN_CLUSTERS: Record<string, JobCluster> = {
       { id: "q3", label: "Have you confirmed that all circuits affected by the consumer unit/fuse board replacement are clearly identified and labelled beforehand?" },
       { id: "q4", label: "Is there adequate lighting at the location of the consumer unit/fuse board replacement to safely work inside the enclosure?" },
       { id: "q5", label: "Will test results and circuit schedules be updated immediately after the consumer unit/fuse board replacement is completed?" }
-    ]
+    ],
+    complexity: "high",
+    extraSections: ["access_egress", "isolation_plan"]
   },
   "Full house rewire": {
     desc: "Full house rewire involves replacing existing wiring within part or all of a property to bring the installation up to current standards. This usually includes stripping out obsolete cables, installing new routes in walls, floors or ceilings, and fitting new accessories. The work is often phased to keep disruption manageable for occupants and coordinated with other trades. A full set of tests is carried out at the end to verify safety, continuity and protective device performance.",
@@ -530,7 +534,9 @@ const ELECTRICIAN_CLUSTERS: Record<string, JobCluster> = {
       { id: "q3", label: "Is there a clear plan to separate and safely isolate all old wiring during the full house rewire?" },
       { id: "q4", label: "Will you ensure that new cable routes installed during the full house rewire follow recognised safe zones?" },
       { id: "q5", label: "Are arrangements in place to keep escape routes usable while the full house rewire is underway?" }
-    ]
+    ],
+    complexity: "high",
+    extraSections: ["access_egress", "waste_management", "phasing_plan"]
   },
   "Partial rewire": {
     desc: "Partial rewire involves replacing existing wiring within part or all of a property to bring the installation up to current standards. This usually includes stripping out obsolete cables, installing new routes in walls, floors or ceilings, and fitting new accessories. The work is often phased to keep disruption manageable for occupants and coordinated with other trades. A full set of tests is carried out at the end to verify safety, continuity and protective device performance.",
@@ -555,7 +561,7 @@ const ELECTRICIAN_CLUSTERS: Record<string, JobCluster> = {
     ]
   },
   "Additional sockets install": {
-    desc: "Additional sockets install is carried out within a domestic or small commercial environment to add or alter final circuits. The work typically involves isolating the relevant circuit at the consumer unit, removing any redundant accessories, and installing new cable routes and terminations. Attention is given to routing cables in safe zones, maintaining adequate mechanical protection and ensuring correct circuit ratings. The circuit is then tested for continuity, insulation resistance and earth fault loop impedance before being put back into service.",
+    desc: "Installing additional socket outlets involves extending existing ring or radial circuits to provide power where needed. Work includes chasing walls or installing surface trunking, fitting back boxes, and routing cables. Polarity and earth loop impedance are critical checks to ensure the extended circuit remains safe.",
     hazards: ["live_electricity", "manual_handling", "dust_fumes"],
     questions: [
       { id: "q1", label: "Have you identified and locked off the correct circuit at the consumer unit before starting the additional sockets install?" },
@@ -566,7 +572,7 @@ const ELECTRICIAN_CLUSTERS: Record<string, JobCluster> = {
     ]
   },
   "Indoor lighting upgrade/replacement": {
-    desc: "Indoor lighting upgrade/replacement is carried out within a domestic or small commercial environment to add or alter final circuits. The work typically involves isolating the relevant circuit at the consumer unit, removing any redundant accessories, and installing new cable routes and terminations. Attention is given to routing cables in safe zones, maintaining adequate mechanical protection and ensuring correct circuit ratings. The circuit is then tested for continuity, insulation resistance and earth fault loop impedance before being put back into service.",
+    desc: "Indoor lighting upgrades involve replacing luminaires, switches, or dimmers to improve illumination or efficiency. Work is often performed at height and requires safe isolation of lighting circuits. Attention is paid to circuit loading, earthing of metal fittings, and maintaining fire ratings where downlights are installed.",
     hazards: ["live_electricity", "work_at_height", "manual_handling"],
     questions: [
       { id: "q1", label: "Have you identified and locked off the correct circuit at the consumer unit before starting the indoor lighting upgrade/replacement?" },
@@ -698,7 +704,7 @@ const ELECTRICIAN_CLUSTERS: Record<string, JobCluster> = {
     ]
   },
   "Solar PV installation": {
-    desc: "Solar PV installation involves installing or modifying equipment that interfaces with the electrical supply to deliver vehicle charging, renewable generation or standby power. The task typically includes assessing supply capacity, routing suitably sized cabling, and mounting specialist equipment such as charge points, inverters, batteries or generators. Coordination with the Distribution Network Operator and adherence to relevant standards is often required. Commissioning checks confirm correct operation, safe disconnection arrangements and integration with the existing installation.",
+    desc: "Solar PV installation involves mounting photovoltaic panels on roofs and connecting them to inverters and the electrical supply. Work includes working at height, handling high-voltage DC cabling, and ensuring structural integrity. Connection to the grid requires adherence to G98/G99 standards and strict isolation procedures.",
     hazards: ["live_electricity", "work_at_height", "manual_handling", "fire_explosion", "environmental_weather", "falling_objects"],
     questions: [
       { id: "q1", label: "Has the existing supply capacity been assessed to confirm it can support the solar pv installation safely?" },
@@ -706,10 +712,12 @@ const ELECTRICIAN_CLUSTERS: Record<string, JobCluster> = {
       { id: "q3", label: "Will the equipment used in the solar pv installation be installed in locations with adequate ventilation and protection from damage?" },
       { id: "q4", label: "Are appropriate means of isolation clearly provided for both AC and DC sides where relevant to the solar pv installation?" },
       { id: "q5", label: "Will manufacturer commissioning procedures for the solar pv installation be followed and documented on completion?" }
-    ]
+    ],
+    complexity: "high",
+    extraSections: ["access_egress", "lifting_operations", "structural_integrity"]
   },
   "Battery storage system installation": {
-    desc: "Battery storage system installation involves installing or modifying equipment that interfaces with the electrical supply to deliver vehicle charging, renewable generation or standby power. The task typically includes assessing supply capacity, routing suitably sized cabling, and mounting specialist equipment such as charge points, inverters, batteries or generators. Coordination with the Distribution Network Operator and adherence to relevant standards is often required. Commissioning checks confirm correct operation, safe disconnection arrangements and integration with the existing installation.",
+    desc: "Battery storage installation involves fitting energy storage systems to store excess solar or grid energy. Work includes handling heavy battery units, installing inverters/chargers, and configuring monitoring systems. Fire safety, ventilation, and correct DC isolation are critical considerations.",
     hazards: ["live_electricity", "manual_handling", "fire_explosion", "stored_energy", "chemical_coshh"],
     questions: [
       { id: "q1", label: "Has the existing supply capacity been assessed to confirm it can support the battery storage system installation safely?" },
@@ -720,7 +728,7 @@ const ELECTRICIAN_CLUSTERS: Record<string, JobCluster> = {
     ]
   },
   "Generator installation": {
-    desc: "Generator installation (backup power) involves installing or modifying equipment that interfaces with the electrical supply to deliver vehicle charging, renewable generation or standby power. The task typically includes assessing supply capacity, routing suitably sized cabling, and mounting specialist equipment such as charge points, inverters, batteries or generators. Coordination with the Distribution Network Operator and adherence to relevant standards is often required. Commissioning checks confirm correct operation, safe disconnection arrangements and integration with the existing installation.",
+    desc: "Generator installation involves connecting backup power sources to the electrical installation. Work includes installing transfer switches, exhaust systems, and fuel storage. Ensuring correct earthing arrangements and preventing back-feed into the grid are essential safety measures.",
     hazards: ["live_electricity", "manual_handling", "fire_explosion", "noise_vibration", "dust_fumes"],
     questions: [
       { id: "q1", label: "Has the existing supply capacity been assessed to confirm it can support the generator installation (backup power) safely?" },
@@ -742,7 +750,7 @@ const ELECTRICIAN_CLUSTERS: Record<string, JobCluster> = {
     ]
   },
   "Cooker/oven/hob wiring": {
-    desc: "Cooker/oven/hob wiring is carried out within a domestic or small commercial environment to add or alter final circuits. The work typically involves isolating the relevant circuit at the consumer unit, removing any redundant accessories, and installing new cable routes and terminations. Attention is given to routing cables in safe zones, maintaining adequate mechanical protection and ensuring correct circuit ratings. The circuit is then tested for continuity, insulation resistance and earth fault loop impedance before being put back into service.",
+    desc: "Cooker and hob wiring involves installing high-current circuits for electric cooking appliances. This includes routing heavy-gauge cables, fitting control units (isolators), and connecting appliances. Heat resistance of flexes and correct fusing are essential safety considerations.",
     hazards: ["live_electricity", "manual_handling", "dust_fumes"],
     questions: [
       { id: "q1", label: "Have you identified and locked off the correct circuit at the consumer unit before starting the cooker/oven/hob wiring?" },
@@ -753,7 +761,7 @@ const ELECTRICIAN_CLUSTERS: Record<string, JobCluster> = {
     ]
   },
   "Electric shower circuit installation": {
-    desc: "Electric shower circuit installation is carried out within a domestic or small commercial environment to add or alter final circuits. The work typically involves isolating the relevant circuit at the consumer unit, removing any redundant accessories, and installing new cable routes and terminations. Attention is given to routing cables in safe zones, maintaining adequate mechanical protection and ensuring correct circuit ratings. The circuit is then tested for continuity, insulation resistance and earth fault loop impedance before being put back into service.",
+    desc: "Electric shower installation requires a dedicated high-power circuit from the consumer unit to the bathroom. Work involves routing cables through fabric, bonding pipes, and ensuring RCD protection. Water ingress protection (IP rating) and safe zoning in the bathroom are paramount.",
     hazards: ["live_electricity", "water_ingress", "manual_handling", "slips_trips"],
     questions: [
       { id: "q1", label: "Have you identified and locked off the correct circuit at the consumer unit before starting the electric shower circuit installation?" },
@@ -764,7 +772,7 @@ const ELECTRICIAN_CLUSTERS: Record<string, JobCluster> = {
     ]
   },
   "Loft wiring install": {
-    desc: "Loft wiring install is carried out within a domestic or small commercial environment to add or alter final circuits. The work typically involves isolating the relevant circuit at the consumer unit, removing any redundant accessories, and installing new cable routes and terminations. Attention is given to routing cables in safe zones, maintaining adequate mechanical protection and ensuring correct circuit ratings. The circuit is then tested for continuity, insulation resistance and earth fault loop impedance before being put back into service.",
+    desc: "Loft wiring involves installing lighting, power, or aerial amplifiers in roof spaces. Work is performed in cramped, often unfloored areas with insulation materials. Fire safety for downlights, mechanical protection for cables, and safe access are key concerns.",
     hazards: ["live_electricity", "work_at_height", "manual_handling", "dust_fumes", "confined_space"],
     questions: [
       { id: "q1", label: "Have you identified and locked off the correct circuit at the consumer unit before starting the loft wiring install?" },
@@ -775,7 +783,7 @@ const ELECTRICIAN_CLUSTERS: Record<string, JobCluster> = {
     ]
   },
   "Garage/outhouse electrics": {
-    desc: "Garage/outhouse electrics is carried out within a domestic or small commercial environment to add or alter final circuits. The work typically involves isolating the relevant circuit at the consumer unit, removing any redundant accessories, and installing new cable routes and terminations. Attention is given to routing cables in safe zones, maintaining adequate mechanical protection and ensuring correct circuit ratings. The circuit is then tested for continuity, insulation resistance and earth fault loop impedance before being put back into service.",
+    desc: "Garage and outhouse electrics involve supplying power to detached buildings. This typically requires installing SWA (armoured) cables, trenching, and fitting separate consumer units. RCD protection, weatherproofing of accessories, and correct earthing (exporting PME vs TT) are critical.",
     hazards: ["live_electricity", "manual_handling", "slips_trips", "environmental_weather"],
     questions: [
       { id: "q1", label: "Have you identified and locked off the correct circuit at the consumer unit before starting the garage/outhouse electrics?" },
@@ -786,7 +794,7 @@ const ELECTRICIAN_CLUSTERS: Record<string, JobCluster> = {
     ]
   },
   "Extension/renovation first fix": {
-    desc: "Extension/renovation first fix is carried out within a domestic or small commercial environment to add or alter final circuits. The work typically involves isolating the relevant circuit at the consumer unit, removing any redundant accessories, and installing new cable routes and terminations. Attention is given to routing cables in safe zones, maintaining adequate mechanical protection and ensuring correct circuit ratings. The circuit is then tested for continuity, insulation resistance and earth fault loop impedance before being put back into service.",
+    desc: "First fix electrical work involves installing cable routes, back boxes, and containment before plastering or boarding. Cables are routed in safe zones, capped, and labelled. No accessories are fitted at this stage, and cables are left safe for other trades to work around.",
     hazards: ["live_electricity", "manual_handling", "dust_fumes", "slips_trips", "work_at_height"],
     questions: [
       { id: "q1", label: "Have you identified and locked off the correct circuit at the consumer unit before starting the extension/renovation first fix?" },
@@ -797,7 +805,7 @@ const ELECTRICIAN_CLUSTERS: Record<string, JobCluster> = {
     ]
   },
   "Extension/renovation second fix": {
-    desc: "Extension/renovation second fix is carried out within a domestic or small commercial environment to add or alter final circuits. The work typically involves isolating the relevant circuit at the consumer unit, removing any redundant accessories, and installing new cable routes and terminations. Attention is given to routing cables in safe zones, maintaining adequate mechanical protection and ensuring correct circuit ratings. The circuit is then tested for continuity, insulation resistance and earth fault loop impedance before being put back into service.",
+    desc: "Second fix electrical work involves terminating cables into accessories (sockets, switches, lights) after plastering is complete. This stage includes final circuit testing, labelling the consumer unit, and verifying system safety before energising. Care is taken to protect finished surfaces.",
     hazards: ["live_electricity", "manual_handling", "dust_fumes", "slips_trips"],
     questions: [
       { id: "q1", label: "Have you identified and locked off the correct circuit at the consumer unit before starting the extension/renovation second fix?" },
@@ -1089,7 +1097,7 @@ const PLUMBER_CLUSTERS = {
     ]
   },
   "Combi boiler swap": {
-    desc: "Combi boiler swap involves working on domestic wet heating systems to provide reliable space and water heating. The task typically includes isolating gas, water and electrical supplies, removing or modifying existing appliances or components, and connecting new equipment in line with design requirements. Flue routes, ventilation and condensate disposal must be checked to ensure they comply with current standards. On completion, the system is filled, purged and commissioned, with safety checks and settings documented for the householder.",
+    desc: "Combi boiler swap involves replacing an existing combination boiler with a new model. Work includes draining the system, removing the old unit, flushing the system, and installing the new boiler with correct flue and condensate arrangements. Commissioning includes gas rate checks and flue gas analysis.",
     hazards: ["gas", "hot_work", "manual_handling", "chemical_coshh", "dust_fumes"],
     questions: [
       { id: "q1", label: "Have you confirmed that the existing flue and ventilation arrangements are suitable for the combi boiler swap?" },
@@ -1100,7 +1108,7 @@ const PLUMBER_CLUSTERS = {
     ]
   },
   "Boiler service": {
-    desc: "Boiler service involves working on domestic wet heating systems to provide reliable space and water heating. The task typically includes isolating gas, water and electrical supplies, removing or modifying existing appliances or components, and connecting new equipment in line with design requirements. Flue routes, ventilation and condensate disposal must be checked to ensure they comply with current standards. On completion, the system is filled, purged and commissioned, with safety checks and settings documented for the householder.",
+    desc: "Boiler service involves a routine inspection and maintenance of a gas boiler. Work includes checking flue integrity, gas pressure, combustion analysis, and cleaning the condensate trap and magnetic filter. A service record is issued to the client.",
     hazards: ["gas", "hot_work", "manual_handling", "chemical_coshh", "dust_fumes"],
     questions: [
       { id: "q1", label: "Have you confirmed that the existing flue and ventilation arrangements are suitable for the boiler service?" },
@@ -1111,7 +1119,7 @@ const PLUMBER_CLUSTERS = {
     ]
   },
   "Boiler repair": {
-    desc: "Boiler repair involves working on domestic wet heating systems to provide reliable space and water heating. The task typically includes isolating gas, water and electrical supplies, removing or modifying existing appliances or components, and connecting new equipment in line with design requirements. Flue routes, ventilation and condensate disposal must be checked to ensure they comply with current standards. On completion, the system is filled, purged and commissioned, with safety checks and settings documented for the householder.",
+    desc: "Boiler repair involves diagnosing and fixing faults in a heating system. Work includes testing components (pump, fan, PCB), replacing defective parts, and verifying safe operation after repair. Electrical safety checks are carried out on replaced components.",
     hazards: ["gas", "hot_work", "manual_handling", "chemical_coshh", "dust_fumes"],
     questions: [
       { id: "q1", label: "Have you confirmed that the existing flue and ventilation arrangements are suitable for the boiler repair?" },
@@ -1243,7 +1251,7 @@ const PLUMBER_CLUSTERS = {
     ]
   },
   "Shower installation": {
-    desc: "Shower installation is focused on installing or upgrading sanitaryware and fittings within bathrooms, cloakrooms or kitchens. The task typically includes isolating local supplies, removing old fixtures, adjusting pipework and fixing new units securely in place. Waste connections, seals and waterproofing details must be carefully executed to avoid future leaks or water damage. Final checks confirm that all outlets drain freely, operate correctly and meet the client's expectations for appearance and function.",
+    desc: "Shower installation involves fitting a new shower valve and riser. Work includes routing hot and cold supplies, fixing the valve securely, and ensuring watertight seals at pipe entries and tiling. Thermostatic mixing valves are calibrated to prevent scalding.",
     hazards: ["manual_handling", "water_ingress", "silica_dust", "biological", "slips_trips"],
     questions: [
       { id: "q1", label: "Have you identified all isolation points needed to safely undertake the shower installation?" },
@@ -1254,7 +1262,7 @@ const PLUMBER_CLUSTERS = {
     ]
   },
   "Toilet repair/replacement": {
-    desc: "Toilet repair/replacement is focused on installing or upgrading sanitaryware and fittings within bathrooms, cloakrooms or kitchens. The task typically includes isolating local supplies, removing old fixtures, adjusting pipework and fixing new units securely in place. Waste connections, seals and waterproofing details must be carefully executed to avoid future leaks or water damage. Final checks confirm that all outlets drain freely, operate correctly and meet the client's expectations for appearance and function.",
+    desc: "Toilet repair/replacement involves fixing leaks or replacing the entire WC suite. Work includes isolating water, removing the old pan/cistern, installing the new unit, and testing the flush and soil connection. Care is taken to ensure a gas-tight seal at the pan connector.",
     hazards: ["manual_handling", "water_ingress", "biological", "slips_trips"],
     questions: [
       { id: "q1", label: "Have you identified all isolation points needed to safely undertake the toilet repair/replacement?" },
@@ -1265,7 +1273,7 @@ const PLUMBER_CLUSTERS = {
     ]
   },
   "Sink/vanity install": {
-    desc: "Sink/vanity install is focused on installing or upgrading sanitaryware and fittings within bathrooms, cloakrooms or kitchens. The task typically includes isolating local supplies, removing old fixtures, adjusting pipework and fixing new units securely in place. Waste connections, seals and waterproofing details must be carefully executed to avoid future leaks or water damage. Final checks confirm that all outlets drain freely, operate correctly and meet the client's expectations for appearance and function.",
+    desc: "Sink and vanity installation involves fitting basins and cabinetry. Work includes assembling units, cutting worktops for waste/taps, connecting supplies, and sealing edges with silicone. Waste traps are fitted to prevent foul odours.",
     hazards: ["manual_handling", "water_ingress", "silica_dust", "slips_trips"],
     questions: [
       { id: "q1", label: "Have you identified all isolation points needed to safely undertake the sink/vanity install?" },
@@ -1276,7 +1284,7 @@ const PLUMBER_CLUSTERS = {
     ]
   },
   "Mixer tap replacement": {
-    desc: "Mixer tap replacement is focused on installing or upgrading sanitaryware and fittings within bathrooms, cloakrooms or kitchens. The task typically includes isolating local supplies, removing old fixtures, adjusting pipework and fixing new units securely in place. Waste connections, seals and waterproofing details must be carefully executed to avoid future leaks or water damage. Final checks confirm that all outlets drain freely, operate correctly and meet the client's expectations for appearance and function.",
+    desc: "Mixer tap replacement involves swapping kitchen or bathroom taps. Work includes isolating supplies, undoing backnuts in tight spaces, fitting the new tap with check valves, and testing for leaks. Flexible tails are often used for ease of connection.",
     hazards: ["manual_handling", "water_ingress", "slips_trips"],
     questions: [
       { id: "q1", label: "Have you identified all isolation points needed to safely undertake the mixer tap replacement?" },
@@ -1320,7 +1328,7 @@ const PLUMBER_CLUSTERS = {
     ]
   },
   "Drain unblocking": {
-    desc: "Drain unblocking concerns below-ground or external above-ground drainage systems carrying foul or surface water. Tasks often include lifting access covers, clearing blockages, replacing defective sections of pipework and checking gradients or connections. Safe working methods are required around open excavations, confined spaces and possible biological contamination. Completion involves testing flows, reinstating surfaces and leaving the drainage system functioning correctly and safely.",
+    desc: "Drain unblocking involves clearing obstructions in foul or surface water drains. Work includes using rods or high-pressure jetting, identifying the cause (grease, roots, wipes), and confirming free flow. Hygiene and PPE are critical due to biological hazards.",
     hazards: ["biological", "confined_space", "manual_handling", "slips_trips", "public_interface"],
     questions: [
       { id: "q1", label: "Have you checked for underground services that could be disturbed during the drain unblocking?" },
@@ -1331,7 +1339,7 @@ const PLUMBER_CLUSTERS = {
     ]
   },
   "Drain CCTV survey": {
-    desc: "Drain CCTV survey concerns below-ground or external above-ground drainage systems carrying foul or surface water. Tasks often include lifting access covers, clearing blockages, replacing defective sections of pipework and checking gradients or connections. Safe working methods are required around open excavations, confined spaces and possible biological contamination. Completion involves testing flows, reinstating surfaces and leaving the drainage system functioning correctly and safely.",
+    desc: "Drain CCTV survey involves inspecting pipework internals using a camera. Work includes inserting the camera, recording footage, identifying defects (cracks, displaced joints), and producing a report. No excavation is typically required.",
     hazards: ["biological", "confined_space", "slips_trips", "public_interface"],
     questions: [
       { id: "q1", label: "Have you checked for underground services that could be disturbed during the drain cctv survey?" },
@@ -1342,7 +1350,7 @@ const PLUMBER_CLUSTERS = {
     ]
   },
   "Soil stack repair/replacement": {
-    desc: "Soil stack repair/replacement concerns below-ground or external above-ground drainage systems carrying foul or surface water. Tasks often include lifting access covers, clearing blockages, replacing defective sections of pipework and checking gradients or connections. Safe working methods are required around open excavations, confined spaces and possible biological contamination. Completion involves testing flows, reinstating surfaces and leaving the drainage system functioning correctly and safely.",
+    desc: "Soil stack repair involves fixing leaks or replacing sections of the main vertical waste pipe. Work includes working at height, supporting the stack, cutting out damaged sections, and inserting new collars or slip couplers. Fire stopping is checked where stacks pass through floors.",
     hazards: ["biological", "work_at_height", "manual_handling", "slips_trips"],
     questions: [
       { id: "q1", label: "Have you checked for underground services that could be disturbed during the soil stack repair/replacement?" },
@@ -1386,7 +1394,7 @@ const PLUMBER_CLUSTERS = {
     ]
   },
   "Dishwasher plumbing": {
-    desc: "Dishwasher plumbing involves making final connections to appliances, taps and wastes after kitchen units and worktops are in place. The plumber carefully cuts into units where necessary, fits valves and flexible connectors, and connects traps and wastes. Care is taken to avoid damaging new finishes and to route pipework in a neat, accessible manner. A full functional test is carried out to confirm all appliances and outlets fill, drain and shut off properly.",
+    desc: "Dishwasher plumbing involves connecting the appliance to water and waste. Work includes cutting into the waste pipe for a spigot, fitting a washing machine valve, and pushing the unit into place without kinking hoses. The appliance is levelled and tested.",
     hazards: ["manual_handling", "water_ingress", "slips_trips"],
     questions: [
       { id: "q1", label: "Will you verify that worktops and cabinets are securely fixed before starting the dishwasher plumbing?" },
@@ -1397,7 +1405,7 @@ const PLUMBER_CLUSTERS = {
     ]
   },
   "Washing machine plumbing": {
-    desc: "Washing machine plumbing involves making final connections to appliances, taps and wastes after kitchen units and worktops are in place. The plumber carefully cuts into units where necessary, fits valves and flexible connectors, and connects traps and wastes. Care is taken to avoid damaging new finishes and to route pipework in a neat, accessible manner. A full functional test is carried out to confirm all appliances and outlets fill, drain and shut off properly.",
+    desc: "Washing machine plumbing involves connecting the appliance to water and waste. Work includes removing transit bolts, connecting the inlet hose, securing the waste hose, and levelling the machine. Leaks are checked during a test cycle.",
     hazards: ["manual_handling", "water_ingress", "slips_trips"],
     questions: [
       { id: "q1", label: "Will you verify that worktops and cabinets are securely fixed before starting the washing machine plumbing?" },
@@ -1463,7 +1471,7 @@ const PLUMBER_CLUSTERS = {
     ]
   },
   "Macerator toilet installation": {
-    desc: "Macerator toilet installation is focused on installing or upgrading sanitaryware and fittings within bathrooms, cloakrooms or kitchens. The task typically includes isolating local supplies, removing old fixtures, adjusting pipework and fixing new units securely in place. Waste connections, seals and waterproofing details must be carefully executed to avoid future leaks or water damage. Final checks confirm that all outlets drain freely, operate correctly and meet the client’s expectations for appearance and function.",
+    desc: "Macerator toilet installation involves fitting a pump-assisted WC. Work includes connecting the small-bore discharge pipe, electrical connection (fused spur), and ensuring correct falls for waste removal. Access for maintenance is critical.",
     hazards: ["manual_handling", "water_ingress", "slips_trips", "biological", "live_electricity"],
     questions: [
       { id: "q1", label: "Have you identified all isolation points needed to safely undertake the macerator toilet installation?" },
@@ -1518,7 +1526,7 @@ const PLUMBER_CLUSTERS = {
     ]
   },
   "Heating pump replacement": {
-    desc: "Heating pump replacement involves working on domestic wet heating systems to provide reliable space and water heating. The task typically includes isolating gas, water and electrical supplies, removing or modifying existing appliances or components, and connecting new equipment in line with design requirements. Flue routes, ventilation and condensate disposal must be checked to ensure they comply with current standards. On completion, the system is filled, purged and commissioned, with safety checks and settings documented for the householder.",
+    desc: "Heating pump replacement involves swapping a defective circulation pump. Work includes isolating valves, electrical disconnection, installing the new pump, and checking for leaks and correct flow. The system is vented to remove air locks.",
     hazards: ["manual_handling", "water_ingress", "live_electricity"],
     questions: [
       { id: "q1", label: "Have you confirmed that the existing flue and ventilation arrangements are suitable for the heating pump replacement?" },
@@ -1529,7 +1537,7 @@ const PLUMBER_CLUSTERS = {
     ]
   },
   "Expansion vessel replacement": {
-    desc: "Expansion vessel replacement involves working on domestic wet heating systems to provide reliable space and water heating. The task typically includes isolating gas, water and electrical supplies, removing or modifying existing appliances or components, and connecting new equipment in line with design requirements. Flue routes, ventilation and condensate disposal must be checked to ensure they comply with current standards. On completion, the system is filled, purged and commissioned, with safety checks and settings documented for the householder.",
+    desc: "Expansion vessel replacement involves changing a failed pressure vessel. Work includes depressurising the system, draining if necessary, recharging the new vessel to the correct pre-charge, and testing system pressure. The relief valve is also checked.",
     hazards: ["manual_handling", "water_ingress", "stored_energy"],
     questions: [
       { id: "q1", label: "Have you confirmed that the existing flue and ventilation arrangements are suitable for the expansion vessel replacement?" },
@@ -1551,7 +1559,7 @@ const PLUMBER_CLUSTERS = {
     ]
   },
   "Wet room plumbing install": {
-    desc: "Wet room plumbing install is focused on installing or upgrading sanitaryware and fittings within bathrooms, cloakrooms or kitchens. The task typically includes isolating local supplies, removing old fixtures, adjusting pipework and fixing new units securely in place. Waste connections, seals and waterproofing details must be carefully executed to avoid future leaks or water damage. Final checks confirm that all outlets drain freely, operate correctly and meet the client’s expectations for appearance and function.",
+    desc: "Wet room plumbing involves installing drainage and feeds for a level-access shower. Work includes setting the floor former, installing the trap, tanking the area, and fitting the shower valve. Gradient checks are essential for drainage.",
     hazards: ["manual_handling", "water_ingress", "slips_trips", "silica_dust", "chemical_coshh"],
     questions: [
       { id: "q1", label: "Have you identified all isolation points needed to safely undertake the wet room plumbing install?" },
@@ -1627,7 +1635,7 @@ const PLUMBER_CLUSTERS = {
       { id: "q5", label: "Will you coordinate the commercial toilet/urinal install with other trades such as tilers, partition installers and electricians?" }
     ]
   },
-   "Other (Custom)": {
+  "Other (Custom)": {
     desc: "",
     hazards: [],
     questions: [
@@ -2195,7 +2203,7 @@ const ROOFER_CLUSTERS: Record<string, JobCluster> = {
       { id: "q5", label: "Will outlets and falls be checked and adjusted where feasible as part of the roof membrane installation?" }
     ]
   },
-   "Other (Custom)": {
+  "Other (Custom)": {
     desc: "",
     hazards: [],
     questions: [

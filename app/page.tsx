@@ -2,8 +2,6 @@
 
 import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
-import jsPDF from "jspdf";
-import autoTable from "jspdf-autotable";
 import {
   Loader2,
   MapPin,
@@ -13,9 +11,11 @@ import {
   FileText,
   User,
   Settings,
-  ChevronLeft,
   ChevronRight,
   LayoutDashboard,
+  MoreVertical,
+  Edit2,
+  Trash2,
 } from "lucide-react";
 
 import {
@@ -24,6 +24,11 @@ import {
   HAZARD_DATA,
   JobCluster,
 } from "./lib/constants";
+
+import MyFileViewer, { RAMSFile } from "./components/MyFileViewer";
+import { generateRAMSHTML, RAMSData } from "./lib/rams-generation";
+import Toast, { ToastType } from "./components/Toast";
+import ConfirmationModal from "./components/ConfirmationModal";
 
 // --- SMALL TEXT SANITISER ---
 function sanitizeText(input: any): string {
@@ -38,22 +43,45 @@ function sanitizeText(input: any): string {
 
 // Single greeting – no rotation
 const BASE_GREETING = "Welcome back";
-// Slightly faster typing
-const TYPE_SPEED = 30;
 
-const HAZARD_TIP =
-  "Please ensure you select all relevant hazards – this section directly shapes the risk assessment in your document.";
+const TITLE_COLORS = ["text-[#0b2040]", "text-red-700", "text-black"];
 
-const TITLE_COLORS = ["text-[#0b2040]", "text-red-700", "text-black"] as const;
+// --- TYPED TEXT COMPONENT ---
+const TypedText = ({
+  text,
+  className,
+}: {
+  text: string;
+  className?: string;
+}) => {
+  const [display, setDisplay] = useState("");
 
-// Step titles for typewriter
-const STEP_TITLES: Record<number, string> = {
-  1: "Name your RAMS document",
-  2: "Company & Project Details",
-  3: "Job Scope & Pre-Start Checks",
-  4: "Safety & Emergency Info",
-  5: "Hazards & Risk Controls",
+  useEffect(() => {
+    setDisplay("");
+    let i = 0;
+    const id = setInterval(() => {
+      i += 1;
+      setDisplay(text.slice(0, i));
+      if (i >= text.length) clearInterval(id);
+    }, 30);
+    return () => clearInterval(id);
+  }, [text]);
+
+  return <span className={className}>{display}</span>;
 };
+
+// --- CLICK OUTSIDE HOOK ---
+function useClickOutside(action: () => void) {
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      action();
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [action]);
+}
 
 // --- UI COMPONENTS ---
 const Tooltip = ({ text }: { text: string }) => (
@@ -137,10 +165,14 @@ function AddressSearch({
 
 // --- MAIN APPLICATION ---
 function Page() {
-  const [mode, setMode] = useState<"landing" | "wizard">("landing");
-  const [step, setStep] = useState(1); // 1–5 in wizard mode
+  const [mode, setMode] = useState<"landing" | "wizard" | "viewer">("landing");
+  // 0 = pre-step (name doc), 1–5 = wizard steps
+  const [step, setStep] = useState(1);
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [isGenerating, setIsGenerating] = useState(false);
+  const [toast, setToast] = useState<{ msg: string; type: ToastType } | null>(null);
+  const [deleteModal, setDeleteModal] = useState<{ isOpen: boolean; fileId: string | null; fileName: string } | null>(null);
+  const [warningsShown, setWarningsShown] = useState<number[]>([]);
 
   const [documentName, setDocumentName] = useState("");
 
@@ -155,8 +187,8 @@ function Page() {
     projectRef: "",
     siteAddress: "",
     startDate: new Date().toISOString().split("T")[0],
-    endDate: new Date().toISOString().split("T")[0],
-    expectedEndDate: new Date().toISOString().split("T")[0],
+    endDate: "",
+    expectedEndDate: "",
     duration: "1 Day",
     operatives: "1",
     trade: "Electrician",
@@ -174,6 +206,10 @@ function Page() {
     customDescription: "",
     customJobTitle: "",
     customJobDescription: "",
+    // Branding for future PDF styling if needed
+    brandPrimaryColor: "black",
+    brandSecondaryColor: "white",
+    extraData: {} as Record<string, string>,
   });
 
   const [hazards, setHazards] = useState<string[]>([]);
@@ -184,20 +220,29 @@ function Page() {
   const [jobSearch, setJobSearch] = useState("");
   const [jobSearchOpen, setJobSearchOpen] = useState(false);
 
-  // Greeting typing (landing)
+  // Greeting typing (no rotation)
   const [typedGreeting, setTypedGreeting] = useState("");
-
-  // Hazard tip typing (hazard step)
-  const [hazardTipText, setHazardTipText] = useState("");
-
-  // Step title typing
-  const [typedStepTitle, setTypedStepTitle] = useState("");
 
   // Title color rotation
   const [titleColorIndex, setTitleColorIndex] = useState(0);
 
   // Scroll container for the right (white) panel
   const mainScrollRef = useRef<HTMLDivElement | null>(null);
+
+  // Files (locally persisted)
+  const [recentFiles, setRecentFiles] = useState<RAMSFile[]>([]);
+  const [activeFile, setActiveFile] = useState<RAMSFile | null>(null);
+  const [fileMenuOpenId, setFileMenuOpenId] = useState<string | null>(null);
+  const [isLoaded, setIsLoaded] = useState(false);
+
+  // Close menu on outside click
+  useEffect(() => {
+    const handleClickOutside = () => setFileMenuOpenId(null);
+    if (fileMenuOpenId) {
+      document.addEventListener('click', handleClickOutside);
+    }
+    return () => document.removeEventListener('click', handleClickOutside);
+  }, [fileMenuOpenId]);
 
   // Precomputed full list of jobs for search
   const allJobs = Object.entries(TRADES).flatMap(
@@ -212,21 +257,62 @@ function Page() {
     jobSearch.trim().length < 2
       ? []
       : allJobs
-          .filter((j) =>
-            j.name.toLowerCase().includes(jobSearch.toLowerCase())
-          )
-          .slice(0, 8);
+        .filter((j) =>
+          j.name.toLowerCase().includes(jobSearch.toLowerCase())
+        )
+        .slice(0, 8);
 
-  const currentStepTitle = STEP_TITLES[step] || "";
-
-  // Scroll only the main panel to top when step changes
+  // Load files from localStorage
   useEffect(() => {
-    if (mainScrollRef.current) {
+    try {
+      const raw = typeof window !== "undefined"
+        ? window.localStorage.getItem("rams-files-v1")
+        : null;
+      if (raw) {
+        const parsed = JSON.parse(raw) as RAMSFile[];
+        if (Array.isArray(parsed)) {
+          setRecentFiles(parsed);
+        }
+      }
+    } catch (err) {
+      console.error("Failed to load RAMS files from localStorage", err);
+    } finally {
+      setIsLoaded(true);
+    }
+  }, []);
+
+  // Persist files to localStorage
+  useEffect(() => {
+    if (!isLoaded) return;
+    try {
+      if (typeof window !== "undefined") {
+        window.localStorage.setItem(
+          "rams-files-v1",
+          JSON.stringify(recentFiles)
+        );
+      }
+    } catch (err) {
+      console.error("Failed to save RAMS files to localStorage", err);
+    }
+  }, [recentFiles, isLoaded]);
+
+  // Close file context menu on outside click
+  useEffect(() => {
+    const handler = () => setFileMenuOpenId(null);
+    if (typeof window !== "undefined") {
+      window.addEventListener("click", handler);
+      return () => window.removeEventListener("click", handler);
+    }
+  }, []);
+
+  // Scroll only the main panel to top when step changes (wizard only)
+  useEffect(() => {
+    if (mainScrollRef.current && mode === "wizard") {
       mainScrollRef.current.scrollTo({ top: 0, behavior: "smooth" });
     }
-  }, [step]);
+  }, [step, mode]);
 
-  // Type-out effect for greeting once whenever we go to landing
+  // Type-out effect for greeting once whenever we return to landing
   useEffect(() => {
     if (mode !== "landing") return;
     const full = BASE_GREETING;
@@ -238,42 +324,9 @@ function Page() {
       if (i >= full.length) {
         clearInterval(id);
       }
-    }, TYPE_SPEED);
+    }, 45);
     return () => clearInterval(id);
   }, [mode]);
-
-  // Type-out effect for hazard tip when on step 5
-  useEffect(() => {
-    if (mode !== "wizard" || step !== 5) return;
-    const full = HAZARD_TIP;
-    setHazardTipText("");
-    let i = 0;
-    const id = setInterval(() => {
-      i += 1;
-      setHazardTipText(full.slice(0, i));
-      if (i >= full.length) {
-        clearInterval(id);
-      }
-    }, TYPE_SPEED);
-    return () => clearInterval(id);
-  }, [mode, step]);
-
-  // Type-out effect for step titles (1–5)
-  useEffect(() => {
-    if (mode !== "wizard") return;
-    const full = STEP_TITLES[step] || "";
-    setTypedStepTitle("");
-    if (!full) return;
-    let i = 0;
-    const id = setInterval(() => {
-      i += 1;
-      setTypedStepTitle(full.slice(0, i));
-      if (i >= full.length) {
-        clearInterval(id);
-      }
-    }, TYPE_SPEED);
-    return () => clearInterval(id);
-  }, [mode, step]);
 
   // Rotate color of "RS Wizard v1.0" while in wizard mode
   useEffect(() => {
@@ -309,15 +362,14 @@ function Page() {
       ...prev,
       customDescription:
         formData.jobType === "Other (Custom)"
-          ? prev.customDescription || ""
+          ? ""
           : clusterData.desc || "",
+      extraData: {},
     }));
 
     setHazards(clusterData.hazards || []);
     const qs = clusterData.questions || [];
     setQuestions(qs);
-
-    // reset answers, no default Yes/No
     setAnswers({});
   }, [formData.jobType, formData.trade]);
 
@@ -348,45 +400,58 @@ function Page() {
       prev.includes(h) ? prev.filter((i) => i !== h) : [...prev, h]
     );
 
-  const goBackToHub = () => {
-    setMode("landing");
-    setStep(1);
+  const confirmDelete = () => {
+    if (!deleteModal?.fileId) return;
+    setRecentFiles((prev) => prev.filter((f) => f.id !== deleteModal.fileId));
+    if (activeFile?.id === deleteModal.fileId) {
+      setActiveFile(null);
+      setMode("landing");
+    }
+    setDeleteModal(null);
+    setFileMenuOpenId(null);
   };
 
   const nextStep = () => {
-    // Step 2 = Company & Project validation
+    if (step === 0) return;
+
+    let errorMsg = "";
     if (
-      step === 2 &&
+      step === 1 &&
       (!formData.companyName ||
         !formData.officeAddress ||
         !formData.contactName)
     ) {
-      alert(
-        "⚠️ Please fill in Company Name, Office Address and Competent Person."
-      );
-      return;
-    }
-
-    // Step 3 = Job Scope validation
-    if (
-      step === 3 &&
+      errorMsg = "Please fill in Company Name, Office Address and Competent Person.";
+    } else if (
+      step === 2 &&
       (!formData.clientName || !formData.siteAddress || !formData.jobType)
     ) {
-      alert(
-        "⚠️ Please fill in Client, Site Address and select a Job Type before continuing."
-      );
-      return;
+      errorMsg = "Please fill in Client, Site Address and select a Job Type.";
     }
 
-    setStep((prev) => Math.min(prev + 1, 5));
+    if (errorMsg) {
+      // Warn once logic
+      if (!warningsShown.includes(step)) {
+        setToast({
+          msg: errorMsg,
+          type: "error",
+        });
+        setWarningsShown((prev) => [...prev, step]);
+        return; // Block first time
+      }
+      // If warning already shown, allow proceed (user ignores warning)
+    }
+
+    if (step >= 5) return;
+    setStep((prev) => prev + 1);
   };
 
   const prevStep = () => {
     if (step === 1) {
-      goBackToHub();
+      setStep(0);
       return;
     }
-    setStep((prev) => Math.max(prev - 1, 1));
+    setStep((prev) => (prev > 0 ? prev - 1 : prev));
   };
 
   // Build Scope of Works string from current form fields
@@ -419,16 +484,22 @@ function Page() {
   };
 
   const generateRAMS = async () => {
+    // Hard validation on critical safety bits
     if (
       !formData.supervisorName ||
       !formData.firstAider ||
       !formData.hospital ||
       !formData.fireAssembly
     ) {
-      alert(
-        "⚠️ Please complete Supervisor, First Aider, Hospital and Fire Assembly details (use 'N/A' if unknown)."
-      );
-      return;
+      if (!warningsShown.includes(99)) {
+        setToast({
+          msg: "Please complete Supervisor, First Aider, Hospital and Fire Assembly details.",
+          type: "error",
+        });
+        setWarningsShown((prev) => [...prev, 99]);
+        return;
+      }
+      // Allow proceed on second attempt
     }
 
     const composedScope = buildScopeFromForm();
@@ -443,595 +514,179 @@ function Page() {
           hazards,
           answers,
           customDescription: composedScope,
+          extraData: formData.extraData,
         }),
       });
 
       let apiData: any = {};
-
       if (res.ok) {
         apiData = await res.json();
       } else {
         const errorBody = await res.json().catch(() => ({} as any));
         console.error("API Failed:", res.status, errorBody);
         alert(
-          `AI API error (${res.status}): ${
-            (errorBody as any)?.error ||
-            (errorBody as any)?.message ||
-            "Check browser console and Vercel logs."
+          `AI API error (${res.status}): ${(errorBody as any)?.error ||
+          (errorBody as any)?.message ||
+          "Check browser console and Vercel logs."
           }`
         );
       }
 
-      createPDF(apiData || {});
+      const safeCompany =
+        formData.companyName?.trim().length > 0
+          ? formData.companyName.replace(/ /g, "_")
+          : "RAMS";
+
+      const safeDocName = documentName.trim().length
+        ? documentName.trim().replace(/\s+/g, "_")
+        : `RAMS_${safeCompany}`;
+
+      const ramsData: RAMSData = {
+        companyName: formData.companyName,
+        clientName: formData.clientName,
+        siteAddress: formData.siteAddress,
+        projectRef: formData.projectRef,
+        contactName: formData.contactName,
+        startDate: formData.startDate,
+        trade: formData.trade,
+        jobType: formData.jobType,
+        supervisorName: formData.supervisorName,
+        firstAider: formData.firstAider,
+        hospital: formData.hospital,
+        fireAssembly: formData.fireAssembly,
+        firstAidLoc: formData.firstAidLoc,
+        welfare: formData.welfare,
+        scopeText: sanitizeText(
+          apiData.summary ||
+          composedScope ||
+          "Standard works as per industry guidelines."
+        ),
+        checklist: questions.map((q: any) => ({
+          label: q.label,
+          answer: answers[q.id] || "N/A",
+        })),
+        hazards: hazards,
+        methodSteps: apiData.method_steps || [
+          "5.1 PRE-START: Arrive on site and verify conditions.",
+          "5.2 SAFETY: Set up safe system of work.",
+          `5.3 EXECUTION: Carry out ${formData.jobType || "the works"}.`,
+          "5.4 COMPLETION: Test, tidy and hand over.",
+        ],
+        coshh: apiData.coshh || [],
+        documentName: documentName || safeDocName,
+        ppe: TRADES[formData.trade]?.clusters[formData.jobType]?.ppe || [],
+        operatives: formData.operatives,
+      };
+
+      const htmlContent = generateRAMSHTML(ramsData);
+
+      const now = new Date();
+      const newFile: RAMSFile = {
+        id: now.getTime().toString(),
+        name: safeDocName,
+        createdAt: now.toLocaleString(),
+        content: htmlContent,
+      };
+
+      setRecentFiles((prev) => [newFile, ...prev].slice(0, 20));
+      setActiveFile(newFile);
+      setMode("viewer");
     } catch (e: any) {
       console.error("Frontend fetch error:", e);
-      alert(`Frontend fetch error: ${e.message || e}`);
-      createPDF({});
+      setToast({
+        msg: `Frontend fetch error: ${e.message || e}`,
+        type: "error",
+      });
     } finally {
       setIsGenerating(false);
     }
   };
 
-  // --- PDF ENGINE ---
-  const createPDF = (apiData: any) => {
-    const doc = new jsPDF();
-    const pageWidth = 210;
-    const pageHeight = 297;
-    const margin = 14;
-    const contentWidth = pageWidth - margin * 2;
-    let currentY = margin;
-
-    const checkPageBreak = (needed: number) => {
-      if (currentY + needed > pageHeight - margin) {
-        doc.addPage();
-        currentY = margin + 15;
-        drawHeader(doc);
-        return true;
-      }
-      return false;
-    };
-
-    const toTitleCase = (str: string) =>
-      str.replace(/\w\S*/g, (txt) => {
-        return (
-          txt.charAt(0).toUpperCase() +
-          txt.substr(1).toLowerCase()
-        );
-      });
-
-    const drawHeader = (docInstance: any) => {
-      docInstance.setDrawColor(0);
-      docInstance.setLineWidth(0.1);
-      docInstance.setFont("helvetica", "bold");
-      docInstance.setFontSize(11);
-      docInstance.text(
-        "RISK ASSESSMENT & METHOD STATEMENT",
-        margin,
-        12
-      );
-      docInstance.setFontSize(9);
-      docInstance.setFont("helvetica", "normal");
-      docInstance.text(
-        `Ref: ${formData.projectRef || "N/A"} | RAMS Date: ${
-          formData.startDate
-        }`,
-        pageWidth - margin,
-        12,
-        { align: "right" }
-      );
-      docInstance.line(margin, 15, pageWidth - margin, 15);
-    };
-
-    const drawFooter = (
-      docInstance: any,
-      i: number,
-      total: number
-    ) => {
-      docInstance.setFontSize(8);
-      docInstance.setTextColor(0);
-      docInstance.text(
-        `Site: ${formData.siteAddress}`,
-        margin,
-        pageHeight - 10
-      );
-      docInstance.text(
-        `Page ${i} of ${total}`,
-        pageWidth - margin,
-        pageHeight - 10,
-        { align: "right" }
-      );
-    };
-
-    // 1. PROJECT & JOB DETAILS
-    drawHeader(doc);
-    currentY = 25;
-    doc.setTextColor(0);
-    doc.setFontSize(11);
-    doc.setFont("helvetica", "bold");
-    doc.text("1. PROJECT & JOB DETAILS", margin, currentY);
-    currentY += 6;
-
-    const projectRows: any[] = [
-      ["Company Name", sanitizeText(formData.companyName)],
-      ["Client", sanitizeText(formData.clientName)],
-      [
-        "Job / Task Title",
-        sanitizeText(
-          `${formData.trade} - ${
-            formData.jobType ? toTitleCase(formData.jobType) : ""
-          }`
-        ),
-      ],
-      ["Site Address", sanitizeText(formData.siteAddress)],
-      ["RAMS Date", sanitizeText(formData.startDate)],
-      ["Job Start Date", sanitizeText(formData.startDate)],
-      ["Job End Date", sanitizeText(formData.endDate)],
-      [
-        "Prepared By",
-        sanitizeText(`${formData.contactName} (Competent Person)`),
-      ],
-      [
-        "Operatives",
-        sanitizeText(formData.operatives || "1"),
-      ],
-    ];
-
-    if (formData.expectedEndDate) {
-      projectRows.splice(6, 0, [
-        "Expected End Date",
-        sanitizeText(formData.expectedEndDate),
-      ]);
-    }
-
-    if (formData.contactEmail) {
-      projectRows.push([
-        "Contact Email",
-        sanitizeText(formData.contactEmail),
-      ]);
-    }
-    if (formData.contactPhone) {
-      projectRows.push([
-        "Contact Phone",
-        sanitizeText(formData.contactPhone),
-      ]);
-    }
-    if (formData.projectSupervisor) {
-      projectRows.push([
-        "Project Supervisor",
-        sanitizeText(formData.projectSupervisor),
-      ]);
-    }
-
-    autoTable(doc, {
-      startY: currentY,
-      theme: "grid",
-      body: projectRows,
-      styles: {
-        fontSize: 9,
-        cellPadding: 3,
-        textColor: 0,
-        lineColor: 0,
-        lineWidth: 0.1,
-      },
-      headStyles: {
-        fillColor: [245, 245, 245],
-        textColor: 0,
-        fontStyle: "bold",
-      },
-      columnStyles: {
-        0: {
-          fontStyle: "bold",
-          cellWidth: 50,
-          fillColor: [245, 245, 245],
-        },
-        1: { cellWidth: "auto" },
-      },
-    } as any);
-    // @ts-ignore
-    currentY = (doc as any).lastAutoTable.finalY + 12;
-
-    // 2. SCOPE OF WORKS
-    doc.setFontSize(11);
-    doc.setFont("helvetica", "bold");
-    doc.text("2. SCOPE OF WORKS", margin, currentY);
-    currentY += 6;
-    doc.setFontSize(10);
-    doc.setFont("helvetica", "normal");
-
-    const formScope = buildScopeFromForm();
-    const scopeRaw =
-      apiData.summary ||
-      formScope ||
-      "Standard works as per industry guidelines.";
-    const scopeText = doc.splitTextToSize(
-      sanitizeText(scopeRaw),
-      contentWidth
-    );
-    doc.text(scopeText, margin, currentY);
-    currentY += scopeText.length * 5 + 12;
-
-    // 3. PRE-START SAFETY CHECKLIST
-    if (questions.length > 0) {
-      checkPageBreak(60);
-      doc.setFontSize(11);
-      doc.setFont("helvetica", "bold");
-      doc.text("3. PRE-START SAFETY CHECKLIST", margin, currentY);
-      currentY += 6;
-
-      const checkRows = questions.map((q, i) => [
-        (i + 1).toString(),
-        sanitizeText(q.label),
-        answers[q.id] === "Yes" ? "Yes" : "",
-        answers[q.id] === "No" ? "No" : "",
-        " ",
-      ]);
-
-      autoTable(doc, {
-        startY: currentY,
-        head: [["No.", "Checklist Question", "YES", "NO", "N/A"]],
-        body: checkRows,
-        theme: "grid",
-        styles: {
-          fontSize: 9,
-          textColor: 0,
-          lineColor: 0,
-          lineWidth: 0.1,
-          cellPadding: 2,
-        },
-        headStyles: {
-          fillColor: [240, 240, 240],
-          textColor: 0,
-          fontStyle: "bold",
-        },
-        columnStyles: {
-          0: { cellWidth: 10, halign: "center" },
-          2: { halign: "center", cellWidth: 15 },
-          3: { halign: "center", cellWidth: 15 },
-          4: { halign: "center", cellWidth: 15 },
-        },
-      } as any);
-
-      // @ts-ignore
-      currentY = (doc as any).lastAutoTable.finalY + 12;
-    }
-
-    // 4. RISK ASSESSMENT
-    checkPageBreak(80);
-    doc.setFontSize(11);
-    doc.setFont("helvetica", "bold");
-    doc.text("4. RISK ASSESSMENT", margin, currentY);
-    currentY += 6;
-    doc.setFontSize(8);
-    doc.setFont("helvetica", "italic");
-    doc.text(
-      "Risk Key: High (15-25), Medium (8-12), Low (1-6)",
-      margin,
-      currentY
-    );
-    currentY += 4;
-
-    const hazardRows = hazards
-      .map((hKey) => {
-        const lib = (HAZARD_DATA as any)[hKey];
-        if (!lib) return null;
-        return [
-          sanitizeText(lib.label),
-          sanitizeText(lib.risk),
-          "Ops/Public",
-          sanitizeText(String(lib.initial_score)),
-          sanitizeText(lib.control),
-          sanitizeText(String(lib.residual_score)),
-        ];
-      })
-      .filter((row): row is string[] => row !== null);
-
-    autoTable(doc, {
-      startY: currentY,
-      head: [["Hazard", "Risk / Harm", "Who", "Init", "Control Measures", "Res"]],
-      body: hazardRows,
-      theme: "grid",
-      styles: {
-        fontSize: 8,
-        textColor: 0,
-        lineColor: 0,
-        lineWidth: 0.1,
-        cellPadding: 2,
-        valign: "top",
-        overflow: "linebreak",
-      },
-      headStyles: {
-        fillColor: [230, 230, 230],
-        textColor: 0,
-        fontStyle: "bold",
-      },
-      columnStyles: {
-        0: { cellWidth: 25, fontStyle: "bold" },
-        1: { cellWidth: 35 },
-        2: { cellWidth: 20 },
-        3: { cellWidth: 25, halign: "center" },
-        4: { cellWidth: "auto" },
-        5: { cellWidth: 25, halign: "center" },
-      },
-    } as any);
-    // @ts-ignore
-    currentY = (doc as any).lastAutoTable.finalY + 12;
-
-    // 5. METHOD STATEMENT
-    checkPageBreak(60);
-    doc.setFontSize(11);
-    doc.setFont("helvetica", "bold");
-    doc.text("5. METHOD STATEMENT", margin, currentY);
-    currentY += 8;
-
-    const methodSteps =
-      apiData.method_steps || [
-        "5.1 PRE-START: Arrive on site and verify conditions.",
-        "5.2 SAFETY: Set up safe system of work.",
-        `5.3 EXECUTION: Carry out ${formData.jobType}.`,
-        "5.4 COMPLETION: Test, tidy and hand over.",
-      ];
-
-    const finalMethods =
-      Array.isArray(methodSteps) && typeof methodSteps[0] === "string"
-        ? methodSteps.map((s: string) => {
-            const cleaned = sanitizeText(s);
-            const titleMatch = cleaned.match(/^(\d+\.\d+[^:]*:)/);
-            const title = titleMatch ? titleMatch[1] : "Step";
-            const text = titleMatch
-              ? cleaned.replace(titleMatch[1], "").trim()
-              : cleaned;
-            return {
-              t: title,
-              d: text,
-            };
-          })
-        : (methodSteps as any[]);
-
-    finalMethods.forEach((stepObj: any) => {
-      checkPageBreak(25);
-      doc.setFont("helvetica", "bold");
-      doc.text(sanitizeText(stepObj.t || "Step"), margin, currentY);
-      currentY += 5;
-      doc.setFont("helvetica", "normal");
-      const textLines = doc.splitTextToSize(
-        sanitizeText(stepObj.d || stepObj),
-        contentWidth
-      );
-      doc.text(textLines, margin, currentY);
-      currentY += textLines.length * 5 + 5;
-    });
-    currentY += 5;
-
-    // 6. PPE REQUIREMENTS
-    checkPageBreak(60);
-    doc.setFontSize(11);
-    doc.setFont("helvetica", "bold");
-    doc.text("6. PPE REQUIREMENTS", margin, currentY);
-    currentY += 6;
-
-    autoTable(doc, {
-      startY: currentY,
-      head: [["Item", "Requirement Status"]],
-      body: [
-        ["Safety Boots", "Mandatory"],
-        ["Gloves", "Mandatory"],
-        ["Eye Protection", "Task Dependent"],
-      ],
-      theme: "grid",
-      headStyles: { fillColor: [230, 230, 230], textColor: 0 },
-      styles: { fontSize: 9, lineColor: 0, lineWidth: 0.1 },
-    } as any);
-    // @ts-ignore
-    currentY = (doc as any).lastAutoTable.finalY + 10;
-
-    // 7. COSHH / SUBSTANCES
-    checkPageBreak(60);
-    doc.setFontSize(11);
-    doc.setFont("helvetica", "bold");
-    doc.text("7. COSHH / SUBSTANCES", margin, currentY);
-    currentY += 6;
-
-    const coshhRaw =
-      apiData.coshh || [
-        [
-          "Construction Dust",
-          "Inhalation",
-          "LEV / Mask",
-          "Bagged & Sealed",
-        ],
-      ];
-
-    const coshhBody = Array.isArray(coshhRaw[0])
-      ? coshhRaw
-      : coshhRaw.map((c: any) => [
-          sanitizeText(c.substance),
-          sanitizeText(c.risk),
-          sanitizeText(c.control),
-          sanitizeText(c.disposal),
-        ]);
-
-    autoTable(doc, {
-      startY: currentY,
-      head: [["Substance", "Risks", "Controls", "Disposal"]],
-      body: coshhBody,
-      theme: "grid",
-      headStyles: { fillColor: [230, 230, 230], textColor: 0 },
-      styles: {
-        fontSize: 8,
-        textColor: 0,
-        lineColor: 0,
-        lineWidth: 0.1,
-        overflow: "linebreak",
-      },
-    } as any);
-    // @ts-ignore
-    currentY = (doc as any).lastAutoTable.finalY + 10;
-
-    // 8. EMERGENCY ARRANGEMENTS
-    checkPageBreak(50);
-    doc.setFontSize(11);
-    doc.setFont("helvetica", "bold");
-    doc.text("8. EMERGENCY ARRANGEMENTS", margin, currentY);
-    currentY += 6;
-
-    autoTable(doc, {
-      startY: currentY,
-      body: [
-        ["First Aid", sanitizeText(formData.firstAider || "TBC")],
-        ["Hospital", sanitizeText(formData.hospital || "Nearest A&E")],
-        ["Fire Point", sanitizeText(formData.fireAssembly || "As Inducted")],
-        [
-          "Supervisor",
-          sanitizeText(formData.supervisorName || "TBC"),
-        ],
-        formData.firstAidLoc
-          ? ["First Aid Kit Location", sanitizeText(formData.firstAidLoc)]
-          : null,
-        formData.welfare
-          ? ["Welfare / WC", sanitizeText(formData.welfare)]
-          : null,
-        formData.accessCode
-          ? ["Access / Lockbox Code", sanitizeText(formData.accessCode)]
-          : null,
-      ].filter(Boolean) as any[],
-      theme: "grid",
-      styles: {
-        fontSize: 9,
-        cellPadding: 3,
-        lineColor: 0,
-        lineWidth: 0.1,
-      },
-      columnStyles: {
-        0: {
-          fontStyle: "bold",
-          cellWidth: 55,
-          fillColor: [245, 245, 245],
-        },
-      },
-    } as any);
-    // @ts-ignore
-    currentY = (doc as any).lastAutoTable.finalY + 12;
-
-    // 9. OPERATIVE BRIEFING REGISTER
-    doc.addPage();
-    drawHeader(doc);
-    currentY = 25;
-    doc.setFontSize(11);
-    doc.setFont("helvetica", "bold");
-    doc.text("9. OPERATIVE BRIEFING REGISTER", margin, currentY);
-    currentY += 6;
-
-    autoTable(doc, {
-      startY: currentY,
-      head: [["No.", "Operative Name", "Signature", "Date"]],
-      body: [
-        ["1", "", "", ""],
-        ["2", "", "", ""],
-        ["3", "", "", ""],
-      ],
-      theme: "grid",
-      styles: {
-        minCellHeight: 12,
-        lineColor: 0,
-        lineWidth: 0.1,
-      },
-      headStyles: { fillColor: [230, 230, 230], textColor: 0 },
-      columnStyles: {
-        0: { cellWidth: 10, halign: "center" },
-      },
-    } as any);
-    // @ts-ignore
-    currentY = (doc as any).lastAutoTable.finalY + 15;
-
-    // 10. AUTHORISATION
-    doc.setFontSize(11);
-    doc.setFont("helvetica", "bold");
-    doc.text("10. AUTHORISATION", margin, currentY);
-    currentY += 6;
-
-    doc.setFontSize(10);
-    doc.setFont("helvetica", "normal");
-    doc.text("I confirm I have read this RAMS.", margin, currentY);
-    currentY += 10;
-
-    doc.setDrawColor(0);
-    doc.rect(margin, currentY, contentWidth, 40);
-    doc.text(
-      "Signed: __________________________",
-      margin + 5,
-      currentY + 30
-    );
-
-    const pageCount = (doc as any).internal.pages.length - 1;
-    for (let i = 1; i <= pageCount; i++) {
-      doc.setPage(i);
-      drawFooter(doc, i, pageCount);
-    }
-
-    const safeCompany =
-      formData.companyName?.trim().length > 0
-        ? formData.companyName.replace(/ /g, "_")
-        : "RAMS";
-    const safeDocName = documentName.trim().length
-      ? documentName.trim().replace(/\s+/g, "_")
-      : `RAMS_${safeCompany}`;
-
-    doc.save(`${safeDocName}.pdf`);
-  };
-
   // --- UI RENDER ---
+  const hazardPreviewLabels = hazards.map(
+    (h) => (HAZARD_DATA as any)[h]?.label || h
+  );
+
   return (
     <>
-      <div className="h-screen flex overflow-hidden bg-[#f5f4f0] text-slate-900">
+      {toast && (
+        <Toast
+          message={toast.msg}
+          type={toast.type}
+          onClose={() => setToast(null)}
+          duration={5000}
+        />
+      )}
+      {deleteModal && (
+        <ConfirmationModal
+          isOpen={deleteModal.isOpen}
+          title="Delete File?"
+          message={`Are you sure you want to delete "${deleteModal.fileName}"? This action cannot be undone.`}
+          onConfirm={confirmDelete}
+          onCancel={() => setDeleteModal(null)}
+          confirmText="Delete"
+          isDangerous={true}
+        />
+      )}
+      <div className="h-screen w-full flex overflow-hidden bg-[#f5f4f0] text-slate-900">
         {/* SIDEBAR */}
         <aside
-          className={`relative flex flex-col border-r border-black/5 transition-all duration-300 ease-out ${
-            sidebarOpen ? "w-64" : "w-14"
-          }`}
+          className={`relative flex flex-col border-r border-black/5 transition-all duration-300 ease-out ${sidebarOpen ? "w-56" : "w-14"
+            }`}
         >
           <div className="flex h-full flex-col bg-[#FAF9F6] text-slate-900">
             {/* Top brand + toggle */}
             <div className="flex items-center justify-between px-3 pt-3 pb-2">
-              {sidebarOpen && (
-                <div className="flex items-center gap-2">
-                  <div className="relative h-15 w-23">
-                    <Image
-                      src="/rams-logo1.png"
-                      alt="RAMS Sorted logo"
-                      fill
-                      className="object-contain"
-                    />
-                  </div>
+              <div
+                className={`flex items-center gap-2 transition-all ${sidebarOpen
+                  ? "opacity-100 w-auto"
+                  : "opacity-0 w-0 overflow-hidden"
+                  }`}
+              >
+                <div className="relative h-[50px] w-[80px]">
+                  <Image
+                    src="/rams-logo1.png"
+                    alt="RAMS Sorted logo"
+                    fill
+                    className="object-contain"
+                  />
                 </div>
-              )}
+              </div>
               <button
                 onClick={() => setSidebarOpen((prev) => !prev)}
                 className="flex h-8 w-8 items-center justify-center rounded-lg border border-slate-400/60 bg-[#c8eee6] hover:bg-slate-200/80 transition-colors"
               >
                 {sidebarOpen ? (
-                  <ChevronLeft className="w-4 h-4 text-slate-700" />
+                  <ChevronRight className="w-4 h-4 text-slate-700 rotate-180" />
                 ) : (
                   <ChevronRight className="w-4 h-4 text-slate-700" />
                 )}
               </button>
             </div>
 
-            {/* MAIN SIDEBAR CONTENT: SCROLLABLE */}
+            {/* MAIN SIDEBAR CONTENT */}
             <div className="flex-1 overflow-y-auto px-2 pb-2 flex flex-col">
               <div className="mt-4">
-                {/* HUB BUTTON */}
                 {sidebarOpen ? (
                   <button
-                    onClick={goBackToHub}
+                    onClick={() => {
+                      setMode("landing");
+                      setStep(1);
+                      setActiveFile(null);
+                    }}
                     className="flex w-full items-center justify-center gap-2 rounded-md bg-[#0b2040] py-2 text-xs font-semibold text-white hover:bg-black transition-colors"
                   >
                     <LayoutDashboard className="w-3.5 h-3.5" />
-                    <span>RAMS hub</span>
+                    <span>RS Hub</span>
                   </button>
                 ) : (
                   <div className="flex justify-center">
                     <button
-                      onClick={goBackToHub}
+                      onClick={() => {
+                        setMode("landing");
+                        setStep(1);
+                        setActiveFile(null);
+                      }}
                       className="flex h-9 w-9 items-center justify-center rounded-md bg-[#0b2040] text-white hover:bg-black transition-colors"
                     >
                       <LayoutDashboard className="w-4 h-4" />
@@ -1040,15 +695,102 @@ function Page() {
                 )}
               </div>
 
-              {/* Recent files future area */}
+              {/* My files – only when open */}
               {sidebarOpen && (
                 <div className="mt-6 space-y-1 text-xs text-slate-700">
-                  <div className="px-2 py-1 font-semibold text-[12px] uppercase tracking-wide text-slate-500">
-                    Recent files
+                  <div className="px-2 py-1 font-semibold text-[11px] uppercase tracking-wide text-slate-500">
+                    My files
                   </div>
-                  <button className="w-full text-left px-2 py-2 rounded-md hover:bg-slate-200/80 text-xs">
-                    Example RAMS – wire this to real data later
-                  </button>
+                  {recentFiles.length === 0 ? (
+                    <div className="px-2 py-2 text-[11px] text-slate-500">
+                      Generated RAMS documents will appear here.
+                    </div>
+                  ) : (
+                    recentFiles.map((file) => (
+                      <div
+                        key={file.id}
+                        className="w-full px-2 py-1 rounded-md hover:bg-slate-200/80"
+                        onClick={() => {
+                          setActiveFile(file);
+                          setMode("viewer");
+                        }}
+                      >
+                        <div className="flex items-center justify-between gap-2">
+                          <div className="flex-1 min-w-0">
+                            <div className="font-semibold text-slate-900 truncate text-[13px]">
+                              <TypedText
+                                text={file.name}
+                                key={file.id + file.name}
+                              />
+                            </div>
+                            <div className="text-[11px] text-slate-500 truncate">
+                              {file.createdAt}
+                            </div>
+                          </div>
+                          <div className="relative">
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setFileMenuOpenId(
+                                  fileMenuOpenId === file.id ? null : file.id
+                                );
+                              }}
+                              className="p-1 rounded-md hover:bg-slate-300/60"
+                            >
+                              <MoreVertical className="w-3.5 h-3.5 text-slate-600" />
+                            </button>
+                            {fileMenuOpenId === file.id && (
+                              <div
+                                className="absolute right-0 mt-1 w-36 rounded-md bg-white shadow-lg border border-slate-200 z-20"
+                                onClick={(e) => e.stopPropagation()}
+                              >
+                                <button
+                                  onClick={() => {
+                                    const newName = window.prompt(
+                                      "Rename file",
+                                      file.name
+                                    );
+                                    if (!newName || !newName.trim()) return;
+                                    const updated: RAMSFile = {
+                                      ...file,
+                                      name: newName.trim(),
+                                    };
+                                    setRecentFiles((prev) =>
+                                      prev.map((f) =>
+                                        f.id === file.id ? updated : f
+                                      )
+                                    );
+                                    if (activeFile?.id === file.id) {
+                                      setActiveFile(updated);
+                                    }
+                                    setFileMenuOpenId(null);
+                                  }}
+                                  className="flex items-center gap-2 w-full px-3 py-1.5 text-[12px] hover:bg-slate-100"
+                                >
+                                  <Edit2 className="w-3.5 h-3.5" />
+                                  Rename
+                                </button>
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setDeleteModal({
+                                      isOpen: true,
+                                      fileId: file.id,
+                                      fileName: file.name,
+                                    });
+                                  }}
+                                  className="flex items-center gap-2 w-full px-3 py-1.5 text-[12px] text-red-600 hover:bg-red-50"
+                                >
+                                  <Trash2 className="w-3.5 h-3.5" />
+                                  Delete
+                                </button>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    ))
+                  )}
                 </div>
               )}
             </div>
@@ -1063,7 +805,7 @@ function Page() {
                   {sidebarOpen && (
                     <div className="flex flex-col leading-tight">
                       <span className="text-xs font-semibold">Account</span>
-                      <span className="text-[12px] text-slate-600">
+                      <span className="text-[11px] text-slate-600">
                         Not signed in
                       </span>
                     </div>
@@ -1080,943 +822,1214 @@ function Page() {
         </aside>
 
         {/* MAIN PANEL */}
-        <main className="flex-1 flex flex-col bg-white h-full">
-          {mode === "landing" ? (
+        <main className={`flex-1 flex flex-col h-full overflow-hidden ${mode === "viewer" ? "bg-white" : "bg-[#f5f4f0]"}`}>
+          {mode === "viewer" ? (
+            <section className="flex-1 h-full overflow-hidden flex flex-col">
+              <MyFileViewer
+                file={activeFile}
+                onBack={() => {
+                  setMode("landing");
+                  setActiveFile(null);
+                }}
+                onUpdateFile={(updated) => {
+                  setActiveFile(updated);
+                  setRecentFiles((prev) =>
+                    prev.map((f) => (f.id === updated.id ? updated : f))
+                  );
+                }}
+              />
+            </section>
+          ) : mode === "landing" ? (
             // LANDING / HUB SCREEN
-            <div className="flex-1 flex items-center justify-center px-6 rs-fade-slide-in">
+            <div className="flex-1 flex items-center justify-center px-6 rs-fade-slide-in bg-white">
               <div className="max-w-xl w-full text-center">
-                {/* Slightly smaller, typed welcome */}
-                <h1 className="text-3xl md:text-4xl font-semibold text-slate-900 mb-3">
+                <h1 className="text-4xl md:text-5xl font-semibold text-slate-900 mb-3">
                   {typedGreeting}
-                  {typedGreeting.length === BASE_GREETING.length && (
-                    <>
-                      {formData.contactName
-                        ? `, ${formData.contactName}`
-                        : ""}
-                      .
-                    </>
-                  )}
                 </h1>
-                <p className="text-sm text-slate-600 mb-6">
-                  How can we help you today?
+                <p className="text-slate-500 mb-8 text-lg">
+                  Create, manage and export your RAMS documents efficiently.
                 </p>
 
-                <div className="grid gap-4 sm:grid-cols-2">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <button
                     onClick={() => {
                       setMode("wizard");
-                      setStep(1); // Step 1: name document
+                      setStep(0);
                     }}
-                    className="flex flex-col items-start gap-2 rounded-xl border border-slate-900/10 bg-slate-900 px-5 py-4 text-left hover:bg-black transition-colors rs-fade-slide-in"
+                    className="group flex flex-col items-center justify-center p-6 bg-white border border-slate-200 rounded-xl shadow-sm hover:shadow-md hover:border-slate-300 transition-all"
                   >
-                    <div className="flex items-center gap-2">
-                      <FileText className="w-4 h-4 text-white" />
-                      <span className="text-sm font-semibold text-white">
-                        Create RAMS document
-                      </span>
+                    <div className="h-12 w-12 rounded-full bg-blue-50 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
+                      <FileText className="w-6 h-6 text-blue-600" />
                     </div>
-                    <p className="text-xs text-slate-200">
-                      Launch RS Wizard v1.0 and generate a tailored RAMS pack.
-                    </p>
+                    <span className="font-semibold text-slate-900">
+                      New Document
+                    </span>
+                    <span className="text-xs text-slate-500 mt-1">
+                      Start from scratch
+                    </span>
                   </button>
 
-                  <div className="flex flex-col items-start gap-2 rounded-xl border border-dashed border-slate-200 px-5 py-4 text-left opacity-60 cursor-not-allowed bg-slate-50">
-                    <span className="text-sm font-semibold text-slate-900">
-                      Other tools
+                  <button
+                    disabled
+                    className="group flex flex-col items-center justify-center p-6 bg-slate-50 border border-slate-200 rounded-xl shadow-sm transition-all cursor-not-allowed opacity-60"
+                  >
+                    <div className="h-12 w-12 rounded-full bg-slate-100 flex items-center justify-center mb-3 grayscale">
+                      <Briefcase className="w-6 h-6 text-slate-400" />
+                    </div>
+                    <span className="font-semibold text-slate-500">
+                      New Feature Coming Soon
                     </span>
-                    <p className="text-xs text-slate-600">
-                      Additional safety and documentation tools coming soon.
-                    </p>
-                  </div>
+                    <span className="text-xs text-slate-400 mt-1">
+                      Stay tuned
+                    </span>
+                  </button>
                 </div>
               </div>
             </div>
           ) : (
-            <>
-              {/* Header with step indicator (no back-to-hub here now) */}
-              <header className="px-6 pt-4 pb-3 bg-white/90 backdrop-blur-sm">
-                <div className="flex items-center justify-between gap-4 mb-3">
-                  <div className="flex flex-col">
-                    <h1
-                      className={`text-lg font-semibold ${
-                        TITLE_COLORS[titleColorIndex]
-                      } transition-colors duration-500`}
-                    >
-                      RS Wizard v1.0
-                    </h1>
-                  </div>
-                  <div className="inline-flex items-center rounded-full bg-[#0b2040] px-4 py-1.5 text-[11px] font-semibold uppercase tracking-wide text-white">
-                    {`Step ${step} of 5`}
-                  </div>
+            // WIZARD
+            <section
+              ref={mainScrollRef}
+              className="flex-1 overflow-y-auto bg-white"
+            >
+              {/* Wizard Header */}
+              <div className="sticky top-0 z-10 bg-[#f5f4f0] border-b border-slate-200 px-8 py-4 flex items-center justify-between">
+                <div>
+                  <h2 className="text-xl font-bold text-slate-900 flex items-center gap-2">
+                    <span className={TITLE_COLORS[titleColorIndex]}>
+                      RS v1.0
+                    </span>
+                  </h2>
+                  <p className="text-xs text-slate-500 mt-0.5">
+                    Step {step} of 5
+                  </p>
                 </div>
+                {step > 0 && (
+                  <div className="flex gap-2">
+                    {/* Back button removed as per user request */}
+                  </div>
+                )}
+              </div>
 
-                {/* Progress bar full width */}
+              {step > 0 && (
                 <div className="h-1.5 w-full rounded-full bg-slate-200 overflow-hidden">
                   <div
                     className="h-full bg-[#0b2040] transition-all duration-500 ease-out"
                     style={{ width: `${(step / 5) * 100}%` }}
                   />
                 </div>
-              </header>
+              )}
 
               {/* Content area with its own scroll */}
-              <section
-                className="flex-1 overflow-y-auto"
-                ref={mainScrollRef}
+              <div
+                key={step}
+                className="max-w-4xl mx-auto px-6 py-8 rs-fade-slide-in"
               >
-                <div
-                  key={step}
-                  className="max-w-4xl mx-auto px-6 py-8 rs-fade-slide-in"
-                >
-                  {/* STEP 1: NAME DOCUMENT */}
-                  {step === 1 && (
-                    <div className="space-y-6">
-                      <h2 className="text-2xl font-semibold text-slate-900">
-                        {typedStepTitle || currentStepTitle}
-                      </h2>
-                      <p className="text-sm text-slate-600">
-                        This name will be used as the saved filename when you
-                        download your RAMS pack.
-                      </p>
-                      <p className="text-xs text-slate-500">
-                        Fields marked <span className="text-red-600">*</span>{" "}
-                        are required.
-                      </p>
+                {/* STEP 0: NAME DOCUMENT + BRANDING */}
+                {step === 0 && (
+                  <div className="space-y-6">
+                    <h2 className="text-2xl font-semibold text-slate-900">
+                      <TypedText text="Name Your RAMS Document" />
+                    </h2>
 
-                      <div className="space-y-3 max-w-md">
+                    <div className="space-y-4 max-w-2xl">
+                      {/* Document name */}
+                      <div className="space-y-2">
                         <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
                           Document name
                           <span className="text-red-600 ml-0.5">*</span>
                         </label>
                         <input
-                          className="border border-slate-300 p-3 rounded-lg w-full text-sm focus:ring-2 focus:ring-[#0b2040] focus:border-transparent outline-none bg-white"
+                          className="border border-slate-200 p-3 rounded-lg w-full text-sm focus:ring-2 focus:ring-[#0b2040] focus:border-transparent outline-none bg-white shadow-sm hover:border-slate-300 transition-all duration-200"
                           placeholder="e.g. ACME – Boiler replacement RAMS"
                           value={documentName}
                           onChange={(e) =>
                             setDocumentName(e.target.value)
                           }
                         />
-                        <p className="text-xs text-slate-500">
-                          You&apos;ll still be able to change project details
-                          and job scope in the next steps.
-                        </p>
                       </div>
 
-                      <div className="flex justify-between gap-3 pt-4">
-                        <button
-                          onClick={goBackToHub}
-                          className="inline-flex items-center justify-center rounded-lg border border-slate-300 px-4 py-2.5 text-sm font-semibold text-slate-800 hover:bg-slate-50"
-                        >
-                          Back to hub
-                        </button>
-                        <div className="flex gap-2">
-                          <button
-                            onClick={() => {
-                              if (!documentName.trim()) {
-                                alert(
-                                  "⚠️ Please enter a document name before continuing."
-                                );
-                                return;
-                              }
-                              setStep(2);
-                            }}
-                            className="inline-flex items-center justify-center rounded-lg bg-[#0b2040] px-5 py-2.5 text-sm font-semibold text-white hover:bg-black transition-colors"
+                      {/* Branding & appearance – kept for future PDF styling */}
+                      <div className="space-y-4 bg-slate-50 border border-slate-200 rounded-xl p-4">
+                        <h3 className="text-sm font-semibold text-slate-900">
+                          Branding &amp; appearance (optional)
+                        </h3>
+                        <p className="text-xs text-slate-600">
+                          Choose a primary and secondary colour and add your
+                          logo so the PDF looks like it came from your
+                          company.
+                        </p>
+
+                        <div className="space-y-2">
+                          <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
+                            Primary colour
+                          </label>
+                          <select
+                            className="border border-slate-300 p-2.5 rounded-lg w-full text-sm bg-white focus:ring-2 focus:ring-[#0b2040] focus:border-transparent outline-none"
+                            value={formData.brandPrimaryColor}
+                            onChange={(e) =>
+                              handleInput("brandPrimaryColor", e.target.value)
+                            }
                           >
-                            Continue to Company details
-                          </button>
+                            <option value="black">Black</option>
+                            <option value="white">White</option>
+                            <option value="navy">Navy</option>
+                            <option value="red">Red</option>
+                            <option value="blue">Blue</option>
+                            <option value="green">Green</option>
+                            <option value="orange">Orange</option>
+                            <option value="yellow">Yellow</option>
+                            <option value="grey">Grey</option>
+                          </select>
                         </div>
+
+                        <div className="space-y-2">
+                          <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
+                            Secondary colour
+                          </label>
+                          <select
+                            className="border border-slate-300 p-2.5 rounded-lg w-full text-sm bg-white focus:ring-2 focus:ring-[#0b2040] focus:border-transparent outline-none"
+                            value={formData.brandSecondaryColor}
+                            onChange={(e) =>
+                              handleInput(
+                                "brandSecondaryColor",
+                                e.target.value
+                              )
+                            }
+                          >
+                            <option value="white">White</option>
+                            <option value="black">Black</option>
+                            <option value="navy">Navy</option>
+                            <option value="red">Red</option>
+                            <option value="blue">Blue</option>
+                            <option value="green">Green</option>
+                            <option value="orange">Orange</option>
+                            <option value="yellow">Yellow</option>
+                            <option value="grey">Grey</option>
+                          </select>
+                          <p className="text-xs text-slate-500">
+                            Used mainly for table headers and accents.
+                            Default is black on white.
+                          </p>
+                        </div>
+
+                        {/* Logo input removed as per user request */}
                       </div>
                     </div>
-                  )}
 
-                  {/* STEP 2: COMPANY */}
-                  {step === 2 && (
-                    <div className="space-y-6">
-                      <h2 className="text-2xl font-semibold text-slate-900 flex items-center gap-2">
-                        <Briefcase className="w-5 h-5 text-[#0b2040]" />
-                        <span>{typedStepTitle || currentStepTitle}</span>
-                      </h2>
-                      <p className="text-xs text-slate-500">
-                        Fields marked <span className="text-red-600">*</span>{" "}
-                        are required. Others are optional but recommended for a
-                        more complete RAMS.
-                      </p>
+                    <div className="flex justify-between gap-3 pt-4">
+                      <button
+                        onClick={() => {
+                          setMode("landing");
+                          setStep(1);
+                          setActiveFile(null);
+                        }}
+                        className="inline-flex items-center justify-center rounded-lg border border-slate-300 px-4 py-2.5 text-sm font-semibold text-slate-800 hover:bg-slate-50"
+                      >
+                        Back to RS Hub
+                      </button>
+                      <button
+                        onClick={() => {
+                          if (!documentName.trim()) {
+                            alert(
+                              "⚠️ Please enter a document name before continuing."
+                            );
+                            return;
+                          }
+                          setStep(1);
+                        }}
+                        className="inline-flex items-center justify-center rounded-lg bg-[#0b2040] px-5 py-2.5 text-sm font-semibold text-white hover:bg-black transition-colors"
+                      >
+                        Continue to Step 1
+                      </button>
+                    </div>
+                  </div>
+                )}
 
+                {/* STEP 1: COMPANY & PROJECT */}
+                {step === 1 && (
+                  <div className="space-y-6">
+                    <h2 className="text-2xl font-semibold text-slate-900 flex items-center gap-2">
+                      <Briefcase className="w-5 h-5 text-[#0b2040]" />
+                      <TypedText text="Company & Project Details" />
+                    </h2>
+                    <p className="text-[11px] text-slate-500">
+                      Fields marked <span className="text-red-600">*</span>{" "}
+                      are required. Others are optional but help create a more
+                      complete RAMS.
+                    </p>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
+                          Company Name
+                          <span className="text-red-600 ml-0.5">*</span>
+                        </label>
+                        <input
+                          className="border border-slate-200 p-3 rounded-lg w-full text-sm focus:ring-2 focus:ring-[#0b2040] focus:border-transparent outline-none bg-white shadow-sm hover:border-slate-300 transition-all duration-200"
+                          placeholder="e.g. ACME Electrical Ltd"
+                          value={formData.companyName}
+                          onChange={(e) =>
+                            handleInput("companyName", e.target.value)
+                          }
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
+                          Competent Person
+                          <span className="text-red-600 ml-0.5">*</span>
+                        </label>
+                        <input
+                          className="border border-slate-200 p-3 rounded-lg w-full text-sm focus:ring-2 focus:ring-[#0b2040] focus:border-transparent outline-none bg-white shadow-sm hover:border-slate-300 transition-all duration-200"
+                          placeholder="Person preparing RAMS"
+                          value={formData.contactName}
+                          onChange={(e) =>
+                            handleInput("contactName", e.target.value)
+                          }
+                        />
+                      </div>
+
+                      <AddressSearch
+                        label="Office Address"
+                        required
+                        value={formData.officeAddress}
+                        onChange={(val: string) =>
+                          handleInput("officeAddress", val)
+                        }
+                        tooltip="Registered or main business address."
+                      />
+
+                      <div>
+                        <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
+                          Phone Number (optional)
+                        </label>
+                        <input
+                          className="border border-slate-200 p-3 rounded-lg w-full text-sm focus:ring-2 focus:ring-[#0b2040] focus:border-transparent outline-none bg-white shadow-sm hover:border-slate-300 transition-all duration-200"
+                          placeholder="Contact number for queries"
+                          value={formData.contactPhone}
+                          onChange={(e) =>
+                            handleInput("contactPhone", e.target.value)
+                          }
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
+                          Contact Email (optional)
+                        </label>
+                        <input
+                          className="border border-slate-200 p-3 rounded-lg w-full text-sm focus:ring-2 focus:ring-[#0b2040] focus:border-transparent outline-none bg-white shadow-sm hover:border-slate-300 transition-all duration-200"
+                          placeholder="RAMS contact email"
+                          value={formData.contactEmail}
+                          onChange={(e) =>
+                            handleInput("contactEmail", e.target.value)
+                          }
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
+                          Project Supervisor (optional)
+                        </label>
+                        <input
+                          className="border border-slate-200 p-3 rounded-lg w-full text-sm focus:ring-2 focus:ring-[#0b2040] focus:border-transparent outline-none bg-white shadow-sm hover:border-slate-300 transition-all duration-200"
+                          placeholder="Overall project supervisor"
+                          value={formData.projectSupervisor}
+                          onChange={(e) =>
+                            handleInput(
+                              "projectSupervisor",
+                              e.target.value
+                            )
+                          }
+                        />
+                      </div>
+                    </div>
+
+                    <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-4">
+                      <h3 className="font-semibold text-sm text-slate-900">
+                        Project Info
+                      </h3>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                           <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
-                            Company Name
+                            Client Name
                             <span className="text-red-600 ml-0.5">*</span>
                           </label>
                           <input
-                            className="border border-slate-300 p-3 rounded-lg w-full text-sm focus:ring-2 focus:ring-[#0b2040] focus:border-transparent outline-none bg-white"
-                            placeholder="e.g. ACME Electrical Ltd"
-                            value={formData.companyName}
+                            className="border border-slate-200 p-3 rounded-lg w-full text-sm focus:ring-2 focus:ring-[#0b2040] focus:border-transparent outline-none bg-white shadow-sm hover:border-slate-300 transition-all duration-200"
+                            placeholder="Who the RAMS are for"
+                            value={formData.clientName}
                             onChange={(e) =>
-                              handleInput("companyName", e.target.value)
+                              handleInput("clientName", e.target.value)
                             }
                           />
                         </div>
                         <div>
                           <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
-                            Competent Person
-                            <span className="text-red-600 ml-0.5">*</span>
+                            Job Ref (optional)
                           </label>
                           <input
-                            className="border border-slate-300 p-3 rounded-lg w-full text-sm focus:ring-2 focus:ring-[#0b2040] focus:border-transparent outline-none bg-white"
-                            placeholder="Person preparing RAMS"
-                            value={formData.contactName}
+                            className="border border-slate-200 p-3 rounded-lg w-full text-sm focus:ring-2 focus:ring-[#0b2040] focus:border-transparent outline-none bg-white shadow-sm hover:border-slate-300 transition-all duration-200"
+                            placeholder="Internal or client reference"
+                            value={formData.projectRef}
                             onChange={(e) =>
-                              handleInput("contactName", e.target.value)
+                              handleInput("projectRef", e.target.value)
                             }
                           />
                         </div>
+                      </div>
+                      <AddressSearch
+                        label="Site Address"
+                        required
+                        value={formData.siteAddress}
+                        onChange={(val: string) =>
+                          handleInput("siteAddress", val)
+                        }
+                        tooltip="Location where the works are being carried out."
+                      />
+                    </div>
 
-                        <AddressSearch
-                          label="Office Address"
-                          required
-                          value={formData.officeAddress}
-                          onChange={(val: string) =>
-                            handleInput("officeAddress", val)
-                          }
-                          tooltip="Registered or main business address."
+                    <div className="flex justify-between gap-3 pt-2">
+                      <div className="flex gap-2">
+                        <button
+                          onClick={prevStep}
+                          className="inline-flex items-center justify-center rounded-lg border border-slate-300 px-4 py-2.5 text-sm font-semibold text-slate-800 hover:bg-slate-50"
+                        >
+                          Back
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setMode("landing");
+                            setStep(1);
+                            setActiveFile(null);
+                          }}
+                          className="inline-flex items-center justify-center rounded-lg border border-slate-300 px-3 py-2 text-[11px] font-semibold text-slate-700 hover:bg-slate-50"
+                        >
+                          ← Back to RS Hub
+                        </button>
+                      </div>
+                      <button
+                        onClick={nextStep}
+                        className="inline-flex items-center justify-center rounded-lg bg-[#0b2040] px-5 py-2.5 text-sm font-semibold text-white hover:bg-black transition-colors"
+                      >
+                        Next: Job Scope
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                {/* STEP 2: JOB SCOPE & PRE-START */}
+                {step === 2 && (
+                  <div className="space-y-6">
+                    <h2 className="text-xl font-semibold text-slate-900 flex items-center gap-2">
+                      <FileText className="w-5 h-5 text-[#0b2040]" />
+                      <TypedText text="Job Scope & Pre-Start Checks" />
+                    </h2>
+                    <p className="text-[11px] text-slate-500">
+                      Fields marked <span className="text-red-600">*</span>{" "}
+                      are required. Use the search or dropdowns to lock in the
+                      right task.
+                    </p>
+
+                    {/* OMNI SEARCH BAR */}
+                    <div className="space-y-2">
+                      <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700">
+                        Quick job search (optional)
+                      </label>
+                      <p className="text-xs text-slate-500 mb-1">
+                        Start typing (e.g.{" "}
+                        <span className="italic">boiler</span>) to jump
+                        straight to the right trade &amp; job. You can still
+                        use the dropdowns below if you prefer.
+                      </p>
+                      <div className="relative">
+                        <input
+                          className="w-full border border-slate-300 p-3 rounded-lg text-sm bg-white focus:ring-2 focus:ring-[#0b2040] focus:border-transparent outline-none"
+                          placeholder="Search all job types..."
+                          value={jobSearch}
+                          onChange={(e) => {
+                            setJobSearch(e.target.value);
+                            setJobSearchOpen(true);
+                          }}
+                          onFocus={() => setJobSearchOpen(true)}
                         />
 
+                        {jobSearchOpen && filteredJobs.length > 0 && (
+                          <div className="absolute z-40 mt-1 w-full rounded-lg border border-slate-200 bg-white shadow-lg max-h-64 overflow-auto">
+                            {filteredJobs.map((j, idx) => (
+                              <button
+                                key={j.trade + j.name + idx}
+                                type="button"
+                                onClick={() => {
+                                  handleInput("trade", j.trade);
+                                  handleInput("jobType", j.name);
+                                  setJobSearch(j.name);
+                                  setJobSearchOpen(false);
+                                }}
+                                className="w-full px-3 py-2 text-left text-xs hover:bg-slate-50"
+                              >
+                                <div className="font-semibold text-slate-900">
+                                  {j.name}
+                                </div>
+                                <div className="text-[11px] text-slate-500">
+                                  {j.trade}
+                                </div>
+                              </button>
+                            ))}
+
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const tradeToUse =
+                                  formData.trade ||
+                                  filteredJobs[0]?.trade ||
+                                  "Electrician";
+                                handleInput("trade", tradeToUse);
+                                handleInput("jobType", "Other (Custom)");
+                                setJobSearch("Other (Custom)");
+                                setJobSearchOpen(false);
+                              }}
+                              className="w-full px-3 py-2 text-left text-xs border-t border-slate-100 bg-slate-50 hover:bg-slate-100"
+                            >
+                              <div className="font-semibold text-slate-900">
+                                Other (Custom)
+                              </div>
+                              <div className="text-[11px] text-slate-500">
+                                For custom or non-standard tasks.
+                              </div>
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
+                          Trade
+                        </label>
+                        <select
+                          className="border border-slate-300 p-3 rounded-lg w-full text-sm bg-white focus:ring-2 focus:ring-[#0b2040] focus:border-transparent outline-none"
+                          value={formData.trade}
+                          onChange={(e) =>
+                            handleInput("trade", e.target.value)
+                          }
+                        >
+                          {Object.keys(TRADES).map((t) => (
+                            <option key={t}>{t}</option>
+                          ))}
+                        </select>
+                      </div>
+
+                      <div>
+                        <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
+                          Job Type
+                          <span className="text-red-600 ml-0.5">*</span>
+                        </label>
+                        {/* @ts-ignore */}
+                        <select
+                          className="border border-slate-300 p-3 rounded-lg w-full text-sm bg-white focus:ring-2 focus:ring-[#0b2040] focus:border-transparent outline-none"
+                          value={formData.jobType}
+                          onChange={(e) =>
+                            handleInput("jobType", e.target.value)
+                          }
+                        >
+                          <option value="">Select Job Type</option>
+                          {
+                            // @ts-ignore
+                            TRADES[formData.trade].jobs.map((j: any) => (
+                              <option key={j.name}>{j.name}</option>
+                            ))
+                          }
+                        </select>
+                      </div>
+                    </div>
+
+                    {/* Schedule & workforce */}
+                    <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-4">
+                      <h3 className="font-semibold text-sm text-slate-900">
+                        Schedule &amp; Workforce (optional – but useful)
+                      </h3>
+                      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                         <div>
                           <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
-                            Phone Number (optional)
+                            Start Date
                           </label>
                           <input
-                            className="border border-slate-300 p-3 rounded-lg w-full text-sm focus:ring-2 focus:ring-[#0b2040] focus:border-transparent outline-none bg-white"
-                            placeholder="Contact number for queries"
-                            value={formData.contactPhone}
+                            type="date"
+                            className="border border-slate-200 p-3 rounded-lg w-full text-sm focus:ring-2 focus:ring-[#0b2040] focus:border-transparent outline-none bg-white shadow-sm hover:border-slate-300 transition-all duration-200"
+                            value={formData.startDate}
                             onChange={(e) =>
-                              handleInput("contactPhone", e.target.value)
+                              handleInput("startDate", e.target.value)
                             }
                           />
                         </div>
-
                         <div>
                           <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
-                            Contact Email (optional)
+                            End Date
                           </label>
                           <input
-                            className="border border-slate-300 p-3 rounded-lg w-full text-sm focus:ring-2 focus:ring-[#0b2040] focus:border-transparent outline-none bg-white"
-                            placeholder="RAMS contact email"
-                            value={formData.contactEmail}
+                            type="date"
+                            className="border border-slate-200 p-3 rounded-lg w-full text-sm focus:ring-2 focus:ring-[#0b2040] focus:border-transparent outline-none bg-white shadow-sm hover:border-slate-300 transition-all duration-200"
+                            value={formData.endDate}
                             onChange={(e) =>
-                              handleInput("contactEmail", e.target.value)
+                              handleInput("endDate", e.target.value)
                             }
                           />
                         </div>
-
                         <div>
                           <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
-                            Project Supervisor (optional)
+                            Expected End Date
                           </label>
                           <input
-                            className="border border-slate-300 p-3 rounded-lg w-full text-sm focus:ring-2 focus:ring-[#0b2040] focus:border-transparent outline-none bg-white"
-                            placeholder="Overall project supervisor"
-                            value={formData.projectSupervisor}
+                            type="date"
+                            className="border border-slate-200 p-3 rounded-lg w-full text-sm focus:ring-2 focus:ring-[#0b2040] focus:border-transparent outline-none bg-white shadow-sm hover:border-slate-300 transition-all duration-200"
+                            value={formData.expectedEndDate}
                             onChange={(e) =>
                               handleInput(
-                                "projectSupervisor",
+                                "expectedEndDate",
                                 e.target.value
                               )
                             }
                           />
                         </div>
-                      </div>
-
-                      <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-4">
-                        <h3 className="font-semibold text-sm text-slate-900">
-                          Project Info
-                        </h3>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          <div>
-                            <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
-                              Client Name
-                              <span className="text-red-600 ml-0.5">*</span>
-                            </label>
-                            <input
-                              className="border border-slate-300 p-3 rounded-lg w-full text-sm focus:ring-2 focus:ring-[#0b2040] focus:border-transparent outline-none bg-white"
-                              placeholder="Who the RAMS are for"
-                              value={formData.clientName}
-                              onChange={(e) =>
-                                handleInput("clientName", e.target.value)
-                              }
-                            />
-                          </div>
-                          <div>
-                            <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
-                              Job Ref (optional)
-                            </label>
-                            <input
-                              className="border border-slate-300 p-3 rounded-lg w-full text-sm focus:ring-2 focus:ring-[#0b2040] focus:border-transparent outline-none bg-white"
-                              placeholder="Internal or client reference"
-                              value={formData.projectRef}
-                              onChange={(e) =>
-                                handleInput("projectRef", e.target.value)
-                              }
-                            />
-                          </div>
-                        </div>
-                        <AddressSearch
-                          label="Site Address"
-                          required
-                          value={formData.siteAddress}
-                          onChange={(val: string) =>
-                            handleInput("siteAddress", val)
-                          }
-                          tooltip="Location where the works are being carried out."
-                        />
-                      </div>
-
-                      <div className="flex justify-between gap-3 pt-2">
-                        <div className="flex gap-2">
-                          <button
-                            onClick={prevStep}
-                            className="inline-flex items-center justify-center rounded-lg border border-slate-300 px-4 py-2.5 text-sm font-semibold text-slate-800 hover:bg-slate-50"
-                          >
-                            Back
-                          </button>
-                        </div>
-                        <div className="flex gap-2">
-                          <button
-                            onClick={goBackToHub}
-                            className="inline-flex items-center justify-center rounded-lg border border-slate-300 px-4 py-2.5 text-sm font-semibold text-slate-800 hover:bg-slate-50"
-                          >
-                            Back to hub
-                          </button>
-                          <button
-                            onClick={nextStep}
-                            className="inline-flex items-center justify-center rounded-lg bg-[#0b2040] px-5 py-2.5 text-sm font-semibold text-white hover:bg-black transition-colors"
-                          >
-                            Next: Job Scope
-                          </button>
+                        <div>
+                          <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
+                            Number of operatives
+                          </label>
+                          <input
+                            type="number"
+                            min={1}
+                            className="border border-slate-200 p-3 rounded-lg w-full text-sm focus:ring-2 focus:ring-[#0b2040] focus:border-transparent outline-none bg-white shadow-sm hover:border-slate-300 transition-all duration-200"
+                            value={formData.operatives}
+                            onChange={(e) =>
+                              handleInput("operatives", e.target.value)
+                            }
+                          />
+                          <p className="text-xs text-slate-500 mt-1">
+                            Optional – if left blank, we&apos;ll assume 1 in
+                            the document.
+                          </p>
                         </div>
                       </div>
                     </div>
-                  )}
 
-                  {/* STEP 3: SCOPE */}
-                  {step === 3 && (
-                    <div className="space-y-6">
-                      <h2 className="text-xl font-semibold text-slate-900 flex items-center gap-2">
-                        <FileText className="w-5 h-5 text-[#0b2040]" />
-                        <span>{typedStepTitle || currentStepTitle}</span>
-                      </h2>
-                      <p className="text-xs text-slate-500">
-                        Fields marked <span className="text-red-600">*</span>{" "}
-                        are required. Use the search or dropdowns to lock in the
-                        right task.
-                      </p>
-
-                      {/* OMNI SEARCH BAR */}
-                      <div className="space-y-2">
-                        <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700">
-                          Quick job search (optional)
-                        </label>
-                        <p className="text-xs text-slate-500 mb-1">
-                          Start typing (e.g.{" "}
-                          <span className="italic">boiler</span>) to jump
-                          straight to the right trade &amp; job. You can still
-                          use the dropdowns below if you prefer.
+                    {questions.length > 0 && (
+                      <div className="bg-[#e4ecf7] p-4 rounded-xl border border-slate-200">
+                        <h4 className="font-semibold text-sm text-slate-900 mb-3">
+                          Pre-Start Safety Checks (optional responses)
+                        </h4>
+                        <p className="text-xs text-slate-600 mb-3">
+                          Answer each question honestly. Where you leave it
+                          blank here, the document will show N/A.
                         </p>
-                        <div className="relative">
-                          <input
-                            className="w-full border border-slate-300 p-3 rounded-lg text-sm bg-white focus:ring-2 focus:ring-[#0b2040] focus:border-transparent outline-none"
-                            placeholder="Search all job types..."
-                            value={jobSearch}
-                            onChange={(e) => {
-                              setJobSearch(e.target.value);
-                              setJobSearchOpen(true);
-                            }}
-                            onFocus={() => setJobSearchOpen(true)}
-                          />
-
-                          {jobSearchOpen && filteredJobs.length > 0 && (
-                            <div className="absolute z-40 mt-1 w-full rounded-lg border border-slate-200 bg-white shadow-lg max-h-64 overflow-auto">
-                              {filteredJobs.map((j, idx) => (
+                        <div className="space-y-2">
+                          {questions.map((q: any) => (
+                            <div
+                              key={q.id}
+                              className="flex justify-between items-center gap-4 bg-white p-2.5 rounded-lg border border-slate-200"
+                            >
+                              <span className="text-sm text-slate-900">
+                                {q.label}
+                              </span>
+                              <div className="flex gap-2 shrink-0">
                                 <button
-                                  key={j.trade + j.name + idx}
-                                  type="button"
-                                  onClick={() => {
-                                    handleInput("trade", j.trade);
-                                    handleInput("jobType", j.name);
-                                    setJobSearch(j.name);
-                                    setJobSearchOpen(false);
-                                  }}
-                                  className="w-full px-3 py-2 text-left text-xs hover:bg-slate-50"
+                                  onClick={() =>
+                                    setAnswers({
+                                      ...answers,
+                                      [q.id]: "Yes",
+                                    })
+                                  }
+                                  className={`px-3 py-1 rounded-md text-[11px] font-semibold ${answers[q.id] === "Yes"
+                                    ? "bg-[#0b2040] text-white"
+                                    : "bg-slate-100 text-slate-800"
+                                    }`}
                                 >
-                                  <div className="font-semibold text-slate-900">
-                                    {j.name}
-                                  </div>
-                                  <div className="text-[12px] text-slate-500">
-                                    {j.trade}
-                                  </div>
+                                  Yes
+                                </button>
+                                <button
+                                  onClick={() =>
+                                    setAnswers({
+                                      ...answers,
+                                      [q.id]: "No",
+                                    })
+                                  }
+                                  className={`px-3 py-1 rounded-md text-[11px] font-semibold ${answers[q.id] === "No"
+                                    ? "bg-[#0b2040] text-white"
+                                    : "bg-slate-100 text-slate-800"
+                                    }`}
+                                >
+                                  No
+                                </button>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* JOB DESCRIPTION + EXTRA NOTES */}
+                    {formData.jobType === "Other (Custom)" ? (
+                      <div className="space-y-4">
+                        <div>
+                          <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
+                            Custom job title (optional)
+                          </label>
+                          <input
+                            className="w-full border border-slate-300 p-3 rounded-lg text-sm focus:ring-2 focus:ring-[#0b2040] focus:border-transparent outline-none bg-white"
+                            value={formData.customJobTitle}
+                            onChange={(e) =>
+                              handleInput(
+                                "customJobTitle",
+                                e.target.value
+                              )
+                            }
+                            placeholder="e.g. Bespoke maintenance task, one-off works, etc."
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700">
+                            Job description (optional)
+                          </label>
+                          <p className="text-xs text-slate-500 mb-1">
+                            Describe exactly what will be done, where, and in
+                            what sequence.
+                          </p>
+                          <textarea
+                            className="w-full border border-slate-200 p-3 rounded-lg h-32 text-sm focus:ring-2 focus:ring-[#0b2040] focus:border-transparent outline-none bg-white shadow-sm hover:border-slate-300 transition-all duration-200"
+                            value={formData.customJobDescription}
+                            onChange={(e) =>
+                              handleInput(
+                                "customJobDescription",
+                                e.target.value
+                              )
+                            }
+                            placeholder="Describe the task, key stages, and any critical constraints..."
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700">
+                            Extra specific notes (optional)
+                          </label>
+                          <p className="text-xs text-slate-500 mb-1">
+                            Anything else the RAMS should capture for this
+                            particular job or site.
+                          </p>
+                          <textarea
+                            className="w-full border border-slate-200 p-3 rounded-lg h-24 text-sm focus:ring-2 focus:ring-[#0b2040] focus:border-transparent outline-none bg-white shadow-sm hover:border-slate-300 transition-all duration-200"
+                            value={formData.extraNotes}
+                            onChange={(e) =>
+                              handleInput("extraNotes", e.target.value)
+                            }
+                            placeholder="Access limitations, client instructions, special tools, out-of-hours work, etc."
+                          />
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="space-y-4">
+                        <div>
+                          <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700">
+                            Job description (optional)
+                          </label>
+                          <p className="text-xs text-slate-500 mb-1">
+                            This is pre-filled from our library where
+                            available. Adjust it if needed to match the actual
+                            scope.
+                          </p>
+                          <textarea
+                            className="w-full border border-slate-200 p-3 rounded-lg h-32 text-sm focus:ring-2 focus:ring-[#0b2040] focus:border-transparent outline-none bg-white shadow-sm hover:border-slate-300 transition-all duration-200"
+                            value={formData.customDescription}
+                            onChange={(e) =>
+                              handleInput(
+                                "customDescription",
+                                e.target.value
+                              )
+                            }
+                            placeholder="Describe the task, location, sequence and any special considerations..."
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700">
+                            Extra specific notes (optional)
+                          </label>
+                          <p className="text-xs text-slate-500 mb-1">
+                            Add anything unique to this site, client or job
+                            that the standard description doesn&apos;t cover.
+                          </p>
+                          <textarea
+                            className="w-full border border-slate-200 p-3 rounded-lg h-24 text-sm focus:ring-2 focus:ring-[#0b2040] focus:border-transparent outline-none bg-white shadow-sm hover:border-slate-300 transition-all duration-200"
+                            value={formData.extraNotes}
+                            onChange={(e) =>
+                              handleInput("extraNotes", e.target.value)
+                            }
+                            placeholder="E.g. out-of-hours working, shared access routes, client housekeeping rules..."
+                          />
+                        </div>
+                      </div>
+
+                    )}
+
+                    {/* Dynamic Extra Sections */}
+                    {TRADES[formData.trade]?.clusters[formData.jobType]?.extraSections &&
+                      TRADES[formData.trade].clusters[formData.jobType].extraSections!.length > 0 && (
+                        <div className="space-y-4 mt-6 pt-6 border-t border-slate-200">
+                          <div className="flex items-center gap-2 mb-2">
+                            <AlertTriangle className="w-4 h-4 text-amber-600" />
+                            <h4 className="font-semibold text-sm text-slate-900">
+                              High Complexity Job - Additional Details Required
+                            </h4>
+                          </div>
+                          <p className="text-xs text-slate-600 mb-4">
+                            This job type requires specific details for a complete safety plan.
+                          </p>
+                          {TRADES[formData.trade].clusters[formData.jobType].extraSections!.map((section) => (
+                            <div key={section}>
+                              <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
+                                {section.replace(/_/g, " ")}
+                              </label>
+                              <textarea
+                                className="w-full border border-slate-200 p-3 rounded-lg h-24 text-sm focus:ring-2 focus:ring-[#0b2040] focus:border-transparent outline-none bg-white shadow-sm hover:border-slate-300 transition-all duration-200"
+                                value={formData.extraData[section] || ""}
+                                onChange={(e) =>
+                                  setFormData((prev) => ({
+                                    ...prev,
+                                    extraData: {
+                                      ...prev.extraData,
+                                      [section]: e.target.value,
+                                    },
+                                  }))
+                                }
+                                placeholder={`Enter specific details for ${section.replace(/_/g, " ")}...`}
+                              />
+                            </div>
+                          ))}
+                        </div>
+                      )}
+
+                    <div className="flex justify-between gap-3 pt-2">
+                      <div className="flex gap-2">
+                        <button
+                          onClick={prevStep}
+                          className="inline-flex items-center justify-center rounded-lg border border-slate-300 px-4 py-2.5 text-sm font-semibold text-slate-800 hover:bg-slate-50"
+                        >
+                          Back
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setMode("landing");
+                            setStep(1);
+                            setActiveFile(null);
+                          }}
+                          className="inline-flex items-center justify-center rounded-lg border border-slate-300 px-3 py-2 text-[11px] font-semibold text-slate-700 hover:bg-slate-50"
+                        >
+                          ← Back to RS Hub
+                        </button>
+                      </div>
+                      <button
+                        onClick={nextStep}
+                        className="inline-flex items-center justify-center rounded-lg bg-[#0b2040] px-5 py-2.5 text-sm font-semibold text-white hover:bg-black transition-colors"
+                      >
+                        Next: Safety Info
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                {/* STEP 3: SAFETY & EMERGENCY INFO */}
+                {step === 3 && (
+                  <div className="space-y-6">
+                    <h2 className="text-xl font-semibold text-slate-900 flex items-center gap-2">
+                      <AlertTriangle className="w-5 h-5 text-[#0b2040]" />
+                      <TypedText text="Safety & Emergency Information" />
+                    </h2>
+                    <p className="text-[11px] text-slate-500">
+                      Fields marked <span className="text-red-600">*</span>{" "}
+                      are required. Use{" "}
+                      <span className="font-semibold">N/A</span> where details
+                      are genuinely not available.
+                    </p>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-slate-50 p-4 rounded-xl border border-slate-200">
+                      <div>
+                        <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
+                          Supervisor Name
+                          <span className="text-red-600 ml-0.5">*</span>
+                        </label>
+                        <input
+                          className="border border-slate-300 p-2.5 rounded-lg w-full text-sm focus:ring-2 focus:ring-[#0b2040] focus:border-transparent outline-none bg-white"
+                          placeholder="Site supervisor or lead"
+                          value={formData.supervisorName}
+                          onChange={(e) =>
+                            handleInput(
+                              "supervisorName",
+                              e.target.value
+                            )
+                          }
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
+                          First Aider
+                          <span className="text-red-600 ml-0.5">*</span>
+                        </label>
+                        <input
+                          className="border border-slate-300 p-2.5 rounded-lg w-full text-sm focus:ring-2 focus:ring-[#0b2040] focus:border-transparent outline-none bg-white"
+                          placeholder="Appointed person"
+                          value={formData.firstAider}
+                          onChange={(e) =>
+                            handleInput("firstAider", e.target.value)
+                          }
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
+                          Nearest Hospital
+                          <span className="text-red-600 ml-0.5">*</span>
+                        </label>
+                        <input
+                          className="border border-slate-300 p-2.5 rounded-lg w-full text-sm focus:ring-2 focus:ring-[#0b2040] focus:border-transparent outline-none bg-white"
+                          placeholder="e.g. Nearest A&E (N/A if unknown)"
+                          value={formData.hospital}
+                          onChange={(e) =>
+                            handleInput("hospital", e.target.value)
+                          }
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
+                          Fire Assembly Point
+                          <span className="text-red-600 ml-0.5">*</span>
+                        </label>
+                        <input
+                          className="border border-slate-300 p-2.5 rounded-lg w-full text-sm focus:ring-2 focus:ring-[#0b2040] focus:border-transparent outline-none bg-white"
+                          placeholder="As briefed in induction (or N/A)"
+                          value={formData.fireAssembly}
+                          onChange={(e) =>
+                            handleInput("fireAssembly", e.target.value)
+                          }
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
+                          First aid kit location (optional)
+                        </label>
+                        <input
+                          className="border border-slate-300 p-2.5 rounded-lg w-full text-sm focus:ring-2 focus:ring-[#0b2040] focus:border-transparent outline-none bg-white"
+                          placeholder="e.g. Site vehicle, reception, welfare cabin"
+                          value={formData.firstAidLoc}
+                          onChange={(e) =>
+                            handleInput("firstAidLoc", e.target.value)
+                          }
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
+                          Welfare / facilities (optional)
+                        </label>
+                        <input
+                          className="border border-slate-300 p-2.5 rounded-lg w-full text-sm focus:ring-2 focus:ring-[#0b2040] focus:border-transparent outline-none bg-white"
+                          placeholder="Toilets, wash stations, canteen, etc."
+                          value={formData.welfare}
+                          onChange={(e) =>
+                            handleInput("welfare", e.target.value)
+                          }
+                        />
+                      </div>
+                    </div>
+
+                    <div className="flex justify-between gap-3 pt-2">
+                      <div className="flex gap-2">
+                        <button
+                          onClick={prevStep}
+                          className="inline-flex items-center justify-center rounded-lg border border-slate-300 px-4 py-2.5 text-sm font-semibold text-slate-800 hover:bg-slate-50"
+                        >
+                          Back
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setMode("landing");
+                            setStep(1);
+                            setActiveFile(null);
+                          }}
+                          className="inline-flex items-center justify-center rounded-lg border border-slate-300 px-3 py-2 text-[11px] font-semibold text-slate-700 hover:bg-slate-50"
+                        >
+                          ← Back to RS Hub
+                        </button>
+                      </div>
+                      <button
+                        onClick={nextStep}
+                        className="inline-flex items-center justify-center rounded-lg bg-[#0b2040] px-5 py-2.5 text-sm font-semibold text-white hover:bg-black transition-colors"
+                      >
+                        Next: Hazards
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                {/* STEP 4: HAZARDS */}
+                {step === 4 && (
+                  <div className="space-y-6">
+                    <h2 className="text-xl font-semibold text-slate-900 flex items-center gap-2">
+                      <AlertTriangle className="w-5 h-5 text-[#0b2040]" />
+                      <TypedText text="Hazards & Risk Controls" />
+                    </h2>
+
+                    <p className="text-lg font-semibold text-red-700">
+                      <TypedText text="Please ensure you select all relevant hazards for this job – this is critical for a compliant RAMS." />
+                    </p>
+
+                    <div className="space-y-4">
+                      {Object.entries(HAZARD_GROUPS).map(
+                        ([group, items]: [string, any]) => (
+                          <div
+                            key={group}
+                            className="border border-slate-200 rounded-xl p-4"
+                          >
+                            <h4 className="text-xs font-semibold uppercase text-slate-500 mb-2">
+                              {group}
+                            </h4>
+                            <div className="flex flex-wrap gap-2">
+                              {items.map((h: string) => (
+                                <button
+                                  key={h}
+                                  onClick={() => toggleHazard(h)}
+                                  className={`text-[11px] py-1.5 px-3 rounded-full border ${hazards.includes(h)
+                                    ? "bg-[#0b2040] text-white border-[#0b2040]"
+                                    : "bg-white text-slate-800 border-slate-300"
+                                    }`}
+                                >
+                                  {(HAZARD_DATA as any)[h]?.label || h}
                                 </button>
                               ))}
-
-                              {/* Always offer an 'Other (Custom)' path */}
-                              <button
-                                type="button"
-                                onClick={() => {
-                                  const tradeToUse =
-                                    formData.trade ||
-                                    filteredJobs[0]?.trade ||
-                                    "Electrician";
-                                  handleInput("trade", tradeToUse);
-                                  handleInput("jobType", "Other (Custom)");
-                                  setJobSearch("Other (Custom)");
-                                  setJobSearchOpen(false);
-                                }}
-                                className="w-full px-3 py-2 text-left text-xs border-t border-slate-100 bg-slate-50 hover:bg-slate-100"
-                              >
-                                <div className="font-semibold text-slate-900">
-                                  Other (Custom)
-                                </div>
-                                <div className="text-[12px] text-slate-500">
-                                  For custom or non-standard tasks.
-                                </div>
-                              </button>
                             </div>
+                          </div>
+                        )
+                      )}
+                    </div>
+
+                    <div className="flex justify-between gap-3 pt-4 border-t border-slate-200">
+                      <div className="flex gap-2 pt-2">
+                        <button
+                          onClick={prevStep}
+                          className="inline-flex items-center justify-center rounded-lg border border-slate-300 px-4 py-2.5 text-sm font-semibold text-slate-800 hover:bg-slate-50"
+                        >
+                          Back
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setMode("landing");
+                            setStep(1);
+                            setActiveFile(null);
+                          }}
+                          className="inline-flex items-center justify-center rounded-lg border border-slate-300 px-3 py-2 text-[11px] font-semibold text-slate-700 hover:bg-slate-50"
+                        >
+                          ← Back to RS Hub
+                        </button>
+                      </div>
+                      <button
+                        onClick={nextStep}
+                        className="inline-flex items-center justify-center rounded-lg bg-[#0b2040] px-5 py-2.5 text-sm font-semibold text-white hover:bg-black transition-colors"
+                      >
+                        Next: Review &amp; Generate
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                {/* STEP 5: REVIEW & GENERATE */}
+                {step === 5 && (
+                  <div className="space-y-6">
+                    <h2 className="text-xl font-semibold text-slate-900 flex items-center gap-2">
+                      <FileText className="w-5 h-5 text-[#0b2040]" />
+                      <TypedText text="Review & Generate" />
+                    </h2>
+                    <p className="text-sm text-slate-600">
+                      Final sense-check before you generate. If anything looks
+                      off, go back and adjust the relevant step.
+                    </p>
+
+                    {/* Single review panel */}
+                    <div className="bg-slate-50 border border-slate-200 rounded-xl p-4 text-xs space-y-3">
+                      <h3 className="text-sm font-semibold text-slate-900 mb-1">
+                        Summary
+                      </h3>
+
+                      <div className="grid md:grid-cols-2 gap-3">
+                        <div className="space-y-1.5">
+                          <div>
+                            <span className="font-semibold">Document:</span>{" "}
+                            {documentName || "Untitled RAMS"}
+                          </div>
+                          <div>
+                            <span className="font-semibold">Company:</span>{" "}
+                            {formData.companyName || "Not set"}
+                          </div>
+                          <div>
+                            <span className="font-semibold">Client:</span>{" "}
+                            {formData.clientName || "Not set"}
+                          </div>
+                          <div>
+                            <span className="font-semibold">Site:</span>{" "}
+                            {formData.siteAddress || "Not set"}
+                          </div>
+                          <div>
+                            <span className="font-semibold">Job Ref:</span>{" "}
+                            {formData.projectRef || "—"}
+                          </div>
+                          <div>
+                            <span className="font-semibold">
+                              Prepared by:
+                            </span>{" "}
+                            {formData.contactName || "Not set"}
+                          </div>
+                          <div>
+                            <span className="font-semibold">Email:</span>{" "}
+                            {formData.contactEmail || "—"}
+                          </div>
+                          <div>
+                            <span className="font-semibold">Phone:</span>{" "}
+                            {formData.contactPhone || "—"}
+                          </div>
+                        </div>
+
+                        <div className="space-y-1.5">
+                          <div>
+                            <span className="font-semibold">Trade:</span>{" "}
+                            {formData.trade}
+                          </div>
+                          <div>
+                            <span className="font-semibold">Job type:</span>{" "}
+                            {formData.jobType || "Not selected"}
+                          </div>
+                          <div>
+                            <span className="font-semibold">Start:</span>{" "}
+                            {formData.startDate || "—"}
+                          </div>
+                          <div>
+                            <span className="font-semibold">End:</span>{" "}
+                            {formData.endDate || "—"}
+                          </div>
+                          <div>
+                            <span className="font-semibold">
+                              Expected end:
+                            </span>{" "}
+                            {formData.expectedEndDate || "—"}
+                          </div>
+                          <div>
+                            <span className="font-semibold">
+                              Operatives:
+                            </span>{" "}
+                            {formData.operatives || "1 (assumed)"}
+                          </div>
+                          <div>
+                            <span className="font-semibold">
+                              Supervisor:
+                            </span>{" "}
+                            {formData.supervisorName || "Not set"}
+                          </div>
+                          <div>
+                            <span className="font-semibold">
+                              First aider:
+                            </span>{" "}
+                            {formData.firstAider || "Not set"}
+                          </div>
+                          <div>
+                            <span className="font-semibold">Hospital:</span>{" "}
+                            {formData.hospital || "Not set"}
+                          </div>
+                          <div>
+                            <span className="font-semibold">
+                              Fire assembly:
+                            </span>{" "}
+                            {formData.fireAssembly || "Not set"}
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="pt-2 border-t border-slate-200 space-y-2">
+                        <div>
+                          <span className="font-semibold">
+                            Job description:
+                          </span>
+                        </div>
+                        <div className="text-[11px] text-slate-700 whitespace-pre-wrap">
+                          {buildScopeFromForm() || "—"}
+                        </div>
+                      </div>
+
+                      <div className="pt-2 border-t border-slate-200 space-y-1">
+                        <div>
+                          <span className="font-semibold">
+                            Hazards selected:
+                          </span>{" "}
+                          {hazards.length}
+                        </div>
+                        <div>
+                          {hazards.length === 0 ? (
+                            <span className="text-[11px] text-red-700">
+                              No hazards selected – you should add some
+                              before generating.
+                            </span>
+                          ) : (
+                            <ul className="list-disc list-inside text-[11px] text-slate-700 space-y-0.5">
+                              {hazardPreviewLabels.slice(0, 12).map((h) => (
+                                <li key={h}>{h}</li>
+                              ))}
+                              {hazards.length > 12 && <li>…and more</li>}
+                            </ul>
                           )}
                         </div>
                       </div>
-
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                          <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
-                            Trade
-                          </label>
-                          <select
-                            className="border border-slate-300 p-3 rounded-lg w-full text-sm bg-white focus:ring-2 focus:ring-[#0b2040] focus:border-transparent outline-none"
-                            value={formData.trade}
-                            onChange={(e) =>
-                              handleInput("trade", e.target.value)
-                            }
-                          >
-                            {Object.keys(TRADES).map((t) => (
-                              <option key={t}>{t}</option>
-                            ))}
-                          </select>
-                        </div>
-
-                        <div>
-                          <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
-                            Job Type
-                            <span className="text-red-600 ml-0.5">*</span>
-                          </label>
-                          {/* @ts-ignore */}
-                          <select
-                            className="border border-slate-300 p-3 rounded-lg w-full text-sm bg-white focus:ring-2 focus:ring-[#0b2040] focus:border-transparent outline-none"
-                            value={formData.jobType}
-                            onChange={(e) =>
-                              handleInput("jobType", e.target.value)
-                            }
-                          >
-                            <option value="">Select Job Type</option>
-                            {
-                              // @ts-ignore
-                              TRADES[formData.trade].jobs.map((j: any) => (
-                                <option key={j.name}>{j.name}</option>
-                              ))
-                            }
-                          </select>
-                        </div>
-                      </div>
-
-                      {/* Schedule & workforce */}
-                      <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-4">
-                        <h3 className="font-semibold text-sm text-slate-900">
-                          Schedule & Workforce
-                        </h3>
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                          <div>
-                            <label className="flex items-center text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
-                              Start Date
-                              <Tooltip text="Date the work is planned to start on site." />
-                            </label>
-                            <input
-                              type="date"
-                              className="border border-slate-300 p-3 rounded-lg w-full text-sm focus:ring-2 focus:ring-[#0b2040] focus:border-transparent outline-none bg-white"
-                              value={formData.startDate}
-                              onChange={(e) =>
-                                handleInput("startDate", e.target.value)
-                              }
-                            />
-                          </div>
-                          <div>
-                            <label className="flex items-center text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
-                              Expected End Date (optional)
-                              <Tooltip text="Target completion date. If unknown, you can leave this blank or adjust later." />
-                            </label>
-                            <input
-                              type="date"
-                              className="border border-slate-300 p-3 rounded-lg w-full text-sm focus:ring-2 focus:ring-[#0b2040] focus:border-transparent outline-none bg-white"
-                              value={formData.expectedEndDate}
-                              onChange={(e) =>
-                                handleInput(
-                                  "expectedEndDate",
-                                  e.target.value
-                                )
-                              }
-                            />
-                          </div>
-                          <div>
-                            <label className="flex items-center text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
-                              Number of operatives
-                              <Tooltip text="Total people working under this RAMS. If left blank we assume 1 operative." />
-                            </label>
-                            <input
-                              type="number"
-                              min={1}
-                              className="border border-slate-300 p-3 rounded-lg w-full text-sm focus:ring-2 focus:ring-[#0b2040] focus:border-transparent outline-none bg-white"
-                              value={formData.operatives}
-                              onChange={(e) =>
-                                handleInput("operatives", e.target.value)
-                              }
-                            />
-                          </div>
-                        </div>
-
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                          <div>
-                            <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
-                              Actual End Date (optional)
-                            </label>
-                            <input
-                              type="date"
-                              className="border border-slate-300 p-3 rounded-lg w-full text-sm focus:ring-2 focus:ring-[#0b2040] focus:border-transparent outline-none bg-white"
-                              value={formData.endDate}
-                              onChange={(e) =>
-                                handleInput("endDate", e.target.value)
-                              }
-                            />
-                          </div>
-                        </div>
-                      </div>
-
-                      {questions.length > 0 && (
-                        <div className="bg-[#e4ecf7] p-4 rounded-xl border border-slate-200">
-                          <h4 className="font-semibold text-sm text-slate-900 mb-3">
-                            Pre-Start Safety Checks (optional responses)
-                          </h4>
-                          <p className="text-xs text-slate-600 mb-3">
-                            Answer each question honestly. Where you leave it
-                            blank here, the PDF will show N/A.
-                          </p>
-                          <div className="space-y-2">
-                            {questions.map((q: any) => (
-                              <div
-                                key={q.id}
-                                className="flex justify-between items-center gap-4 bg-white p-2.5 rounded-lg border border-slate-200"
-                              >
-                                <span className="text-sm text-slate-900">
-                                  {q.label}
-                                </span>
-                                <div className="flex gap-2 shrink-0">
-                                  <button
-                                    onClick={() =>
-                                      setAnswers({
-                                        ...answers,
-                                        [q.id]: "Yes",
-                                      })
-                                    }
-                                    className={`px-3 py-1 rounded-md text-[11px] font-semibold ${
-                                      answers[q.id] === "Yes"
-                                        ? "bg-[#0b2040] text-white"
-                                        : "bg-slate-100 text-slate-800"
-                                    }`}
-                                  >
-                                    Yes
-                                  </button>
-                                  <button
-                                    onClick={() =>
-                                      setAnswers({
-                                        ...answers,
-                                        [q.id]: "No",
-                                      })
-                                    }
-                                    className={`px-3 py-1 rounded-md text-[11px] font-semibold ${
-                                      answers[q.id] === "No"
-                                        ? "bg-[#0b2040] text-white"
-                                        : "bg-slate-100 text-slate-800"
-                                    }`}
-                                  >
-                                    No
-                                  </button>
-                                </div>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      )}
-
-                      {/* JOB DESCRIPTION + EXTRA NOTES */}
-                      {formData.jobType === "Other (Custom)" ? (
-                        <div className="space-y-4">
-                          <div>
-                            <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
-                              Custom job title (optional)
-                            </label>
-                            <input
-                              className="w-full border border-slate-300 p-3 rounded-lg text-sm focus:ring-2 focus:ring-[#0b2040] focus:border-transparent outline-none bg-white"
-                              value={formData.customJobTitle}
-                              onChange={(e) =>
-                                handleInput(
-                                  "customJobTitle",
-                                  e.target.value
-                                )
-                              }
-                              placeholder="e.g. Bespoke maintenance task, one-off works, etc."
-                            />
-                          </div>
-
-                          <div>
-                            <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700">
-                              Job description (optional)
-                            </label>
-                            <p className="text-xs text-slate-500 mb-1">
-                              Describe exactly what will be done, where, and in
-                              what sequence.
-                            </p>
-                            <textarea
-                              className="w-full border border-slate-300 p-3 rounded-lg h-32 text-sm focus:ring-2 focus:ring-[#0b2040] focus:border-transparent outline-none bg-white"
-                              value={formData.customJobDescription}
-                              onChange={(e) =>
-                                handleInput(
-                                  "customJobDescription",
-                                  e.target.value
-                                )
-                              }
-                              placeholder="Describe the task, key stages, and any critical constraints..."
-                            />
-                          </div>
-
-                          <div>
-                            <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700">
-                              Extra specific notes (optional)
-                            </label>
-                            <p className="text-xs text-slate-500 mb-1">
-                              Anything else the RAMS should capture for this
-                              particular job or site.
-                            </p>
-                            <textarea
-                              className="w-full border border-slate-300 p-3 rounded-lg h-24 text-sm focus:ring-2 focus:ring-[#0b2040] focus:border-transparent outline-none bg-white"
-                              value={formData.extraNotes}
-                              onChange={(e) =>
-                                handleInput("extraNotes", e.target.value)
-                              }
-                              placeholder="Access limitations, client instructions, special tools, out-of-hours work, etc."
-                            />
-                          </div>
-                        </div>
-                      ) : (
-                        <div className="space-y-4">
-                          <div>
-                            <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700">
-                              Job description (optional)
-                            </label>
-                            <p className="text-xs text-slate-500 mb-1">
-                              This is pre-filled from our library where
-                              available. Adjust it if needed to match the actual
-                              scope.
-                            </p>
-                            <textarea
-                              className="w-full border border-slate-300 p-3 rounded-lg h-32 text-sm focus:ring-2 focus:ring-[#0b2040] focus:border-transparent outline-none bg-white"
-                              value={formData.customDescription}
-                              onChange={(e) =>
-                                handleInput(
-                                  "customDescription",
-                                  e.target.value
-                                )
-                              }
-                              placeholder="Describe the task, location, sequence and any special considerations..."
-                            />
-                          </div>
-
-                          <div>
-                            <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700">
-                              Extra specific notes (optional)
-                            </label>
-                            <p className="text-xs text-slate-500 mb-1">
-                              Add anything unique to this site, client or job
-                              that the standard description doesn&apos;t cover.
-                            </p>
-                            <textarea
-                              className="w-full border border-slate-300 p-3 rounded-lg h-24 text-sm focus:ring-2 focus:ring-[#0b2040] focus:border-transparent outline-none bg-white"
-                              value={formData.extraNotes}
-                              onChange={(e) =>
-                                handleInput("extraNotes", e.target.value)
-                              }
-                              placeholder="E.g. out-of-hours working, shared access routes, client housekeeping rules..."
-                            />
-                          </div>
-                        </div>
-                      )}
-
-                      <div className="flex justify-between gap-3 pt-2">
-                        <div className="flex gap-2">
-                          <button
-                            onClick={prevStep}
-                            className="inline-flex items-center justify-center rounded-lg border border-slate-300 px-4 py-2.5 text-sm font-semibold text-slate-800 hover:bg-slate-50"
-                          >
-                            Back
-                          </button>
-                        </div>
-                        <div className="flex gap-2">
-                          <button
-                            onClick={goBackToHub}
-                            className="inline-flex items-center justify-center rounded-lg border border-slate-300 px-4 py-2.5 text-sm font-semibold text-slate-800 hover:bg-slate-50"
-                          >
-                            Back to hub
-                          </button>
-                          <button
-                            onClick={nextStep}
-                            className="inline-flex items-center justify-center rounded-lg bg-[#0b2040] px-5 py-2.5 text-sm font-semibold text-white hover:bg-black transition-colors"
-                          >
-                            Next: Emergency Info
-                          </button>
-                        </div>
-                      </div>
                     </div>
-                  )}
 
-                  {/* STEP 4: EMERGENCY INFO */}
-                  {step === 4 && (
-                    <div className="space-y-6">
-                      <h2 className="text-xl font-semibold text-slate-900 flex items-center gap-2">
-                        <AlertTriangle className="w-5 h-5 text-[#0b2040]" />
-                        <span>{typedStepTitle || currentStepTitle}</span>
-                      </h2>
-                      <p className="text-xs text-slate-500">
-                        Fields marked <span className="text-red-600">*</span>{" "}
-                        are required. Use{" "}
-                        <span className="font-semibold">N/A</span> where
-                        details are genuinely not available.
-                      </p>
-
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-slate-50 p-4 rounded-xl border border-slate-200">
-                        <div>
-                          <label className="flex items-center text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
-                            Supervisor Name
-                            <span className="text-red-600 ml-0.5">*</span>
-                            <Tooltip text="Person in overall control of the work on site." />
-                          </label>
-                          <input
-                            className="border border-slate-300 p-2.5 rounded-lg w-full text-sm focus:ring-2 focus:ring-[#0b2040] focus:border-transparent outline-none bg-white"
-                            placeholder="Site supervisor or lead"
-                            value={formData.supervisorName}
-                            onChange={(e) =>
-                              handleInput(
-                                "supervisorName",
-                                e.target.value
-                              )
-                            }
-                          />
-                        </div>
-                        <div>
-                          <label className="flex items-center text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
-                            First Aider
-                            <span className="text-red-600 ml-0.5">*</span>
-                            <Tooltip text="Appointed person responsible for first aid on site." />
-                          </label>
-                          <input
-                            className="border border-slate-300 p-2.5 rounded-lg w-full text-sm focus:ring-2 focus:ring-[#0b2040] focus:border-transparent outline-none bg-white"
-                            placeholder="Appointed person"
-                            value={formData.firstAider}
-                            onChange={(e) =>
-                              handleInput("firstAider", e.target.value)
-                            }
-                          />
-                        </div>
-                        <div>
-                          <label className="flex items-center text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
-                            Nearest Hospital
-                            <span className="text-red-600 ml-0.5">*</span>
-                            <Tooltip text="Name or description of the nearest emergency hospital / A&E." />
-                          </label>
-                          <input
-                            className="border border-slate-300 p-2.5 rounded-lg w-full text-sm focus:ring-2 focus:ring-[#0b2040] focus:border-transparent outline-none bg-white"
-                            placeholder="e.g. Nearest A&E (N/A if unknown)"
-                            value={formData.hospital}
-                            onChange={(e) =>
-                              handleInput("hospital", e.target.value)
-                            }
-                          />
-                        </div>
-                        <div>
-                          <label className="flex items-center text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
-                            Fire Assembly Point
-                            <span className="text-red-600 ml-0.5">*</span>
-                            <Tooltip text="Where everyone must gather in the event of a fire. Usually explained during induction." />
-                          </label>
-                          <input
-                            className="border border-slate-300 p-2.5 rounded-lg w-full text-sm focus:ring-2 focus:ring-[#0b2040] focus:border-transparent outline-none bg-white"
-                            placeholder="As briefed in induction (or N/A)"
-                            value={formData.fireAssembly}
-                            onChange={(e) =>
-                              handleInput("fireAssembly", e.target.value)
-                            }
-                          />
-                        </div>
-
-                        <div>
-                          <label className="flex items-center text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
-                            First Aid Kit Location (optional)
-                            <Tooltip text="Where the on-site first aid kit can be found (e.g. site office, van, welfare cabin)." />
-                          </label>
-                          <input
-                            className="border border-slate-300 p-2.5 rounded-lg w-full text-sm focus:ring-2 focus:ring-[#0b2040] focus:border-transparent outline-none bg-white"
-                            placeholder="e.g. Site office, main welfare cabin"
-                            value={formData.firstAidLoc}
-                            onChange={(e) =>
-                              handleInput("firstAidLoc", e.target.value)
-                            }
-                          />
-                        </div>
-
-                        <div>
-                          <label className="flex items-center text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
-                            Welfare / WC Arrangements (optional)
-                            <Tooltip text="Where welfare, toilets and washing facilities are located for this job." />
-                          </label>
-                          <input
-                            className="border border-slate-300 p-2.5 rounded-lg w-full text-sm focus:ring-2 focus:ring-[#0b2040] focus:border-transparent outline-none bg-white"
-                            placeholder="e.g. Client WC, site welfare cabin"
-                            value={formData.welfare}
-                            onChange={(e) =>
-                              handleInput("welfare", e.target.value)
-                            }
-                          />
-                        </div>
-
-                        <div>
-                          <label className="flex items-center text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
-                            Site Access / Lockbox Code (optional)
-                            <Tooltip text="Any code or instruction required to access the site or lockbox (do not put sensitive PINs if not appropriate)." />
-                          </label>
-                          <input
-                            className="border border-slate-300 p-2.5 rounded-lg w-full text-sm focus:ring-2 focus:ring-[#0b2040] focus:border-transparent outline-none bg-white"
-                            placeholder="e.g. Gate code, lockbox instructions"
-                            value={formData.accessCode}
-                            onChange={(e) =>
-                              handleInput("accessCode", e.target.value)
-                            }
-                          />
-                        </div>
+                    <div className="flex justify-between gap-3 pt-4 border-t border-slate-200">
+                      <div className="flex gap-2 pt-2">
+                        <button
+                          onClick={prevStep}
+                          className="inline-flex items-center justify-center rounded-lg border border-slate-300 px-4 py-2.5 text-sm font-semibold text-slate-800 hover:bg-slate-50"
+                        >
+                          Back
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setMode("landing");
+                            setStep(1);
+                            setActiveFile(null);
+                          }}
+                          className="inline-flex items-center justify-center rounded-lg border border-slate-300 px-3 py-2 text-[11px] font-semibold text-slate-700 hover:bg-slate-50"
+                        >
+                          ← Back to RS Hub
+                        </button>
                       </div>
-
-                      <div className="mt-6 pt-4 border-t border-slate-200 flex justify-between gap-3">
-                        <div className="flex gap-2">
-                          <button
-                            onClick={prevStep}
-                            className="inline-flex items-center justify-center rounded-lg border border-slate-300 px-4 py-2.5 text-sm font-semibold text-slate-800 hover:bg-slate-50"
-                          >
-                            Back
-                          </button>
-                        </div>
-                        <div className="flex gap-2">
-                          <button
-                            onClick={goBackToHub}
-                            className="inline-flex items-center justify-center rounded-lg border border-slate-300 px-4 py-2.5 text-sm font-semibold text-slate-800 hover:bg-slate-50"
-                          >
-                            Back to hub
-                          </button>
-                          <button
-                            onClick={nextStep}
-                            className="inline-flex items-center justify-center rounded-lg bg-[#0b2040] px-5 py-2.5 text-sm font-semibold text-white hover:bg-black transition-colors"
-                          >
-                            Next: Hazards & Generate
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* STEP 5: HAZARDS & GENERATE */}
-                  {step === 5 && (
-                    <div className="space-y-6">
-                      <h2 className="text-xl font-semibold text-slate-900 flex items-center gap-2">
-                        <AlertTriangle className="w-5 h-5 text-[#0b2040]" />
-                        <span>{typedStepTitle || currentStepTitle}</span>
-                      </h2>
-
-                      {hazardTipText && (
-                        <p className="text-base md:text-lg font-semibold text-[#0b2040]">
-                          {hazardTipText}
-                        </p>
-                      )}
-
-                      <div className="space-y-4">
-                        {Object.entries(HAZARD_GROUPS).map(
-                          ([group, items]: [string, any]) => (
-                            <div
-                              key={group}
-                              className="border border-slate-200 rounded-xl p-4"
-                            >
-                              <h4 className="text-xs font-semibold uppercase text-slate-500 mb-2">
-                                {group}
-                              </h4>
-                              <div className="flex flex-wrap gap-2">
-                                {items.map((h: string) => (
-                                  <button
-                                    key={h}
-                                    onClick={() => toggleHazard(h)}
-                                    className={`text-[11px] py-1.5 px-3 rounded-full border ${
-                                      hazards.includes(h)
-                                        ? "bg-[#0b2040] text-white border-[#0b2040]"
-                                        : "bg-white text-slate-800 border-slate-300"
-                                    }`}
-                                  >
-                                    {(HAZARD_DATA as any)[h]?.label || h}
-                                  </button>
-                                ))}
-                              </div>
-                            </div>
-                          )
+                      <button
+                        onClick={generateRAMS}
+                        disabled={isGenerating}
+                        className="inline-flex items-center justify-center gap-2 rounded-lg bg-red-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-red-700 disabled:opacity-60 disabled:cursor-not-allowed transition-colors"
+                      >
+                        {isGenerating ? (
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                        ) : (
+                          <FileText className="w-4 h-4" />
                         )}
-                      </div>
-
-                      <div className="mt-6 pt-4 border-t border-slate-200 flex justify-between gap-3">
-                        <div className="flex gap-2">
-                          <button
-                            onClick={prevStep}
-                            className="inline-flex items-center justify-center rounded-lg border border-slate-300 px-4 py-2.5 text-sm font-semibold text-slate-800 hover:bg-slate-50"
-                          >
-                            Back
-                          </button>
-                        </div>
-                        <div className="flex gap-2">
-                          <button
-                            onClick={goBackToHub}
-                            className="inline-flex items-center justify-center rounded-lg border border-slate-300 px-4 py-2.5 text-sm font-semibold text-slate-800 hover:bg-slate-50"
-                          >
-                            Back to hub
-                          </button>
-                          <button
-                            onClick={generateRAMS}
-                            disabled={isGenerating}
-                            className="inline-flex items-center justify-center gap-2 rounded-lg bg-red-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-red-700 disabled:opacity-60 disabled:cursor-not-allowed transition-colors"
-                          >
-                            {isGenerating ? (
-                              <Loader2 className="w-4 h-4 animate-spin" />
-                            ) : (
-                              <FileText className="w-4 h-4" />
-                            )}
-                            {isGenerating
-                              ? "Generating..."
-                              : "Generate document"}
-                          </button>
-                        </div>
-                      </div>
+                        {isGenerating
+                          ? "Generating..."
+                          : "Generate & Open in Editor"}
+                      </button>
                     </div>
-                  )}
-                </div>
-              </section>
-            </>
+                  </div>
+                )}
+              </div>
+            </section>
           )}
         </main>
       </div>
