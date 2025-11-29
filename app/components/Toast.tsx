@@ -15,12 +15,19 @@ export default function Toast({ message, type = "info", onClose, duration = 3000
 
     useEffect(() => {
         setIsVisible(true);
-        const timer = setTimeout(() => {
-            setIsVisible(false);
-            setTimeout(onClose, 300); // Wait for exit animation
-        }, duration);
-        return () => clearTimeout(timer);
-    }, [duration, onClose]);
+        if (duration > 0) {
+            const timer = setTimeout(() => {
+                setIsVisible(false);
+                setTimeout(onClose, 300); // Wait for exit animation
+            }, duration);
+            return () => clearTimeout(timer);
+        }
+    }, [duration, message]); // Depend on message, not onClose
+
+    const handleClose = () => {
+        setIsVisible(false);
+        setTimeout(onClose, 300);
+    };
 
     const bgColors = {
         success: "bg-green-50 border-green-200 text-green-800",
@@ -41,7 +48,7 @@ export default function Toast({ message, type = "info", onClose, duration = 3000
         >
             {icons[type]}
             <span className="text-sm font-medium">{message}</span>
-            <button onClick={() => setIsVisible(false)} className="p-1 hover:bg-black/5 rounded-full transition-colors">
+            <button onClick={handleClose} className="p-1 hover:bg-black/5 rounded-full transition-colors">
                 <X className="w-4 h-4 opacity-60" />
             </button>
         </div>

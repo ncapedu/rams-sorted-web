@@ -65,7 +65,19 @@ const MyFileViewer = ({ file, onBack, onUpdateFile }: MyFileViewerProps) => {
   const [localName, setLocalName] = useState<string>(file?.name ?? "");
   const [isEditingName, setIsEditingName] = useState(false);
   const [showSignature, setShowSignature] = useState(false);
-  const [viewMode, setViewMode] = useState<"web" | "print">("web");
+  const [viewMode, setViewMode] = useState<"web" | "print">(() => {
+    if (typeof window !== "undefined") {
+      return (window.localStorage.getItem("rams-view-mode") as "web" | "print") || "web";
+    }
+    return "web";
+  });
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      window.localStorage.setItem("rams-view-mode", viewMode);
+    }
+  }, [viewMode]);
+
   const [zoomLevel, setZoomLevel] = useState(1.0); // Default 100%
   const sigCanvasRef = useRef<HTMLCanvasElement | null>(null);
   const sigDrawing = useRef(false);
@@ -152,65 +164,8 @@ const MyFileViewer = ({ file, onBack, onUpdateFile }: MyFileViewerProps) => {
     }
   };
 
-  const handleExportPDF = async () => {
-    if (!pageRef.current) return;
-
-    try {
-      // 1. Clone the node to avoid messing with the live editor
-      const clone = pageRef.current.cloneNode(true) as HTMLElement;
-
-      // 2. Reset transforms on the clone so html2canvas sees it 'flat'
-      clone.style.transform = "none";
-      // @ts-ignore
-      clone.style.zoom = "1";
-      clone.style.width = "210mm";
-      clone.style.minHeight = "297mm";
-      clone.style.height = "auto";
-      clone.style.position = "absolute";
-      clone.style.top = "-9999px";
-      clone.style.left = "-9999px";
-
-      // 3. Append to body so it renders
-      document.body.appendChild(clone);
-
-      // 4. Capture
-      const canvas = await html2canvas(clone, {
-        scale: 2, // Higher quality
-        useCORS: true,
-        logging: false,
-        backgroundColor: "#ffffff",
-        windowWidth: clone.scrollWidth,
-        windowHeight: clone.scrollHeight
-      });
-
-      // 5. Clean up
-      document.body.removeChild(clone);
-
-      const imgData = canvas.toDataURL("image/png");
-      const pdf = new jsPDF("p", "mm", "a4");
-      const pdfWidth = pdf.internal.pageSize.getWidth();
-      const pdfHeight = pdf.internal.pageSize.getHeight();
-      const imgWidth = pdfWidth;
-      const imgHeight = (canvas.height * imgWidth) / canvas.width;
-
-      let heightLeft = imgHeight;
-      let position = 0;
-
-      pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
-      heightLeft -= pdfHeight;
-
-      while (heightLeft > 0) {
-        position = heightLeft - imgHeight;
-        pdf.addPage();
-        pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
-        heightLeft -= pdfHeight;
-      }
-
-      pdf.save(`${file.name || "RAMS"}.pdf`);
-    } catch (err) {
-      console.error("PDF export failed", err);
-      alert("Failed to export PDF.");
-    }
+  const handleExportPDF = () => {
+    window.print();
   };
 
   // Signature drawing handlers
@@ -618,7 +573,7 @@ const MyFileViewer = ({ file, onBack, onUpdateFile }: MyFileViewerProps) => {
           >
             <div
               ref={pageRef}
-              className={`origin-top-left ${viewMode === "print" ? "bg-white shadow-sm absolute shadow-[0_0_0_1px_rgba(0,0,0,0.08),0_20px_40px_rgba(15,23,42,0.08)]" : "bg-white w-full min-h-full relative shadow-none border-none outline-none"}`}
+              className={`print-only-content origin-top-left ${viewMode === "print" ? "bg-white shadow-sm absolute shadow-[0_0_0_1px_rgba(0,0,0,0.08),0_20px_40px_rgba(15,23,42,0.08)]" : "bg-white w-full min-h-full relative shadow-none border-none outline-none"}`}
               style={viewMode === "print" ? {
                 width: "210mm",
                 minHeight: "297mm",

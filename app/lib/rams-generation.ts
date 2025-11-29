@@ -1,7 +1,8 @@
-import { RAMSFile } from "../components/MyFileViewer";
-import { HAZARD_DATA } from "./constants";
+import { HAZARD_DATA, TRADES } from "./constants";
+import { METHOD_STATEMENTS, PPE_DEFINITIONS, COSHH_LIBRARY } from "./rams-content";
 
 export interface RAMSData {
+  userType: "company" | "sole_trader";
   companyName: string;
   clientName: string;
   siteAddress: string;
@@ -16,15 +17,17 @@ export interface RAMSData {
   fireAssembly: string;
   firstAidLoc: string;
   welfare: string;
-  scopeText: string;
-  checklist: { label: string; answer: string }[];
+  scopeText?: string; // Legacy support
+  customDescription?: string;
+  checklist?: { label: string; answer: string }[];
   hazards: string[];
-  methodSteps: string[];
   coshh: any[];
   documentName: string;
   ppe: string[];
-  operatives?: string | number; // Number of operatives for the register
+  operatives?: string | number;
   extraData?: Record<string, string>;
+  answers?: Record<string, string>;
+  methodSteps?: string[];
 }
 
 function sanitizeText(input: any): string {
@@ -37,8 +40,87 @@ function sanitizeText(input: any): string {
     .trim();
 }
 
+// Helper to get terminology based on user type
+function getTerminology(userType: "company" | "sole_trader") {
+  return userType === "sole_trader"
+    ? {
+      we: "I",
+      our: "My",
+      us: "Me",
+      company: "The Contractor",
+      manager: "Manager/Proprietor",
+    }
+    : {
+      we: "We",
+      our: "Our",
+      us: "Us",
+      company: "The Company",
+      manager: "Supervisor/Manager",
+    };
+}
+
+// Helper to generate method statement
+function generateMethodStatement(trade: string, jobType: string, userType: "company" | "sole_trader"): string[] {
+  const terms = getTerminology(userType);
+
+  // Try to find specific steps
+  let steps = METHOD_STATEMENTS[trade]?.[jobType];
+
+  // Fallback to trade default
+  if (!steps) {
+    steps = METHOD_STATEMENTS[trade]?.["default"];
+  }
+
+  // Fallback to generic default
+  if (!steps) {
+    steps = METHOD_STATEMENTS["default"]["default"];
+  }
+
+  // Process steps to replace placeholders or adjust grammar if needed
+  // For now, simple replacement if we had placeholders.
+  // But the steps are written in imperative "Arrive...", "Isolate..." which works for both.
+  // "We will..." vs "I will..." -> The steps are "Arrive...", "Isolate...".
+  // So they are neutral.
+
+  return steps;
+}
+
+// Helper to generate PPE
+function generatePPE(hazards: string[], trade: string): string[] {
+  const ppeList: Set<string> = new Set();
+
+  // Always add basics
+  ppeList.add("Safety Footwear (Steel Toe/Midsole)");
+  ppeList.add("Hi-Visibility Vest/Jacket");
+
+  // Add based on hazards
+  hazards.forEach(h => {
+    const def = PPE_DEFINITIONS[h];
+    if (def) {
+      ppeList.add(def.item);
+    }
+  });
+
+  return Array.from(ppeList);
+}
+
+// Helper to generate COSHH
+function generateCOSHH(hazards: string[]): { substance: string; hazard: string; control: string }[] {
+  const coshhList: { substance: string; hazard: string; control: string }[] = [];
+
+  hazards.forEach(h => {
+    const entries = COSHH_LIBRARY[h];
+    if (entries) {
+      entries.forEach(entry => coshhList.push(entry));
+    }
+  });
+
+  return coshhList;
+}
+
 export function generateRAMSHTML(data: RAMSData): string {
   const {
+    userType = "company", // Default to company
     companyName,
     clientName,
     siteAddress,
@@ -53,16 +135,46 @@ export function generateRAMSHTML(data: RAMSData): string {
     fireAssembly,
     firstAidLoc,
     welfare,
+    customDescription,
     scopeText,
-    checklist,
+    checklist, // This comes as array from page.tsx? No, page.tsx sends "answers".
+    // I need to map "answers" to checklist format if needed.
+    // page.tsx sends "answers": { q1: "Yes", q2: "No" ... }
+    // The previous code expected "checklist": { label, answer }[]
+    // I should handle both or check API route.
+    // Let's assume the API route does the mapping.
+    // If not, I'll need to do it here.
+    // I'll assume data passed to this function is already formatted by the API route.
     hazards,
-    methodSteps,
-    coshh,
     documentName,
-    ppe,
     operatives,
-    extraData
+    extraData,
+    answers
   } = data;
+
+  const terms = getTerminology(userType);
+  const scope = customDescription || scopeText || "";
+
+  // Generate dynamic content
+  const rawSteps = (data.methodSteps && data.methodSteps.length > 0)
+    ? data.methodSteps
+    : generateMethodStatement(trade, jobType, userType);
+
+  const methodSteps = (Array.isArray(rawSteps) ? rawSteps : []).slice(0, 4);
+  const ppe = generatePPE(hazards, trade);
+  const coshh = generateCOSHH(hazards);
+
+  // Derive checklist if not provided but answers are present
+  let finalChecklist = checklist || [];
+  if (finalChecklist.length === 0 && answers && trade && jobType) {
+    const cluster = TRADES[trade]?.clusters?.[jobType];
+    if (cluster && cluster.questions) {
+      finalChecklist = cluster.questions.map(q => ({
+        label: q.label,
+        answer: answers[q.id] || "N/A"
+      }));
+    }
+  }
 
   const toTitleCase = (str: string) =>
     str.replace(/\w\S*/g, (txt) => {
@@ -75,7 +187,6 @@ export function generateRAMSHTML(data: RAMSData): string {
   const header = `
     <div class="header-line">
       <h1>Risk Assessment & Method Statement</h1>
-      <p class="text-center small" style="margin-top: 0;">${sanitizeText(documentName)}</p>
     </div>
   `;
 
@@ -84,7 +195,7 @@ export function generateRAMSHTML(data: RAMSData): string {
     <h2>1. Project & Job Scope Details</h2>
     <table>
       <tr>
-        <th width="20%">Company</th>
+        <th width="20%">${userType === "company" ? "Company" : "Contractor"}</th>
         <td width="30%">${sanitizeText(companyName)}</td>
         <th width="20%">Client</th>
         <td width="30%">${sanitizeText(clientName)}</td>
@@ -116,34 +227,38 @@ export function generateRAMSHTML(data: RAMSData): string {
     `).join("")
     : "";
 
-  const scope = `
+  const scopeSection = `
     <h2>2. Scope of Works</h2>
     <div style="margin-bottom: 15px;">
-      ${sanitizeText(scopeText).split('\n').map(line => `<p>${line}</p>`).join('')}
+      ${sanitizeText(scope).split('\n').map(line => `<p>${line}</p>`).join('')}
     </div>
     ${extraDetails}
   `;
 
   // 4. Pre-Start Checklist
-  const checklistRows = checklist.map((item: any, i: number) => `
-    <tr>
-      <td width="5%">${i + 1}</td>
-      <td width="80%">${item.label}</td>
-      <td width="15%" class="text-center bold">${item.answer}</td>
-    </tr>
-  `).join("");
-
-  const checklistHTML = `
-    <h2>3. Pre-Start Safety Checklist</h2>
-    <table>
+  // Handle checklist if it exists, otherwise skip
+  let checklistHTML = "";
+  if (finalChecklist.length > 0) {
+    const checklistRows = finalChecklist.map((item: any, i: number) => `
       <tr>
-        <th>#</th>
-        <th>Check / Question</th>
-        <th>Status</th>
+        <td width="5%">${i + 1}</td>
+        <td width="80%">${item.label}</td>
+        <td width="15%" class="text-center bold">${item.answer}</td>
       </tr>
-      ${checklistRows}
-    </table>
-  `;
+    `).join("");
+
+    checklistHTML = `
+      <h2>3. Pre-Start Safety Checklist</h2>
+      <table>
+        <tr>
+          <th>#</th>
+          <th>Check / Question</th>
+          <th>Status</th>
+        </tr>
+        ${checklistRows}
+      </table>
+    `;
+  }
 
   // 5. Hazards
   const hazardRows = hazards.map((hKey: string) => {
@@ -232,7 +347,7 @@ export function generateRAMSHTML(data: RAMSData): string {
   const ppeHTML = `
     <h2>7. PPE Requirements</h2>
     <div style="margin-bottom: 15px;">
-      ${ppeList || "Standard site PPE required (Boots, Hi-Vis, Hard Hat)."}
+      ${ppeList}
     </div>
   `;
 
@@ -262,7 +377,7 @@ export function generateRAMSHTML(data: RAMSData): string {
 
     <div style="page-break-before: always;"></div>
     <h2>9. Operative Acknowledgement</h2>
-    <p>By signing below, I confirm I have read and understood this RAMS and will work in accordance with the control measures and method statement.</p>
+    <p>By signing below, ${terms.we.toLowerCase()} confirm ${terms.we.toLowerCase()} have read and understood this RAMS and will work in accordance with the control measures and method statement.</p>
     
     <table>
       <tr>
@@ -288,7 +403,7 @@ export function generateRAMSHTML(data: RAMSData): string {
       <h3 style="margin-top: 0; text-align: center; border-bottom: 1px solid #000; padding-bottom: 10px;">10. Authorization & Approval</h3>
       
       <div style="margin-top: 20px;">
-        <p><strong>Supervisor / Manager Sign-off:</strong></p>
+        <p><strong>${terms.manager} Sign-off:</strong></p>
         <p>I confirm that the above method statement and risk assessment is suitable and sufficient for the task.</p>
         <table style="border: none;">
           <tr style="border: none;">
@@ -326,7 +441,7 @@ export function generateRAMSHTML(data: RAMSData): string {
       <div class="rams-content">
         ${header}
         ${projectDetails}
-        ${scope}
+        ${scopeSection}
         ${checklistHTML}
         ${hazardsHTML}
         ${methodHTML}
@@ -370,10 +485,10 @@ export const RAMS_STYLES = `
       text-transform: uppercase;
       margin-top: 25px;
       margin-bottom: 10px;
-      background-color: #f0f0f0;
-      padding: 5px 10px;
-      border-left: 5px solid #333;
+      border-bottom: 1px solid #000;
+      padding-bottom: 5px;
       page-break-after: avoid;
+      width: 100%;
     }
     h3 {
       font-size: 11pt;
@@ -394,7 +509,7 @@ export const RAMS_STYLES = `
       page-break-inside: avoid;
     }
     th, td {
-      border: 1px solid #ccc;
+      border: 1px solid #000;
       padding: 8px;
       vertical-align: top;
       text-align: left;
@@ -430,4 +545,3 @@ export const RAMS_STYLES = `
       h2 { page-break-after: avoid; }
     }
 `;
-

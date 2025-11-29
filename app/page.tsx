@@ -16,7 +16,9 @@ import {
   MoreVertical,
   Edit2,
   Trash2,
+  Plus,
 } from "lucide-react";
+import TypewriterText from "./components/TypewriterText";
 
 import {
   TRADES,
@@ -105,23 +107,45 @@ function AddressSearch({
   const [results, setResults] = useState<any[]>([]);
   const [showDropdown, setShowDropdown] = useState(false);
 
-  const searchAddress = async (text: string) => {
+  // Keep query in sync if value changes externally (e.g. navigation)
+  useEffect(() => {
+    setQuery(value);
+  }, [value]);
+
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  const searchAddress = (text: string) => {
     setQuery(text);
     onChange(text);
+
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+    }
+
     if (text.length > 4) {
-      try {
-        const res = await fetch(
-          `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(
-            text
-          )}&countrycodes=gb&limit=5`
-        );
-        const data = await res.json();
-        setResults(data);
-        setShowDropdown(true);
-      } catch (e) {
-        console.error(e);
-      }
+      timeoutRef.current = setTimeout(async () => {
+        try {
+          const res = await fetch(
+            `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(
+              text
+            )}&countrycodes=gb&limit=5`,
+            {
+              headers: {
+                "User-Agent": "RAMS-Sorted-Web/1.0",
+              },
+            }
+          );
+          if (!res.ok) throw new Error("Network response was not ok");
+          const data = await res.json();
+          setResults(data);
+          setShowDropdown(true);
+        } catch (e) {
+          console.warn("Address search failed:", e);
+          setResults([]);
+        }
+      }, 500); // 500ms debounce
     } else {
+      setResults([]);
       setShowDropdown(false);
     }
   };
@@ -159,6 +183,8 @@ function AddressSearch({
           ))}
         </ul>
       )}
+
+
     </div>
   );
 }
@@ -177,6 +203,7 @@ function Page() {
   const [documentName, setDocumentName] = useState("");
 
   const [formData, setFormData] = useState({
+    userType: "" as "company" | "sole_trader" | "",
     companyName: "",
     officeAddress: "",
     contactName: "",
@@ -415,31 +442,43 @@ function Page() {
     if (step === 0) return;
 
     let errorMsg = "";
-    if (
-      step === 1 &&
-      (!formData.companyName ||
+    // Step 1 Validation
+    if (step === 1) {
+      if (
+        !formData.companyName ||
         !formData.officeAddress ||
-        !formData.contactName)
-    ) {
-      errorMsg = "Please fill in Company Name, Office Address and Competent Person.";
-    } else if (
-      step === 2 &&
-      (!formData.clientName || !formData.siteAddress || !formData.jobType)
-    ) {
-      errorMsg = "Please fill in Client, Site Address and select a Job Type.";
+        !formData.contactName ||
+        !formData.clientName ||
+        !formData.siteAddress
+      ) {
+        errorMsg = "Please fill in all required Company and Project details.";
+      }
+    }
+    // Step 2 Validation
+    else if (step === 2) {
+      if (!formData.jobType) {
+        errorMsg = "Please select a Job Type.";
+      }
+    }
+    // Step 3 Validation (Safety Contacts are critical)
+    else if (step === 3) {
+      if (
+        !formData.supervisorName ||
+        !formData.firstAider ||
+        !formData.hospital ||
+        !formData.fireAssembly
+      ) {
+        errorMsg = "Please complete Supervisor, First Aider, Hospital and Fire Assembly details.";
+      }
     }
 
     if (errorMsg) {
-      // Warn once logic
-      if (!warningsShown.includes(step)) {
-        setToast({
-          msg: errorMsg,
-          type: "error",
-        });
-        setWarningsShown((prev) => [...prev, step]);
-        return; // Block first time
-      }
-      // If warning already shown, allow proceed (user ignores warning)
+      if (toast?.msg === errorMsg) return; // Debounce: don't spam same error
+      setToast({
+        msg: errorMsg,
+        type: "error",
+      });
+      return;
     }
 
     if (step >= 5) return;
@@ -491,15 +530,11 @@ function Page() {
       !formData.hospital ||
       !formData.fireAssembly
     ) {
-      if (!warningsShown.includes(99)) {
-        setToast({
-          msg: "Please complete Supervisor, First Aider, Hospital and Fire Assembly details.",
-          type: "error",
-        });
-        setWarningsShown((prev) => [...prev, 99]);
-        return;
-      }
-      // Allow proceed on second attempt
+      setToast({
+        msg: "Please complete Supervisor, First Aider, Hospital and Fire Assembly details.",
+        type: "error",
+      });
+      return;
     }
 
     const composedScope = buildScopeFromForm();
@@ -566,16 +601,12 @@ function Page() {
           answer: answers[q.id] || "N/A",
         })),
         hazards: hazards,
-        methodSteps: apiData.method_steps || [
-          "5.1 PRE-START: Arrive on site and verify conditions.",
-          "5.2 SAFETY: Set up safe system of work.",
-          `5.3 EXECUTION: Carry out ${formData.jobType || "the works"}.`,
-          "5.4 COMPLETION: Test, tidy and hand over.",
-        ],
         coshh: apiData.coshh || [],
         documentName: documentName || safeDocName,
         ppe: TRADES[formData.trade]?.clusters[formData.jobType]?.ppe || [],
         operatives: formData.operatives,
+        userType: formData.userType as "company" | "sole_trader",
+        methodSteps: apiData.method_steps,
       };
 
       const htmlContent = generateRAMSHTML(ramsData);
@@ -614,7 +645,7 @@ function Page() {
           message={toast.msg}
           type={toast.type}
           onClose={() => setToast(null)}
-          duration={5000}
+          duration={4000}
         />
       )}
       {deleteModal && (
@@ -643,9 +674,9 @@ function Page() {
                   : "opacity-0 w-0 overflow-hidden"
                   }`}
               >
-                <div className="relative h-[50px] w-[80px]">
+                <div className="relative h-[70px] w-[100px] ml-3 transform scale-125 origin-left">
                   <Image
-                    src="/rams-logo1.png"
+                    src="/rams-logo2.png"
                     alt="RAMS Sorted logo"
                     fill
                     className="object-contain"
@@ -666,7 +697,7 @@ function Page() {
 
             {/* MAIN SIDEBAR CONTENT */}
             <div className="flex-1 overflow-y-auto px-2 pb-2 flex flex-col">
-              <div className="mt-4">
+              <div className="mt-0">
                 {sidebarOpen ? (
                   <button
                     onClick={() => {
@@ -709,7 +740,8 @@ function Page() {
                     recentFiles.map((file) => (
                       <div
                         key={file.id}
-                        className="w-full px-2 py-1 rounded-md hover:bg-slate-200/80"
+                        className={`w-full px-2 py-1 rounded-md hover:bg-slate-200/80 ${activeFile?.id === file.id ? "bg-slate-300 shadow-sm" : ""
+                          }`}
                         onClick={() => {
                           setActiveFile(file);
                           setMode("viewer");
@@ -823,7 +855,28 @@ function Page() {
 
         {/* MAIN PANEL */}
         <main className={`flex-1 flex flex-col h-full overflow-hidden ${mode === "viewer" ? "bg-white" : "bg-[#f5f4f0]"}`}>
-          {mode === "viewer" ? (
+          {isGenerating ? (
+            <div className="flex-1 flex flex-col items-center justify-center bg-white">
+              <div className="relative">
+                <div className="absolute inset-0 bg-red-100 rounded-full animate-ping opacity-20"></div>
+                <Loader2 className="w-16 h-16 animate-spin text-red-600 relative z-10" />
+              </div>
+              <div className="mt-8 text-center">
+                <h2 className="text-2xl font-bold tracking-wide text-slate-800 h-8">
+                  <TypewriterText
+                    messages={[
+                      "Analyzing project requirements...",
+                      "Identifying potential hazards...",
+                      "Drafting safety control measures...",
+                      "Formatting method statement...",
+                      "Applying professional styling...",
+                      "Finalizing your RAMS document...",
+                    ]}
+                  />
+                </h2>
+              </div>
+            </div>
+          ) : mode === "viewer" ? (
             <section className="flex-1 h-full overflow-hidden flex flex-col">
               <MyFileViewer
                 file={activeFile}
@@ -844,10 +897,17 @@ function Page() {
             <div className="flex-1 flex items-center justify-center px-6 rs-fade-slide-in bg-white">
               <div className="max-w-xl w-full text-center">
                 <h1 className="text-4xl md:text-5xl font-semibold text-slate-900 mb-3">
-                  {typedGreeting}
+                  <TypedText
+                    text={
+                      formData.contactName
+                        ? `Welcome back, ${formData.contactName}`
+                        : "Welcome back"
+                    }
+                    className="border-b-0"
+                  />
                 </h1>
                 <p className="text-slate-500 mb-8 text-lg">
-                  Create, manage and export your RAMS documents efficiently.
+                  How can we help you today?
                 </p>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -862,7 +922,7 @@ function Page() {
                       <FileText className="w-6 h-6 text-blue-600" />
                     </div>
                     <span className="font-semibold text-slate-900">
-                      New Document
+                      New RAMS document
                     </span>
                     <span className="text-xs text-slate-500 mt-1">
                       Start from scratch
@@ -893,14 +953,15 @@ function Page() {
               className="flex-1 overflow-y-auto bg-white"
             >
               {/* Wizard Header */}
-              <div className="sticky top-0 z-10 bg-[#f5f4f0] border-b border-slate-200 px-8 py-4 flex items-center justify-between">
+              {/* Wizard Header */}
+              <div className="sticky top-0 z-10 bg-white border-b border-slate-200 px-8 py-4 flex items-center justify-between">
                 <div>
                   <h2 className="text-xl font-bold text-slate-900 flex items-center gap-2">
                     <span className={TITLE_COLORS[titleColorIndex]}>
                       RS v1.0
                     </span>
                   </h2>
-                  <p className="text-xs text-slate-500 mt-0.5">
+                  <p className="text-sm font-bold text-black mt-0.5">
                     Step {step} of 5
                   </p>
                 </div>
@@ -932,7 +993,7 @@ function Page() {
                       <TypedText text="Name Your RAMS Document" />
                     </h2>
 
-                    <div className="space-y-4 max-w-2xl">
+                    <div className="space-y-6 max-w-2xl">
                       {/* Document name */}
                       <div className="space-y-2">
                         <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
@@ -949,15 +1010,48 @@ function Page() {
                         />
                       </div>
 
+                      {/* User Type Selection - MOVED HERE */}
+                      <div className="space-y-2">
+                        <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
+                          Who are you?
+                          <span className="text-red-600 ml-0.5">*</span>
+                        </label>
+                        <div className="grid grid-cols-2 gap-4">
+                          <button
+                            onClick={() => handleInput("userType", "company")}
+                            className={`p-4 rounded-xl border-2 text-left transition-all duration-200 ${formData.userType === "company"
+                              ? "border-[#0b2040] bg-blue-50/50 ring-1 ring-[#0b2040]"
+                              : "border-slate-200 hover:border-slate-300 hover:bg-slate-50"
+                              }`}
+                          >
+                            <div className="font-bold text-[#0b2040] text-sm mb-1">Business</div>
+                            <div className="text-[11px] text-slate-500 leading-tight">
+                              Company with employees
+                            </div>
+                          </button>
+
+                          <button
+                            onClick={() => handleInput("userType", "sole_trader")}
+                            className={`p-4 rounded-xl border-2 text-left transition-all duration-200 ${formData.userType === "sole_trader"
+                              ? "border-[#0b2040] bg-blue-50/50 ring-1 ring-[#0b2040]"
+                              : "border-slate-200 hover:border-slate-300 hover:bg-slate-50"
+                              }`}
+                          >
+                            <div className="font-bold text-[#0b2040] text-sm mb-1">Sole Trader</div>
+                            <div className="text-[11px] text-slate-500 leading-tight">
+                              Independent / Self-employed
+                            </div>
+                          </button>
+                        </div>
+                      </div>
+
                       {/* Branding & appearance – kept for future PDF styling */}
                       <div className="space-y-4 bg-slate-50 border border-slate-200 rounded-xl p-4">
                         <h3 className="text-sm font-semibold text-slate-900">
                           Branding &amp; appearance (optional)
                         </h3>
                         <p className="text-xs text-slate-600">
-                          Choose a primary and secondary colour and add your
-                          logo so the PDF looks like it came from your
-                          company.
+                          Choose a primary and secondary colour.
                         </p>
 
                         <div className="space-y-2">
@@ -1012,8 +1106,6 @@ function Page() {
                             Default is black on white.
                           </p>
                         </div>
-
-                        {/* Logo input removed as per user request */}
                       </div>
                     </div>
 
@@ -1031,11 +1123,20 @@ function Page() {
                       <button
                         onClick={() => {
                           if (!documentName.trim()) {
-                            alert(
-                              "⚠️ Please enter a document name before continuing."
-                            );
+                            setToast({
+                              msg: "Please enter a document name to start.",
+                              type: "error",
+                            });
                             return;
                           }
+                          if (!formData.userType) {
+                            setToast({
+                              msg: "Please select whether you are a Business or Sole Trader.",
+                              type: "error",
+                            });
+                            return;
+                          }
+                          setMode("wizard");
                           setStep(1);
                         }}
                         className="inline-flex items-center justify-center rounded-lg bg-[#0b2040] px-5 py-2.5 text-sm font-semibold text-white hover:bg-black transition-colors"
@@ -1062,12 +1163,12 @@ function Page() {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
                         <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
-                          Company Name
+                          {formData.userType === "company" ? "Company Name" : "Trading Name / Full Name"}
                           <span className="text-red-600 ml-0.5">*</span>
                         </label>
                         <input
                           className="border border-slate-200 p-3 rounded-lg w-full text-sm focus:ring-2 focus:ring-[#0b2040] focus:border-transparent outline-none bg-white shadow-sm hover:border-slate-300 transition-all duration-200"
-                          placeholder="e.g. ACME Electrical Ltd"
+                          placeholder={formData.userType === "company" ? "e.g. ACME Electrical Ltd" : "e.g. John Smith Electrical"}
                           value={formData.companyName}
                           onChange={(e) =>
                             handleInput("companyName", e.target.value)
@@ -1090,7 +1191,7 @@ function Page() {
                       </div>
 
                       <AddressSearch
-                        label="Office Address"
+                        label={formData.userType === "company" ? "Office Address" : "Business / Home Address"}
                         required
                         value={formData.officeAddress}
                         onChange={(val: string) =>
@@ -2050,6 +2151,7 @@ function Page() {
           animation: rsFadeSlideIn 0.35s ease-out;
         }
       `}</style>
+
     </>
   );
 }

@@ -19,3 +19,32 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+@media print {
+  body * {
+    visibility: hidden;
+  }
+
+  .print-only-content,
+  .print-only-content * {
+    visibility: visible;
+  }
+
+  .print-only-content {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    transform: none !important;
+    /* Ensure no scaling interferes */
+  }
+
+  /* Hide page breaks if they cause issues, but generally we want them */
+  @page {
+    size: A4;
+    margin: 0;
+    /* Let the document control its own margins */
+  }
+}
