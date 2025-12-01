@@ -736,7 +736,9 @@ const ELECTRICIAN_CLUSTERS: Record<string, JobCluster> = {
       { id: "q3", label: "Will the equipment used in the generator installation (backup power) be installed in locations with adequate ventilation and protection from damage?" },
       { id: "q4", label: "Are appropriate means of isolation clearly provided for both AC and DC sides where relevant to the generator installation (backup power)?" },
       { id: "q5", label: "Will manufacturer commissioning procedures for the generator installation (backup power) be followed and documented on completion?" }
-    ]
+    ],
+    complexity: "high",
+    extraSections: ["lifting_operations", "fuel_storage", "temporary_works"]
   },
   "Temporary site electrics": {
     desc: "Temporary site electrics involves setting up temporary electrical supplies to support construction or maintenance activities on a site. The task includes installing site distribution boards, routing flexible cables to work areas and providing protected outlets for tools and equipment. The system must be robust enough to withstand site conditions while still allowing safe disconnection and inspection. Regular checks are required to ensure continued safety as the site layout and loading change over time.",
@@ -747,7 +749,9 @@ const ELECTRICIAN_CLUSTERS: Record<string, JobCluster> = {
       { id: "q3", label: "Are flexible leads used in the temporary site electrics routed to minimise trip hazards and mechanical damage?" },
       { id: "q4", label: "Is there a plan to carry out regular inspection and testing of the temporary site electrics while the site remains active?" },
       { id: "q5", label: "Have you identified a safe point to isolate the entire temporary site electrics in case of emergency or fault?" }
-    ]
+    ],
+    complexity: "high",
+    extraSections: ["live_electricity", "trip_hazards", "weather_protection"]
   },
   "Cooker/oven/hob wiring": {
     desc: "Cooker and hob wiring involves installing high-current circuits for electric cooking appliances. This includes routing heavy-gauge cables, fitting control units (isolators), and connecting appliances. Heat resistance of flexes and correct fusing are essential safety considerations.",
@@ -835,7 +839,9 @@ const ELECTRICIAN_CLUSTERS: Record<string, JobCluster> = {
       { id: "q3", label: "Are suitable isolation points identified for the circuits being modified during the commercial lighting upgrade?" },
       { id: "q4", label: "Will waste lamps and control gear from the commercial lighting upgrade be disposed of in line with WEEE or local regulations?" },
       { id: "q5", label: "Have you scheduled the commercial lighting upgrade to minimise disruption to building users and other trades?" }
-    ]
+    ],
+    complexity: "high",
+    extraSections: ["working_at_height", "live_electricity", "public_interface"]
   },
   "Warehouse high-bay lighting": {
     desc: "Warehouse high-bay lighting focuses on installing or upgrading lighting within commercial or industrial spaces such as offices, shops, warehouses or car parks. The work often involves working at height to access fittings, using appropriate access equipment and coordinating around ongoing operations. Load calculations, emergency coverage and lighting levels must be considered as part of the design. Once complete, the system is tested and any control gear or emergency functions are verified.",
@@ -846,7 +852,9 @@ const ELECTRICIAN_CLUSTERS: Record<string, JobCluster> = {
       { id: "q3", label: "Are suitable isolation points identified for the circuits being modified during the warehouse high-bay lighting?" },
       { id: "q4", label: "Will waste lamps and control gear from the warehouse high-bay lighting be disposed of in line with WEEE or local regulations?" },
       { id: "q5", label: "Have you scheduled the warehouse high-bay lighting to minimise disruption to building users and other trades?" }
-    ]
+    ],
+    complexity: "high",
+    extraSections: ["working_at_height", "mewp_operation", "falling_objects"]
   },
   "PAT testing": {
     desc: "PAT testing is a primarily inspection-and-testing based task that evaluates the safety and condition of an existing electrical installation. The work generally combines visual checks with instrument tests such as continuity, insulation resistance, polarity, loop impedance and RCD operation. Depending on the environment, circuits may be isolated in sequence to minimise disruption while still obtaining accurate results. Findings are recorded in a formal report, with observations coded and recommendations made where remedial work is required.",
@@ -915,14 +923,14 @@ const ELECTRICIAN_CLUSTERS: Record<string, JobCluster> = {
     ]
   },
   "Immersion heater install/repair": {
-    desc: "Immersion heater install/repair is carried out within a domestic or small commercial environment to add or alter final circuits. The work typically involves isolating the relevant circuit at the consumer unit, removing any redundant accessories, and installing new cable routes and terminations. Attention is given to routing cables in safe zones, maintaining adequate mechanical protection and ensuring correct circuit ratings. The circuit is then tested for continuity, insulation resistance and earth fault loop impedance before being put back into service.",
-    hazards: ["live_electricity", "manual_handling", "hot_work", "water_ingress"],
+    desc: "Immersion heater work involves replacing or installing the heating element in a hot water cylinder. Risks include scalding from hot water, electrical shock, and water damage. The circuit must be on a dedicated supply and the cylinder drained sufficiently.",
+    hazards: ["live_electricity", "hot_water_scalds", "manual_handling", "water_ingress"],
     questions: [
-      { id: "q1", label: "Have you identified and locked off the correct circuit at the consumer unit before starting the immersion heater install/repair?" },
-      { id: "q2", label: "Will you confirm with the occupier which rooms or areas will be affected by the immersion heater install/repair in advance?" },
-      { id: "q3", label: "Are you planning safe cable routes and fixing methods for the immersion heater install/repair to avoid future damage from screws or nails?" },
-      { id: "q4", label: "Is suitable test equipment available and calibrated to verify the safety of the immersion heater install/repair on completion?" },
-      { id: "q5", label: "Will all accessories involved in the immersion heater install/repair be checked for secure mounting and correct polarity before energising?" }
+      { id: "q1", label: "Is the immersion heater circuit isolated and locked off?" },
+      { id: "q2", label: "Has the cylinder been drained enough to remove the immersion heater install/repair?" },
+      { id: "q3", label: "Is the new immersion heater install/repair the correct length and power rating?" },
+      { id: "q4", label: "Are electrical connections heat-resistant for the immersion heater install/repair?" },
+      { id: "q5", label: "Have you checked for leaks after filling the cylinder following the immersion heater install/repair?" }
     ]
   },
   "Security lighting installation": {
@@ -959,37 +967,100 @@ const ELECTRICIAN_CLUSTERS: Record<string, JobCluster> = {
     ]
   },
   "Thermostat installation (wired)": {
-    desc: "Thermostat installation (wired) is carried out within a domestic or small commercial environment to add or alter final circuits. The work typically involves isolating the relevant circuit at the consumer unit, removing any redundant accessories, and installing new cable routes and terminations. Attention is given to routing cables in safe zones, maintaining adequate mechanical protection and ensuring correct circuit ratings. The circuit is then tested for continuity, insulation resistance and earth fault loop impedance before being put back into service.",
+    desc: "Wired thermostat installation involves connecting heating controls to the boiler or wiring centre. Work includes routing low voltage or mains cables and mounting the unit on the wall. Correct connection to the heating system interlock is essential for efficiency and safety.",
     hazards: ["live_electricity", "manual_handling", "dust_fumes"],
     questions: [
-      { id: "q1", label: "Have you identified and locked off the correct circuit at the consumer unit before starting the thermostat installation (wired)?" },
-      { id: "q2", label: "Will you confirm with the occupier which rooms or areas will be affected by the thermostat installation (wired) in advance?" },
-      { id: "q3", label: "Are you planning safe cable routes and fixing methods for the thermostat installation (wired) to avoid future damage from screws or nails?" },
-      { id: "q4", label: "Is suitable test equipment available and calibrated to verify the safety of the thermostat installation (wired) on completion?" },
-      { id: "q5", label: "Will all accessories involved in the thermostat installation (wired) be checked for secure mounting and correct polarity before energising?" }
+      { id: "q1", label: "Is the heating system isolated before starting the thermostat installation (wired)?" },
+      { id: "q2", label: "Have you identified the correct wiring terminals at the boiler for the thermostat installation (wired)?" },
+      { id: "q3", label: "Is the location for the thermostat installation (wired) away from heat sources/draughts?" },
+      { id: "q4", label: "Are existing cables safe to reuse for the thermostat installation (wired)?" },
+      { id: "q5", label: "Have you explained the programming of the thermostat installation (wired) to the user?" }
     ]
   },
   "Car park lighting installation": {
-    desc: "Car park lighting installation focuses on installing or upgrading lighting within commercial or industrial spaces such as offices, shops, warehouses or car parks. The work often involves working at height to access fittings, using appropriate access equipment and coordinating around ongoing operations. Load calculations, emergency coverage and lighting levels must be considered as part of the design. Once complete, the system is tested and any control gear or emergency functions are verified.",
-    hazards: ["live_electricity", "work_at_height", "moving_vehicles", "environmental_weather"],
+    desc: "Car park lighting installation involves erecting and connecting lighting columns or wall-mounted units in vehicle parking areas. Work includes trenching for cables, installing feeder pillars, and working at height. Safety priorities include traffic management, public protection, and ensuring correct lux levels for security and safety.",
+    hazards: ["live_electricity", "work_at_height", "moving_vehicles", "underground_services", "environmental_weather"],
     questions: [
-      { id: "q1", label: "Will the car park lighting installation require work at height using steps, towers or MEWPs in occupied areas?" },
-      { id: "q2", label: "Have lighting levels and emergency coverage requirements been reviewed with the client for the car park lighting installation?" },
-      { id: "q3", label: "Are suitable isolation points identified for the circuits being modified during the car park lighting installation?" },
-      { id: "q4", label: "Will waste lamps and control gear from the car park lighting installation be disposed of in line with WEEE or local regulations?" },
-      { id: "q5", label: "Have you scheduled the car park lighting installation to minimise disruption to building users and other trades?" }
+      { id: "q1", label: "Has a traffic management plan been agreed for the car park lighting installation?" },
+      { id: "q2", label: "Are underground services scanned and marked before trenching for the car park lighting installation?" },
+      { id: "q3", label: "Is the isolation point for the car park lighting installation secure and lockable?" },
+      { id: "q4", label: "Are lighting columns for the car park lighting installation handled and erected using appropriate lifting equipment?" },
+      { id: "q5", label: "Will the car park lighting installation be tested at night to verify coverage and uniformity?" }
     ]
   },
   "Shop fit-out electrical works": {
-    desc: "Shop fit-out electrical works focuses on installing or upgrading lighting within commercial or industrial spaces such as offices, shops, warehouses or car parks. The work often involves working at height to access fittings, using appropriate access equipment and coordinating around ongoing operations. Load calculations, emergency coverage and lighting levels must be considered as part of the design. Once complete, the system is tested and any control gear or emergency functions are verified.",
-    hazards: ["live_electricity", "work_at_height", "manual_handling", "public_interface"],
+    desc: "Shop fit-out electrical works involve the complete installation of power, lighting, and data systems in a retail environment. This includes installing display lighting, till power points, and back-of-house services. Work is often fast-paced and requires coordination with other trades like joiners and ceiling fixers.",
+    hazards: ["live_electricity", "work_at_height", "manual_handling", "slips_trips", "dust_fumes"],
     questions: [
-      { id: "q1", label: "Will the shop fit-out electrical works require work at height using steps, towers or MEWPs in occupied areas?" },
-      { id: "q2", label: "Have lighting levels and emergency coverage requirements been reviewed with the client for the shop fit-out electrical works?" },
-      { id: "q3", label: "Are suitable isolation points identified for the circuits being modified during the shop fit-out electrical works?" },
-      { id: "q4", label: "Will waste lamps and control gear from the shop fit-out electrical works be disposed of in line with WEEE or local regulations?" },
-      { id: "q5", label: "Have you scheduled the shop fit-out electrical works to minimise disruption to building users and other trades?" }
+      { id: "q1", label: "Is the shop fit-out electrical works coordinated with the main contractor's programme?" },
+      { id: "q2", label: "Are temporary supplies available for tools during the shop fit-out electrical works?" },
+      { id: "q3", label: "Have you allowed for the specific display lighting requirements in the shop fit-out electrical works?" },
+      { id: "q4", label: "Is the floor clear of debris to allow safe access for the shop fit-out electrical works?" },
+      { id: "q5", label: "Will the shop fit-out electrical works be fully tested and certificated before the store opening?" }
     ]
+  },
+  "Smart lighting installation": {
+    desc: "Smart lighting installation involves fitting and configuring intelligent lighting control systems. Work includes installing wireless or wired control modules, setting up hubs, and programming scenes. Verification involves checking connectivity and app functionality.",
+    hazards: ["live_electricity", "work_at_height", "manual_handling"],
+    questions: [
+      { id: "q1", label: "Is the Wi-Fi/network signal sufficient for the smart lighting installation?" },
+      { id: "q2", label: "Are compatible dimmable lamps used in the smart lighting installation?" },
+      { id: "q3", label: "Have you demonstrated the app control to the client after the smart lighting installation?" },
+      { id: "q4", label: "Is the smart lighting installation isolated safely during module fitting?" },
+      { id: "q5", label: "Are firmware updates applied as part of the smart lighting installation?" }
+    ]
+  },
+  "Electric vehicle charging point (commercial)": {
+    desc: "Commercial EV charging point installation involves installing multiple or high-power chargers in business premises. Work includes groundworks for cabling, installing distribution boards, and commissioning smart billing systems. Load management and earthing arrangements are critical.",
+    hazards: ["live_electricity", "underground_services", "moving_vehicles", "manual_handling"],
+    questions: [
+      { id: "q1", label: "Has a load assessment been completed for the commercial EV charging point installation?" },
+      { id: "q2", label: "Are crash barriers or protection posts required for the commercial EV charging point installation?" },
+      { id: "q3", label: "Is the commercial EV charging point installation integrated with the building's energy management system?" },
+      { id: "q4", label: "Have you confirmed the earthing requirements (TT/PME) for the commercial EV charging point installation?" },
+      { id: "q5", label: "Is the area cordoned off from traffic during the commercial EV charging point installation?" }
+    ],
+    complexity: "high",
+    extraSections: ["groundworks", "traffic_management", "load_balancing"]
+  },
+  "Temporary power distribution (events)": {
+    desc: "Temporary power distribution for events involves setting up generators, cabling, and distribution boards for festivals or outdoor functions. Risks include weather exposure, public interference, and cable damage. RCD protection and cable ramping are essential.",
+    hazards: ["live_electricity", "slips_trips", "environmental_weather", "public_interface", "manual_handling"],
+    questions: [
+      { id: "q1", label: "Are all cables for the temporary power distribution ramped or flown to prevent trip hazards?" },
+      { id: "q2", label: "Is the generator for the temporary power distribution earthed correctly (earth rod)?" },
+      { id: "q3", label: "Are all outdoor connections for the temporary power distribution IP44 or higher?" },
+      { id: "q4", label: "Is there a plan for fuel management for the temporary power distribution?" },
+      { id: "q5", label: "Has the temporary power distribution been signed off by a competent person before the event starts?" }
+    ],
+    complexity: "high",
+    extraSections: ["event_safety", "generator_operation", "cable_management"]
+  },
+  "Lightning protection system install": {
+    desc: "Lightning protection system installation involves fitting air termination networks, down conductors, and earth electrodes. Work is primarily at height on roofs and involves groundworks for earth pits. Continuity testing of the entire system is required upon completion.",
+    hazards: ["work_at_height", "environmental_weather", "manual_handling", "underground_services"],
+    questions: [
+      { id: "q1", label: "Is there a safe method of access to the roof for the lightning protection system install?" },
+      { id: "q2", label: "Are earth pit locations scanned for services before driving rods for the lightning protection system install?" },
+      { id: "q3", label: "Is the lightning protection system install bonded to the main electrical earth?" },
+      { id: "q4", label: "Are test clamps accessible for future testing of the lightning protection system install?" },
+      { id: "q5", label: "Is work on the lightning protection system install suspended during storm conditions?" }
+    ],
+    complexity: "high",
+    extraSections: ["working_at_height", "roof_work", "groundworks"]
+  },
+  "UPS (Uninterruptible Power Supply) installation": {
+    desc: "UPS installation involves installing battery backup systems for critical loads. Work includes handling heavy battery cabinets, connecting AC input/output, and DC battery strings. Battery safety (acid/fire) and isolation of multiple supplies are key risks.",
+    hazards: ["live_electricity", "manual_handling", "chemical_coshh", "fire_explosion"],
+    questions: [
+      { id: "q1", label: "Is the floor loading capacity sufficient for the UPS installation?" },
+      { id: "q2", label: "Is there adequate ventilation for the batteries in the UPS installation?" },
+      { id: "q3", label: "Are battery isolation switches accessible for the UPS installation?" },
+      { id: "q4", label: "Have you identified all sources of supply (mains/bypass/battery) for the UPS installation?" },
+      { id: "q5", label: "Is a spill kit available if wet cells are used in the UPS installation?" }
+    ],
+    complexity: "high",
+    extraSections: ["battery_safety", "heavy_lifting", "critical_systems"]
   },
   "Electrical containment install": {
     desc: "Electrical containment install (trunking/conduit/trays) is focused on providing or improving the physical containment and management of electrical cables. This can include installing trunking, conduit, cable tray or basket systems, and reorganising existing wiring to reduce strain and improve safety. Proper support spacing, segregation and fixings are essential to achieve a neat and compliant installation. Once the work is completed, cables are labelled where appropriate and visually checked for damage or undue stress.",
@@ -1084,7 +1155,7 @@ const ELECTRICIAN_CLUSTERS: Record<string, JobCluster> = {
 // app/lib/constants.ts - PART 2 OF 4
 
 // --- 3. PLUMBER CLUSTERS (FULL 50 JOBS) ---
-const PLUMBER_CLUSTERS = {
+const PLUMBER_CLUSTERS: Record<string, JobCluster> = {
   "Boiler installation (gas)": {
     desc: "Boiler installation (gas) involves working on domestic wet heating systems to provide reliable space and water heating. The task typically includes isolating gas, water and electrical supplies, removing or modifying existing appliances or components, and connecting new equipment in line with design requirements. Flue routes, ventilation and condensate disposal must be checked to ensure they comply with current standards. On completion, the system is filled, purged and commissioned, with safety checks and settings documented for the householder.",
     hazards: ["gas", "hot_work", "manual_handling", "chemical_coshh", "dust_fumes"],
@@ -1094,7 +1165,9 @@ const PLUMBER_CLUSTERS = {
       { id: "q3", label: "Is there adequate space around the appliance location to carry out the boiler installation (gas) without creating access hazards?" },
       { id: "q4", label: "Have you planned how you will flush, fill and vent the system after completing the boiler installation (gas)?" },
       { id: "q5", label: "Will the homeowner be shown how to operate controls and isolate the system following the boiler installation (gas)?" }
-    ]
+    ],
+    complexity: "high",
+    extraSections: ["gas_safe_registration", "flue_gas_analysis", "ventilation_requirements"]
   },
   "Combi boiler swap": {
     desc: "Combi boiler swap involves replacing an existing combination boiler with a new model. Work includes draining the system, removing the old unit, flushing the system, and installing the new boiler with correct flue and condensate arrangements. Commissioning includes gas rate checks and flue gas analysis.",
@@ -1130,37 +1203,98 @@ const PLUMBER_CLUSTERS = {
     ]
   },
   "Gas leak detection": {
-    desc: "Gas leak detection focuses specifically on gas pipework and appliances, rather than the wider heating or plumbing system. It usually involves isolating the gas supply, exposing the relevant sections of pipework or appliance connections, and carrying out testing, repair or alteration. Tightness testing, purging and combustion checks are critical to confirm that all work has left the installation safe. Accurate labelling and updating of any gas safety records are completed before handing back to the client.",
+    desc: "Gas leak detection involves tracing and identifying gas escapes using electronic sniffers or leak detection fluid. Work requires immediate action to make safe if a leak is found. Ventilation and eliminating ignition sources are top priorities.",
     hazards: ["gas", "fire_explosion", "confined_space", "public_interface"],
     questions: [
-      { id: "q1", label: "Will a tightness test be carried out before and after the gas leak detection in line with gas industry procedures?" },
-      { id: "q2", label: "Have you identified all appliances and branches that could be affected by the gas leak detection?" },
-      { id: "q3", label: "Is suitable ventilation available in the area where the gas leak detection will be performed?" },
-      { id: "q4", label: "Are you carrying appropriate detection equipment to verify the absence of leaks during the gas leak detection?" },
-      { id: "q5", label: "Will records or labels be updated to reflect any changes made during the gas leak detection?" }
+      { id: "q1", label: "Have you eliminated all ignition sources before starting gas leak detection?" },
+      { id: "q2", label: "Is the property ventilated by opening windows/doors for gas leak detection?" },
+      { id: "q3", label: "Are you using calibrated equipment for the gas leak detection?" },
+      { id: "q4", label: "Have you advised the occupants to evacuate if necessary during gas leak detection?" },
+      { id: "q5", label: "Is the emergency control valve accessible and working for gas leak detection?" }
     ]
   },
   "Gas pipe rerouting": {
-    desc: "Gas pipe rerouting focuses specifically on gas pipework and appliances, rather than the wider heating or plumbing system. It usually involves isolating the gas supply, exposing the relevant sections of pipework or appliance connections, and carrying out testing, repair or alteration. Tightness testing, purging and combustion checks are critical to confirm that all work has left the installation safe. Accurate labelling and updating of any gas safety records are completed before handing back to the client.",
+    desc: "Gas pipe rerouting involves altering the layout of gas supply pipes. Work includes cutting, threading, or soldering pipes, and ensuring adequate support and ventilation. Tightness testing and purging are essential before and after the work.",
     hazards: ["gas", "fire_explosion", "manual_handling", "hot_work"],
     questions: [
-      { id: "q1", label: "Will a tightness test be carried out before and after the gas pipe rerouting in line with gas industry procedures?" },
-      { id: "q2", label: "Have you identified all appliances and branches that could be affected by the gas pipe rerouting?" },
-      { id: "q3", label: "Is suitable ventilation available in the area where the gas pipe rerouting will be performed?" },
-      { id: "q4", label: "Are you carrying appropriate detection equipment to verify the absence of leaks during the gas pipe rerouting?" },
-      { id: "q5", label: "Will records or labels be updated to reflect any changes made during the gas pipe rerouting?" }
+      { id: "q1", label: "Is the gas supply isolated and locked off before the gas pipe rerouting?" },
+      { id: "q2", label: "Are the new pipe routes ventilated and away from heat sources for the gas pipe rerouting?" },
+      { id: "q3", label: "Have you calculated the pipe sizing for the new load in the gas pipe rerouting?" },
+      { id: "q4", label: "Is the pipework sleeved where it passes through walls for the gas pipe rerouting?" },
+      { id: "q5", label: "Has a tightness test been passed after the gas pipe rerouting?" }
     ]
   },
   "Gas hob/cooker install": {
-    desc: "Gas hob/cooker install focuses specifically on gas pipework and appliances, rather than the wider heating or plumbing system. It usually involves isolating the gas supply, exposing the relevant sections of pipework or appliance connections, and carrying out testing, repair or alteration. Tightness testing, purging and combustion checks are critical to confirm that all work has left the installation safe. Accurate labelling and updating of any gas safety records are completed before handing back to the client.",
-    hazards: ["gas", "fire_explosion", "manual_handling"],
+    desc: "Gas hob or cooker installation involves connecting the appliance to the gas supply using a flexible hose and bayonet fitting. Stability chains must be fitted for free-standing cookers. Commissioning includes checking burner pressure, flame picture, and safety devices.",
+    hazards: ["gas", "fire_explosion", "manual_handling", "hot_work"],
     questions: [
-      { id: "q1", label: "Will a tightness test be carried out before and after the gas hob/cooker install in line with gas industry procedures?" },
-      { id: "q2", label: "Have you identified all appliances and branches that could be affected by the gas hob/cooker install?" },
-      { id: "q3", label: "Is suitable ventilation available in the area where the gas hob/cooker install will be performed?" },
-      { id: "q4", label: "Are you carrying appropriate detection equipment to verify the absence of leaks during the gas hob/cooker install?" },
-      { id: "q5", label: "Will records or labels be updated to reflect any changes made during the gas hob/cooker install?" }
+      { id: "q1", label: "Is the stability chain fitted and secure for the gas hob/cooker install?" },
+      { id: "q2", label: "Is the flexible hose the correct type and length for the gas hob/cooker install?" },
+      { id: "q3", label: "Have you checked the standing and working pressures for the gas hob/cooker install?" },
+      { id: "q4", label: "Is the hotplate clearance to combustible materials compliant for the gas hob/cooker install?" },
+      { id: "q5", label: "Have you tested the flame failure devices on the gas hob/cooker install?" }
     ]
+  },
+  "Underfloor heating (wet system) installation": {
+    desc: "Wet underfloor heating installation involves laying pipe loops on insulation before screeding. Work includes installing manifolds, pressure testing loops, and connecting to the boiler. Care must be taken not to kink pipes or damage them during installation.",
+    hazards: ["manual_handling", "slips_trips", "hot_work", "dust_fumes"],
+    questions: [
+      { id: "q1", label: "Has the subfloor been prepared and insulated for the underfloor heating (wet system) installation?" },
+      { id: "q2", label: "Are the pipe loops pressure tested before screeding for the underfloor heating (wet system) installation?" },
+      { id: "q3", label: "Is the manifold location accessible for maintenance of the underfloor heating (wet system) installation?" },
+      { id: "q4", label: "Have you used the correct pipe spacing for the design of the underfloor heating (wet system) installation?" },
+      { id: "q5", label: "Is the system filled with inhibitor after the underfloor heating (wet system) installation?" }
+    ],
+    complexity: "high",
+    extraSections: ["system_design", "pressure_testing", "floor_preparation"]
+  },
+  "Saniflo / macerator installation": {
+    desc: "Saniflo or macerator installation allows WC/bathroom facilities in areas without gravity drainage. Work involves plumbing the unit to the appliance and small bore discharge pipework. Electrical connection (fused spur) is also required.",
+    hazards: ["biological", "electrical", "manual_handling", "confined_space"],
+    questions: [
+      { id: "q1", label: "Is the discharge pipework the correct diameter for the saniflo / macerator installation?" },
+      { id: "q2", label: "Is the electrical supply RCD protected for the saniflo / macerator installation?" },
+      { id: "q3", label: "Have you avoided 90-degree bends in the discharge pipe for the saniflo / macerator installation?" },
+      { id: "q4", label: "Is the unit accessible for servicing after the saniflo / macerator installation?" },
+      { id: "q5", label: "Have you tested the unit with water and paper after the saniflo / macerator installation?" }
+    ]
+  },
+  "Water softener installation": {
+    desc: "Water softener installation involves plumbing the unit into the incoming mains supply. A bypass set must be installed for maintenance. A separate hard water tap is often retained for drinking water.",
+    hazards: ["manual_handling", "water_ingress", "slips_trips"],
+    questions: [
+      { id: "q1", label: "Is a bypass valve set installed for the water softener installation?" },
+      { id: "q2", label: "Is the drain hose routed correctly with an air gap for the water softener installation?" },
+      { id: "q3", label: "Have you retained a hard water tap for drinking if required for the water softener installation?" },
+      { id: "q4", label: "Is the overflow pipe routed to a visible location for the water softener installation?" },
+      { id: "q5", label: "Have you explained the salt refilling process to the client after the water softener installation?" }
+    ]
+  },
+  "Legionella risk assessment / testing": {
+    desc: "Legionella testing involves sampling water from sentinel points and checking temperatures of calorifiers and outlets. Risk assessment identifies dead legs, stagnation, and temperature control issues. PPE is required when sampling potentially infected systems.",
+    hazards: ["biological", "hot_water_scalds", "lone_working", "confined_space"],
+    questions: [
+      { id: "q1", label: "Are you wearing appropriate RPE (mask) during the legionella risk assessment / testing?" },
+      { id: "q2", label: "Have you identified all sentinel points for the legionella risk assessment / testing?" },
+      { id: "q3", label: "Are temperature probes calibrated for the legionella risk assessment / testing?" },
+      { id: "q4", label: "Is the calorifier drain point accessible for the legionella risk assessment / testing?" },
+      { id: "q5", label: "Have you recorded all findings in the logbook during the legionella risk assessment / testing?" }
+    ],
+    complexity: "high",
+    extraSections: ["biological_hazards", "water_hygiene", "sampling_procedures"]
+  },
+  "Rainwater harvesting system install": {
+    desc: "Rainwater harvesting installation involves burying storage tanks and installing pumps and filtration. Work includes excavation, plumbing grey water feeds to toilets/washing machines, and ensuring no cross-contamination with mains water.",
+    hazards: ["underground_services", "confined_space", "manual_handling", "biological"],
+    questions: [
+      { id: "q1", label: "Is the excavation for the tank shored or stepped for the rainwater harvesting system install?" },
+      { id: "q2", label: "Is there a backflow prevention device (air gap) for the rainwater harvesting system install?" },
+      { id: "q3", label: "Are pipes clearly labelled 'Rainwater - Do Not Drink' for the rainwater harvesting system install?" },
+      { id: "q4", label: "Is the pump electrical supply RCD protected for the rainwater harvesting system install?" },
+      { id: "q5", label: "Have filters been installed and checked for the rainwater harvesting system install?" }
+    ],
+    complexity: "high",
+    extraSections: ["excavation_safety", "confined_space", "water_regulations"]
   },
   "Full central heating install": {
     desc: "Full central heating install involves working on domestic wet heating systems to provide reliable space and water heating. The task typically includes isolating gas, water and electrical supplies, removing or modifying existing appliances or components, and connecting new equipment in line with design requirements. Flue routes, ventilation and condensate disposal must be checked to ensure they comply with current standards. On completion, the system is filled, purged and commissioned, with safety checks and settings documented for the householder.",
@@ -1171,28 +1305,30 @@ const PLUMBER_CLUSTERS = {
       { id: "q3", label: "Is there adequate space around the appliance location to carry out the full central heating install without creating access hazards?" },
       { id: "q4", label: "Have you planned how you will flush, fill and vent the system after completing the full central heating install?" },
       { id: "q5", label: "Will the homeowner be shown how to operate controls and isolate the system following the full central heating install?" }
-    ]
+    ],
+    complexity: "high",
+    extraSections: ["system_design", "pressure_testing", "chemical_treatment"]
   },
   "Radiator installation": {
-    desc: "Radiator installation involves working on domestic wet heating systems to provide reliable space and water heating. The task typically includes isolating gas, water and electrical supplies, removing or modifying existing appliances or components, and connecting new equipment in line with design requirements. Flue routes, ventilation and condensate disposal must be checked to ensure they comply with current standards. On completion, the system is filled, purged and commissioned, with safety checks and settings documented for the householder.",
+    desc: "Radiator installation involves fitting new heat emitters to a wet heating system. Work includes measuring and fixing brackets, running pipework, and connecting valves. The system must be filled, vented, and balanced to ensure even heating.",
     hazards: ["manual_handling", "water_ingress", "hot_work", "slips_trips"],
     questions: [
-      { id: "q1", label: "Have you confirmed that the existing flue and ventilation arrangements are suitable for the radiator installation?" },
-      { id: "q2", label: "Will the gas, water and electrical supplies all be safely isolated before starting the radiator installation?" },
-      { id: "q3", label: "Is there adequate space around the appliance location to carry out the radiator installation without creating access hazards?" },
-      { id: "q4", label: "Have you planned how you will flush, fill and vent the system after completing the radiator installation?" },
-      { id: "q5", label: "Will the homeowner be shown how to operate controls and isolate the system following the radiator installation?" }
+      { id: "q1", label: "Are the wall brackets fixed securely to a solid surface for the radiator installation?" },
+      { id: "q2", label: "Have you selected the correct valves (TRV/Lockshield) for the radiator installation?" },
+      { id: "q3", label: "Is the system inhibitor level topped up after the radiator installation?" },
+      { id: "q4", label: "Have you checked for leaks on all new joints for the radiator installation?" },
+      { id: "q5", label: "Is the radiator level and plumb for the radiator installation?" }
     ]
   },
   "Radiator relocation": {
-    desc: "Radiator relocation involves working on domestic wet heating systems to provide reliable space and water heating. The task typically includes isolating gas, water and electrical supplies, removing or modifying existing appliances or components, and connecting new equipment in line with design requirements. Flue routes, ventilation and condensate disposal must be checked to ensure they comply with current standards. On completion, the system is filled, purged and commissioned, with safety checks and settings documented for the householder.",
+    desc: "Radiator relocation involves moving an existing radiator to a new position. Work includes draining the system, capping off old pipework, extending pipes to the new location, and hanging the radiator. Care must be taken to avoid damage to decor and flooring.",
     hazards: ["manual_handling", "water_ingress", "hot_work", "slips_trips"],
     questions: [
-      { id: "q1", label: "Have you confirmed that the existing flue and ventilation arrangements are suitable for the radiator relocation?" },
-      { id: "q2", label: "Will the gas, water and electrical supplies all be safely isolated before starting the radiator relocation?" },
-      { id: "q3", label: "Is there adequate space around the appliance location to carry out the radiator relocation without creating access hazards?" },
-      { id: "q4", label: "Have you planned how you will flush, fill and vent the system after completing the radiator relocation?" },
-      { id: "q5", label: "Will the homeowner be shown how to operate controls and isolate the system following the radiator relocation?" }
+      { id: "q1", label: "Have you drained the system sufficiently for the radiator relocation?" },
+      { id: "q2", label: "Are the new wall fixings suitable for the weight of the radiator relocation?" },
+      { id: "q3", label: "Have you capped off the old pipework safely for the radiator relocation?" },
+      { id: "q4", label: "Is the floor protected from water and solder for the radiator relocation?" },
+      { id: "q5", label: "Have you balanced the system after the radiator relocation?" }
     ]
   },
   "Underfloor heating installation": {
@@ -1204,7 +1340,9 @@ const PLUMBER_CLUSTERS = {
       { id: "q3", label: "Are you protecting heating pipes or cables during other trades' work while the underfloor heating installation is in progress?" },
       { id: "q4", label: "Have you planned pressure or resistance tests during the underfloor heating installation before screeds or finishes are applied?" },
       { id: "q5", label: "Will commissioning of the underfloor heating installation follow the manufacturer's recommended heat-up and cool-down cycles?" }
-    ]
+    ],
+    complexity: "high",
+    extraSections: ["floor_construction_compatibility", "pressure_testing", "zoning_plan"]
   },
   "Hot water cylinder (vented) install": {
     desc: "Hot water cylinder (vented) install involves hot water storage equipment such as vented or unvented cylinders and immersion heaters. Typical tasks include draining down the system, removing existing units, installing new vessels or components, and connecting associated pipework, valves and controls. Temperature, pressure relief and discharge arrangements must meet regulatory requirements, particularly for unvented systems. Once installed, the system is refilled, tested for leaks and commissioned to provide safe, consistent hot water delivery.",
@@ -1226,7 +1364,9 @@ const PLUMBER_CLUSTERS = {
       { id: "q3", label: "Is there a safe means to drain and dispose of the contents of the system before starting the unvented cylinder install?" },
       { id: "q4", label: "Are all electrical connections associated with the unvented cylinder install safely isolated and verified dead before work?" },
       { id: "q5", label: "Will operating temperatures and pressures be checked and recorded when the unvented cylinder install is complete?" }
-    ]
+    ],
+    complexity: "high",
+    extraSections: ["g3_qualification", "discharge_pipework", "pressure_relief_valves"]
   },
   "Immersion heater repair": {
     desc: "Immersion heater repair involves hot water storage equipment such as vented or unvented cylinders and immersion heaters. Typical tasks include draining down the system, removing existing units, installing new vessels or components, and connecting associated pipework, valves and controls. Temperature, pressure relief and discharge arrangements must meet regulatory requirements, particularly for unvented systems. Once installed, the system is refilled, tested for leaks and commissioned to provide safe, consistent hot water delivery.",
@@ -1426,28 +1566,7 @@ const PLUMBER_CLUSTERS = {
       { id: "q5", label: "Will the pipework for the outdoor tap installation be routed to minimise the risk of accidental damage?" }
     ]
   },
-  "Water softener installation": {
-    desc: "Water softener installation is centred on equipment that changes the characteristics of incoming water, such as softeners or filtration units. The plumber identifies a suitable installation location, incorporates bypass and isolation valves, and connects the unit into the supply. Drainage and overflow routes are provided where required by the manufacturer’s instructions. The system is then commissioned and the user is briefed on routine maintenance, such as salt or cartridge replacement.",
-    hazards: ["manual_handling", "water_ingress", "slips_trips", "chemical_coshh"],
-    questions: [
-      { id: "q1", label: "Have you verified the incoming water pressure and quality before starting the water softener installation?" },
-      { id: "q2", label: "Will bypass and isolation valves be installed as part of the water softener installation for maintenance and emergencies?" },
-      { id: "q3", label: "Are discharge or drain connections needed for the water softener installation being run to appropriate locations?" },
-      { id: "q4", label: "Is there adequate space and access for the ongoing servicing requirements of equipment fitted during the water softener installation?" },
-      { id: "q5", label: "Will you provide the user with clear instructions on routine tasks associated with the water softener installation?" }
-    ]
-  },
-  "Rainwater harvesting setup": {
-    desc: "Rainwater harvesting setup is centred on equipment that changes the characteristics of incoming water, such as softeners or filtration units. The plumber identifies a suitable installation location, incorporates bypass and isolation valves, and connects the unit into the supply. Drainage and overflow routes are provided where required by the manufacturer’s instructions. The system is then commissioned and the user is briefed on routine maintenance, such as salt or cartridge replacement.",
-    hazards: ["manual_handling", "water_ingress", "slips_trips", "confined_space", "biological"],
-    questions: [
-      { id: "q1", label: "Have you verified the incoming water pressure and quality before starting the rainwater harvesting setup?" },
-      { id: "q2", label: "Will bypass and isolation valves be installed as part of the rainwater harvesting setup for maintenance and emergencies?" },
-      { id: "q3", label: "Are discharge or drain connections needed for the rainwater harvesting setup being run to appropriate locations?" },
-      { id: "q4", label: "Is there adequate space and access for the ongoing servicing requirements of equipment fitted during the rainwater harvesting setup?" },
-      { id: "q5", label: "Will you provide the user with clear instructions on routine tasks associated with the rainwater harvesting setup?" }
-    ]
-  },
+
   "Sump pump installation": {
     desc: "Sump pump installation involves installing or maintaining pumps that move water or waste from one level or location to another. This can include sump pumps, lifting stations or shower pumps, often in confined or low-level spaces. Pipework, non-return valves and electrical supplies must be configured correctly to ensure reliable, safe operation. After installation, the pump is tested under realistic flow conditions to verify performance and automatic control functions.",
     hazards: ["manual_handling", "water_ingress", "slips_trips", "biological", "live_electricity"],
@@ -1662,18 +1781,22 @@ const ROOFER_CLUSTERS: Record<string, JobCluster> = {
       { id: "q3", label: "Have you confirmed that replacement materials for the pitched roof re-tile are compatible in weight and fixing with the existing structure?" },
       { id: "q4", label: "Is there a plan for controlled waste removal and chute use during the pitched roof re-tile?" },
       { id: "q5", label: "Will temporary weatherproofing be available if the pitched roof re-tile cannot be completed in one phase?" }
-    ]
+    ],
+    complexity: "high",
+    extraSections: ["working_at_height", "weather_protection", "waste_management"]
   },
   "Slate roof installation": {
-    desc: "Slate roof installation involves large-scale work on a pitched roof covering, often renewing all or most of the existing tiles or slates. The task typically includes stripping the old coverings, inspecting and repairing battens and underlay, and fixing new materials in accordance with manufacturer guidance. Careful setting-out and fixing patterns are required to ensure weather tightness and a uniform appearance. The work is normally carried out from scaffold or other fixed access with appropriate edge protection in place throughout.",
+    desc: "Slate roof installation involves laying natural or synthetic slates on a pitched roof. Work includes fixing battens at the correct gauge, installing underlay, and double-lapping slates to ensure water tightness. Cutting and hole-punching slates requires care to avoid breakage and dust inhalation.",
     hazards: ["work_at_height", "falling_objects", "manual_handling", "silica_dust", "fragile_surfaces"],
     questions: [
-      { id: "q1", label: "Has full scaffold with suitable edge protection been installed for the slate roof installation?" },
-      { id: "q2", label: "Will all existing roof coverings be assessed for safe removal before starting the slate roof installation?" },
-      { id: "q3", label: "Have you confirmed that replacement materials for the slate roof installation are compatible in weight and fixing with the existing structure?" },
-      { id: "q4", label: "Is there a plan for controlled waste removal and chute use during the slate roof installation?" },
-      { id: "q5", label: "Will temporary weatherproofing be available if the slate roof installation cannot be completed in one phase?" }
-    ]
+      { id: "q1", label: "Have you checked the slate grade and sorting requirements for the slate roof installation?" },
+      { id: "q2", label: "Are copper disc rivets or appropriate nails being used for the slate roof installation?" },
+      { id: "q3", label: "Is the batten gauge correctly calculated for the slate size and roof pitch in the slate roof installation?" },
+      { id: "q4", label: "Have you allowed for lead soakers at abutments during the slate roof installation?" },
+      { id: "q5", label: "Will you use a slate cutter or guillotine to minimise dust during the slate roof installation?" }
+    ],
+    complexity: "high",
+    extraSections: ["working_at_height", "weather_protection", "waste_management"]
   },
   "Flat roof (felt) install": {
     desc: "Flat roof (felt) install is centred on installing or fully renewing a flat roof waterproofing system using materials such as felt, GRP or EPDM. The process usually involves stripping existing coverings where necessary, preparing the deck, and applying insulation and membranes in layers to create a continuous weatherproof surface. Upstands, penetrations and edge details are formed carefully to prevent water ingress and meet fire and wind-uplift requirements. Safe access, hot works controls where relevant and weather monitoring are essential parts of planning this work.",
@@ -1684,29 +1807,35 @@ const ROOFER_CLUSTERS: Record<string, JobCluster> = {
       { id: "q3", label: "Will edge protection or fall restraint be provided around all exposed sides during the flat roof (felt) install?" },
       { id: "q4", label: "Are weather forecasts being monitored to avoid starting the flat roof (felt) install in unsuitable conditions?" },
       { id: "q5", label: "Will outlets and falls be checked and adjusted where feasible as part of the flat roof (felt) install?" }
-    ]
+    ],
+    complexity: "high",
+    extraSections: ["working_at_height", "hot_works", "fire_safety"]
   },
   "Flat roof (GRP) install": {
-    desc: "Flat roof (GRP) install is centred on installing or fully renewing a flat roof waterproofing system using materials such as felt, GRP or EPDM. The process usually involves stripping existing coverings where necessary, preparing the deck, and applying insulation and membranes in layers to create a continuous weatherproof surface. Upstands, penetrations and edge details are formed carefully to prevent water ingress and meet fire and wind-uplift requirements. Safe access, hot works controls where relevant and weather monitoring are essential parts of planning this work.",
+    desc: "GRP (Glass Reinforced Plastic) roof installation involves applying a resin and matting system to a new OSB deck. Work includes fitting edge trims, laminating the main area, and applying a topcoat. The process is weather-sensitive and requires dry conditions for curing.",
     hazards: ["work_at_height", "chemical_coshh", "dust_fumes", "manual_handling", "fire_explosion"],
     questions: [
-      { id: "q1", label: "Have you assessed the existing deck condition and load capacity prior to the flat roof (grp) install?" },
-      { id: "q2", label: "Is a hot works permit required for any operations involved in the flat roof (grp) install?" },
-      { id: "q3", label: "Will edge protection or fall restraint be provided around all exposed sides during the flat roof (grp) install?" },
-      { id: "q4", label: "Are weather forecasts being monitored to avoid starting the flat roof (grp) install in unsuitable conditions?" },
-      { id: "q5", label: "Will outlets and falls be checked and adjusted where feasible as part of the flat roof (grp) install?" }
-    ]
+      { id: "q1", label: "Is the deck dry and free from moisture before starting the flat roof (grp) install?" },
+      { id: "q2", label: "Have you mixed the catalyst in the correct ratio for the ambient temperature during the flat roof (grp) install?" },
+      { id: "q3", label: "Are you wearing appropriate gloves and eye protection for handling resin in the flat roof (grp) install?" },
+      { id: "q4", label: "Have expansion joints been incorporated for large areas in the flat roof (grp) install?" },
+      { id: "q5", label: "Is the topcoat applied to the correct thickness to prevent cracking in the flat roof (grp) install?" }
+    ],
+    complexity: "high",
+    extraSections: ["working_at_height", "chemical_safety", "waste_management"]
   },
   "Flat roof (EPDM) install": {
-    desc: "Flat roof (EPDM) install is centred on installing or fully renewing a flat roof waterproofing system using materials such as felt, GRP or EPDM. The process usually involves stripping existing coverings where necessary, preparing the deck, and applying insulation and membranes in layers to create a continuous weatherproof surface. Upstands, penetrations and edge details are formed carefully to prevent water ingress and meet fire and wind-uplift requirements. Safe access, hot works controls where relevant and weather monitoring are essential parts of planning this work.",
+    desc: "EPDM roof installation involves bonding a single-ply rubber membrane to the roof deck. Work includes applying contact adhesive, rolling out the membrane, and detailing corners and outlets. It is a cold-applied system but requires care with solvent-based adhesives.",
     hazards: ["work_at_height", "chemical_coshh", "manual_handling", "slips_trips", "dust_fumes"],
     questions: [
-      { id: "q1", label: "Have you assessed the existing deck condition and load capacity prior to the flat roof (epdm) install?" },
-      { id: "q2", label: "Is a hot works permit required for any operations involved in the flat roof (epdm) install?" },
-      { id: "q3", label: "Will edge protection or fall restraint be provided around all exposed sides during the flat roof (epdm) install?" },
-      { id: "q4", label: "Are weather forecasts being monitored to avoid starting the flat roof (epdm) install in unsuitable conditions?" },
-      { id: "q5", label: "Will outlets and falls be checked and adjusted where feasible as part of the flat roof (epdm) install?" }
-    ]
+      { id: "q1", label: "Has the membrane been allowed to relax before bonding in the flat roof (epdm) install?" },
+      { id: "q2", label: "Are you using the correct adhesive (water-based vs contact) for the substrate in the flat roof (epdm) install?" },
+      { id: "q3", label: "Have all sharp edges on the deck been removed to prevent puncturing the flat roof (epdm) install?" },
+      { id: "q4", label: "Are you ensuring good ventilation when using solvent-based adhesives for the flat roof (epdm) install?" },
+      { id: "q5", label: "Have you rolled the membrane to remove air bubbles during the flat roof (epdm) install?" }
+    ],
+    complexity: "high",
+    extraSections: ["working_at_height", "chemical_safety", "waste_management"]
   },
   "Lead flashing replacement": {
     desc: "Lead flashing replacement involves installing, adjusting or renewing lead or similar flashings at junctions between roof coverings and walls, chimneys, abutments or roof windows. The work includes cutting or chasing into masonry where required, forming soakers or aprons, and dressing the lead to shed water correctly. Consideration is given to thermal movement, jointing and fixing methods to avoid premature fatigue or failure. All debris is cleared from gutters and surfaces, and any exposed chases or fixings are sealed to maintain weathertightness.",
@@ -1717,18 +1846,22 @@ const ROOFER_CLUSTERS: Record<string, JobCluster> = {
       { id: "q3", label: "Are appropriate tools and PPE available to safely cut, dress and fix lead during the lead flashing replacement?" },
       { id: "q4", label: "Will existing flashings disturbed by the lead flashing replacement be either reinstated properly or fully renewed?" },
       { id: "q5", label: "Is sealant use in the lead flashing replacement limited to appropriate locations rather than as a substitute for proper detailing?" }
-    ]
+    ],
+    complexity: "high",
+    extraSections: ["working_at_height", "lead_safety", "hot_works"]
   },
   "Lead welding/leadwork": {
-    desc: "Lead welding/leadwork involves installing, adjusting or renewing lead or similar flashings at junctions between roof coverings and walls, chimneys, abutments or roof windows. The work includes cutting or chasing into masonry where required, forming soakers or aprons, and dressing the lead to shed water correctly. Consideration is given to thermal movement, jointing and fixing methods to avoid premature fatigue or failure. All debris is cleared from gutters and surfaces, and any exposed chases or fixings are sealed to maintain weathertightness.",
+    desc: "Lead welding involves joining lead sheets using oxy-acetylene or similar gases to create watertight details. Work requires high skill to control heat and prevent burn-through. Fume extraction or RPE is critical due to lead fumes.",
     hazards: ["work_at_height", "hot_work", "lead_exposure", "dust_fumes", "manual_handling"],
     questions: [
-      { id: "q1", label: "Have you confirmed that any masonry chasing required for the lead welding/leadwork will not compromise structural stability?" },
-      { id: "q2", label: "Will lead used in the lead welding/leadwork be sized and detailed in accordance with current codes of practice?" },
-      { id: "q3", label: "Are appropriate tools and PPE available to safely cut, dress and fix lead during the lead welding/leadwork?" },
-      { id: "q4", label: "Will existing flashings disturbed by the lead welding/leadwork be either reinstated properly or fully renewed?" },
-      { id: "q5", label: "Is sealant use in the lead welding/leadwork limited to appropriate locations rather than as a substitute for proper detailing?" }
-    ]
+      { id: "q1", label: "Is a hot works permit in place for the lead welding/leadwork?" },
+      { id: "q2", label: "Are you wearing appropriate RPE to protect against lead fumes during the lead welding/leadwork?" },
+      { id: "q3", label: "Is a fire extinguisher immediately available at the point of work for the lead welding/leadwork?" },
+      { id: "q4", label: "Have you cleaned the lead surfaces sufficiently to ensure a sound weld in the lead welding/leadwork?" },
+      { id: "q5", label: "Are you monitoring the area for fire for at least one hour after completing the lead welding/leadwork?" }
+    ],
+    complexity: "high",
+    extraSections: ["working_at_height", "lead_safety", "hot_works"]
   },
   "Gutter installation": {
     desc: "Gutter installation is focused on the roof edge components that collect and direct water away from the building envelope. Typical tasks include installing, repairing or replacing gutters, downpipes, fascias, soffits or bargeboards along eaves and verges. Work is often carried out at height, requiring stable access and measures to prevent falling objects. Once completed, the alignment, joints and fixings are checked and water is run through the system where possible to confirm proper flow.",
@@ -1742,25 +1875,25 @@ const ROOFER_CLUSTERS: Record<string, JobCluster> = {
     ]
   },
   "Gutter repair": {
-    desc: "Gutter repair is focused on the roof edge components that collect and direct water away from the building envelope. Typical tasks include installing, repairing or replacing gutters, downpipes, fascias, soffits or bargeboards along eaves and verges. Work is often carried out at height, requiring stable access and measures to prevent falling objects. Once completed, the alignment, joints and fixings are checked and water is run through the system where possible to confirm proper flow.",
+    desc: "Gutter repair involves fixing leaks, realigning falls, or replacing damaged sections of guttering. Work includes cleaning joints, applying sealant, or replacing brackets. Access is often via ladders or towers.",
     hazards: ["work_at_height", "manual_handling", "slips_trips", "biological", "falling_objects"],
     questions: [
-      { id: "q1", label: "Is the gutter repair being planned with stable working platforms or properly footed ladders?" },
-      { id: "q2", label: "Will all old fixings and debris from the gutter repair be safely removed rather than left in gutters or on the ground?" },
-      { id: "q3", label: "Have you checked that falls and outlet positions for the gutter repair will allow water to drain without standing?" },
-      { id: "q4", label: "Are joints and connectors used in the gutter repair suitable for the materials and expected movement?" },
-      { id: "q5", label: "Will any adjacent roof coverings disturbed by the gutter repair be checked and made good?" }
+      { id: "q1", label: "Have you identified the specific cause of the leak (e.g., blocked outlet, failed joint) for the gutter repair?" },
+      { id: "q2", label: "Is the ladder or access equipment footed and secured for the gutter repair?" },
+      { id: "q3", label: "Are you using compatible sealant or replacement parts for the gutter repair?" },
+      { id: "q4", label: "Have you water tested the repair to confirm it is watertight after the gutter repair?" },
+      { id: "q5", label: "Are you wearing gloves to protect against sharp edges and biological hazards during the gutter repair?" }
     ]
   },
   "Fascia & soffit replacement": {
-    desc: "Fascia & soffit replacement is focused on the roof edge components that collect and direct water away from the building envelope. Typical tasks include installing, repairing or replacing gutters, downpipes, fascias, soffits or bargeboards along eaves and verges. Work is often carried out at height, requiring stable access and measures to prevent falling objects. Once completed, the alignment, joints and fixings are checked and water is run through the system where possible to confirm proper flow.",
+    desc: "Fascia and soffit replacement involves removing old timber or uPVC boards and fixing new ones. Work includes checking rafter feet for rot, installing ventilation strips, and fixing gutters to the new fascia. Asbestos checks are required for older soffits.",
     hazards: ["work_at_height", "manual_handling", "asbestos", "dust_fumes", "falling_objects"],
     questions: [
-      { id: "q1", label: "Is the fascia & soffit replacement being planned with stable working platforms or properly footed ladders?" },
-      { id: "q2", label: "Will all old fixings and debris from the fascia & soffit replacement be safely removed rather than left in gutters or on the ground?" },
-      { id: "q3", label: "Have you checked that falls and outlet positions for the fascia & soffit replacement will allow water to drain without standing?" },
-      { id: "q4", label: "Are joints and connectors used in the fascia & soffit replacement suitable for the materials and expected movement?" },
-      { id: "q5", label: "Will any adjacent roof coverings disturbed by the fascia & soffit replacement be checked and made good?" }
+      { id: "q1", label: "Has an asbestos check been carried out on existing soffits before the fascia & soffit replacement?" },
+      { id: "q2", label: "Are the rafter feet sound enough to hold the new fixings for the fascia & soffit replacement?" },
+      { id: "q3", label: "Have you allowed for adequate ventilation in the new soffits during the fascia & soffit replacement?" },
+      { id: "q4", label: "Is the scaffold or access platform suitable for the length of boards handled in the fascia & soffit replacement?" },
+      { id: "q5", label: "Will you ensure the felt edge is supported (e.g., with eaves trays) during the fascia & soffit replacement?" }
     ]
   },
   "Chimney repointing": {
@@ -1772,29 +1905,35 @@ const ROOFER_CLUSTERS: Record<string, JobCluster> = {
       { id: "q3", label: "Is access for the chimney repointing designed to allow safe handling of bricks, pots and mortar at height?" },
       { id: "q4", label: "Have flues associated with the chimney repointing been isolated or protected from falling debris?" },
       { id: "q5", label: "Will final inspections after the chimney repointing confirm both structural soundness and weather tightness?" }
-    ]
+    ],
+    complexity: "high",
+    extraSections: ["working_at_height", "structural_integrity", "falling_objects"]
   },
   "Chimney rebuild": {
-    desc: "Chimney rebuild relates to the structural and weathering elements of a chimney above the roof line. Activities can range from localised repointing to full rebuilds or removals, including working with brickwork, flaunching, pots and associated flashings. Stability of the stack must be assessed and maintained throughout the work, with suitable propping or staged dismantling where required. On completion, the chimney area is left in a condition that is both structurally sound and weathertight, with all loose material removed from the roof.",
+    desc: "Chimney rebuild involves taking down a damaged stack and reconstructing it with new bricks and mortar. Work includes installing lead trays, flashings, and pots. Structural stability must be maintained during dismantling.",
     hazards: ["work_at_height", "falling_objects", "dust_fumes", "structural_collapse", "manual_handling"],
     questions: [
-      { id: "q1", label: "Has the stability of the chimney been assessed before commencing the chimney rebuild?" },
-      { id: "q2", label: "Will the chimney rebuild require temporary supports or staged dismantling to prevent collapse?" },
-      { id: "q3", label: "Is access for the chimney rebuild designed to allow safe handling of bricks, pots and mortar at height?" },
-      { id: "q4", label: "Have flues associated with the chimney rebuild been isolated or protected from falling debris?" },
-      { id: "q5", label: "Will final inspections after the chimney rebuild confirm both structural soundness and weather tightness?" }
-    ]
+      { id: "q1", label: "Have you photographed the original chimney detail to replicate it in the chimney rebuild?" },
+      { id: "q2", label: "Are you using the correct mortar mix (e.g., lime) for the chimney rebuild?" },
+      { id: "q3", label: "Have you installed a lead tray or DPC to prevent water ingress in the chimney rebuild?" },
+      { id: "q4", label: "Is the new pot securely flaunched and capped in the chimney rebuild?" },
+      { id: "q5", label: "Have you cleared any debris from the flue after the chimney rebuild?" }
+    ],
+    complexity: "high",
+    extraSections: ["working_at_height", "structural_integrity", "falling_objects"]
   },
   "Chimney removal": {
-    desc: "Chimney removal relates to the structural and weathering elements of a chimney above the roof line. Activities can range from localised repointing to full rebuilds or removals, including working with brickwork, flaunching, pots and associated flashings. Stability of the stack must be assessed and maintained throughout the work, with suitable propping or staged dismantling where required. On completion, the chimney area is left in a condition that is both structurally sound and weathertight, with all loose material removed from the roof.",
+    desc: "Chimney removal involves taking down a stack to below the roof line. Work includes capping the flue, making good the roof timbers, and installing felt, battens, and tiles to match the surrounding roof. Debris management is critical.",
     hazards: ["work_at_height", "falling_objects", "structural_collapse", "dust_fumes", "manual_handling"],
     questions: [
-      { id: "q1", label: "Has the stability of the chimney been assessed before commencing the chimney removal?" },
-      { id: "q2", label: "Will the chimney removal require temporary supports or staged dismantling to prevent collapse?" },
-      { id: "q3", label: "Is access for the chimney removal designed to allow safe handling of bricks, pots and mortar at height?" },
-      { id: "q4", label: "Have flues associated with the chimney removal been isolated or protected from falling debris?" },
-      { id: "q5", label: "Will final inspections after the chimney removal confirm both structural soundness and weather tightness?" }
-    ]
+      { id: "q1", label: "Have you confirmed that the chimney breast below is not supporting the stack for the chimney removal?" },
+      { id: "q2", label: "Is there a plan to lower debris safely (e.g., chute, buckets) during the chimney removal?" },
+      { id: "q3", label: "Have you capped and vented the flue at the remaining level after the chimney removal?" },
+      { id: "q4", label: "Are the new roof timbers sized correctly to span the opening from the chimney removal?" },
+      { id: "q5", label: "Will you ensure the new roof covering matches the existing courses after the chimney removal?" }
+    ],
+    complexity: "high",
+    extraSections: ["working_at_height", "structural_integrity", "falling_objects"]
   },
   "Roof leak investigation": {
     desc: "Roof leak investigation focuses on identifying the cause and extent of water ingress affecting a roof or internal areas. The work involves visual inspection, tracing signs of staining or damp, and carefully checking likely weak points such as junctions, penetrations and gutters. Access may be required both internally and externally, sometimes under adverse weather indications. Findings are used to plan either immediate temporary measures or subsequent permanent repairs.",
@@ -1808,14 +1947,14 @@ const ROOFER_CLUSTERS: Record<string, JobCluster> = {
     ]
   },
   "Emergency leak repair": {
-    desc: "Emergency leak repair focuses on identifying the cause and extent of water ingress affecting a roof or internal areas. The work involves visual inspection, tracing signs of staining or damp, and carefully checking likely weak points such as junctions, penetrations and gutters. Access may be required both internally and externally, sometimes under adverse weather indications. Findings are used to plan either immediate temporary measures or subsequent permanent repairs.",
+    desc: "Emergency leak repair involves temporary measures to stop water ingress, such as applying tarpaulins, flashband, or acrylic sealants. Work is often carried out in poor weather, requiring extra caution with access and slip hazards.",
     hazards: ["work_at_height", "slips_trips", "fragile_surfaces", "environmental_weather"],
     questions: [
-      { id: "q1", label: "Will you inspect both internal and external areas as part of the emergency leak repair?" },
-      { id: "q2", label: "Are you planning to carry out the emergency leak repair under or after rainfall where this helps trace leaks?" },
-      { id: "q3", label: "Have you made arrangements to access all roof slopes and junctions relevant to the emergency leak repair?" },
-      { id: "q4", label: "Is there a process to record findings and suspected causes identified during the emergency leak repair?" },
-      { id: "q5", label: "Will any urgent safety issues discovered during the emergency leak repair be addressed immediately or made safe?" }
+      { id: "q1", label: "Is it safe to access the roof given the current weather conditions for the emergency leak repair?" },
+      { id: "q2", label: "Are temporary repairs secured against wind uplift in the emergency leak repair?" },
+      { id: "q3", label: "Have you advised the client that this is a temporary fix requiring permanent follow-up after the emergency leak repair?" },
+      { id: "q4", label: "Are you using non-slip footwear and harnesses if required for the emergency leak repair?" },
+      { id: "q5", label: "Will you photograph the damage to assist with the permanent repair quote after the emergency leak repair?" }
     ]
   },
   "Moss removal": {
@@ -1830,14 +1969,14 @@ const ROOFER_CLUSTERS: Record<string, JobCluster> = {
     ]
   },
   "Roof cleaning": {
-    desc: "Roof cleaning consists of removing organic growth, debris or surface contamination from roof coverings and associated components. Typical processes include manual scraping, brushing or controlled cleaning methods, taking care not to damage tiles, slates, membranes or fixings. Attention is given to protecting gutters, downpipes and surrounding areas from dislodged material. Once complete, the roof can be more easily inspected and continues to shed water as designed.",
+    desc: "Roof cleaning involves removing dirt, algae, and lichens to improve appearance and drainage. Methods include soft washing, scraping, or steam cleaning. High-pressure washing is generally avoided to prevent damage to tiles.",
     hazards: ["work_at_height", "slips_trips", "environmental_weather", "biological", "chemical_coshh"],
     questions: [
-      { id: "q1", label: "Are you avoiding the use of high-pressure washing directly onto vulnerable coverings during the roof cleaning?" },
-      { id: "q2", label: "Will the roof cleaning include measures to prevent dislodged material blocking gutters and downpipes?" },
-      { id: "q3", label: "Have you selected cleaning methods and chemicals for the roof cleaning that are compatible with the roof materials?" },
-      { id: "q4", label: "Is safe access and footing assured on all areas to be treated during the roof cleaning?" },
-      { id: "q5", label: "Will you visually inspect for any damage or defects revealed by the roof cleaning once cleaning is complete?" }
+      { id: "q1", label: "Have you blocked downpipes to prevent debris entering the drainage system during the roof cleaning?" },
+      { id: "q2", label: "Are you using a biocide that is safe for the environment and runoff during the roof cleaning?" },
+      { id: "q3", label: "Is the access method suitable for the duration and reach required for the roof cleaning?" },
+      { id: "q4", label: "Have you checked for broken tiles that might be displaced during the roof cleaning?" },
+      { id: "q5", label: "Will you rinse down walls and windows affected by runoff after the roof cleaning?" }
     ]
   },
   "Ridge tile repointing": {
@@ -1852,14 +1991,14 @@ const ROOFER_CLUSTERS: Record<string, JobCluster> = {
     ]
   },
   "Valley replacement": {
-    desc: "Valley replacement focuses on localised adjustments or renewals to limited areas of a pitched roof. Activities may include lifting and relaying small sections of tiles or slates, addressing minor defects in bedding or fixings, and tying in repairs with the surrounding roof. Attention is paid to matching existing materials and maintaining correct overlaps and water shedding. Access is usually from scaffold, towers or ladders, with debris managed to prevent hazards to people below.",
+    desc: "Valley replacement involves stripping out an old lead, GRP, or felt valley and installing a new lining. Work includes removing adjacent tiles, repairing boards, and bedding the new valley. Correct overlaps and side laps are essential.",
     hazards: ["work_at_height", "falling_objects", "manual_handling", "water_ingress", "slips_trips"],
     questions: [
-      { id: "q1", label: "Is access for the valley replacement being arranged in a way that avoids overreaching from ladders?" },
-      { id: "q2", label: "Have you checked that localised areas affected by the valley replacement are structurally sound before stepping on them?" },
-      { id: "q3", label: "Will all loose or cracked tiles identified during the valley replacement be either secured or replaced?" },
-      { id: "q4", label: "Are you protecting gutters and lower roofs from falling debris while the valley replacement is in progress?" },
-      { id: "q5", label: "Will photographs be taken before and after the valley replacement to document the repair region?" }
+      { id: "q1", label: "Have you supported the valley boards sufficiently for the valley replacement?" },
+      { id: "q2", label: "Is the new valley lining wide enough to handle the expected water flow in the valley replacement?" },
+      { id: "q3", label: "Are tiles cut neatly and bedded correctly into the valley during the valley replacement?" },
+      { id: "q4", label: "Have you checked for nails or sharp objects that could puncture the new lining in the valley replacement?" },
+      { id: "q5", label: "Will you test the valley with water to ensure free flow after the valley replacement?" }
     ]
   },
   "Roof ventilation installation": {
@@ -1882,7 +2021,9 @@ const ROOFER_CLUSTERS: Record<string, JobCluster> = {
       { id: "q3", label: "Are flashing kits and accessories for the roof window / velux installation matched to both the roof covering and the window type?" },
       { id: "q4", label: "Is internal fall protection arranged beneath the opening during the roof window / velux installation to prevent debris hazards?" },
       { id: "q5", label: "Will you test operation and check for water ingress around the new opening after the roof window / velux installation?" }
-    ]
+    ],
+    complexity: "high",
+    extraSections: ["working_at_height", "structural_integrity", "weather_protection"]
   },
   "Dormer construction": {
     desc: "Dormer construction covers constructing or waterproofing dormer structures that project from the main roof slope. Tasks may include framing, sheathing, installing windows, applying coverings and integrating flashings with the main roof. Structural support, thermal performance and weather tightness all need careful coordination at junctions. The finished dormer should provide durable accommodation while shedding water safely onto the surrounding roof.",
@@ -1893,28 +2034,32 @@ const ROOFER_CLUSTERS: Record<string, JobCluster> = {
       { id: "q3", label: "Are junctions between dormer cheeks, roof coverings and walls being carefully detailed in the dormer construction?" },
       { id: "q4", label: "Is temporary weather protection planned if the dormer construction cannot be fully completed in one sequence?" },
       { id: "q5", label: "Will internal finishes and insulation around the dormer from the dormer construction meet thermal and moisture requirements?" }
-    ]
+    ],
+    complexity: "high",
+    extraSections: ["working_at_height", "structural_integrity", "weather_protection"]
   },
   "Skylight replacement": {
-    desc: "Skylight replacement involves creating or modifying openings in a roof to accommodate roof windows, skylights or similar glazed units. The task includes trimming existing structure, installing frames, integrating flashings and making good internal linings. Structural support and weathering around the opening must be carefully detailed to prevent movement and leaks. Final checks confirm smooth operation of the unit and effective drainage of water away from the junctions.",
+    desc: "Skylight replacement involves removing an old unit and fitting a new one, often to improve thermal efficiency or replace damaged glass. Work includes removing flashings, checking the curb/frame, and installing the new unit with fresh weathering kits.",
     hazards: ["work_at_height", "falling_objects", "fragile_surfaces", "manual_handling", "water_ingress"],
     questions: [
-      { id: "q1", label: "Have you confirmed structural trimmers and supports needed for the skylight replacement are correctly sized?" },
-      { id: "q2", label: "Will the skylight replacement be carried out with the opening temporarily weathered if works span multiple days?" },
-      { id: "q3", label: "Are flashing kits and accessories for the skylight replacement matched to both the roof covering and the window type?" },
-      { id: "q4", label: "Is internal fall protection arranged beneath the opening during the skylight replacement to prevent debris hazards?" },
-      { id: "q5", label: "Will you test operation and check for water ingress around the new opening after the skylight replacement?" }
-    ]
+      { id: "q1", label: "Is the new unit the correct size for the existing opening in the skylight replacement?" },
+      { id: "q2", label: "Have you inspected the timber curb for rot before the skylight replacement?" },
+      { id: "q3", label: "Are you using the correct flashing kit for the roof type in the skylight replacement?" },
+      { id: "q4", label: "Will you ensure the vapour barrier is sealed to the new unit in the skylight replacement?" },
+      { id: "q5", label: "Have you tested the opening mechanism and seals after the skylight replacement?" }
+    ],
+    complexity: "high",
+    extraSections: ["working_at_height", "structural_integrity", "weather_protection"]
   },
   "Soffit ventilation upgrade": {
-    desc: "Soffit ventilation upgrade addresses the provision or improvement of ventilation to roof spaces or coverings to manage condensation and moisture. The work can include fitting new vents at eaves, ridges or through the roof, and cutting or adapting roof coverings and linings accordingly. Care is taken to maintain weathering integrity while creating airflow paths in accordance with design guidance. After installation, the routes are checked to ensure they are unobstructed and compatible with insulation and other systems.",
+    desc: "Soffit ventilation upgrade involves installing circular vents or continuous strip vents into existing soffit boards. Work aims to increase airflow into the roof space to reduce condensation. Care is taken not to block insulation or damage the soffit material.",
     hazards: ["work_at_height", "dust_fumes", "manual_handling", "environmental_weather", "asbestos"],
     questions: [
-      { id: "q1", label: "Have you checked for existing vents and their effectiveness before starting the soffit ventilation upgrade?" },
-      { id: "q2", label: "Will the soffit ventilation upgrade maintain required levels of weather tightness while adding airflow paths?" },
-      { id: "q3", label: "Are cutting tools and methods for the soffit ventilation upgrade chosen to minimise dust and damage to finishes?" },
-      { id: "q4", label: "Is there a risk that insulation may block vents installed as part of the soffit ventilation upgrade?" },
-      { id: "q5", label: "Will the location and number of vents used in the soffit ventilation upgrade follow design or manufacturer recommendations?" }
+      { id: "q1", label: "Have you calculated the required ventilation area for the soffit ventilation upgrade?" },
+      { id: "q2", label: "Are you using a hole saw or cutter suitable for the soffit material in the soffit ventilation upgrade?" },
+      { id: "q3", label: "Have you checked for asbestos content if drilling into older soffits for the soffit ventilation upgrade?" },
+      { id: "q4", label: "Will you clear any debris from inside the soffit box after the soffit ventilation upgrade?" },
+      { id: "q5", label: "Are the vents fitted securely to prevent pest entry in the soffit ventilation upgrade?" }
     ]
   },
   "Roof insulation install": {
@@ -1948,7 +2093,9 @@ const ROOFER_CLUSTERS: Record<string, JobCluster> = {
       { id: "q3", label: "Have you confirmed that replacement materials for the flat-to-pitched roof conversion are compatible in weight and fixing with the existing structure?" },
       { id: "q4", label: "Is there a plan for controlled waste removal and chute use during the flat-to-pitched roof conversion?" },
       { id: "q5", label: "Will temporary weatherproofing be available if the flat-to-pitched roof conversion cannot be completed in one phase?" }
-    ]
+    ],
+    complexity: "high",
+    extraSections: ["working_at_height", "structural_integrity", "weather_protection"]
   },
   "Re-bedding ridge tiles": {
     desc: "Re-bedding ridge tiles focuses on localised adjustments or renewals to limited areas of a pitched roof. Activities may include lifting and relaying small sections of tiles or slates, addressing minor defects in bedding or fixings, and tying in repairs with the surrounding roof. Attention is paid to matching existing materials and maintaining correct overlaps and water shedding. Access is usually from scaffold, towers or ladders, with debris managed to prevent hazards to people below.",
@@ -2083,14 +2230,14 @@ const ROOFER_CLUSTERS: Record<string, JobCluster> = {
     ]
   },
   "Solar panel removal & reinstatement": {
-    desc: "Solar panel removal & reinstatement is associated with solar panel systems mounted on or above roof coverings, either preparing for or working around existing installations. The tasks can include fitting support rails, adjusting fixings, or temporarily removing and refitting panels to allow roof repairs. Coordination with electrical specialists is important, particularly in relation to live DC circuits and inverter equipment. All penetrations and fixings must be detailed so that the roof remains watertight once the work is finished.",
+    desc: "Solar panel removal and reinstatement involves taking off existing PV panels to allow for roof repairs or maintenance. Panels are stored safely, and mounting rails may be removed. Reinstatement requires careful testing to ensure the system works and the roof remains watertight.",
     hazards: ["work_at_height", "manual_handling", "live_electricity", "falling_objects", "slips_trips"],
     questions: [
-      { id: "q1", label: "Have electrical isolation procedures been agreed with a competent person before the solar panel removal & reinstatement?" },
-      { id: "q2", label: "Will the solar panel removal & reinstatement involve working around live DC circuits that require additional precautions?" },
-      { id: "q3", label: "Are mounting systems used in the solar panel removal & reinstatement compatible with the roof covering and structure?" },
-      { id: "q4", label: "Is there a strategy to prevent damage to roof coverings when removing or reinstating panels as part of the solar panel removal & reinstatement?" },
-      { id: "q5", label: "Will you confirm that drainage paths and access routes remain acceptable after completing the solar panel removal & reinstatement?" }
+      { id: "q1", label: "Has the system been fully isolated and tested dead before solar panel removal & reinstatement?" },
+      { id: "q2", label: "Are panels being stored in a safe location to prevent damage during solar panel removal & reinstatement?" },
+      { id: "q3", label: "Will you check the roof fixings for water tightness before reinstating rails in solar panel removal & reinstatement?" },
+      { id: "q4", label: "Have you marked the string layout to ensure correct reconnection in solar panel removal & reinstatement?" },
+      { id: "q5", label: "Will a commissioning test be carried out after solar panel removal & reinstatement?" }
     ]
   },
   "Parapet wall repair": {
@@ -2160,15 +2307,78 @@ const ROOFER_CLUSTERS: Record<string, JobCluster> = {
     ]
   },
   "Dormer roof waterproofing": {
-    desc: "Dormer roof waterproofing covers constructing or waterproofing dormer structures that project from the main roof slope. Tasks may include framing, sheathing, installing windows, applying coverings and integrating flashings with the main roof. Structural support, thermal performance and weather tightness all need careful coordination at junctions. The finished dormer should provide durable accommodation while shedding water safely onto the surrounding roof.",
+    desc: "Dormer roof waterproofing involves applying a new covering to the flat or pitched roof of a dormer. Work includes stripping old materials, checking the deck, and installing felt, GRP, or EPDM. Detailing at the cheeks and apron is critical.",
     hazards: ["work_at_height", "manual_handling", "hot_work", "chemical_coshh", "dust_fumes"],
     questions: [
-      { id: "q1", label: "Have structural alterations required for the dormer roof waterproofing been designed or approved by an engineer?" },
-      { id: "q2", label: "Will the dormer roof waterproofing maintain adequate support for the existing roof around the dormer opening?" },
-      { id: "q3", label: "Are junctions between dormer cheeks, roof coverings and walls being carefully detailed in the dormer roof waterproofing?" },
-      { id: "q4", label: "Is temporary weather protection planned if the dormer roof waterproofing cannot be fully completed in one sequence?" },
-      { id: "q5", label: "Will internal finishes and insulation around the dormer from the dormer roof waterproofing meet thermal and moisture requirements?" }
+      { id: "q1", label: "Is the dormer deck sound and dry before the dormer roof waterproofing?" },
+      { id: "q2", label: "Have you detailed the junction between the dormer roof and main roof in the dormer roof waterproofing?" },
+      { id: "q3", label: "Are you using a system compatible with the dormer construction (e.g., warm vs cold roof) for the dormer roof waterproofing?" },
+      { id: "q4", label: "Is edge protection in place for the exposed sides of the dormer during the dormer roof waterproofing?" },
+      { id: "q5", label: "Will you check the falls to ensure no ponding on the dormer after the dormer roof waterproofing?" }
     ]
+  },
+  "Zinc / Copper roofing": {
+    desc: "Zinc or copper roofing involves installing standing seam or batten roll metal roofing. Work requires specialist tools for folding and seaming sheets. The substrate must be compatible and ventilated to prevent underside corrosion.",
+    hazards: ["work_at_height", "sharp_objects", "manual_handling", "hot_work", "glare"],
+    questions: [
+      { id: "q1", label: "Is the substrate compatible with the metal (e.g., no direct contact with timber) for the zinc / copper roofing?" },
+      { id: "q2", label: "Have you allowed for thermal expansion in the clips and seams for the zinc / copper roofing?" },
+      { id: "q3", label: "Are you wearing cut-resistant gloves when handling metal sheets for the zinc / copper roofing?" },
+      { id: "q4", label: "Is the ventilation gap below the substrate sufficient for the zinc / copper roofing?" },
+      { id: "q5", label: "Will you protect the finished roof from foot traffic damage after the zinc / copper roofing?" }
+    ],
+    complexity: "high",
+    extraSections: ["working_at_height", "hot_works", "manual_handling"]
+  },
+  "Heritage leadwork": {
+    desc: "Heritage leadwork involves restoring or replacing lead details on listed or historic buildings. Work follows traditional sand-cast lead practices and strict conservation guidelines. Hot work permits and fire watch are essential.",
+    hazards: ["work_at_height", "lead_exposure", "hot_work", "fire_explosion", "manual_handling"],
+    questions: [
+      { id: "q1", label: "Are you using the correct code and type of lead (e.g., sand-cast) for the heritage leadwork?" },
+      { id: "q2", label: "Have you obtained necessary consents for the heritage leadwork on a listed building?" },
+      { id: "q3", label: "Is a hot work permit and fire watch in place for the heritage leadwork?" },
+      { id: "q4", label: "Are you using wood-cored rolls and traditional fixings for the heritage leadwork?" },
+      { id: "q5", label: "Will you coat the underside of the lead with chalk/oil to prevent corrosion in the heritage leadwork?" }
+    ],
+    complexity: "high",
+    extraSections: ["working_at_height", "lead_safety", "hot_works"]
+  },
+  "Green roof maintenance": {
+    desc: "Green roof maintenance involves inspecting and caring for the vegetation and drainage on a living roof. Tasks include weeding, fertilising, checking outlets, and ensuring the waterproof membrane is intact. Access systems must be used.",
+    hazards: ["work_at_height", "slips_trips", "biological", "manual_handling", "environmental_weather"],
+    questions: [
+      { id: "q1", label: "Is the fall protection system certified and safe to use for the green roof maintenance?" },
+      { id: "q2", label: "Are you avoiding damage to the waterproof membrane while weeding during the green roof maintenance?" },
+      { id: "q3", label: "Have you checked that drainage outlets are clear of roots and debris during the green roof maintenance?" },
+      { id: "q4", label: "Are fertilisers used in the green roof maintenance safe for the membrane and runoff?" },
+      { id: "q5", label: "Will you remove any saplings that could damage the roof structure during the green roof maintenance?" }
+    ]
+  },
+  "Roof truss repair/strengthening": {
+    desc: "Roof truss repair involves reinforcing or replacing damaged timber structural members. Work includes installing bolted plates, sistering rafters, or replacing rot-affected timber. Temporary propping is often required.",
+    hazards: ["work_at_height", "structural_collapse", "dust_fumes", "manual_handling", "confined_space"],
+    questions: [
+      { id: "q1", label: "Has a structural engineer designed the repair detail for the roof truss repair/strengthening?" },
+      { id: "q2", label: "Is temporary propping in place to support the roof load during the roof truss repair/strengthening?" },
+      { id: "q3", label: "Are you treating new timber with preservative for the roof truss repair/strengthening?" },
+      { id: "q4", label: "Is there adequate lighting and access in the roof void for the roof truss repair/strengthening?" },
+      { id: "q5", label: "Will you check the alignment of the roof after the roof truss repair/strengthening?" }
+    ],
+    complexity: "high",
+    extraSections: ["structural_integrity", "working_at_height", "temporary_works"]
+  },
+  "Solar thermal installation": {
+    desc: "Solar thermal installation involves fitting collector panels and pipework to heat water. Work includes roof mounting, running insulated pipes to a cylinder, and filling the system with glycol. Pressure testing and controller setup are required.",
+    hazards: ["work_at_height", "manual_handling", "hot_fluid", "slips_trips", "falling_objects"],
+    questions: [
+      { id: "q1", label: "Is the roof structure capable of supporting the solar thermal panels for the solar thermal installation?" },
+      { id: "q2", label: "Are the pipes insulated with high-temperature insulation for the solar thermal installation?" },
+      { id: "q3", label: "Have you pressure tested the solar loop before filling with glycol in the solar thermal installation?" },
+      { id: "q4", label: "Is the expansion vessel correctly sized for the system volume in the solar thermal installation?" },
+      { id: "q5", label: "Will you explain the controller settings to the user after the solar thermal installation?" }
+    ],
+    complexity: "high",
+    extraSections: ["working_at_height", "pressure_systems", "manual_handling"]
   },
   "Green roof installation": {
     desc: "Green roof installation involves creating or maintaining green roof systems that support vegetation above a waterproofing layer. The build-up typically includes root barriers, drainage layers, growing medium and planting selected for the roof environment. Loadings, irrigation, drainage and edge restraint must all be designed and implemented in line with guidance. Ongoing maintenance access and safe working arrangements are important to preserve both the roof and the planting over time.",
@@ -2221,410 +2431,426 @@ const ROOFER_CLUSTERS: Record<string, JobCluster> = {
 // --- 5. BUILDER CLUSTERS (FULL 50 JOBS) ---
 const BUILDER_CLUSTERS: Record<string, JobCluster> = {
   "Structural knock-through between rooms": {
-    desc: "Structural knock-through between rooms involves altering or supporting parts of a building's primary structure, such as walls, beams or floors. The work typically follows an engineer's design, with temporary supports installed before any load-bearing elements are removed or modified. Close control of sequence, propping and load transfer is required to prevent unintended movement or collapse. On completion, new structural members are secured, checked and left ready for inspection and subsequent finishes.",
+    desc: "Structural knock-through involves removing a load-bearing wall to create an open-plan space. Work includes installing temporary supports, inserting a steel beam (RSJ), and making good the masonry. Structural calculations and building control approval are typically required.",
     hazards: ["structural_collapse", "dust_fumes", "noise_vibration", "manual_handling", "plant_machinery"],
     questions: [
-      { id: "q1", label: "Has a structural engineer's design or written instruction been obtained for the structural knock-through between rooms?" },
-      { id: "q2", label: "Will suitable temporary supports be installed and checked before any load-bearing elements are removed during the structural knock-through between rooms?" },
-      { id: "q3", label: "Have you confirmed that all areas affected by the structural knock-through between rooms are accessible and cleared of non-essential occupants?" },
-      { id: "q4", label: "Is there a plan to monitor for unexpected movement or cracking while the structural knock-through between rooms is in progress?" },
-      { id: "q5", label: "Will the works from the structural knock-through between rooms be inspected before they are concealed by finishes?" }
-    ]
+      { id: "q1", label: "Have you obtained structural calculations for the beam required in the structural knock-through?" },
+      { id: "q2", label: "Are the temporary props (Needle and Shore) correctly positioned and secured for the structural knock-through?" },
+      { id: "q3", label: "Have you checked for hidden services (gas, electric, water) in the wall before starting the structural knock-through?" },
+      { id: "q4", label: "Is there a plan to manage the significant dust generated during the structural knock-through?" },
+      { id: "q5", label: "Will you ensure the new beam sits on adequate bearings (padstones) in the structural knock-through?" }
+    ],
+    complexity: "high",
+    extraSections: ["structural_integrity", "temporary_works", "dust_control"]
   },
   "RSJ/steel beam installation": {
-    desc: "RSJ/steel beam installation involves altering or supporting parts of a building's primary structure, such as walls, beams or floors. The work typically follows an engineer's design, with temporary supports installed before any load-bearing elements are removed or modified. Close control of sequence, propping and load transfer is required to prevent unintended movement or collapse. On completion, new structural members are secured, checked and left ready for inspection and subsequent finishes.",
-    hazards: ["structural_collapse", "manual_handling", "plant_machinery", "falling_objects"],
+    desc: "RSJ (Rolled Steel Joist) installation involves lifting and positioning steel beams to support structural loads. Work includes preparing padstones, lifting the beam using genie lifts or cranes, and dry-packing the bearings. Fire protection of the steel is often required.",
+    hazards: ["manual_handling", "structural_collapse", "falling_objects", "crush_injuries", "work_at_height"],
     questions: [
-      { id: "q1", label: "Has a structural engineer's design or written instruction been obtained for the rsj/steel beam installation?" },
-      { id: "q2", label: "Will suitable temporary supports be installed and checked before any load-bearing elements are removed during the rsj/steel beam installation?" },
-      { id: "q3", label: "Have you confirmed that all areas affected by the rsj/steel beam installation are accessible and cleared of non-essential occupants?" },
-      { id: "q4", label: "Is there a plan to monitor for unexpected movement or cracking while the rsj/steel beam installation is in progress?" },
-      { id: "q5", label: "Will the works from the rsj/steel beam installation be inspected before they are concealed by finishes?" }
-    ]
+      { id: "q1", label: "Have you checked the beam weight and selected appropriate lifting equipment for the rsj/steel beam installation?" },
+      { id: "q2", label: "Are padstones set and cured before placing the beam in the rsj/steel beam installation?" },
+      { id: "q3", label: "Will you dry-pack the beam bearings with non-shrink grout in the rsj/steel beam installation?" },
+      { id: "q4", label: "Is fire protection (e.g., intumescent paint or boarding) specified for the rsj/steel beam installation?" },
+      { id: "q5", label: "Have you secured the beam against overturning before releasing the lifting gear in the rsj/steel beam installation?" }
+    ],
+    complexity: "high",
+    extraSections: ["structural_integrity", "lifting_operations", "temporary_works"]
   },
   "Single-storey rear extension build": {
-    desc: "Single-storey rear extension build focuses on constructing new structural elements that enlarge or add to an existing building. The task usually includes excavation, foundations, walls, floors, roof structures and integration with the existing property. Services, insulation, damp-proofing and weathering details must all be coordinated to meet design and regulatory requirements. The area is progressively built up from groundworks through to a weathertight shell ready for internal fit-out.",
+    desc: "Single-storey rear extension build involves constructing a new addition to the rear of a property. Work includes excavation, pouring foundations, brick/blockwork, roof construction, and installing windows/doors. Coordination of multiple trades and weather protection is key.",
     hazards: ["excavation", "work_at_height", "manual_handling", "dust_fumes", "plant_machinery"],
     questions: [
-      { id: "q1", label: "Have you obtained and reviewed all drawings and specifications relevant to the single-storey rear extension build?" },
-      { id: "q2", label: "Will ground conditions be assessed and any variations reported before foundation work proceeds in the single-storey rear extension build?" },
-      { id: "q3", label: "Are measures in place to segregate the single-storey rear extension build from public access and protect neighbouring properties?" },
-      { id: "q4", label: "Is there a clear sequence for structural, weatherproofing and service installation during the single-storey rear extension build?" },
-      { id: "q5", label: "Will the single-storey rear extension build include checks to ensure levels, dimensions and alignments match the design before moving on?" }
-    ]
+      { id: "q1", label: "Have you located all underground services before excavating for the single-storey rear extension build?" },
+      { id: "q2", label: "Is the site fenced off to prevent unauthorised access during the single-storey rear extension build?" },
+      { id: "q3", label: "Are you using mechanical aids for moving heavy blocks and lintels in the single-storey rear extension build?" },
+      { id: "q4", label: "Have you planned for temporary weatherproofing of the existing building opening in the single-storey rear extension build?" },
+      { id: "q5", label: "Will you ensure the new damp proof course connects with the existing one in the single-storey rear extension build?" }
+    ],
+    complexity: "high",
+    extraSections: ["structural_integrity", "excavation_safety", "working_at_height"]
   },
   "Double-storey extension build": {
-    desc: "Double-storey extension build focuses on constructing new structural elements that enlarge or add to an existing building. The task usually includes excavation, foundations, walls, floors, roof structures and integration with the existing property. Services, insulation, damp-proofing and weathering details must all be coordinated to meet design and regulatory requirements. The area is progressively built up from groundworks through to a weathertight shell ready for internal fit-out.",
+    desc: "Double-storey extension build involves constructing a two-level addition. Work includes deep foundations, scaffolding for higher level work, installing intermediate floors, and complex roof integration. Structural stability and working at height are major considerations.",
     hazards: ["excavation", "work_at_height", "structural_collapse", "falling_objects", "scaffold_safety"],
     questions: [
-      { id: "q1", label: "Have you obtained and reviewed all drawings and specifications relevant to the double-storey extension build?" },
-      { id: "q2", label: "Will ground conditions be assessed and any variations reported before foundation work proceeds in the double-storey extension build?" },
-      { id: "q3", label: "Are measures in place to segregate the double-storey extension build from public access and protect neighbouring properties?" },
-      { id: "q4", label: "Is there a clear sequence for structural, weatherproofing and service installation during the double-storey extension build?" },
-      { id: "q5", label: "Will the double-storey extension build include checks to ensure levels, dimensions and alignments match the design before moving on?" }
-    ]
+      { id: "q1", label: "Is the scaffold designed to accommodate loading bays for materials in the double-storey extension build?" },
+      { id: "q2", label: "Have you checked the foundation depth requirements for the additional load in the double-storey extension build?" },
+      { id: "q3", label: "Are fall protection measures in place for the first-floor joist installation in the double-storey extension build?" },
+      { id: "q4", label: "Will you use a hoist or crane for lifting roof trusses in the double-storey extension build?" },
+      { id: "q5", label: "Have you planned the tie-in details with the existing main roof for the double-storey extension build?" }
+    ],
+    complexity: "high",
+    extraSections: ["structural_integrity", "scaffolding", "working_at_height"]
   },
   "Loft conversion with dormer": {
-    desc: "Loft conversion with dormer involves altering or supporting parts of a building's primary structure, such as walls, beams or floors. The work typically follows an engineer's design, with temporary supports installed before any load-bearing elements are removed or modified. Close control of sequence, propping and load transfer is required to prevent unintended movement or collapse. On completion, new structural members are secured, checked and left ready for inspection and subsequent finishes.",
+    desc: "Loft conversion with dormer involves converting roof space into habitable rooms, including constructing a dormer window. Work includes reinforcing the floor, insulating the roof, and installing stairs. Fire safety and thermal insulation are critical.",
     hazards: ["work_at_height", "structural_collapse", "dust_fumes", "manual_handling", "fire_explosion"],
     questions: [
-      { id: "q1", label: "Has a structural engineer's design or written instruction been obtained for the loft conversion with dormer?" },
-      { id: "q2", label: "Will suitable temporary supports be installed and checked before any load-bearing elements are removed during the loft conversion with dormer?" },
-      { id: "q3", label: "Have you confirmed that all areas affected by the loft conversion with dormer are accessible and cleared of non-essential occupants?" },
-      { id: "q4", label: "Is there a plan to monitor for unexpected movement or cracking while the loft conversion with dormer is in progress?" },
-      { id: "q5", label: "Will the works from the loft conversion with dormer be inspected before they are concealed by finishes?" }
-    ]
+      { id: "q1", label: "Have you verified the structural adequacy of the existing ceiling joists for the loft conversion with dormer?" },
+      { id: "q2", label: "Is the dormer construction (cheeks and roof) detailed for thermal performance in the loft conversion with dormer?" },
+      { id: "q3", label: "Are you installing fire doors and smoke alarms as required for the loft conversion with dormer?" },
+      { id: "q4", label: "Is safe access provided for materials entering the loft space during the loft conversion with dormer?" },
+      { id: "q5", label: "Will you ensure the new staircase maintains adequate headroom in the loft conversion with dormer?" }
+    ],
+    complexity: "high",
+    extraSections: ["structural_integrity", "fire_safety", "working_at_height"]
   },
   "Garage conversion to habitable room": {
-    desc: "Garage conversion to habitable room involves altering or supporting parts of a building's primary structure, such as walls, beams or floors. The work typically follows an engineer's design, with temporary supports installed before any load-bearing elements are removed or modified. Close control of sequence, propping and load transfer is required to prevent unintended movement or collapse. On completion, new structural members are secured, checked and left ready for inspection and subsequent finishes.",
+    desc: "Garage conversion involves transforming a garage into a living space. Work includes infilling the garage door, raising the floor level, insulating walls/ceiling, and connecting services. Damp proofing and ventilation are key concerns.",
     hazards: ["dust_fumes", "manual_handling", "structural_collapse", "damp_proofing", "insulation"],
     questions: [
-      { id: "q1", label: "Has a structural engineer's design or written instruction been obtained for the garage conversion to habitable room?" },
-      { id: "q2", label: "Will suitable temporary supports be installed and checked before any load-bearing elements are removed during the garage conversion to habitable room?" },
-      { id: "q3", label: "Have you confirmed that all areas affected by the garage conversion to habitable room are accessible and cleared of non-essential occupants?" },
-      { id: "q4", label: "Is there a plan to monitor for unexpected movement or cracking while the garage conversion to habitable room is in progress?" },
-      { id: "q5", label: "Will the works from the garage conversion to habitable room be inspected before they are concealed by finishes?" }
-    ]
+      { id: "q1", label: "Have you checked the existing foundations are suitable for the new infill wall in the garage conversion?" },
+      { id: "q2", label: "Is the new floor construction designed to include a DPM and insulation for the garage conversion?" },
+      { id: "q3", label: "Are you upgrading the ventilation to meet building regulations for a habitable room in the garage conversion?" },
+      { id: "q4", label: "Will you ensure the new wall matches the existing exterior appearance in the garage conversion?" },
+      { id: "q5", label: "Have you allowed for fire escape windows if required in the garage conversion?" }
+    ],
+    complexity: "high",
+    extraSections: ["structural_integrity", "insulation", "damp_proofing"]
   },
   "Internal load-bearing wall removal": {
-    desc: "Internal load-bearing wall removal involves altering or supporting parts of a building's primary structure, such as walls, beams or floors. The work typically follows an engineer's design, with temporary supports installed before any load-bearing elements are removed or modified. Close control of sequence, propping and load transfer is required to prevent unintended movement or collapse. On completion, new structural members are secured, checked and left ready for inspection and subsequent finishes.",
+    desc: "Internal load-bearing wall removal involves taking down a wall that supports structure above. Work includes installing temporary props (Needle and Shore), inserting a steel beam, and making good. Structural calculations are essential.",
     hazards: ["structural_collapse", "dust_fumes", "manual_handling", "noise_vibration"],
     questions: [
-      { id: "q1", label: "Has a structural engineer's design or written instruction been obtained for the internal load-bearing wall removal?" },
-      { id: "q2", label: "Will suitable temporary supports be installed and checked before any load-bearing elements are removed during the internal load-bearing wall removal?" },
-      { id: "q3", label: "Have you confirmed that all areas affected by the internal load-bearing wall removal are accessible and cleared of non-essential occupants?" },
-      { id: "q4", label: "Is there a plan to monitor for unexpected movement or cracking while the internal load-bearing wall removal is in progress?" },
-      { id: "q5", label: "Will the works from the internal load-bearing wall removal be inspected before they are concealed by finishes?" }
-    ]
+      { id: "q1", label: "Have you confirmed the wall is load-bearing and obtained structural calculations for the removal?" },
+      { id: "q2", label: "Are the props (Acrows/Strongboys) rated for the load they will support during the wall removal?" },
+      { id: "q3", label: "Have you protected the floor where props are seated to spread the load during the wall removal?" },
+      { id: "q4", label: "Will you install the new beam on padstones before removing the props in the wall removal?" },
+      { id: "q5", label: "Is dust suppression in place to prevent contamination of other rooms during the wall removal?" }
+    ],
+    complexity: "high",
+    extraSections: ["structural_integrity", "temporary_works", "dust_control"]
   },
   "New partition wall installation": {
-    desc: "New partition wall installation concerns the internal fabric of the building, including non-structural walls, linings and finishes. Work may involve installing or adjusting stud frameworks, fixing boards, applying plaster or creating new room layouts. Services such as electrical and plumbing routes are often coordinated within or behind the new construction. The finished surfaces are left plumb, level and ready for decoration or further fit-out.",
+    desc: "New partition wall installation involves building non-load bearing walls using timber or metal studs. Work includes setting out, fixing the frame to floor and ceiling, installing insulation, and boarding. Services are often routed through the studwork.",
     hazards: ["manual_handling", "dust_fumes", "sharp_objects", "work_at_height"],
     questions: [
-      { id: "q1", label: "Have you confirmed that no load-bearing elements are being altered as part of the new partition wall installation?" },
-      { id: "q2", label: "Will the new partition wall installation allow for service routes, access panels and fixings needed for other trades?" },
-      { id: "q3", label: "Are you controlling dust and debris from the new partition wall installation to protect adjacent areas and occupants?" },
-      { id: "q4", label: "Is adequate drying or curing time allowed for wet trades involved in the new partition wall installation?" },
-      { id: "q5", label: "Will you check that finished surfaces from the new partition wall installation are plumb, level and free from significant defects?" }
+      { id: "q1", label: "Have you checked for services in the floor and ceiling before fixing the track/plate for the new partition wall?" },
+      { id: "q2", label: "Is acoustic insulation required within the new partition wall installation?" },
+      { id: "q3", label: "Are you using the correct board type (e.g., moisture resistant, fire) for the new partition wall location?" },
+      { id: "q4", label: "Have you allowed for noggins to support heavy fixtures (radiators, TV brackets) in the new partition wall?" },
+      { id: "q5", label: "Will you ensure joints are taped and filled correctly for the new partition wall installation?" }
     ]
   },
   "Stud wall and plasterboard installation": {
-    desc: "Stud wall and plasterboard installation concerns the internal fabric of the building, including non-structural walls, linings and finishes. Work may involve installing or adjusting stud frameworks, fixing boards, applying plaster or creating new room layouts. Services such as electrical and plumbing routes are often coordinated within or behind the new construction. The finished surfaces are left plumb, level and ready for decoration or further fit-out.",
+    desc: "Stud wall and plasterboard installation involves constructing timber or metal frames and cladding them with gypsum boards. Work includes cutting studs, fixing boards with screws, and preparing joints for skimming. Dust control is important when cutting boards.",
     hazards: ["manual_handling", "dust_fumes", "sharp_objects"],
     questions: [
-      { id: "q1", label: "Have you confirmed that no load-bearing elements are being altered as part of the stud wall and plasterboard installation?" },
-      { id: "q2", label: "Will the stud wall and plasterboard installation allow for service routes, access panels and fixings needed for other trades?" },
-      { id: "q3", label: "Are you controlling dust and debris from the stud wall and plasterboard installation to protect adjacent areas and occupants?" },
-      { id: "q4", label: "Is adequate drying or curing time allowed for wet trades involved in the stud wall and plasterboard installation?" },
-      { id: "q5", label: "Will you check that finished surfaces from the stud wall and plasterboard installation are plumb, level and free from significant defects?" }
+      { id: "q1", label: "Are you wearing a dust mask when cutting plasterboard for the stud wall installation?" },
+      { id: "q2", label: "Have you checked the stud spacing matches the board size (e.g., 400mm or 600mm centres)?" },
+      { id: "q3", label: "Is the plasterboard thickness suitable for the fire rating required in the stud wall installation?" },
+      { id: "q4", label: "Are you using drywall screws of the correct length to avoid penetrating services in the stud wall?" },
+      { id: "q5", label: "Will you stagger the board joints to improve strength and finish in the stud wall installation?" }
     ]
   },
   "Internal plastering and skim coat": {
-    desc: "Internal plastering and skim coat concerns the internal fabric of the building, including non-structural walls, linings and finishes. Work may involve installing or adjusting stud frameworks, fixing boards, applying plaster or creating new room layouts. Services such as electrical and plumbing routes are often coordinated within or behind the new construction. The finished surfaces are left plumb, level and ready for decoration or further fit-out.",
+    desc: "Internal plastering involves applying a thin coat of finishing plaster to walls or ceilings. Work includes mixing plaster, applying it with a hawk and trowel, and polishing to a smooth finish. Working at height (ceilings) and manual handling of bags are key hazards.",
     hazards: ["slips_trips", "manual_handling", "dust_fumes", "work_at_height"],
     questions: [
-      { id: "q1", label: "Have you confirmed that no load-bearing elements are being altered as part of the internal plastering and skim coat?" },
-      { id: "q2", label: "Will the internal plastering and skim coat allow for service routes, access panels and fixings needed for other trades?" },
-      { id: "q3", label: "Are you controlling dust and debris from the internal plastering and skim coat to protect adjacent areas and occupants?" },
-      { id: "q4", label: "Is adequate drying or curing time allowed for wet trades involved in the internal plastering and skim coat?" },
-      { id: "q5", label: "Will you check that finished surfaces from the internal plastering and skim coat are plumb, level and free from significant defects?" }
+      { id: "q1", label: "Is the platform or hop-up stable for reaching ceilings during internal plastering?" },
+      { id: "q2", label: "Have you prepared the surface (e.g., PVA bond) to control suction before plastering?" },
+      { id: "q3", label: "Are you mixing plaster in a well-ventilated area to avoid dust inhalation?" },
+      { id: "q4", label: "Have you protected floors and fixtures from plaster splashes during the work?" },
+      { id: "q5", label: "Will you ensure the plaster is fully dry before decoration?" }
     ]
   },
   "External sand and cement rendering": {
-    desc: "External sand and cement rendering concerns the internal fabric of the building, including non-structural walls, linings and finishes. Work may involve installing or adjusting stud frameworks, fixing boards, applying plaster or creating new room layouts. Services such as electrical and plumbing routes are often coordinated within or behind the new construction. The finished surfaces are left plumb, level and ready for decoration or further fit-out.",
+    desc: "External rendering involves applying a sand and cement mix to external walls for weatherproofing and aesthetics. Work includes fixing beads, applying scratch and float coats, and finishing. Access is usually via scaffold.",
     hazards: ["work_at_height", "cement", "dust_fumes", "manual_handling"],
     questions: [
-      { id: "q1", label: "Have you confirmed that no load-bearing elements are being altered as part of the external sand and cement rendering?" },
-      { id: "q2", label: "Will the external sand and cement rendering allow for service routes, access panels and fixings needed for other trades?" },
-      { id: "q3", label: "Are you controlling dust and debris from the external sand and cement rendering to protect adjacent areas and occupants?" },
-      { id: "q4", label: "Is adequate drying or curing time allowed for wet trades involved in the external sand and cement rendering?" },
-      { id: "q5", label: "Will you check that finished surfaces from the external sand and cement rendering are plumb, level and free from significant defects?" }
+      { id: "q1", label: "Is the scaffold fully boarded and safe for the external rendering work?" },
+      { id: "q2", label: "Are you using the correct mix ratio and additives (e.g., waterproofer) for the external rendering?" },
+      { id: "q3", label: "Have you protected windows and doors from cement splashes during the external rendering?" },
+      { id: "q4", label: "Will you apply a scratch coat to ensure a good key for the top coat in the external rendering?" },
+      { id: "q5", label: "Are you monitoring weather conditions to avoid rendering in frost or heavy rain?" }
     ]
   },
   "Dot-and-dab plasterboard lining": {
-    desc: "Dot-and-dab plasterboard lining concerns the internal fabric of the building, including non-structural walls, linings and finishes. Work may involve installing or adjusting stud frameworks, fixing boards, applying plaster or creating new room layouts. Services such as electrical and plumbing routes are often coordinated within or behind the new construction. The finished surfaces are left plumb, level and ready for decoration or further fit-out.",
+    desc: "Dot-and-dab lining involves fixing plasterboard to masonry walls using adhesive dabs. Work includes setting out, mixing adhesive, and levelling boards. It is a fast method but requires solid backing.",
     hazards: ["manual_handling", "dust_fumes", "chemical_coshh"],
     questions: [
-      { id: "q1", label: "Have you confirmed that no load-bearing elements are being altered as part of the dot-and-dab plasterboard lining?" },
-      { id: "q2", label: "Will the dot-and-dab plasterboard lining allow for service routes, access panels and fixings needed for other trades?" },
-      { id: "q3", label: "Are you controlling dust and debris from the dot-and-dab plasterboard lining to protect adjacent areas and occupants?" },
-      { id: "q4", label: "Is adequate drying or curing time allowed for wet trades involved in the dot-and-dab plasterboard lining?" },
-      { id: "q5", label: "Will you check that finished surfaces from the dot-and-dab plasterboard lining are plumb, level and free from significant defects?" }
+      { id: "q1", label: "Is the masonry wall dry and free from dust before starting dot-and-dab lining?" },
+      { id: "q2", label: "Are you applying a continuous ribbon of adhesive at the top and bottom for fire safety and air tightness?" },
+      { id: "q3", label: "Have you marked the position of dabs to ensure fixings for radiators/sockets hit solid adhesive?" },
+      { id: "q4", label: "Are you using mechanical fixings in addition to adhesive if the wall height requires it?" },
+      { id: "q5", label: "Will you check the boards are plumb and true before the adhesive sets?" }
     ]
   },
   "Ceiling replacement (plasterboard)": {
-    desc: "Ceiling replacement (plasterboard) concerns the internal fabric of the building, including non-structural walls, linings and finishes. Work may involve installing or adjusting stud frameworks, fixing boards, applying plaster or creating new room layouts. Services such as electrical and plumbing routes are often coordinated within or behind the new construction. The finished surfaces are left plumb, level and ready for decoration or further fit-out.",
+    desc: "Ceiling replacement involves taking down old lath and plaster or damaged boards and fixing new plasterboard. Work includes checking joists, installing noggins, and lifting boards overhead. Dust and falling debris are major hazards.",
     hazards: ["work_at_height", "manual_handling", "dust_fumes", "falling_objects"],
     questions: [
-      { id: "q1", label: "Have you confirmed that no load-bearing elements are being altered as part of the ceiling replacement (plasterboard)?" },
-      { id: "q2", label: "Will the ceiling replacement (plasterboard) allow for service routes, access panels and fixings needed for other trades?" },
-      { id: "q3", label: "Are you controlling dust and debris from the ceiling replacement (plasterboard) to protect adjacent areas and occupants?" },
-      { id: "q4", label: "Is adequate drying or curing time allowed for wet trades involved in the ceiling replacement (plasterboard)?" },
-      { id: "q5", label: "Will you check that finished surfaces from the ceiling replacement (plasterboard) are plumb, level and free from significant defects?" }
+      { id: "q1", label: "Have you isolated the electrical circuit for the lights before taking down the old ceiling?" },
+      { id: "q2", label: "Are you using a board lifter or having assistance to handle large boards overhead?" },
+      { id: "q3", label: "Have you checked the joists for rot or damage once the old ceiling is removed?" },
+      { id: "q4", label: "Are you wearing eye protection and a dust mask to protect against falling debris?" },
+      { id: "q5", label: "Will you stagger the board joints to prevent cracking in the new ceiling?" }
     ]
   },
   "Suspended ceiling installation": {
-    desc: "Suspended ceiling installation concerns the internal fabric of the building, including non-structural walls, linings and finishes. Work may involve installing or adjusting stud frameworks, fixing boards, applying plaster or creating new room layouts. Services such as electrical and plumbing routes are often coordinated within or behind the new construction. The finished surfaces are left plumb, level and ready for decoration or further fit-out.",
+    desc: "Suspended ceiling installation involves fitting a metal grid system suspended from the structural soffit, followed by laying in tiles. Work includes setting out levels, installing hangers, and cutting tiles to fit perimeters. Working at height and overhead drilling are key activities.",
     hazards: ["work_at_height", "manual_handling", "dust_fumes", "sharp_objects"],
     questions: [
-      { id: "q1", label: "Have you confirmed that no load-bearing elements are being altered as part of the suspended ceiling installation?" },
-      { id: "q2", label: "Will the suspended ceiling installation allow for service routes, access panels and fixings needed for other trades?" },
-      { id: "q3", label: "Are you controlling dust and debris from the suspended ceiling installation to protect adjacent areas and occupants?" },
-      { id: "q4", label: "Is adequate drying or curing time allowed for wet trades involved in the suspended ceiling installation?" },
-      { id: "q5", label: "Will you check that finished surfaces from the suspended ceiling installation are plumb, level and free from significant defects?" }
+      { id: "q1", label: "Have you checked the structural soffit is suitable for the fixings used in the suspended ceiling installation?" },
+      { id: "q2", label: "Are you using a laser level to ensure the grid is level throughout the suspended ceiling installation?" },
+      { id: "q3", label: "Have you coordinated with electricians for light fitting positions in the suspended ceiling installation?" },
+      { id: "q4", label: "Are you wearing eye protection when drilling overhead for the suspended ceiling installation?" },
+      { id: "q5", label: "Will you ensure the grid is fully supported before loading it with tiles in the suspended ceiling installation?" }
     ]
   },
   "Concrete slab pour (ground floor)": {
-    desc: "Concrete slab pour (ground floor) is centred on earthworks, external levels, hardstandings and subsurface drainage outside the main building envelope. Typical activities include excavation, compaction of sub-bases, laying pipes or channels, and installing paving or concrete finishes. Existing services, access routes and neighbouring properties must be protected throughout the work. Completed groundworks are left stable, properly drained and suitable for their intended use.",
+    desc: "Concrete slab pour involves laying a new ground floor slab. Work includes preparing the sub-base, installing a damp proof membrane (DPM) and insulation, and pouring/levelling concrete. Reinforcement mesh may be required.",
     hazards: ["chemical_coshh", "manual_handling", "slips_trips", "plant_machinery"],
     questions: [
-      { id: "q1", label: "Have underground services been located and marked out before starting the concrete slab pour (ground floor)?" },
-      { id: "q2", label: "Will excavations created during the concrete slab pour (ground floor) be supported, battered back or fenced to prevent collapse and falls?" },
-      { id: "q3", label: "Are appropriate compaction methods and materials being specified for sub-bases in the concrete slab pour (ground floor)?" },
-      { id: "q4", label: "Is surface water drainage from the concrete slab pour (ground floor) designed to fall away from buildings and avoid creating slip hazards?" },
-      { id: "q5", label: "Will finished levels and falls achieved in the concrete slab pour (ground floor) be checked against drawings before handover?" }
+      { id: "q1", label: "Is the sub-base compacted and blinded with sand to protect the DPM in the concrete slab pour?" },
+      { id: "q2", label: "Have you lapped and taped the DPM joints correctly in the concrete slab pour?" },
+      { id: "q3", label: "Are you wearing appropriate PPE (gloves, boots, eye protection) for handling wet concrete?" },
+      { id: "q4", label: "Is reinforcement mesh supported on chairs to ensure correct cover in the concrete slab pour?" },
+      { id: "q5", label: "Will you protect the fresh concrete from frost or rapid drying after the pour?" }
     ]
   },
   "Foundations and footings excavation and pour": {
-    desc: "Foundations and footings excavation and pour is centred on earthworks, external levels, hardstandings and subsurface drainage outside the main building envelope. Typical activities include excavation, compaction of sub-bases, laying pipes or channels, and installing paving or concrete finishes. Existing services, access routes and neighbouring properties must be protected throughout the work. Completed groundworks are left stable, properly drained and suitable for their intended use.",
+    desc: "Foundations excavation and pour involves digging trenches for new structural walls and filling them with concrete. Work includes setting out, excavating to correct depth/width, and pouring concrete. Trench collapse and underground services are major risks.",
     hazards: ["excavation", "underground_services", "plant_machinery", "structural_collapse", "manual_handling"],
     questions: [
-      { id: "q1", label: "Have underground services been located and marked out before starting the foundations and footings excavation and pour?" },
-      { id: "q2", label: "Will excavations created during the foundations and footings excavation and pour be supported, battered back or fenced to prevent collapse and falls?" },
-      { id: "q3", label: "Are appropriate compaction methods and materials being specified for sub-bases in the foundations and footings excavation and pour?" },
-      { id: "q4", label: "Is surface water drainage from the foundations and footings excavation and pour designed to fall away from buildings and avoid creating slip hazards?" },
-      { id: "q5", label: "Will finished levels and falls achieved in the foundations and footings excavation and pour be checked against drawings before handover?" }
+      { id: "q1", label: "Have you scanned for underground services (CAT scan) before excavating foundations?" },
+      { id: "q2", label: "Are trench supports (shoring) available if the excavation depth requires them?" },
+      { id: "q3", label: "Have you agreed the foundation depth with Building Control before pouring?" },
+      { id: "q4", label: "Is the concrete mix suitable for the ground conditions (e.g., sulphate resisting)?" },
+      { id: "q5", label: "Will you fence off open excavations to prevent falls when the site is unattended?" }
     ]
   },
   "Brick/block cavity wall construction": {
-    desc: "Brick/block cavity wall construction focuses on constructing new structural elements that enlarge or add to an existing building. The task usually includes excavation, foundations, walls, floors, roof structures and integration with the existing property. Services, insulation, damp-proofing and weathering details must all be coordinated to meet design and regulatory requirements. The area is progressively built up from groundworks through to a weathertight shell ready for internal fit-out.",
+    desc: "Brick/block cavity wall construction involves building external walls with an inner block leaf, an outer brick leaf, and a cavity. Work includes installing wall ties, insulation, and damp proof courses (DPC). Scaffolding is required as the wall rises.",
     hazards: ["manual_handling", "dust_fumes", "work_at_height", "chemical_coshh"],
     questions: [
-      { id: "q1", label: "Have you obtained and reviewed all drawings and specifications relevant to the brick/block cavity wall construction?" },
-      { id: "q2", label: "Will ground conditions be assessed and any variations reported before foundation work proceeds in the brick/block cavity wall construction?" },
-      { id: "q3", label: "Are measures in place to segregate the brick/block cavity wall construction from public access and protect neighbouring properties?" },
-      { id: "q4", label: "Is there a clear sequence for structural, weatherproofing and service installation during the brick/block cavity wall construction?" },
-      { id: "q5", label: "Will the brick/block cavity wall construction include checks to ensure levels, dimensions and alignments match the design before moving on?" }
+      { id: "q1", label: "Are wall ties spaced correctly and kept clean of mortar droppings in the cavity wall construction?" },
+      { id: "q2", label: "Is the cavity insulation being installed tight to the inner leaf without gaps?" },
+      { id: "q3", label: "Have you installed cavity trays above openings to prevent water ingress?" },
+      { id: "q4", label: "Are you mixing mortar in a designated area to prevent ground contamination?" },
+      { id: "q5", label: "Will you cover the new brickwork at night to protect it from rain or frost?" }
     ]
   },
   "Retaining wall construction": {
-    desc: "Retaining wall construction focuses on constructing new structural elements that enlarge or add to an existing building. The task usually includes excavation, foundations, walls, floors, roof structures and integration with the existing property. Services, insulation, damp-proofing and weathering details must all be coordinated to meet design and regulatory requirements. The area is progressively built up from groundworks through to a weathertight shell ready for internal fit-out.",
+    desc: "Retaining wall construction involves building a wall to hold back soil or ground. Work includes excavation, installing drainage behind the wall, and constructing the wall from reinforced concrete, blockwork, or gabions. Structural design is critical to prevent failure.",
     hazards: ["structural_collapse", "excavation", "manual_handling", "plant_machinery"],
     questions: [
-      { id: "q1", label: "Have you obtained and reviewed all drawings and specifications relevant to the retaining wall construction?" },
-      { id: "q2", label: "Will ground conditions be assessed and any variations reported before foundation work proceeds in the retaining wall construction?" },
-      { id: "q3", label: "Are measures in place to segregate the retaining wall construction from public access and protect neighbouring properties?" },
-      { id: "q4", label: "Is there a clear sequence for structural, weatherproofing and service installation during the retaining wall construction?" },
-      { id: "q5", label: "Will the retaining wall construction include checks to ensure levels, dimensions and alignments match the design before moving on?" }
-    ]
+      { id: "q1", label: "Has the retaining wall been designed by an engineer to withstand the ground pressure?" },
+      { id: "q2", label: "Is adequate drainage (weep holes/perforated pipe) installed behind the retaining wall?" },
+      { id: "q3", label: "Are you using the correct reinforcement and concrete mix for the retaining wall?" },
+      { id: "q4", label: "Have you supported the excavation face safely while building the retaining wall?" },
+      { id: "q5", label: "Will you backfill behind the wall in layers to prevent overloading?" }
+    ],
+    complexity: "high",
+    extraSections: ["structural_integrity", "excavation_safety", "drainage"]
   },
   "Garden boundary wall build": {
-    desc: "Garden boundary wall build focuses on constructing new structural elements that enlarge or add to an existing building. The task usually includes excavation, foundations, walls, floors, roof structures and integration with the existing property. Services, insulation, damp-proofing and weathering details must all be coordinated to meet design and regulatory requirements. The area is progressively built up from groundworks through to a weathertight shell ready for internal fit-out.",
+    desc: "Garden boundary wall build involves constructing a free-standing wall to define a property boundary. Work includes digging footings, laying bricks/blocks, and installing coping stones. Stability and wind loading must be considered.",
     hazards: ["manual_handling", "chemical_coshh", "excavation", "public_interface"],
     questions: [
-      { id: "q1", label: "Have you obtained and reviewed all drawings and specifications relevant to the garden boundary wall build?" },
-      { id: "q2", label: "Will ground conditions be assessed and any variations reported before foundation work proceeds in the garden boundary wall build?" },
-      { id: "q3", label: "Are measures in place to segregate the garden boundary wall build from public access and protect neighbouring properties?" },
-      { id: "q4", label: "Is there a clear sequence for structural, weatherproofing and service installation during the garden boundary wall build?" },
-      { id: "q5", label: "Will the garden boundary wall build include checks to ensure levels, dimensions and alignments match the design before moving on?" }
+      { id: "q1", label: "Is the foundation depth sufficient for the soil type and wall height in the garden boundary wall build?" },
+      { id: "q2", label: "Have you included movement joints at appropriate intervals in the garden boundary wall?" },
+      { id: "q3", label: "Are piers or returns included to provide stability for the garden boundary wall?" },
+      { id: "q4", label: "Will you ensure the coping stones are securely fixed to prevent water ingress and frost damage?" },
+      { id: "q5", label: "Have you protected the public side of the boundary during the work?" }
     ]
   },
   "Patio paving installation": {
-    desc: "Patio paving installation is centred on earthworks, external levels, hardstandings and subsurface drainage outside the main building envelope. Typical activities include excavation, compaction of sub-bases, laying pipes or channels, and installing paving or concrete finishes. Existing services, access routes and neighbouring properties must be protected throughout the work. Completed groundworks are left stable, properly drained and suitable for their intended use.",
+    desc: "Patio paving installation involves laying slabs or flags to create an outdoor seating area. Work includes excavating, laying a sub-base, bedding slabs on mortar, and pointing joints. Falls for drainage are essential.",
     hazards: ["manual_handling", "dust_fumes", "noise_vibration", "slips_trips"],
     questions: [
-      { id: "q1", label: "Have underground services been located and marked out before starting the patio paving installation?" },
-      { id: "q2", label: "Will excavations created during the patio paving installation be supported, battered back or fenced to prevent collapse and falls?" },
-      { id: "q3", label: "Are appropriate compaction methods and materials being specified for sub-bases in the patio paving installation?" },
-      { id: "q4", label: "Is surface water drainage from the patio paving installation designed to fall away from buildings and avoid creating slip hazards?" },
-      { id: "q5", label: "Will finished levels and falls achieved in the patio paving installation be checked against drawings before handover?" }
+      { id: "q1", label: "Is the sub-base compacted sufficiently to prevent settlement of the patio paving?" },
+      { id: "q2", label: "Have you laid the paving with a fall away from the house to prevent damp?" },
+      { id: "q3", label: "Are you using a full mortar bed for the slabs to prevent rocking and breakage?" },
+      { id: "q4", label: "Are you wearing ear protection when cutting slabs with a disc cutter?" },
+      { id: "q5", label: "Will you ensure the pointing mix is suitable for the joint width and traffic?" }
     ]
   },
   "Block paved driveway installation": {
-    desc: "Block paved driveway installation is centred on earthworks, external levels, hardstandings and subsurface drainage outside the main building envelope. Typical activities include excavation, compaction of sub-bases, laying pipes or channels, and installing paving or concrete finishes. Existing services, access routes and neighbouring properties must be protected throughout the work. Completed groundworks are left stable, properly drained and suitable for their intended use.",
+    desc: "Block paved driveway installation involves laying small concrete or clay blocks on a sand bed. Work includes excavation, installing edge restraints, compacting the sub-base and sand, and vibrating the blocks into place.",
     hazards: ["manual_handling", "dust_fumes", "noise_vibration", "plant_machinery", "public_interface"],
     questions: [
-      { id: "q1", label: "Have underground services been located and marked out before starting the block paved driveway installation?" },
-      { id: "q2", label: "Will excavations created during the block paved driveway installation be supported, battered back or fenced to prevent collapse and falls?" },
-      { id: "q3", label: "Are appropriate compaction methods and materials being specified for sub-bases in the block paved driveway installation?" },
-      { id: "q4", label: "Is surface water drainage from the block paved driveway installation designed to fall away from buildings and avoid creating slip hazards?" },
-      { id: "q5", label: "Will finished levels and falls achieved in the block paved driveway installation be checked against drawings before handover?" }
+      { id: "q1", label: "Have you installed secure edge restraints to prevent the blocks spreading?" },
+      { id: "q2", label: "Is the sub-base depth suitable for vehicle loads on the driveway?" },
+      { id: "q3", label: "Are you using a plate compactor with a rubber mat to avoid damaging the blocks?" },
+      { id: "q4", label: "Have you swept kiln-dried sand into the joints to lock the blocks together?" },
+      { id: "q5", label: "Will you ensure the finished level is below the damp proof course of the house?" }
     ]
   },
   "Concrete driveway installation": {
-    desc: "Concrete driveway installation is centred on earthworks, external levels, hardstandings and subsurface drainage outside the main building envelope. Typical activities include excavation, compaction of sub-bases, laying pipes or channels, and installing paving or concrete finishes. Existing services, access routes and neighbouring properties must be protected throughout the work. Completed groundworks are left stable, properly drained and suitable for their intended use.",
+    desc: "Concrete driveway installation involves pouring a large concrete slab for vehicle access. Work includes formwork, reinforcement, pouring, and finishing (e.g., tamped or imprinted). Expansion joints are critical to prevent cracking.",
     hazards: ["chemical_coshh", "manual_handling", "slips_trips", "plant_machinery"],
     questions: [
-      { id: "q1", label: "Have underground services been located and marked out before starting the concrete driveway installation?" },
-      { id: "q2", label: "Will excavations created during the concrete driveway installation be supported, battered back or fenced to prevent collapse and falls?" },
-      { id: "q3", label: "Are appropriate compaction methods and materials being specified for sub-bases in the concrete driveway installation?" },
-      { id: "q4", label: "Is surface water drainage from the concrete driveway installation designed to fall away from buildings and avoid creating slip hazards?" },
-      { id: "q5", label: "Will finished levels and falls achieved in the concrete driveway installation be checked against drawings before handover?" }
+      { id: "q1", label: "Have you allowed for expansion joints in the concrete driveway to accommodate thermal movement?" },
+      { id: "q2", label: "Is the concrete mix strength (e.g., C30/C35) suitable for vehicle traffic?" },
+      { id: "q3", label: "Are you applying a surface texture (e.g., tamped) to provide grip for vehicles?" },
+      { id: "q4", label: "Have you protected the concrete from rain or frost during the curing period?" },
+      { id: "q5", label: "Will you ensure drainage channels are installed to prevent water running onto the highway?" }
     ]
   },
   "Drainage trench excavation and pipe laying": {
-    desc: "Drainage trench excavation and pipe laying is centred on earthworks, external levels, hardstandings and subsurface drainage outside the main building envelope. Typical activities include excavation, compaction of sub-bases, laying pipes or channels, and installing paving or concrete finishes. Existing services, access routes and neighbouring properties must be protected throughout the work. Completed groundworks are left stable, properly drained and suitable for their intended use.",
+    desc: "Drainage trench excavation involves digging trenches to install foul or surface water pipes. Work includes grading the trench bottom, laying pipe bedding, jointing pipes, and backfilling. Trench stability and correct gradients are critical.",
     hazards: ["excavation", "confined_space", "biological", "underground_services"],
     questions: [
-      { id: "q1", label: "Have underground services been located and marked out before starting the drainage trench excavation and pipe laying?" },
-      { id: "q2", label: "Will excavations created during the drainage trench excavation and pipe laying be supported, battered back or fenced to prevent collapse and falls?" },
-      { id: "q3", label: "Are appropriate compaction methods and materials being specified for sub-bases in the drainage trench excavation and pipe laying?" },
-      { id: "q4", label: "Is surface water drainage from the drainage trench excavation and pipe laying designed to fall away from buildings and avoid creating slip hazards?" },
-      { id: "q5", label: "Will finished levels and falls achieved in the drainage trench excavation and pipe laying be checked against drawings before handover?" }
+      { id: "q1", label: "Is the trench width sufficient for safe access and pipe laying?" },
+      { id: "q2", label: "Have you checked the pipe gradient (e.g., 1:40 or 1:80) is correct before backfilling?" },
+      { id: "q3", label: "Are you using pea shingle or suitable granular material for pipe bedding?" },
+      { id: "q4", label: "Have you tested the drain (air or water test) before backfilling?" },
+      { id: "q5", label: "Will you install a warning tape above the pipe during backfilling?" }
     ]
   },
   "Soakaway installation": {
-    desc: "Soakaway installation is centred on earthworks, external levels, hardstandings and subsurface drainage outside the main building envelope. Typical activities include excavation, compaction of sub-bases, laying pipes or channels, and installing paving or concrete finishes. Existing services, access routes and neighbouring properties must be protected throughout the work. Completed groundworks are left stable, properly drained and suitable for their intended use.",
+    desc: "Soakaway installation involves creating a pit filled with crates or rubble to manage surface water runoff. Work includes excavation, wrapping crates in geotextile, and connecting inlet pipes. The location must be 5m+ from buildings.",
     hazards: ["excavation", "underground_services", "confined_space", "manual_handling"],
     questions: [
-      { id: "q1", label: "Have underground services been located and marked out before starting the soakaway installation?" },
-      { id: "q2", label: "Will excavations created during the soakaway installation be supported, battered back or fenced to prevent collapse and falls?" },
-      { id: "q3", label: "Are appropriate compaction methods and materials being specified for sub-bases in the soakaway installation?" },
-      { id: "q4", label: "Is surface water drainage from the soakaway installation designed to fall away from buildings and avoid creating slip hazards?" },
-      { id: "q5", label: "Will finished levels and falls achieved in the soakaway installation be checked against drawings before handover?" }
+      { id: "q1", label: "Have you performed a percolation test to confirm the ground is suitable for a soakaway?" },
+      { id: "q2", label: "Is the soakaway located at least 5m from any building foundations?" },
+      { id: "q3", label: "Are the crates wrapped in geotextile to prevent silt blocking the void?" },
+      { id: "q4", label: "Have you installed a silt trap before the soakaway inlet?" },
+      { id: "q5", label: "Will you ensure the inlet pipe has sufficient fall to the soakaway?" }
     ]
   },
   "Manhole construction or alteration": {
-    desc: "Manhole construction or alteration is centred on earthworks, external levels, hardstandings and subsurface drainage outside the main building envelope. Typical activities include excavation, compaction of sub-bases, laying pipes or channels, and installing paving or concrete finishes. Existing services, access routes and neighbouring properties must be protected throughout the work. Completed groundworks are left stable, properly drained and suitable for their intended use.",
+    desc: "Manhole construction involves building inspection chambers for drainage access. Work includes laying the base, building up walls or installing rings, and fitting the cover. Confined space entry procedures may apply for deep manholes.",
     hazards: ["confined_space", "biological", "manual_handling", "slips_trips"],
     questions: [
-      { id: "q1", label: "Have underground services been located and marked out before starting the manhole construction or alteration?" },
-      { id: "q2", label: "Will excavations created during the manhole construction or alteration be supported, battered back or fenced to prevent collapse and falls?" },
-      { id: "q3", label: "Are appropriate compaction methods and materials being specified for sub-bases in the manhole construction or alteration?" },
-      { id: "q4", label: "Is surface water drainage from the manhole construction or alteration designed to fall away from buildings and avoid creating slip hazards?" },
-      { id: "q5", label: "Will finished levels and falls achieved in the manhole construction or alteration be checked against drawings before handover?" }
+      { id: "q1", label: "Is the manhole base benched to direct flow smoothly into the channel?" },
+      { id: "q2", label: "Have you selected the correct load rating for the manhole cover (e.g., driveway vs garden)?" },
+      { id: "q3", label: "Are step irons installed safely if the manhole depth requires them?" },
+      { id: "q4", label: "Is gas monitoring required before entering the manhole?" },
+      { id: "q5", label: "Will you seal the manhole sections to prevent groundwater ingress?" }
     ]
   },
   "Landscaping and garden regrading": {
-    desc: "Landscaping and garden regrading is centred on earthworks, external levels, hardstandings and subsurface drainage outside the main building envelope. Typical activities include excavation, compaction of sub-bases, laying pipes or channels, and installing paving or concrete finishes. Existing services, access routes and neighbouring properties must be protected throughout the work. Completed groundworks are left stable, properly drained and suitable for their intended use.",
+    desc: "Landscaping involves reshaping ground levels, installing features like sleepers or steps, and preparing soil for planting. Work includes using mini-diggers, moving topsoil, and installing drainage. Hidden services are a risk during excavation.",
     hazards: ["plant_machinery", "manual_handling", "dust_fumes", "slips_trips"],
     questions: [
-      { id: "q1", label: "Have underground services been located and marked out before starting the landscaping and garden regrading?" },
-      { id: "q2", label: "Will excavations created during the landscaping and garden regrading be supported, battered back or fenced to prevent collapse and falls?" },
-      { id: "q3", label: "Are appropriate compaction methods and materials being specified for sub-bases in the landscaping and garden regrading?" },
-      { id: "q4", label: "Is surface water drainage from the landscaping and garden regrading designed to fall away from buildings and avoid creating slip hazards?" },
-      { id: "q5", label: "Will finished levels and falls achieved in the landscaping and garden regrading be checked against drawings before handover?" }
+      { id: "q1", label: "Have you checked for shallow cables or pipes before rotavating or digging?" },
+      { id: "q2", label: "Are retaining structures (e.g., sleepers) secured properly to prevent collapse?" },
+      { id: "q3", label: "Will you ensure surface water drains away from the house after regrading?" },
+      { id: "q4", label: "Are you wearing safety boots with ankle support for working on uneven ground?" },
+      { id: "q5", label: "Have you planned a route for machinery that avoids damaging existing paths or lawns?" }
     ]
   },
   "External steps and access construction": {
-    desc: "External steps and access construction is centred on earthworks, external levels, hardstandings and subsurface drainage outside the main building envelope. Typical activities include excavation, compaction of sub-bases, laying pipes or channels, and installing paving or concrete finishes. Existing services, access routes and neighbouring properties must be protected throughout the work. Completed groundworks are left stable, properly drained and suitable for their intended use.",
+    desc: "External steps construction involves building safe access routes using brick, concrete, or stone. Work includes excavating footings, forming risers and treads, and installing handrails. Uniform riser heights are essential for safety.",
     hazards: ["manual_handling", "slips_trips", "cement", "dust_fumes"],
     questions: [
-      { id: "q1", label: "Have underground services been located and marked out before starting the external steps and access construction?" },
-      { id: "q2", label: "Will excavations created during the external steps and access construction be supported, battered back or fenced to prevent collapse and falls?" },
-      { id: "q3", label: "Are appropriate compaction methods and materials being specified for sub-bases in the external steps and access construction?" },
-      { id: "q4", label: "Is surface water drainage from the external steps and access construction designed to fall away from buildings and avoid creating slip hazards?" },
-      { id: "q5", label: "Will finished levels and falls achieved in the external steps and access construction be checked against drawings before handover?" }
+      { id: "q1", label: "Are the step foundations deep enough to prevent frost heave?" },
+      { id: "q2", label: "Have you calculated the rise and going to meet building regulations (Part K)?" },
+      { id: "q3", label: "Is the step surface textured or paved to prevent slipping when wet?" },
+      { id: "q4", label: "Will you install a handrail if the drop exceeds 600mm or for general safety?" },
+      { id: "q5", label: "Have you allowed for drainage to prevent water pooling on the steps?" }
     ]
   },
   "Internal staircase installation or replacement": {
-    desc: "Internal staircase installation or replacement is centred on earthworks, external levels, hardstandings and subsurface drainage outside the main building envelope. Typical activities include excavation, compaction of sub-bases, laying pipes or channels, and installing paving or concrete finishes. Existing services, access routes and neighbouring properties must be protected throughout the work. Completed groundworks are left stable, properly drained and suitable for their intended use.",
+    desc: "Internal staircase installation involves fitting a new timber or metal stair flight. Work includes removing the old stair, fixing the new stringers, and installing balustrades. Accurate measuring and structural fixing are key.",
     hazards: ["manual_handling", "work_at_height", "dust_fumes", "slips_trips"],
     questions: [
-      { id: "q1", label: "Have underground services been located and marked out before starting the internal staircase installation or replacement?" },
-      { id: "q2", label: "Will excavations created during the internal staircase installation or replacement be supported, battered back or fenced to prevent collapse and falls?" },
-      { id: "q3", label: "Are appropriate compaction methods and materials being specified for sub-bases in the internal staircase installation or replacement?" },
-      { id: "q4", label: "Is surface water drainage from the internal staircase installation or replacement designed to fall away from buildings and avoid creating slip hazards?" },
-      { id: "q5", label: "Will finished levels and falls achieved in the internal staircase installation or replacement be checked against drawings before handover?" }
+      { id: "q1", label: "Have you checked the floor to floor height matches the new staircase dimensions?" },
+      { id: "q2", label: "Is the stairwell opening structurally supported (trimmers) before installation?" },
+      { id: "q3", label: "Are you using temporary guardrails around the opening during removal/installation?" },
+      { id: "q4", label: "Will you ensure the pitch and headroom comply with building regulations?" },
+      { id: "q5", label: "Is the staircase secured to the wall and floor with appropriate structural fixings?" }
     ]
   },
   "Creation of new window opening": {
-    desc: "Creation of new window opening involves altering or supporting parts of a building's primary structure, such as walls, beams or floors. The work typically follows an engineer's design, with temporary supports installed before any load-bearing elements are removed or modified. Close control of sequence, propping and load transfer is required to prevent unintended movement or collapse. On completion, new structural members are secured, checked and left ready for inspection and subsequent finishes.",
+    desc: "Creation of new window opening involves cutting through masonry walls to install a window. Work includes propping the wall, installing a lintel, cutting the opening, and inserting the cavity closer. Structural stability is the primary concern.",
     hazards: ["structural_collapse", "dust_fumes", "manual_handling", "noise_vibration"],
     questions: [
-      { id: "q1", label: "Has a structural engineer's design or written instruction been obtained for the creation of new window opening?" },
-      { id: "q2", label: "Will suitable temporary supports be installed and checked before any load-bearing elements are removed during the creation of new window opening?" },
-      { id: "q3", label: "Have you confirmed that all areas affected by the creation of new window opening are accessible and cleared of non-essential occupants?" },
-      { id: "q4", label: "Is there a plan to monitor for unexpected movement or cracking while the creation of new window opening is in progress?" },
-      { id: "q5", label: "Will the works from the creation of new window opening be inspected before they are concealed by finishes?" }
+      { id: "q1", label: "Have you installed props (Strongboys) above the opening before cutting?" },
+      { id: "q2", label: "Is the new lintel correctly sized and bearing at least 150mm on each side?" },
+      { id: "q3", label: "Are you using a cavity tray above the lintel to prevent damp?" },
+      { id: "q4", label: "Have you checked for cables or pipes in the wall zone before cutting?" },
+      { id: "q5", label: "Will you ensure the cavity is closed (insulated closer) to prevent cold bridging?" }
     ]
   },
   "Creation of new door opening": {
-    desc: "Creation of new door opening involves altering or supporting parts of a building's primary structure, such as walls, beams or floors. The work typically follows an engineer's design, with temporary supports installed before any load-bearing elements are removed or modified. Close control of sequence, propping and load transfer is required to prevent unintended movement or collapse. On completion, new structural members are secured, checked and left ready for inspection and subsequent finishes.",
+    desc: "Creation of new door opening involves cutting masonry to install a door. Work includes propping, lintel installation, cutting the opening, and fitting the frame. Security and weatherproofing must be maintained.",
     hazards: ["structural_collapse", "dust_fumes", "manual_handling", "noise_vibration"],
     questions: [
-      { id: "q1", label: "Has a structural engineer's design or written instruction been obtained for the creation of new door opening?" },
-      { id: "q2", label: "Will suitable temporary supports be installed and checked before any load-bearing elements are removed during the creation of new door opening?" },
-      { id: "q3", label: "Have you confirmed that all areas affected by the creation of new door opening are accessible and cleared of non-essential occupants?" },
-      { id: "q4", label: "Is there a plan to monitor for unexpected movement or cracking while the creation of new door opening is in progress?" },
-      { id: "q5", label: "Will the works from the creation of new door opening be inspected before they are concealed by finishes?" }
+      { id: "q1", label: "Have you installed props (Strongboys) above the opening before cutting?" },
+      { id: "q2", label: "Is the new lintel correctly sized and bearing at least 150mm on each side?" },
+      { id: "q3", label: "Are you using a cavity tray above the lintel to prevent damp?" },
+      { id: "q4", label: "Have you checked for cables or pipes in the wall zone before cutting?" },
+      { id: "q5", label: "Will you ensure the cavity is closed (insulated closer) to prevent cold bridging?" }
     ]
   },
   "Lintel replacement over existing opening": {
-    desc: "Lintel replacement over existing opening involves altering or supporting parts of a building's primary structure, such as walls, beams or floors. The work typically follows an engineer's design, with temporary supports installed before any load-bearing elements are removed or modified. Close control of sequence, propping and load transfer is required to prevent unintended movement or collapse. On completion, new structural members are secured, checked and left ready for inspection and subsequent finishes.",
+    desc: "Lintel replacement involves removing a failed or inadequate lintel and installing a new one. Work includes propping the masonry above, removing the old lintel, and bedding the new one. Structural failure during the swap is a risk.",
     hazards: ["structural_collapse", "manual_handling", "dust_fumes", "work_at_height"],
     questions: [
-      { id: "q1", label: "Has a structural engineer's design or written instruction been obtained for the lintel replacement over existing opening?" },
-      { id: "q2", label: "Will suitable temporary supports be installed and checked before any load-bearing elements are removed during the lintel replacement over existing opening?" },
-      { id: "q3", label: "Have you confirmed that all areas affected by the lintel replacement over existing opening are accessible and cleared of non-essential occupants?" },
-      { id: "q4", label: "Is there a plan to monitor for unexpected movement or cracking while the lintel replacement over existing opening is in progress?" },
-      { id: "q5", label: "Will the works from the lintel replacement over existing opening be inspected before they are concealed by finishes?" }
+      { id: "q1", label: "Are the props (Strongboys) secure and taking the load before removing the old lintel?" },
+      { id: "q2", label: "Is the new lintel the correct type (e.g., concrete, steel box) for the load?" },
+      { id: "q3", label: "Have you allowed for slate packing or dry packing to ensure tight bearing?" },
+      { id: "q4", label: "Are you wearing eye protection when hacking out old mortar?" },
+      { id: "q5", label: "Will you repoint the masonry above the lintel once the props are removed?" }
     ]
   },
   "uPVC window installation": {
-    desc: "uPVC window installation deals with the internal fit-out or refurbishment of spaces, often in existing buildings. Tasks typically include removing old fixtures, installing new joinery, adjusting openings and making good surrounding finishes. Coordination with other trades is important so that services, finishes and fittings align with the design. The result is a functional, finished area that meets the client's layout and aesthetic requirements.",
+    desc: "uPVC window installation involves removing old frames and fitting new uPVC units. Work includes fixing the frame, foaming/sealing gaps, and glazing. Care must be taken to avoid damaging the reveal or glass.",
     hazards: ["manual_handling", "glass_sharps", "work_at_height", "dust_fumes"],
     questions: [
-      { id: "q1", label: "Have you agreed with the client which existing elements are to be removed or retained for the upvc window installation?" },
-      { id: "q2", label: "Will you isolate or protect any services that could be damaged during the upvc window installation?" },
-      { id: "q3", label: "Are fixings, anchors and adhesives selected for the upvc window installation suitable for the substrates involved?" },
-      { id: "q4", label: "Is there a plan to manage noise and dust from the upvc window installation where the building remains occupied?" },
-      { id: "q5", label: "Will all new components installed during the upvc window installation be checked for alignment, operation and finish quality?" }
+      { id: "q1", label: "Have you measured the opening correctly (allowing for tolerance) before ordering the window?" },
+      { id: "q2", label: "Are you using frame fixings that are suitable for the masonry type?" },
+      { id: "q3", label: "Will you use low-expansion foam to seal the gap without distorting the frame?" },
+      { id: "q4", label: "Are you wearing cut-resistant gloves when handling glass units?" },
+      { id: "q5", label: "Have you checked the window opens and closes smoothly before final sealing?" }
     ]
   },
   "External door installation": {
-    desc: "External door installation deals with the internal fit-out or refurbishment of spaces, often in existing buildings. Tasks typically include removing old fixtures, installing new joinery, adjusting openings and making good surrounding finishes. Coordination with other trades is important so that services, finishes and fittings align with the design. The result is a functional, finished area that meets the client's layout and aesthetic requirements.",
+    desc: "External door installation involves fitting a new front or back door (composite, timber, or uPVC). Work includes fixing the frame, hanging the door, and installing locks/furniture. Security and weather tightness are key.",
     hazards: ["manual_handling", "security_risk", "weather_exposure", "dust_fumes"],
     questions: [
-      { id: "q1", label: "Have you agreed with the client which existing elements are to be removed or retained for the external door installation?" },
-      { id: "q2", label: "Will you isolate or protect any services that could be damaged during the external door installation?" },
-      { id: "q3", label: "Are fixings, anchors and adhesives selected for the external door installation suitable for the substrates involved?" },
-      { id: "q4", label: "Is there a plan to manage noise and dust from the external door installation where the building remains occupied?" },
-      { id: "q5", label: "Will all new components installed during the external door installation be checked for alignment, operation and finish quality?" }
+      { id: "q1", label: "Is the threshold level correct to prevent water ingress and trip hazards?" },
+      { id: "q2", label: "Have you secured the property (e.g., temporary boarding) if the door cannot be fitted in one day?" },
+      { id: "q3", label: "Are the frame fixings spaced correctly (e.g., 150mm from corners and 600mm centres)?" },
+      { id: "q4", label: "Will you silicone seal the frame perimeter to prevent drafts and leaks?" },
+      { id: "q5", label: "Have you checked the lock operation and provided keys to the client?" }
     ]
   },
   "Bi-fold or sliding patio door installation": {
-    desc: "Bi-fold or sliding patio door installation deals with the internal fit-out or refurbishment of spaces, often in existing buildings. Tasks typically include removing old fixtures, installing new joinery, adjusting openings and making good surrounding finishes. Coordination with other trades is important so that services, finishes and fittings align with the design. The result is a functional, finished area that meets the client's layout and aesthetic requirements.",
+    desc: "Bi-fold or sliding door installation involves fitting large glazed door systems. Work includes assembling the frame, fixing it square and level, and glazing the panels. The weight of the glass requires careful handling.",
     hazards: ["manual_handling", "glass_sharps", "structural_alteration", "dust_fumes"],
     questions: [
-      { id: "q1", label: "Have you agreed with the client which existing elements are to be removed or retained for the bi-fold or sliding patio door installation?" },
-      { id: "q2", label: "Will you isolate or protect any services that could be damaged during the bi-fold or sliding patio door installation?" },
-      { id: "q3", label: "Are fixings, anchors and adhesives selected for the bi-fold or sliding patio door installation suitable for the substrates involved?" },
-      { id: "q4", label: "Is there a plan to manage noise and dust from the bi-fold or sliding patio door installation where the building remains occupied?" },
-      { id: "q5", label: "Will all new components installed during the bi-fold or sliding patio door installation be checked for alignment, operation and finish quality?" }
+      { id: "q1", label: "Is the opening square and level to ensure the doors operate smoothly?" },
+      { id: "q2", label: "Have you used glass suction lifters to handle the heavy glazed units?" },
+      { id: "q3", label: "Is the lintel above the opening sufficient to prevent deflection on the door head?" },
+      { id: "q4", label: "Will you adjust the rollers and hinges for perfect alignment?" },
+      { id: "q5", label: "Have you explained the operation and maintenance (e.g., track cleaning) to the client?" }
     ]
   },
   "Kitchen rip-out and structural preparation": {
-    desc: "Kitchen rip-out and structural preparation deals with the internal fit-out or refurbishment of spaces, often in existing buildings. Tasks typically include removing old fixtures, installing new joinery, adjusting openings and making good surrounding finishes. Coordination with other trades is important so that services, finishes and fittings align with the design. The result is a functional, finished area that meets the client's layout and aesthetic requirements.",
-    hazards: ["manual_handling", "sharp_objects", "dust_fumes", "services_isolation"],
+    desc: "Kitchen rip-out involves removing old units, appliances, and tiles to prepare for a new installation. Work includes isolating services, stripping walls, and altering plumbing/electrics. Dust and sharp edges are common hazards.",
+    hazards: ["manual_handling", "sharp_objects", "electricity", "water_leaks"],
     questions: [
-      { id: "q1", label: "Have you agreed with the client which existing elements are to be removed or retained for the kitchen rip-out and structural preparation?" },
-      { id: "q2", label: "Will you isolate or protect any services that could be damaged during the kitchen rip-out and structural preparation?" },
-      { id: "q3", label: "Are fixings, anchors and adhesives selected for the kitchen rip-out and structural preparation suitable for the substrates involved?" },
-      { id: "q4", label: "Is there a plan to manage noise and dust from the kitchen rip-out and structural preparation where the building remains occupied?" },
-      { id: "q5", label: "Will all new components installed during the kitchen rip-out and structural preparation be checked for alignment, operation and finish quality?" }
+      { id: "q1", label: "Have you isolated gas, water, and electricity supplies before starting the rip-out?" },
+      { id: "q2", label: "Are you capping off pipes securely to prevent leaks during the works?" },
+      { id: "q3", label: "Have you checked for asbestos (e.g., floor tiles, Artex) before disturbing materials?" },
+      { id: "q4", label: "Will you remove waste regularly to keep the workspace clear?" },
+      { id: "q5", label: "Are you wearing cut-resistant gloves when handling old sanitaryware or tiles?" }
     ]
   },
   "Kitchen refit (units, worktops, making good)": {
-    desc: "Kitchen refit (units, worktops, making good) deals with the internal fit-out or refurbishment of spaces, often in existing buildings. Tasks typically include removing old fixtures, installing new joinery, adjusting openings and making good surrounding finishes. Coordination with other trades is important so that services, finishes and fittings align with the design. The result is a functional, finished area that meets the client's layout and aesthetic requirements.",
-    hazards: ["manual_handling", "sharp_objects", "dust_fumes", "power_tools"],
+    desc: "Kitchen refit involves installing new cabinets, worktops, and appliances. Work includes scribing panels, joining worktops, and connecting sinks/hobs. Precision and finish quality are paramount.",
+    hazards: ["manual_handling", "sharp_objects", "dust_fumes", "electricity"],
     questions: [
-      { id: "q1", label: "Have you agreed with the client which existing elements are to be removed or retained for the kitchen refit (units, worktops, making good)?" },
-      { id: "q2", label: "Will you isolate or protect any services that could be damaged during the kitchen refit (units, worktops, making good)?" },
-      { id: "q3", label: "Are fixings, anchors and adhesives selected for the kitchen refit (units, worktops, making good) suitable for the substrates involved?" },
-      { id: "q4", label: "Is there a plan to manage noise and dust from the kitchen refit (units, worktops, making good) where the building remains occupied?" },
-      { id: "q5", label: "Will all new components installed during the kitchen refit (units, worktops, making good) be checked for alignment, operation and finish quality?" }
+      { id: "q1", label: "Have you checked the wall strength for hanging heavy wall units?" },
+      { id: "q2", label: "Are you using a dust extractor when cutting worktops inside?" },
+      { id: "q3", label: "Is the gas hob connection being carried out by a Gas Safe engineer?" },
+      { id: "q4", label: "Have you sealed the worktop edges (silicone/oil) to prevent water damage?" },
+      { id: "q5", label: "Will you protect the new floor during the installation?" }
     ]
   },
   "Bathroom rip-out and structural preparation": {
-    desc: "Bathroom rip-out and structural preparation deals with the internal fit-out or refurbishment of spaces, often in existing buildings. Tasks typically include removing old fixtures, installing new joinery, adjusting openings and making good surrounding finishes. Coordination with other trades is important so that services, finishes and fittings align with the design. The result is a functional, finished area that meets the client's layout and aesthetic requirements.",
-    hazards: ["manual_handling", "sharp_objects", "biological", "water_ingress"],
+    desc: "Bathroom rip-out involves removing the bath, toilet, basin, and tiles. Work includes isolating water, removing waste pipes, and preparing walls for tiling. Water damage to floors is a common issue to address.",
+    hazards: ["manual_handling", "biological", "water_leaks", "sharp_objects"],
     questions: [
-      { id: "q1", label: "Have you agreed with the client which existing elements are to be removed or retained for the bathroom rip-out and structural preparation?" },
-      { id: "q2", label: "Will you isolate or protect any services that could be damaged during the bathroom rip-out and structural preparation?" },
-      { id: "q3", label: "Are fixings, anchors and adhesives selected for the bathroom rip-out and structural preparation suitable for the substrates involved?" },
-      { id: "q4", label: "Is there a plan to manage noise and dust from the bathroom rip-out and structural preparation where the building remains occupied?" },
-      { id: "q5", label: "Will all new components installed during the bathroom rip-out and structural preparation be checked for alignment, operation and finish quality?" }
+      { id: "q1", label: "Have you drained the system and isolated the water supply?" },
+      { id: "q2", label: "Are you sealing off waste pipes to prevent sewer gas entering the room?" },
+      { id: "q3", label: "Have you checked the floorboards for rot or water damage?" },
+      { id: "q4", label: "Will you tank (waterproof) the shower area before tiling?" },
+      { id: "q5", label: "Are you disposing of the old suite responsibly?" }
     ]
   },
   "Floor screed installation": {
@@ -2650,15 +2876,17 @@ const BUILDER_CLUSTERS: Record<string, JobCluster> = {
     ]
   },
   "Roof structure alteration (rafters, purlins)": {
-    desc: "Roof structure alteration (rafters, purlins) involves altering or supporting parts of a building's primary structure, such as walls, beams or floors. The work typically follows an engineer's design, with temporary supports installed before any load-bearing elements are removed or modified. Close control of sequence, propping and load transfer is required to prevent unintended movement or collapse. On completion, new structural members are secured, checked and left ready for inspection and subsequent finishes.",
-    hazards: ["structural_collapse", "work_at_height", "falling_objects", "manual_handling"],
+    desc: "Roof structure alteration involves modifying the timber framework of a roof, such as installing Velux windows or strengthening for solar panels. Work includes cutting rafters, doubling up timbers (trimmers), and installing hangers. Structural integrity must be maintained.",
+    hazards: ["structural_collapse", "work_at_height", "manual_handling", "dust_fumes"],
     questions: [
-      { id: "q1", label: "Has a structural engineer's design or written instruction been obtained for the roof structure alteration (rafters, purlins)?" },
-      { id: "q2", label: "Will suitable temporary supports be installed and checked before any load-bearing elements are removed during the roof structure alteration (rafters, purlins)?" },
-      { id: "q3", label: "Have you confirmed that all areas affected by the roof structure alteration (rafters, purlins) are accessible and cleared of non-essential occupants?" },
-      { id: "q4", label: "Is there a plan to monitor for unexpected movement or cracking while the roof structure alteration (rafters, purlins) is in progress?" },
-      { id: "q5", label: "Will the works from the roof structure alteration (rafters, purlins) be inspected before they are concealed by finishes?" }
-    ]
+      { id: "q1", label: "Have you supported the roof load before cutting any rafters?" },
+      { id: "q2", label: "Are the new trimmers and hangers specified by a structural engineer?" },
+      { id: "q3", label: "Is the working platform (scaffold/tower) safe for accessing the roof structure?" },
+      { id: "q4", label: "Have you treated any cut timber ends with preservative?" },
+      { id: "q5", label: "Will you ensure the insulation and vapour barrier are reinstated correctly?" }
+    ],
+    complexity: "high",
+    extraSections: ["structural_integrity", "working_at_height", "temporary_works"]
   },
   "Porch construction": {
     desc: "Porch construction focuses on constructing new structural elements that enlarge or add to an existing building. The task usually includes excavation, foundations, walls, floors, roof structures and integration with the existing property. Services, insulation, damp-proofing and weathering details must all be coordinated to meet design and regulatory requirements. The area is progressively built up from groundworks through to a weathertight shell ready for internal fit-out.",
@@ -2683,48 +2911,52 @@ const BUILDER_CLUSTERS: Record<string, JobCluster> = {
     ]
   },
   "Shop fit-out joinery and carpentry works": {
-    desc: "Shop fit-out joinery and carpentry works deals with the internal fit-out or refurbishment of spaces, often in existing buildings. Tasks typically include removing old fixtures, installing new joinery, adjusting openings and making good surrounding finishes. Coordination with other trades is important so that services, finishes and fittings align with the design. The result is a functional, finished area that meets the client's layout and aesthetic requirements.",
-    hazards: ["manual_handling", "dust_fumes", "noise_vibration", "public_interface"],
+    desc: "Shop fit-out joinery involves installing bespoke counters, shelving, and display units in a retail environment. Work includes first and second fix carpentry, often working to tight deadlines. Fire retardant materials are often specified.",
+    hazards: ["manual_handling", "dust_fumes", "fire_explosion", "work_at_height"],
     questions: [
-      { id: "q1", label: "Have you agreed with the client which existing elements are to be removed or retained for the shop fit-out joinery and carpentry works?" },
-      { id: "q2", label: "Will you isolate or protect any services that could be damaged during the shop fit-out joinery and carpentry works?" },
-      { id: "q3", label: "Are fixings, anchors and adhesives selected for the shop fit-out joinery and carpentry works suitable for the substrates involved?" },
-      { id: "q4", label: "Is there a plan to manage noise and dust from the shop fit-out joinery and carpentry works where the building remains occupied?" },
-      { id: "q5", label: "Will all new components installed during the shop fit-out joinery and carpentry works be checked for alignment, operation and finish quality?" }
+      { id: "q1", label: "Are the materials (e.g., MDF, timber) Class 1 or Class 0 fire rated as required?" },
+      { id: "q2", label: "Have you coordinated with electricians for integrated lighting in the joinery?" },
+      { id: "q3", label: "Is the site secure for storing high-value tools and materials?" },
+      { id: "q4", label: "Will you protect the finished floor while installing heavy counters?" },
+      { id: "q5", label: "Are you working out of hours to minimise disruption to the business?" }
     ]
   },
   "Office fit-out (stud partitions and ceilings)": {
-    desc: "Office fit-out (stud partitions and ceilings) concerns the internal fabric of the building, including non-structural walls, linings and finishes. Work may involve installing or adjusting stud frameworks, fixing boards, applying plaster or creating new room layouts. Services such as electrical and plumbing routes are often coordinated within or behind the new construction. The finished surfaces are left plumb, level and ready for decoration or further fit-out.",
-    hazards: ["manual_handling", "work_at_height", "dust_fumes", "fire_explosion"],
+    desc: "Office fit-out involves creating new office layouts using stud partitions and suspended ceilings. Work includes metal stud framing, glazing modules, and grid ceilings. Coordination with M&E services is essential.",
+    hazards: ["manual_handling", "work_at_height", "dust_fumes", "sharp_objects"],
     questions: [
-      { id: "q1", label: "Have you confirmed that no load-bearing elements are being altered as part of the office fit-out (stud partitions and ceilings)?" },
-      { id: "q2", label: "Will the office fit-out (stud partitions and ceilings) allow for service routes, access panels and fixings needed for other trades?" },
-      { id: "q3", label: "Are you controlling dust and debris from the office fit-out (stud partitions and ceilings) to protect adjacent areas and occupants?" },
-      { id: "q4", label: "Is adequate drying or curing time allowed for wet trades involved in the office fit-out (stud partitions and ceilings)?" },
-      { id: "q5", label: "Will you check that finished surfaces from the office fit-out (stud partitions and ceilings) are plumb, level and free from significant defects?" }
+      { id: "q1", label: "Have you coordinated the partition layout with the ceiling grid and lights?" },
+      { id: "q2", label: "Are the partitions fire-rated where required (e.g., corridors)?" },
+      { id: "q3", label: "Is there adequate support (noggins) for wall-mounted screens or cupboards?" },
+      { id: "q4", label: "Will you protect the raised access floor during the works?" },
+      { id: "q5", label: "Have you allowed for sound insulation in meeting room walls?" }
     ]
   },
   "Fire door installation and upgrades": {
-    desc: "Fire door installation and upgrades concerns the internal fabric of the building, including non-structural walls, linings and finishes. Work may involve installing or adjusting stud frameworks, fixing boards, applying plaster or creating new room layouts. Services such as electrical and plumbing routes are often coordinated within or behind the new construction. The finished surfaces are left plumb, level and ready for decoration or further fit-out.",
-    hazards: ["manual_handling", "fire_explosion", "dust_fumes", "heavy_plant"],
+    desc: "Fire door installation involves fitting certified fire doorsets to compartment lines. Work includes hanging the door, installing intumescent strips, and fitting closers. Gaps must be within tolerance (e.g., 3mm) for certification.",
+    hazards: ["manual_handling", "dust_fumes", "fire_safety", "security_risk"],
     questions: [
-      { id: "q1", label: "Have you confirmed that no load-bearing elements are being altered as part of the fire door installation and upgrades?" },
-      { id: "q2", label: "Will the fire door installation and upgrades allow for service routes, access panels and fixings needed for other trades?" },
-      { id: "q3", label: "Are you controlling dust and debris from the fire door installation and upgrades to protect adjacent areas and occupants?" },
-      { id: "q4", label: "Is adequate drying or curing time allowed for wet trades involved in the fire door installation and upgrades?" },
-      { id: "q5", label: "Will you check that finished surfaces from the fire door installation and upgrades are plumb, level and free from significant defects?" }
-    ]
+      { id: "q1", label: "Is the door set certified (e.g., FD30/FD60) for the required fire rating?" },
+      { id: "q2", label: "Have you checked the gap between the door and frame is 3mm (+/- 1mm)?" },
+      { id: "q3", label: "Are intumescent strips and smoke seals installed correctly in the frame or door?" },
+      { id: "q4", label: "Does the door closer latch the door firmly from any angle?" },
+      { id: "q5", label: "Will you use fire-rated foam or packer to seal the gap between the frame and wall?" }
+    ],
+    complexity: "high",
+    extraSections: ["fire_safety", "quality_control", "joinery"]
   },
   "Fire-stopping and compartmentation works": {
-    desc: "Fire-stopping and compartmentation works involves altering or supporting parts of a building's primary structure, such as walls, beams or floors. The work typically follows an engineer's design, with temporary supports installed before any load-bearing elements are removed or modified. Close control of sequence, propping and load transfer is required to prevent unintended movement or collapse. On completion, new structural members are secured, checked and left ready for inspection and subsequent finishes.",
-    hazards: ["dust_fumes", "chemical_coshh", "work_at_height", "confined_space"],
+    desc: "Fire-stopping involves sealing penetrations in fire-rated walls and floors to prevent the spread of fire/smoke. Work includes installing intumescent collars, batts, and sealants. Correct installation is vital for life safety.",
+    hazards: ["dust_fumes", "work_at_height", "chemical_coshh", "confined_space"],
     questions: [
-      { id: "q1", label: "Has a structural engineer's design or written instruction been obtained for the fire-stopping and compartmentation works?" },
-      { id: "q2", label: "Will suitable temporary supports be installed and checked before any load-bearing elements are removed during the fire-stopping and compartmentation works?" },
-      { id: "q3", label: "Have you confirmed that all areas affected by the fire-stopping and compartmentation works are accessible and cleared of non-essential occupants?" },
-      { id: "q4", label: "Is there a plan to monitor for unexpected movement or cracking while the fire-stopping and compartmentation works is in progress?" },
-      { id: "q5", label: "Will the works from the fire-stopping and compartmentation works be inspected before they are concealed by finishes?" }
-    ]
+      { id: "q1", label: "Are the fire-stopping products certified for the specific service and substrate?" },
+      { id: "q2", label: "Have you cleaned the opening to ensure good adhesion for sealants?" },
+      { id: "q3", label: "Is the fire rating (e.g., 60 mins) of the product matching the wall/floor requirement?" },
+      { id: "q4", label: "Will you label the penetration with the installation details (date, product, installer)?" },
+      { id: "q5", label: "Have you taken photos of the installation for the O&M manual?" }
+    ],
+    complexity: "high",
+    extraSections: ["fire_safety", "quality_control", "coshh"]
   },
   "Acoustic/soundproofing wall and ceiling linings": {
     desc: "Acoustic/soundproofing wall and ceiling linings involves altering or supporting parts of a building's primary structure, such as walls, beams or floors. The work typically follows an engineer's design, with temporary supports installed before any load-bearing elements are removed or modified. Close control of sequence, propping and load transfer is required to prevent unintended movement or collapse. On completion, new structural members are secured, checked and left ready for inspection and subsequent finishes.",
@@ -2738,15 +2970,17 @@ const BUILDER_CLUSTERS: Record<string, JobCluster> = {
     ]
   },
   "Chimney breast removal (ground and first floor)": {
-    desc: "Chimney breast removal (ground and first floor) involves removing existing building elements, finishes or fixtures in a controlled manner. The work may include soft strip of non-structural items as well as demolition of selected partitions, ceilings or built-in fittings. Sequence and methods must be planned to avoid damage to retained fabric and to manage dust, noise and waste safely. Once complete, the area is left clear, stable and ready for subsequent construction activities.",
-    hazards: ["structural_collapse", "dust_fumes", "manual_handling", "work_at_height"],
+    desc: "Chimney breast removal involves taking down the masonry stack inside a property. Work includes supporting the remaining stack in the loft (gallows brackets), removing bricks, and making good floors/ceilings. Structural support is critical.",
+    hazards: ["structural_collapse", "dust_fumes", "work_at_height", "manual_handling"],
     questions: [
-      { id: "q1", label: "Have you confirmed which elements are structural and must not be removed during the chimney breast removal (ground and first floor)?" },
-      { id: "q2", label: "Will the chimney breast removal (ground and first floor) use a defined sequence to prevent overloading or destabilising remaining structure?" },
-      { id: "q3", label: "Are waste routes and skips arranged so debris from the chimney breast removal (ground and first floor) can be removed safely and efficiently?" },
-      { id: "q4", label: "Is there suitable dust suppression and ventilation planned for the chimney breast removal (ground and first floor)?" },
-      { id: "q5", label: "Will you carry out a final check after the chimney breast removal (ground and first floor) to ensure all hazards from exposed edges, nails or debris are removed?" }
-    ]
+      { id: "q1", label: "Have you obtained structural calculations for the gallows brackets or steel beam support?" },
+      { id: "q2", label: "Is the stack in the loft supported before you start removing masonry below?" },
+      { id: "q3", label: "Have you capped the chimney pot to prevent rain entering the remaining flue?" },
+      { id: "q4", label: "Are you removing debris carefully to avoid overloading the floor joists?" },
+      { id: "q5", label: "Will you ensure the party wall is not damaged during the removal?" }
+    ],
+    complexity: "high",
+    extraSections: ["structural_integrity", "temporary_works", "dust_control"]
   },
   "Demolition and internal strip-out works": {
     desc: "Demolition and internal strip-out works involves removing existing building elements, finishes or fixtures in a controlled manner. The work may include soft strip of non-structural items as well as demolition of selected partitions, ceilings or built-in fittings. Sequence and methods must be planned to avoid damage to retained fabric and to manage dust, noise and waste safely. Once complete, the area is left clear, stable and ready for subsequent construction activities.",
@@ -2760,14 +2994,77 @@ const BUILDER_CLUSTERS: Record<string, JobCluster> = {
     ]
   },
   "Site clearance and builders' waste removal": {
-    desc: "Site clearance and builders' waste removal involves removing existing building elements, finishes or fixtures in a controlled manner. The work may include soft strip of non-structural items as well as demolition of selected partitions, ceilings or built-in fittings. Sequence and methods must be planned to avoid damage to retained fabric and to manage dust, noise and waste safely. Once complete, the area is left clear, stable and ready for subsequent construction activities.",
-    hazards: ["manual_handling", "plant_machinery", "dust_fumes", "biological"],
+    desc: "Site clearance involves removing vegetation, rubbish, and spoil from a site. Work includes using grab lorries or skips, and manual loading. Segregation of waste for recycling is important.",
+    hazards: ["plant_machinery", "manual_handling", "biological", "traffic_management"],
     questions: [
-      { id: "q1", label: "Have you confirmed which elements are structural and must not be removed during the site clearance and builders' waste removal?" },
-      { id: "q2", label: "Will the site clearance and builders' waste removal use a defined sequence to prevent overloading or destabilising remaining structure?" },
-      { id: "q3", label: "Are waste routes and skips arranged so debris from the site clearance and builders' waste removal can be removed safely and efficiently?" },
-      { id: "q4", label: "Is there suitable dust suppression and ventilation planned for the site clearance and builders' waste removal?" },
-      { id: "q5", label: "Will you carry out a final check after the site clearance and builders' waste removal to ensure all hazards from exposed edges, nails or debris are removed?" }
+      { id: "q1", label: "Is there safe access for grab lorries or skips to the site?" },
+      { id: "q2", label: "Have you segregated hazardous waste (e.g., plasterboard, paint cans)?" },
+      { id: "q3", label: "Are you wearing gloves to protect against sharps and biological hazards?" },
+      { id: "q4", label: "Will you dampen down dust during loading in dry weather?" },
+      { id: "q5", label: "Have you checked for invasive species (e.g., Japanese Knotweed) before clearing?" }
+    ]
+  },
+  "Basement excavation and waterproofing": {
+    desc: "Basement excavation involves creating a new subterranean level. Work includes mass excavation, installing temporary propping, underpinning adjacent walls, and applying a tanking system (Type A, B, or C). Structural stability and water ingress are critical risks.",
+    hazards: ["structural_collapse", "excavation", "confined_space", "water_ingress", "manual_handling"],
+    questions: [
+      { id: "q1", label: "Has a structural engineer designed the temporary works and permanent retaining walls?" },
+      { id: "q2", label: "Is there a safe system of work for removing spoil from the basement?" },
+      { id: "q3", label: "Have you selected the correct waterproofing system (e.g., cavity drain membrane)?" },
+      { id: "q4", label: "Are emergency escape routes maintained from the basement level?" },
+      { id: "q5", label: "Will you monitor the movement of adjacent structures during excavation?" }
+    ],
+    complexity: "high",
+    extraSections: ["structural_integrity", "excavation_safety", "confined_space"]
+  },
+  "Underpinning of existing foundations": {
+    desc: "Underpinning involves strengthening the foundations of an existing building. Work includes excavating bays in sequence, pouring concrete, and dry packing. It is used to arrest subsidence or allow for deeper adjacent excavation.",
+    hazards: ["structural_collapse", "excavation", "confined_space", "manual_handling"],
+    questions: [
+      { id: "q1", label: "Are you following the engineer's sequence for excavating and pouring bays (e.g., 1, 2, 3)?" },
+      { id: "q2", label: "Have you allowed sufficient curing time before dry packing the gap?" },
+      { id: "q3", label: "Is the excavation supported to prevent collapse of the earth face?" },
+      { id: "q4", label: "Are you monitoring the building for cracks or movement during the works?" },
+      { id: "q5", label: "Will you ensure the new concrete is fully compacted to support the load?" }
+    ],
+    complexity: "high",
+    extraSections: ["structural_integrity", "excavation_safety", "temporary_works"]
+  },
+  "Swimming pool construction (concrete)": {
+    desc: "Swimming pool construction involves excavating and building a reinforced concrete pool shell. Work includes steel fixing, shuttering, spraying concrete (gunite/shotcrete), and tiling. Waterproofing and filtration systems are key components.",
+    hazards: ["excavation", "work_at_height", "chemical_coshh", "drowning_risk"],
+    questions: [
+      { id: "q1", label: "Is the excavation stable and free from groundwater ingress?" },
+      { id: "q2", label: "Have you pressure tested the pipework before pouring concrete?" },
+      { id: "q3", label: "Are you using the correct concrete mix for water retaining structures?" },
+      { id: "q4", label: "Will you fence off the pool area once it is filled with water?" },
+      { id: "q5", label: "Have you allowed for movement joints in the tiling?" }
+    ],
+    complexity: "high",
+    extraSections: ["structural_integrity", "excavation_safety", "water_safety"]
+  },
+  "Timber frame building erection": {
+    desc: "Timber frame erection involves assembling pre-fabricated timber panels to form the structure. Work includes lifting panels with a crane, fixing floor cassettes, and installing roof trusses. Fire risk during construction is high.",
+    hazards: ["fire_explosion", "work_at_height", "lifting_operations", "structural_collapse"],
+    questions: [
+      { id: "q1", label: "Is the fire management plan in place (e.g., no hot works, waste removal)?" },
+      { id: "q2", label: "Have you checked the sole plates are level and square before erecting panels?" },
+      { id: "q3", label: "Are temporary braces installed to stabilise the frame during erection?" },
+      { id: "q4", label: "Will you protect the timber frame from rain before the roof is on?" },
+      { id: "q5", label: "Is the crane lift plan agreed and communicated to the team?" }
+    ],
+    complexity: "high",
+    extraSections: ["fire_safety", "lifting_operations", "structural_integrity"]
+  },
+  "Greenhouse / Glasshouse construction": {
+    desc: "Greenhouse construction involves building a glass or polycarbonate structure on a brick or concrete base. Work includes glazing, installing vents, and fitting staging. Handling large glass panes is the primary hazard.",
+    hazards: ["glass_sharps", "manual_handling", "work_at_height", "weather_exposure"],
+    questions: [
+      { id: "q1", label: "Is the base square and level to ensure the glass fits correctly?" },
+      { id: "q2", label: "Are you wearing suction lifters and cut-resistant gloves for glazing?" },
+      { id: "q3", label: "Have you checked the wind speed is safe for handling large glass sheets?" },
+      { id: "q4", label: "Will you install safety glass (toughened) where required?" },
+      { id: "q5", label: "Are the automatic vents set up and tested?" }
     ]
   },
   "Other (Custom)": {
@@ -4067,7 +4364,9 @@ const GROUNDWORKS_CIVILS_CLUSTERS: Record<string, JobCluster> = {
       { id: "q3", label: "Are trench widths, depths and support requirements for the trench excavation for services defined in a safe system of work?" },
       { id: "q4", label: "Is spoil from the trench excavation for services tipped at a safe distance from edges and kept clear of access routes?" },
       { id: "q5", label: "Are daily inspections of the trench excavation for services recorded by a competent person, including after heavy rain?" }
-    ]
+    ],
+    complexity: "high",
+    extraSections: ["excavation_safety", "underground_services", "confined_space"]
   },
 
   // 3
@@ -4080,7 +4379,9 @@ const GROUNDWORKS_CIVILS_CLUSTERS: Record<string, JobCluster> = {
       { id: "q3", label: "Are concrete delivery and discharge routes for the foundations excavation and pour planned to avoid overloading edges?" },
       { id: "q4", label: "Is there a plan to manage groundwater entry during the foundations excavation and pour, such as pumps or sumps?" },
       { id: "q5", label: "Will the foundations excavation and pour be checked for dimensions, cover and finish before backfilling starts?" }
-    ]
+    ],
+    complexity: "high",
+    extraSections: ["excavation_safety", "concrete_safety", "manual_handling"]
   },
 
   // 4
@@ -4093,7 +4394,9 @@ const GROUNDWORKS_CIVILS_CLUSTERS: Record<string, JobCluster> = {
       { id: "q3", label: "Are plant and spoil heaps kept back from the top of the strip footings excavation to reduce collapse risk?" },
       { id: "q4", label: "Will the strip footings excavation be inspected and signed off by a competent person before concrete is placed?" },
       { id: "q5", label: "Are controls in place to stop water build-up in the strip footings excavation during wet weather?" }
-    ]
+    ],
+    complexity: "high",
+    extraSections: ["excavation_safety", "concrete_safety", "manual_handling"]
   },
 
   // 5
@@ -4106,7 +4409,9 @@ const GROUNDWORKS_CIVILS_CLUSTERS: Record<string, JobCluster> = {
       { id: "q3", label: "Is there enough working space around the ground beam excavation and pour to place and vibrate concrete safely?" },
       { id: "q4", label: "Will the ground beam excavation and pour be checked for line, level and cover before the concrete sets?" },
       { id: "q5", label: "Are measures in place to prevent collapse or undermining of nearby structures during the ground beam excavation and pour?" }
-    ]
+    ],
+    complexity: "high",
+    extraSections: ["excavation_safety", "concrete_safety", "structural_integrity"]
   },
 
   // 6
@@ -4119,7 +4424,9 @@ const GROUNDWORKS_CIVILS_CLUSTERS: Record<string, JobCluster> = {
       { id: "q3", label: "Are reinforcements for the pile cap excavation and concrete stored and lifted safely to minimise manual handling strain?" },
       { id: "q4", label: "Will concrete for the pile cap excavation and concrete be placed and compacted before cold joints can form?" },
       { id: "q5", label: "Is there a clear inspection and sign-off process for the pile cap excavation and concrete before backfilling?" }
-    ]
+    ],
+    complexity: "high",
+    extraSections: ["excavation_safety", "concrete_safety", "structural_integrity"]
   },
 
   // 7
@@ -4132,7 +4439,9 @@ const GROUNDWORKS_CIVILS_CLUSTERS: Record<string, JobCluster> = {
       { id: "q3", label: "Is dewatering for the basement excavation designed and managed to avoid flooding and instability?" },
       { id: "q4", label: "Are exclusion zones around the basement excavation defined to keep non-essential personnel and plant away from edges?" },
       { id: "q5", label: "Are emergency rescue arrangements in place for operatives working at depth in the basement excavation?" }
-    ]
+    ],
+    complexity: "high",
+    extraSections: ["excavation_safety", "structural_integrity", "confined_space"]
   },
 
   // 8
@@ -4197,7 +4506,9 @@ const GROUNDWORKS_CIVILS_CLUSTERS: Record<string, JobCluster> = {
       { id: "q3", label: "Is there a safe system of work to prevent operatives entering deep trenches during the installation of drainage runs without proper support?" },
       { id: "q4", label: "Will the installation of drainage runs be tested (e.g. air or water tests) before backfilling?" },
       { id: "q5", label: "Are arrangements in place to prevent contamination exposure during the installation of drainage runs, including hygiene facilities?" }
-    ]
+    ],
+    complexity: "high",
+    extraSections: ["excavation_safety", "confined_space", "biological_hazards"]
   },
 
   // 13
@@ -4210,7 +4521,9 @@ const GROUNDWORKS_CIVILS_CLUSTERS: Record<string, JobCluster> = {
       { id: "q3", label: "Is there a plan to control water ingress during the manhole and inspection chamber install, including pumps and overpumping if required?" },
       { id: "q4", label: "Are access ladders, steps and covers for the manhole and inspection chamber install fitted in accordance with standards?" },
       { id: "q5", label: "Will the manhole and inspection chamber install be inspected and tested before being put into service?" }
-    ]
+    ],
+    complexity: "high",
+    extraSections: ["excavation_safety", "confined_space", "biological_hazards"]
   },
 
   // 14
@@ -4223,7 +4536,9 @@ const GROUNDWORKS_CIVILS_CLUSTERS: Record<string, JobCluster> = {
       { id: "q3", label: "Are crates or materials used in the soakaway installation handled in a way that avoids damage to geotextiles?" },
       { id: "q4", label: "Will the soakaway installation be protected against silt and debris during the remainder of the project?" },
       { id: "q5", label: "Is there a plan to manage any groundwater that may enter the excavation during the soakaway installation?" }
-    ]
+    ],
+    complexity: "high",
+    extraSections: ["excavation_safety", "confined_space", "biological_hazards"]
   },
 
   // 15
@@ -4353,7 +4668,9 @@ const GROUNDWORKS_CIVILS_CLUSTERS: Record<string, JobCluster> = {
       { id: "q3", label: "Is geotextile wrapping for the attenuation tank installation specified and understood by the site team?" },
       { id: "q4", label: "Will the attenuation tank installation be protected from construction traffic once backfilled?" },
       { id: "q5", label: "Is there a clear testing and sign-off process for the attenuation tank installation before final cover is placed?" }
-    ]
+    ],
+    complexity: "high",
+    extraSections: ["excavation_safety", "confined_space", "biological_hazards"]
   },
 
   // 25
@@ -4392,7 +4709,9 @@ const GROUNDWORKS_CIVILS_CLUSTERS: Record<string, JobCluster> = {
       { id: "q3", label: "Are reinforcement and formwork for the retaining wall excavation and pour designed to resist lateral pressures?" },
       { id: "q4", label: "Is drainage (e.g. weepholes) included as part of the retaining wall excavation and pour to relieve water pressure?" },
       { id: "q5", label: "Will the retaining wall excavation and pour be inspected and signed off before backfilling?" }
-    ]
+    ],
+    complexity: "high",
+    extraSections: ["excavation_safety", "structural_integrity", "concrete_safety"]
   },
 
   // 28
@@ -4709,7 +5028,9 @@ const DEMOLITION_STRIPOUT_CLUSTERS: Record<string, JobCluster> = {
       { id: "q3", label: "Is there a plan for dust suppression and ventilation during the internal soft strip (domestic)?" },
       { id: "q4", label: "Are arrangements in place for segregated waste removal for the internal soft strip (domestic)?" },
       { id: "q5", label: "Have fragile items such as glazing and mirrors been identified before the internal soft strip (domestic) begins?" }
-    ]
+    ],
+    complexity: "high",
+    extraSections: ["asbestos_survey", "waste_management", "dust_control"]
   },
 
   "Internal soft strip (commercial)": {
@@ -4721,7 +5042,9 @@ const DEMOLITION_STRIPOUT_CLUSTERS: Record<string, JobCluster> = {
       { id: "q3", label: "Is there a plan to manage noise and vibration during the internal soft strip (commercial) to avoid undue disruption?" },
       { id: "q4", label: "Have loading limits on floors been checked before stockpiling waste from the internal soft strip (commercial)?" },
       { id: "q5", label: "Are suitable waste chutes, lifts or routes agreed for debris removal from the internal soft strip (commercial)?" }
-    ]
+    ],
+    complexity: "high",
+    extraSections: ["asbestos_survey", "waste_management", "public_protection"]
   },
 
   "Kitchen strip-out": {
@@ -4733,7 +5056,9 @@ const DEMOLITION_STRIPOUT_CLUSTERS: Record<string, JobCluster> = {
       { id: "q3", label: "Are appliances and worktops being lifted using safe manual handling techniques during the kitchen strip-out?" },
       { id: "q4", label: "Is there a plan for safely removing and disposing of glass doors and splashbacks during the kitchen strip-out?" },
       { id: "q5", label: "Has a clear waste removal route been agreed to minimise trips during the kitchen strip-out?" }
-    ]
+    ],
+    complexity: "high",
+    extraSections: ["service_isolation", "waste_management", "dust_control"]
   },
 
   "Bathroom strip-out": {
@@ -4745,7 +5070,9 @@ const DEMOLITION_STRIPOUT_CLUSTERS: Record<string, JobCluster> = {
       { id: "q3", label: "Is there sufficient ventilation or dust extraction in place during tile removal for the bathroom strip-out?" },
       { id: "q4", label: "Are measures in place to manage sharp fragments from broken ceramic during the bathroom strip-out?" },
       { id: "q5", label: "Has the floor surface been kept free of water and debris to control slip risk during the bathroom strip-out?" }
-    ]
+    ],
+    complexity: "high",
+    extraSections: ["service_isolation", "waste_management", "water_control"]
   },
 
   "Office strip-out": {
@@ -4757,7 +5084,9 @@ const DEMOLITION_STRIPOUT_CLUSTERS: Record<string, JobCluster> = {
       { id: "q3", label: "Is there a traffic management plan for moving stripped materials during the office strip-out?" },
       { id: "q4", label: "Are safe access routes and fire exits maintained and signed throughout the office strip-out?" },
       { id: "q5", label: "Is suitable manual handling equipment available for heavy items during the office strip-out?" }
-    ]
+    ],
+    complexity: "high",
+    extraSections: ["waste_management", "public_protection", "noise_control"]
   },
 
   "Shop / retail strip-out": {
@@ -4769,7 +5098,9 @@ const DEMOLITION_STRIPOUT_CLUSTERS: Record<string, JobCluster> = {
       { id: "q3", label: "Is there a plan for controlling dust and noise where the shop / retail strip-out adjoins trading areas?" },
       { id: "q4", label: "Are waste routes for the shop / retail strip-out agreed with centre management to avoid conflict with the public?" },
       { id: "q5", label: "Have security arrangements been agreed to protect tools and materials during the shop / retail strip-out?" }
-    ]
+    ],
+    complexity: "high",
+    extraSections: ["public_protection", "waste_management", "noise_control"]
   },
 
   "Restaurant / kitchen strip-out": {
@@ -4781,7 +5112,9 @@ const DEMOLITION_STRIPOUT_CLUSTERS: Record<string, JobCluster> = {
       { id: "q3", label: "Are operatives protected from grease and residues that may affect grip during the restaurant / kitchen strip-out?" },
       { id: "q4", label: "Is suitable access equipment planned for high-level ductwork during the restaurant / kitchen strip-out?" },
       { id: "q5", label: "Has a plan been agreed for disposing of contaminated ductwork and filters from the restaurant / kitchen strip-out?" }
-    ]
+    ],
+    complexity: "high",
+    extraSections: ["service_isolation", "waste_management", "fire_safety"]
   },
 
   "Warehouse strip-out": {
@@ -4793,7 +5126,9 @@ const DEMOLITION_STRIPOUT_CLUSTERS: Record<string, JobCluster> = {
       { id: "q3", label: "Is there a traffic management plan for forklifts and MEWPs during the warehouse strip-out?" },
       { id: "q4", label: "Are operatives briefed on safe techniques for handling long and awkward members in the warehouse strip-out?" },
       { id: "q5", label: "Have anchorage points and fixings been identified before dismantling structures in the warehouse strip-out?" }
-    ]
+    ],
+    complexity: "high",
+    extraSections: ["plant_safety", "waste_management", "working_at_height"]
   },
 
   "Ceiling grid removal": {
@@ -4805,7 +5140,9 @@ const DEMOLITION_STRIPOUT_CLUSTERS: Record<string, JobCluster> = {
       { id: "q3", label: "Is adequate respiratory and eye protection specified for ceiling grid removal work?" },
       { id: "q4", label: "Have exclusion zones been established under the area of ceiling grid removal?" },
       { id: "q5", label: "Is there sufficient temporary lighting once tiles are removed during the ceiling grid removal?" }
-    ]
+    ],
+    complexity: "high",
+    extraSections: ["working_at_height", "waste_management", "dust_control"]
   },
 
   "Stud partition removal": {
@@ -4817,7 +5154,9 @@ const DEMOLITION_STRIPOUT_CLUSTERS: Record<string, JobCluster> = {
       { id: "q3", label: "Is demolition of partitions sequenced to avoid pushing large sections into walkways during stud partition removal?" },
       { id: "q4", label: "Are operatives using suitable dust suppression or extraction during stud partition removal?" },
       { id: "q5", label: "Is the floor kept clear of studs and fixings to control slips and trips during stud partition removal?" }
-    ]
+    ],
+    complexity: "high",
+    extraSections: ["waste_management", "dust_control", "service_isolation"]
   },
 
   "Blockwork wall demolition": {
@@ -4829,7 +5168,9 @@ const DEMOLITION_STRIPOUT_CLUSTERS: Record<string, JobCluster> = {
       { id: "q3", label: "Are measures in place to control silica dust during blockwork wall demolition?" },
       { id: "q4", label: "Is waste from the blockwork wall demolition being removed regularly to avoid floor overloading?" },
       { id: "q5", label: "Are operatives protected from falling fragments during blockwork wall demolition?" }
-    ]
+    ],
+    complexity: "high",
+    extraSections: ["structural_integrity", "waste_management", "dust_control"]
   },
 
   "Load-bearing wall removal (propped)": {
@@ -4841,7 +5182,9 @@ const DEMOLITION_STRIPOUT_CLUSTERS: Record<string, JobCluster> = {
       { id: "q3", label: "Are exclusion zones in place beneath any props or needles used for the load-bearing wall removal (propped)?" },
       { id: "q4", label: "Is demolition of masonry sequenced to avoid undermining supports during the load-bearing wall removal (propped)?" },
       { id: "q5", label: "Are records kept of inspections to the temporary works during the load-bearing wall removal (propped)?" }
-    ]
+    ],
+    complexity: "high",
+    extraSections: ["temporary_works", "structural_integrity", "dust_control"]
   },
 
   "Chimney breast removal": {
@@ -4853,7 +5196,9 @@ const DEMOLITION_STRIPOUT_CLUSTERS: Record<string, JobCluster> = {
       { id: "q3", label: "Have flues been sealed and protected to prevent debris spread during chimney breast removal?" },
       { id: "q4", label: "Is work at height for chimney breast removal carried out using suitable access equipment?" },
       { id: "q5", label: "Are waste arisings from chimney breast removal removed regularly to avoid overloading floors?" }
-    ]
+    ],
+    complexity: "high",
+    extraSections: ["structural_integrity", "working_at_height", "dust_control"]
   },
 
   "Fireplace removal and make-good": {
@@ -4865,7 +5210,9 @@ const DEMOLITION_STRIPOUT_CLUSTERS: Record<string, JobCluster> = {
       { id: "q3", label: "Is there a plan for handling heavy hearth stones safely during fireplace removal and make-good?" },
       { id: "q4", label: "Have sharp tiles and glass been identified and controlled as part of fireplace removal and make-good?" },
       { id: "q5", label: "Will the opening be left in a structurally sound and safe condition after fireplace removal and make-good?" }
-    ]
+    ],
+    complexity: "high",
+    extraSections: ["structural_integrity", "waste_management", "dust_control"]
   },
 
   "Floor covering removal (carpet/vinyl)": {
@@ -4877,7 +5224,9 @@ const DEMOLITION_STRIPOUT_CLUSTERS: Record<string, JobCluster> = {
       { id: "q3", label: "Are heavy rolls from floor covering removal (carpet/vinyl) being lifted using correct manual handling techniques?" },
       { id: "q4", label: "Is dust from adhesive removal controlled during floor covering removal (carpet/vinyl)?" },
       { id: "q5", label: "Are floors made level and free of residues after floor covering removal (carpet/vinyl)?" }
-    ]
+    ],
+    complexity: "high",
+    extraSections: ["waste_management", "dust_control", "manual_handling"]
   },
 
   "Timber floorboard removal": {
@@ -4889,7 +5238,9 @@ const DEMOLITION_STRIPOUT_CLUSTERS: Record<string, JobCluster> = {
       { id: "q3", label: "Are temporary covers used where floorboard removal exposes voids in traffic routes?" },
       { id: "q4", label: "Is adequate lighting provided in voids revealed by timber floorboard removal?" },
       { id: "q5", label: "Are boards handled and stacked safely following timber floorboard removal?" }
-    ]
+    ],
+    complexity: "high",
+    extraSections: ["waste_management", "manual_handling", "service_isolation"]
   },
 
   "Concrete slab breakout (internal)": {
@@ -4901,7 +5252,9 @@ const DEMOLITION_STRIPOUT_CLUSTERS: Record<string, JobCluster> = {
       { id: "q3", label: "Are vibration exposure limits controlled for operatives during concrete slab breakout (internal)?" },
       { id: "q4", label: "Is debris from concrete slab breakout (internal) removed regularly to keep walkways clear?" },
       { id: "q5", label: "Have neighbouring occupiers been informed of noise from concrete slab breakout (internal)?" }
-    ]
+    ],
+    complexity: "high",
+    extraSections: ["noise_control", "dust_control", "waste_management"]
   },
 
   "Concrete slab breakout (external)": {
@@ -4913,7 +5266,9 @@ const DEMOLITION_STRIPOUT_CLUSTERS: Record<string, JobCluster> = {
       { id: "q3", label: "Is there a barrier or signage system to segregate the public during concrete slab breakout (external)?" },
       { id: "q4", label: "Are weather conditions monitored so concrete slab breakout (external) stops in high winds or heavy rain?" },
       { id: "q5", label: "Are noise levels from concrete slab breakout (external) considered for neighbouring properties?" }
-    ]
+    ],
+    complexity: "high",
+    extraSections: ["noise_control", "dust_control", "public_protection"]
   },
 
   "Staircase removal (timber)": {
@@ -4925,7 +5280,9 @@ const DEMOLITION_STRIPOUT_CLUSTERS: Record<string, JobCluster> = {
       { id: "q3", label: "Are suitable fall protection measures in place once the staircase removal (timber) is complete?" },
       { id: "q4", label: "Are large timber components from staircase removal (timber) handled safely to avoid strain injuries?" },
       { id: "q5", label: "Has the impact of staircase removal (timber) on fire escape routes been assessed?" }
-    ]
+    ],
+    complexity: "high",
+    extraSections: ["structural_integrity", "working_at_height", "waste_management"]
   },
 
   "Staircase removal (concrete/steel)": {
@@ -4937,7 +5294,9 @@ const DEMOLITION_STRIPOUT_CLUSTERS: Record<string, JobCluster> = {
       { id: "q3", label: "Are noise and vibration from staircase removal (concrete/steel) managed in line with site controls?" },
       { id: "q4", label: "Is dust extraction or suppression provided during cutting for staircase removal (concrete/steel)?" },
       { id: "q5", label: "Are new or temporary access routes clearly signed before staircase removal (concrete/steel) begins?" }
-    ]
+    ],
+    complexity: "high",
+    extraSections: ["structural_integrity", "temporary_works", "waste_management"]
   },
 
   "Garage demolition (single)": {
@@ -4949,7 +5308,9 @@ const DEMOLITION_STRIPOUT_CLUSTERS: Record<string, JobCluster> = {
       { id: "q3", label: "Are exclusion zones and fencing in place around the garage demolition (single)?" },
       { id: "q4", label: "Are manual handling and plant use balanced appropriately for the garage demolition (single)?" },
       { id: "q5", label: "Has waste from the garage demolition (single) been classified and disposal routes confirmed?" }
-    ]
+    ],
+    complexity: "high",
+    extraSections: ["asbestos_survey", "structural_integrity", "waste_management"]
   },
 
   "Outbuilding / shed demolition": {
@@ -4961,7 +5322,9 @@ const DEMOLITION_STRIPOUT_CLUSTERS: Record<string, JobCluster> = {
       { id: "q3", label: "Are safe access routes established for carrying debris from the outbuilding / shed demolition?" },
       { id: "q4", label: "Are weather conditions monitored to avoid wind-related hazards during outbuilding / shed demolition?" },
       { id: "q5", label: "Is waste from the outbuilding / shed demolition segregated and stored safely pending removal?" }
-    ]
+    ],
+    complexity: "high",
+    extraSections: ["asbestos_survey", "waste_management", "structural_integrity"]
   },
 
   "Conservatory demolition": {
@@ -4973,7 +5336,9 @@ const DEMOLITION_STRIPOUT_CLUSTERS: Record<string, JobCluster> = {
       { id: "q3", label: "Is adjacent property protected from falling debris during conservatory demolition?" },
       { id: "q4", label: "Are garden routes and surfaces assessed for stability when moving waste from conservatory demolition?" },
       { id: "q5", label: "Has the impact on neighbours and boundary lines been considered before conservatory demolition?" }
-    ]
+    ],
+    complexity: "high",
+    extraSections: ["glass_safety", "waste_management", "structural_integrity"]
   },
 
   "Brick boundary wall demolition": {
@@ -4985,7 +5350,9 @@ const DEMOLITION_STRIPOUT_CLUSTERS: Record<string, JobCluster> = {
       { id: "q3", label: "Is there a plan to control dust during brick boundary wall demolition?" },
       { id: "q4", label: "Are neighbouring properties and public areas protected from flying debris during brick boundary wall demolition?" },
       { id: "q5", label: "Is waste from brick boundary wall demolition removed regularly to maintain visibility and access?" }
-    ]
+    ],
+    complexity: "high",
+    extraSections: ["public_protection", "structural_integrity", "waste_management"]
   },
 
   "Garden structure removal (pergola/deck)": {
@@ -4997,7 +5364,9 @@ const DEMOLITION_STRIPOUT_CLUSTERS: Record<string, JobCluster> = {
       { id: "q3", label: "Is there a method for dealing with embedded fixings during garden structure removal (pergola/deck)?" },
       { id: "q4", label: "Are sharp edges and nails controlled during garden structure removal (pergola/deck)?" },
       { id: "q5", label: "Is there adequate lighting if garden structure removal (pergola/deck) takes place at low light levels?" }
-    ]
+    ],
+    complexity: "high",
+    extraSections: ["waste_management", "structural_integrity", "manual_handling"]
   },
 
   "Roof strip (tiles/slates)": {
@@ -5445,7 +5814,9 @@ const HVAC_AIRCON_CLUSTERS: Record<string, JobCluster> = {
       { id: "q3", label: "Will all refrigerant joints in VRF/VRV system installation (commercial) be pressure tested and nitrogen leak tested?" },
       { id: "q4", label: "Are control and power cabling routes identified clearly for VRF/VRV system installation (commercial)?" },
       { id: "q5", label: "Is manufacturer commissioning support or guidance being followed for VRF/VRV system installation (commercial)?" }
-    ]
+    ],
+    complexity: "high",
+    extraSections: ["coordinated_services", "lifting_operations", "f_gas_compliance"]
   },
 
   "Server room close-control AC install": {
@@ -5457,7 +5828,9 @@ const HVAC_AIRCON_CLUSTERS: Record<string, JobCluster> = {
       { id: "q3", label: "Is condensate management for server room close-control AC install designed to avoid leaks near IT equipment?" },
       { id: "q4", label: "Are redundancy and alarm functions tested as part of server room close-control AC install?" },
       { id: "q5", label: "Is noise and vibration from server room close-control AC install acceptable for adjacent spaces?" }
-    ]
+    ],
+    complexity: "high",
+    extraSections: ["changeover_plan", "live_it_equipment_protection", "redundancy_testing"]
   },
 
   "AC condensate pump installation": {
@@ -7310,7 +7683,9 @@ const FLOORING_CONTRACTOR_CLUSTERS: Record<string, JobCluster> = {
       { id: "q3", label: "Are adhesives and hot welds managed safely with adequate ventilation during safety vinyl flooring to commercial kitchen?" },
       { id: "q4", label: "Is there a plan for safe access for kitchen staff around the work area during safety vinyl flooring to commercial kitchen?" },
       { id: "q5", label: "Have you confirmed cleaning and hygiene requirements with the client for safety vinyl flooring to commercial kitchen?" }
-    ]
+    ],
+    complexity: "high",
+    extraSections: ["kitchen_shutdown_coordination", "drainage_considerations", "hygiene_requirements"]
   },
 
   "Sheet vinyl installation to bathroom": {
@@ -7334,7 +7709,9 @@ const FLOORING_CONTRACTOR_CLUSTERS: Record<string, JobCluster> = {
       { id: "q3", label: "Is adequate ventilation provided for adhesives during sheet vinyl installation to wet room?" },
       { id: "q4", label: "Have you agreed details at thresholds and door bars for sheet vinyl installation to wet room?" },
       { id: "q5", label: "Will you test the wet room for leaks or ponding after sheet vinyl installation to wet room?" }
-    ]
+    ],
+    complexity: "high",
+    extraSections: ["tanking_system", "falls_to_drain", "watertight_sealing"]
   },
 
   "LVT installation to kitchen": {
@@ -8748,7 +9125,9 @@ const CLEANING_SPECIALIST_CLUSTERS: Record<string, JobCluster> = {
       { id: "q3", label: "Are sharps and clinical waste handled correctly during clinical cleaning – treatment rooms?" },
       { id: "q4", label: "Are touchpoints prioritised during clinical cleaning – treatment rooms?" },
       { id: "q5", label: "Are records kept as required for clinical cleaning – treatment rooms?" }
-    ]
+    ],
+    complexity: "high",
+    extraSections: ["infection_control", "sharps_safety", "hazardous_waste"]
   },
 
   "Theatre / critical clinical deep clean": {
@@ -8760,7 +9139,9 @@ const CLEANING_SPECIALIST_CLUSTERS: Record<string, JobCluster> = {
       { id: "q3", label: "Are equipment and surfaces cleaned in the correct sequence during theatre / critical clinical deep clean?" },
       { id: "q4", label: "Are disinfectants used correctly during theatre / critical clinical deep clean?" },
       { id: "q5", label: "Is sign-off documented after theatre / critical clinical deep clean?" }
-    ]
+    ],
+    complexity: "high",
+    extraSections: ["infection_control", "sterile_environments", "hazardous_waste"]
   },
 
   "Decontamination clean – body fluids": {
@@ -8772,7 +9153,9 @@ const CLEANING_SPECIALIST_CLUSTERS: Record<string, JobCluster> = {
       { id: "q3", label: "Are sharps and contaminated waste handled in line with guidance during decontamination clean – body fluids?" },
       { id: "q4", label: "Are disinfectants contact times observed during decontamination clean – body fluids?" },
       { id: "q5", label: "Is the area clearly signed and controlled during decontamination clean – body fluids?" }
-    ]
+    ],
+    complexity: "high",
+    extraSections: ["biohazard_control", "infection_control", "waste_disposal"]
   },
 
   "Trauma and crime scene clean": {
@@ -8784,7 +9167,9 @@ const CLEANING_SPECIALIST_CLUSTERS: Record<string, JobCluster> = {
       { id: "q3", label: "Is PPE and decontamination process in place for trauma and crime scene clean?" },
       { id: "q4", label: "Are sharps and contaminated items managed as clinical waste during trauma and crime scene clean?" },
       { id: "q5", label: "Is documentation and confidentiality respected during trauma and crime scene clean?" }
-    ]
+    ],
+    complexity: "high",
+    extraSections: ["biohazard_control", "psychological_hazards", "police_liaison"]
   },
 
   "Sharps and needle sweep": {
@@ -8796,7 +9181,9 @@ const CLEANING_SPECIALIST_CLUSTERS: Record<string, JobCluster> = {
       { id: "q3", label: "Are sharps picked up with tools rather than hands during sharps and needle sweep?" },
       { id: "q4", label: "Are sharps disposed of into approved containers during sharps and needle sweep?" },
       { id: "q5", label: "Is the area thoroughly checked at the end of sharps and needle sweep?" }
-    ]
+    ],
+    complexity: "high",
+    extraSections: ["sharps_safety", "biohazard_control", "waste_disposal"]
   },
 
   "Pigeon guano and bird fouling cleaning": {
@@ -8808,7 +9195,9 @@ const CLEANING_SPECIALIST_CLUSTERS: Record<string, JobCluster> = {
       { id: "q3", label: "Is dust suppression used during pigeon guano and bird fouling cleaning?" },
       { id: "q4", label: "Is waste from pigeon guano and bird fouling cleaning double-bagged and disposed of appropriately?" },
       { id: "q5", label: "Have exclusion zones been set for pigeon guano and bird fouling cleaning?" }
-    ]
+    ],
+    complexity: "high",
+    extraSections: ["respiratory_protection", "biohazard_control", "waste_disposal"]
   },
 
   "Fire damage clean-up – light smoke": {
@@ -8832,7 +9221,9 @@ const CLEANING_SPECIALIST_CLUSTERS: Record<string, JobCluster> = {
       { id: "q3", label: "Is suitable respiratory protection used during fire damage clean-up – heavy contamination?" },
       { id: "q4", label: "Is manual handling of debris controlled during fire damage clean-up – heavy contamination?" },
       { id: "q5", label: "Are sharps and hazardous materials segregated during fire damage clean-up – heavy contamination?" }
-    ]
+    ],
+    complexity: "high",
+    extraSections: ["structural_stability", "hazardous_substances", "asbestos_awareness"]
   },
 
   "Flood damage clean and dry out": {
@@ -8844,7 +9235,9 @@ const CLEANING_SPECIALIST_CLUSTERS: Record<string, JobCluster> = {
       { id: "q3", label: "Is contamination level assessed during flood damage clean and dry out?" },
       { id: "q4", label: "Are drying equipment and cables managed to avoid trips during flood damage clean and dry out?" },
       { id: "q5", label: "Is waste water disposed of appropriately after flood damage clean and dry out?" }
-    ]
+    ],
+    complexity: "high",
+    extraSections: ["electrical_safety", "mould_spores", "water_pumping"]
   },
 
   "Graffiti removal – small areas": {
@@ -8976,7 +9369,9 @@ const CLEANING_SPECIALIST_CLUSTERS: Record<string, JobCluster> = {
       { id: "q3", label: "Are rescue arrangements in place for confined space cleaning – simple chambers?" },
       { id: "q4", label: "Is suitable PPE and communication used during confined space cleaning – simple chambers?" },
       { id: "q5", label: "Are entrants and top-men clearly defined for confined space cleaning – simple chambers?" }
-    ]
+    ],
+    complexity: "high",
+    extraSections: ["confined_space_entry", "gas_monitoring", "rescue_plan"]
   },
 
   "Food factory production area cleaning": {
@@ -8988,7 +9383,9 @@ const CLEANING_SPECIALIST_CLUSTERS: Record<string, JobCluster> = {
       { id: "q3", label: "Is floor drainage and slip risk managed during food factory production area cleaning?" },
       { id: "q4", label: "Are fixed guards and safety devices reinstated after food factory production area cleaning?" },
       { id: "q5", label: "Is production scheduling agreed to avoid contamination during food factory production area cleaning?" }
-    ]
+    ],
+    complexity: "high",
+    extraSections: ["food_safety", "chemical_handling", "lock_out_tag_out"]
   },
 
   "Bakery / flour dust area cleaning": {
@@ -8999,8 +9396,10 @@ const CLEANING_SPECIALIST_CLUSTERS: Record<string, JobCluster> = {
       { id: "q2", label: "Are ignition sources controlled during bakery / flour dust area cleaning?" },
       { id: "q3", label: "Is manual handling of trays, racks and equipment assessed for bakery / flour dust area cleaning?" },
       { id: "q4", label: "Are approved vacuums and tools used during bakery / flour dust area cleaning?" },
-      { id: "q5", label: "Are residues and waste from bakery / flour dust area cleaning disposed of safely?" }
-    ]
+      { id: "q5", label: "Are cleaning tools colour-coded and suitable for bakery / flour dust area cleaning?" }
+    ],
+    complexity: "high",
+    extraSections: ["atex_dust_control", "explosion_risk", "cleaning_at_height"]
   },
 
   "Other (Custom)": {
@@ -9056,7 +9455,9 @@ const WINDOW_CLEANING_ACCESS_CLUSTERS: Record<string, JobCluster> = {
       { id: "q3", label: "Are you avoiding overreaching and keeping belt buckle within the stiles during low rise external window cleaning - ladders?" },
       { id: "q4", label: "Have you controlled access below the working area during low rise external window cleaning - ladders?" },
       { id: "q5", label: "Have you assessed wind and weather conditions before starting low rise external window cleaning - ladders?" }
-    ]
+    ],
+    complexity: "high",
+    extraSections: ["working_at_height", "ladder_safety", "public_protection"]
   },
 
   // 4
@@ -9134,7 +9535,9 @@ const WINDOW_CLEANING_ACCESS_CLUSTERS: Record<string, JobCluster> = {
       { id: "q3", label: "Are you able to maintain good control and visibility of the pole during three-storey townhouse window cleaning?" },
       { id: "q4", label: "Have you agreed timing and access with occupants for three-storey townhouse window cleaning?" },
       { id: "q5", label: "Have weather and ground conditions been checked before three-storey townhouse window cleaning?" }
-    ]
+    ],
+    complexity: "high",
+    extraSections: ["working_at_height", "water_fed_pole_safety", "traffic_management"]
   },
 
   // 10
@@ -9147,7 +9550,9 @@ const WINDOW_CLEANING_ACCESS_CLUSTERS: Record<string, JobCluster> = {
       { id: "q3", label: "Have you requested residents to clear items that could cause trip hazards during apartment block balcony glazing cleaning?" },
       { id: "q4", label: "Are you preventing water and tools falling from balconies to areas below during apartment block balcony glazing cleaning?" },
       { id: "q5", label: "Have you checked emergency escape routes are not obstructed during apartment block balcony glazing cleaning?" }
-    ]
+    ],
+    complexity: "high",
+    extraSections: ["working_at_height", "drop_prevention", "resident_liaison"]
   },
 
   // 11
@@ -9160,7 +9565,9 @@ const WINDOW_CLEANING_ACCESS_CLUSTERS: Record<string, JobCluster> = {
       { id: "q3", label: "Have you set up suitable barriers or signs below the work area for atrium glazing internal cleaning - steps/podium?" },
       { id: "q4", label: "Are tools and materials secured to prevent falling during atrium glazing internal cleaning - steps/podium?" },
       { id: "q5", label: "Have you agreed access restrictions with the client for the duration of atrium glazing internal cleaning - steps/podium?" }
-    ]
+    ],
+    complexity: "high",
+    extraSections: ["working_at_height", "public_protection", "manual_handling"]
   },
 
   // 12
@@ -9173,7 +9580,9 @@ const WINDOW_CLEANING_ACCESS_CLUSTERS: Record<string, JobCluster> = {
       { id: "q3", label: "Are exclusion zones and barriers in place beneath the MEWP during atrium glazing internal cleaning - MEWP?" },
       { id: "q4", label: "Are you aware of overhead services and structures that could be struck during atrium glazing internal cleaning - MEWP?" },
       { id: "q5", label: "Have emergency lowering and rescue procedures been agreed for atrium glazing internal cleaning - MEWP?" }
-    ]
+    ],
+    complexity: "high",
+    extraSections: ["working_at_height", "mewp_operation", "indoor_air_quality"]
   },
 
   // 13
@@ -9199,7 +9608,9 @@ const WINDOW_CLEANING_ACCESS_CLUSTERS: Record<string, JobCluster> = {
       { id: "q3", label: "Are you controlling drips and splashes to avoid stairs becoming slippery during internal glass balustrade and handrail cleaning?" },
       { id: "q4", label: "Have you set up any necessary barriers or diversions below your work area during internal glass balustrade and handrail cleaning?" },
       { id: "q5", label: "Are your tools and cloths managed to prevent them falling from height during internal glass balustrade and handrail cleaning?" }
-    ]
+    ],
+    complexity: "high",
+    extraSections: ["working_at_height", "fall_prevention", "public_protection"]
   },
 
   // 15
@@ -9212,7 +9623,9 @@ const WINDOW_CLEANING_ACCESS_CLUSTERS: Record<string, JobCluster> = {
       { id: "q3", label: "Are tools and cleaning heads secured during internal stairwell glazing and high windows?" },
       { id: "q4", label: "Have you agreed how fire escape routes will be maintained during internal stairwell glazing and high windows?" },
       { id: "q5", label: "Are you using a safe system of work and not overreaching during internal stairwell glazing and high windows?" }
-    ]
+    ],
+    complexity: "high",
+    extraSections: ["working_at_height", "access_equipment", "emergency_rescue"]
   },
 
   // 16
@@ -9789,7 +10202,9 @@ const LANDSCAPING_GROUNDS_MAINTENANCE_CLUSTERS: Record<string, JobCluster> = {
       { id: "q3", label: "Are harnesses and lanyards correctly attached while in the basket during tree works - MEWP access?" },
       { id: "q4", label: "Are exclusion zones and drop zones established below the work area for tree works - MEWP access?" },
       { id: "q5", label: "Is there an agreed emergency rescue plan in case of MEWP failure during tree works - MEWP access?" }
-    ]
+    ],
+    complexity: "high",
+    extraSections: ["working_at_height", "mewp_operation", "drop_zones"]
   },
 
   "Tree works - climbing and rope access": {
@@ -9801,7 +10216,9 @@ const LANDSCAPING_GROUNDS_MAINTENANCE_CLUSTERS: Record<string, JobCluster> = {
       { id: "q3", label: "Is there a dedicated, equipped and briefed aerial rescue climber on site during tree works - climbing and rope access?" },
       { id: "q4", label: "Are drop zones clearly marked and kept clear during tree works - climbing and rope access?" },
       { id: "q5", label: "Have weather conditions (wind, lightning) been checked and deemed suitable for tree works - climbing and rope access?" }
-    ]
+    ],
+    complexity: "high",
+    extraSections: ["working_at_height", "rope_access", "aerial_rescue"]
   },
 
   "Stump grinding operations": {
@@ -9813,7 +10230,9 @@ const LANDSCAPING_GROUNDS_MAINTENANCE_CLUSTERS: Record<string, JobCluster> = {
       { id: "q3", label: "Are exclusion zones established to keep others clear of the grinding area during stump grinding operations?" },
       { id: "q4", label: "Are operators wearing appropriate PPE including face/eye, hearing and leg protection during stump grinding operations?" },
       { id: "q5", label: "Is there a plan for backfilling or making safe the void left after stump grinding operations?" }
-    ]
+    ],
+    complexity: "high",
+    extraSections: ["underground_services", "flying_debris", "exclusion_zones"]
   },
 
   "Leaf blowing and collection": {
@@ -9969,7 +10388,9 @@ const LANDSCAPING_GROUNDS_MAINTENANCE_CLUSTERS: Record<string, JobCluster> = {
       { id: "q3", label: "Are operators working across, not directly up and down, where possible during bank and steep slope grass cutting?" },
       { id: "q4", label: "Is there a plan to stop bank and steep slope grass cutting if ground becomes too wet or unstable?" },
       { id: "q5", label: "Is there adequate segregation from roads or watercourses during bank and steep slope grass cutting?" }
-    ]
+    ],
+    complexity: "high",
+    extraSections: ["slope_stability", "remote_controlled_plant", "slip_hazards"]
   },
 
   "Watercourse and ditch vegetation clearance": {
@@ -9981,7 +10402,9 @@ const LANDSCAPING_GROUNDS_MAINTENANCE_CLUSTERS: Record<string, JobCluster> = {
       { id: "q3", label: "Is there a plan for safe access and egress to the work area during watercourse and ditch vegetation clearance?" },
       { id: "q4", label: "Are arisings from watercourse and ditch vegetation clearance placed away from the bank edge and managed to avoid pollution?" },
       { id: "q5", label: "Are hygiene precautions in place after watercourse and ditch vegetation clearance?" }
-    ]
+    ],
+    complexity: "high",
+    extraSections: ["water_safety", "biological_hazards", "environmental_protection"]
   },
 
   "Pond and water feature maintenance": {
@@ -10274,6 +10697,1918 @@ const LANDSCAPING_GROUNDS_MAINTENANCE_CLUSTERS: Record<string, JobCluster> = {
 };
 
 // ==========================================
+//  BATCH 1: SPECIALIST TRADES
+// ==========================================
+
+const PEST_CONTROL_CLUSTERS: Record<string, JobCluster> = {
+  "Rodent control (poison/traps)": {
+    desc: "Rodent control involves placing bait stations and traps to control rat or mouse infestations. Work requires careful handling of rodenticides, secure placement of traps, and disposal of carcasses. Risks include zoonotic diseases and accidental poisoning of non-target species.",
+    hazards: ["biological", "chemical_coshh", "manual_handling"],
+    questions: [
+      { id: "q1", label: "Have you identified the extent of the infestation before starting rodent control?" },
+      { id: "q2", label: "Are bait stations secured and labelled to prevent access by children or pets?" },
+      { id: "q3", label: "Is appropriate PPE worn when handling traps or carcasses during rodent control?" },
+      { id: "q4", label: "Have you planned for the safe disposal of any waste or carcasses from rodent control?" },
+      { id: "q5", label: "Will follow-up visits be scheduled to monitor the effectiveness of the rodent control?" }
+    ]
+  },
+  "Insect fumigation": {
+    desc: "Insect fumigation involves releasing chemical agents to eliminate insect infestations in enclosed spaces. This is a high-risk activity requiring strict exclusion zones, respiratory protection, and ventilation plans. Re-entry must be controlled until gas levels are safe.",
+    hazards: ["chemical_coshh", "confined_space", "respiratory_sensitisers"],
+    questions: [
+      { id: "q1", label: "Has the area been sealed and evacuated before starting insect fumigation?" },
+      { id: "q2", label: "Is suitable respiratory protection (RPE) available and fit-tested for insect fumigation?" },
+      { id: "q3", label: "Have warning signs been posted at all entry points for insect fumigation?" },
+      { id: "q4", label: "Is there a plan for ventilating the area safely after insect fumigation?" },
+      { id: "q5", label: "Will gas monitoring be carried out before allowing re-entry after insect fumigation?" }
+    ],
+    complexity: "high",
+    extraSections: ["hazardous_substances", "exclusion_zones", "emergency_procedures"]
+  },
+  "Bird proofing/netting": {
+    desc: "Bird proofing involves installing nets, spikes, or wires to prevent birds from roosting on buildings. Work is often carried out at height on roofs or facades. Access equipment and fall protection are essential. Risks include falls, guano dust, and aggressive birds.",
+    hazards: ["work_at_height", "biological", "manual_handling", "environmental_weather"],
+    questions: [
+      { id: "q1", label: "Has the access method (MEWP, scaffold, ropes) been agreed for bird proofing/netting?" },
+      { id: "q2", label: "Are you trained to install the specific netting or spike systems for bird proofing?" },
+      { id: "q3", label: "Is respiratory protection used if working near bird guano during bird proofing/netting?" },
+      { id: "q4", label: "Have you checked for nesting birds (wildlife laws) before starting bird proofing/netting?" },
+      { id: "q5", label: "Will the installation be checked to ensure no gaps remain after bird proofing/netting?" }
+    ],
+    complexity: "high",
+    extraSections: ["working_at_height", "wildlife_protection", "public_protection"]
+  },
+  "Bed bug heat treatment": {
+    desc: "Bed bug heat treatment involves raising the temperature of a room to lethal levels for insects. This requires specialized heaters and monitoring equipment to ensure even heat distribution. Risks include heat stress for operatives, fire hazards from equipment, and damage to heat-sensitive items. The process is chemical-free but requires strict preparation and exclusion of occupants.",
+    hazards: ["fire_explosion", "thermal_comfort", "manual_handling", "electrical"],
+    questions: [
+      { id: "q1", label: "Have heat-sensitive items been removed from the treatment area?" },
+      { id: "q2", label: "Are fire sprinklers isolated or protected during the heat treatment?" },
+      { id: "q3", label: "Is the electrical supply sufficient for the heating equipment?" },
+      { id: "q4", label: "Are operatives monitoring the process remotely to avoid heat stress?" },
+      { id: "q5", label: "Has the room been allowed to cool safely before re-entry?" }
+    ],
+    complexity: "high",
+    extraSections: ["fire_safety", "electrical_safety", "thermal_stress"]
+  },
+  "Wasp nest removal": {
+    desc: "Wasp nest removal involves treating or physically removing active nests from lofts, wall cavities, or external structures. The primary risk is multiple stings, which can cause anaphylactic shock. Work often takes place at height or in confined spaces. Protective clothing must be worn at all times.",
+    hazards: ["biological", "work_at_height", "confined_space", "chemical_coshh"],
+    questions: [
+      { id: "q1", label: "Are you wearing a full bee/wasp suit with a sealed veil?" },
+      { id: "q2", label: "Is an epinephrine auto-injector available if anyone is allergic?" },
+      { id: "q3", label: "Is the access route to the nest safe and clear?" },
+      { id: "q4", label: "Have you warned nearby residents/occupants to keep windows closed?" },
+      { id: "q5", label: "Is the nest treated with a knockdown agent before removal?" }
+    ]
+  },
+  "Cockroach gel treatment": {
+    desc: "Cockroach gel treatment involves applying bait gels to cracks and crevices in kitchens and food preparation areas. This is a targeted method that minimizes chemical spread but requires precise application. Risks include contamination of food surfaces if not applied correctly. Operatives must identify harbourage points accurately.",
+    hazards: ["chemical_coshh", "biological", "slips_trips"],
+    questions: [
+      { id: "q1", label: "Have food preparation surfaces been covered or cleaned before treatment?" },
+      { id: "q2", label: "Is the gel applied only to cracks and crevices, away from food?" },
+      { id: "q3", label: "Are you using a dedicated applicator gun for precision?" },
+      { id: "q4", label: "Have you identified the species to select the correct bait?" },
+      { id: "q5", label: "Is a follow-up visit scheduled to check bait consumption?" }
+    ]
+  },
+  "Fox/Wildlife management": {
+    desc: "Fox and wildlife management involves trapping or deterring animals that are causing a nuisance or damage. This requires compliance with wildlife protection laws and humane dispatch methods if necessary. Risks include bites, scratches, and zoonotic diseases. Public perception and interference are also factors.",
+    hazards: ["biological", "manual_handling", "public_interface", "lone_working"],
+    questions: [
+      { id: "q1", label: "Are traps checked at least once every 24 hours?" },
+      { id: "q2", label: "Is the method of dispatch humane and legal for the species?" },
+      { id: "q3", label: "Are you wearing bite-resistant gloves when handling cages?" },
+      { id: "q4", label: "Have you assessed the risk of public interference with traps?" },
+      { id: "q5", label: "Is the release site pre-approved if relocating the animal?" }
+    ]
+  },
+  "Bird spiking": {
+    desc: "Bird spiking involves installing anti-perch spikes on ledges, signs, and gutters to deter pigeons and gulls. Work is almost exclusively at height, often using ladders or MEWPs. The spikes themselves are sharp and can cause injury during handling. Adhesive or mechanical fixings are used.",
+    hazards: ["work_at_height", "sharp_objects", "manual_handling", "environmental_weather"],
+    questions: [
+      { id: "q1", label: "Is the surface clean and dry for the adhesive to bond?" },
+      { id: "q2", label: "Are you wearing gloves to protect against the sharp spikes?" },
+      { id: "q3", label: "Is the access equipment suitable for the duration of the work?" },
+      { id: "q4", label: "Are public exclusion zones in place below the work area?" },
+      { id: "q5", label: "Have you ensured no birds are trapped behind the spikes?" }
+    ]
+  }
+};
+
+const WASTE_MANAGEMENT_CLUSTERS: Record<string, JobCluster> = {
+  "General waste collection": {
+    desc: "General waste collection involves manual or mechanical loading of non-hazardous waste into vehicles or skips. Risks include manual handling injuries, cuts from sharp objects, and vehicle movements.",
+    hazards: ["manual_handling", "sharp_objects", "moving_vehicles", "slips_trips"],
+    questions: [
+      { id: "q1", label: "Are waste bags or containers capable of being lifted safely for general waste collection?" },
+      { id: "q2", label: "Is appropriate PPE (gloves, boots) worn for general waste collection?" },
+      { id: "q3", label: "Are vehicle movements controlled during loading for general waste collection?" },
+      { id: "q4", label: "Have you checked for prohibited items in the general waste collection?" },
+      { id: "q5", label: "Is the loading area kept clear of spillages during general waste collection?" }
+    ]
+  },
+  "Hazardous waste removal": {
+    desc: "Hazardous waste removal covers the collection and transport of dangerous substances such as chemicals, oils, or batteries. Strict regulations apply to packaging, labelling, and documentation. Spills and exposure are key risks.",
+    hazards: ["chemical_coshh", "fire_explosion", "environmental_pollution", "manual_handling"],
+    questions: [
+      { id: "q1", label: "Has the waste been correctly identified and classified before hazardous waste removal?" },
+      { id: "q2", label: "Are suitable UN-approved containers used for hazardous waste removal?" },
+      { id: "q3", label: "Is a spill kit available and accessible during hazardous waste removal?" },
+      { id: "q4", label: "Are transport documents (consignment notes) completed for hazardous waste removal?" },
+      { id: "q5", label: "Is PPE suitable for the specific chemical risks during hazardous waste removal?" }
+    ],
+    complexity: "high",
+    extraSections: ["hazardous_substances", "spill_response", "transport_regulations"]
+  },
+  "Clinical waste collection": {
+    desc: "Clinical waste collection involves handling bags or bins containing medical waste, sharps, or bodily fluids. Infection control and sharps safety are paramount. Vaccination and specific training are required.",
+    hazards: ["biological", "sharp_objects", "manual_handling"],
+    questions: [
+      { id: "q1", label: "Are all bags and bins sealed and tagged before clinical waste collection?" },
+      { id: "q2", label: "Are you vaccinated (e.g. Hepatitis B) for clinical waste collection tasks?" },
+      { id: "q3", label: "Is handling restricted to the bag neck or bin handle during clinical waste collection?" },
+      { id: "q4", label: "Are sharps containers checked to ensure they are not overfilled before clinical waste collection?" },
+      { id: "q5", label: "Is the vehicle equipped for safe transport of clinical waste?" }
+    ],
+    complexity: "high",
+    extraSections: ["infection_control", "sharps_safety", "transport_regulations"]
+  },
+  "Asbestos removal (licensed)": {
+    desc: "Licensed asbestos removal involves the removal of high-risk asbestos-containing materials (ACMs) such as lagging or coatings. This is a highly regulated activity requiring a license, notification to the HSE, and full enclosures. Risks include inhalation of asbestos fibers, which can cause fatal lung diseases. Strict decontamination procedures are mandatory.",
+    hazards: ["asbestos", "confined_space", "respiratory_sensitisers", "work_at_height"],
+    questions: [
+      { id: "q1", label: "Is the asbestos removal work notified to the enforcing authority (ASB5)?" },
+      { id: "q2", label: "Is a full enclosure with negative pressure units (NPU) in place?" },
+      { id: "q3", label: "Are operatives wearing full-face powered respirators and Type 5/6 coveralls?" },
+      { id: "q4", label: "Is a 4-stage clearance test scheduled with an independent analyst?" },
+      { id: "q5", label: "Are decontamination units (DCUs) operational and clean?" }
+    ],
+    complexity: "high",
+    extraSections: ["asbestos_safety", "respiratory_protection", "decontamination_procedures"]
+  },
+  "Skip exchange": {
+    desc: "Skip exchange involves delivering empty skips and collecting full ones using a skip loader vehicle. Risks include vehicle movements, overhead cables, and unstable ground. The driver must ensure the load is secure and not overloaded before transport. Public safety is a key concern during placement.",
+    hazards: ["moving_vehicles", "manual_handling", "overhead_cables", "public_interface"],
+    questions: [
+      { id: "q1", label: "Is the ground stable enough to support the skip loader's stabilisers?" },
+      { id: "q2", label: "Are overhead cables identified and avoided during lifting?" },
+      { id: "q3", label: "Is the skip level loaded and covered (netted) before transport?" },
+      { id: "q4", label: "Are cones or lights used if the skip is placed on the highway?" },
+      { id: "q5", label: "Has the driver checked for pedestrians before reversing?" }
+    ]
+  },
+  "Compactor maintenance": {
+    desc: "Compactor maintenance involves servicing hydraulic waste compaction units. Risks include crushing from moving parts, stored energy in hydraulic systems, and electrical hazards. Lock-out/Tag-out (LOTO) procedures are critical to prevent accidental startup. Confined space entry may be required for internal cleaning.",
+    hazards: ["crushing", "hydraulic_pressure", "electrical", "confined_space"],
+    questions: [
+      { id: "q1", label: "Has the compactor been isolated and locked off (LOTO)?" },
+      { id: "q2", label: "Are stored energy (hydraulic) pressures released before work?" },
+      { id: "q3", label: "Is a permit to work required for entering the hopper/chamber?" },
+      { id: "q4", label: "Are safety interlocks tested for correct operation?" },
+      { id: "q5", label: "Is the area clear of waste debris before maintenance begins?" }
+    ],
+    complexity: "high",
+    extraSections: ["machinery_safety", "lock_out_tag_out", "confined_space_entry"]
+  },
+  "Fly-tipping clearance": {
+    desc: "Fly-tipping clearance involves removing illegally dumped waste. The contents are often unknown and may include hazardous materials, sharps, or asbestos. A dynamic risk assessment is essential before starting. Manual handling and sharps protection are key controls.",
+    hazards: ["biological", "sharp_objects", "hazardous_substances", "manual_handling"],
+    questions: [
+      { id: "q1", label: "Has the waste been inspected for sharps or hazardous items before handling?" },
+      { id: "q2", label: "Are puncture-resistant gloves and boots worn?" },
+      { id: "q3", label: "Is mechanical assistance available for heavy or bulky items?" },
+      { id: "q4", label: "Is the area checked for vermin (rats) before disturbing the waste?" },
+      { id: "q5", label: "Is the waste segregated for correct disposal/recycling?" }
+    ]
+  },
+  "Confidential waste shredding": {
+    desc: "Confidential waste shredding involves handling sensitive documents and feeding them into industrial shredders. Risks include dust inhalation, noise, and moving machinery. Security protocols must be maintained throughout the process. Fire risk from paper dust is also a consideration.",
+    hazards: ["moving_machinery", "dust_fumes", "noise_vibration", "fire_explosion"],
+    questions: [
+      { id: "q1", label: "Are guards in place on the shredder feed hopper?" },
+      { id: "q2", label: "Is hearing protection worn if noise levels are high?" },
+      { id: "q3", label: "Is dust extraction equipment functioning correctly?" },
+      { id: "q4", label: "Are security protocols followed for handling the waste?" },
+      { id: "q5", label: "Is a fire extinguisher available near the shredding area?" }
+    ]
+  }
+};
+
+const DRAINAGE_CLUSTERS: Record<string, JobCluster> = {
+  "High pressure water jetting": {
+    desc: "High pressure water jetting uses powerful water streams to clear blockages or clean surfaces. The extreme pressure can cause severe injection injuries. Exclusion zones, specialist PPE, and trained operators are mandatory.",
+    hazards: ["high_pressure_water", "noise_vibration", "biological", "slips_trips"],
+    questions: [
+      { id: "q1", label: "Is the jetting equipment inspected and rated for the pressure used in high pressure water jetting?" },
+      { id: "q2", label: "Are all operatives wearing high-pressure water jetting PPE (visors, suits, boots)?" },
+      { id: "q3", label: "Is a medical card for water injection injuries available on site during high pressure water jetting?" },
+      { id: "q4", label: "Are exclusion zones set up to protect others from spray and debris during high pressure water jetting?" },
+      { id: "q5", label: "Is communication established between the jetter operator and the nozzle handler?" }
+    ],
+    complexity: "high",
+    extraSections: ["high_pressure_water", "exclusion_zones", "emergency_medical"]
+  },
+  "Drain excavation and repair": {
+    desc: "Drain excavation and repair involves digging down to damaged pipework, often in confined or public areas. Risks include trench collapse, underground services, and biological contamination from sewage.",
+    hazards: ["excavation_collapse", "underground_services", "biological", "confined_space"],
+    questions: [
+      { id: "q1", label: "Has a CAT scan been performed to locate services before drain excavation and repair?" },
+      { id: "q2", label: "Is trench support (shoring) available if the drain excavation goes below 1.2m?" },
+      { id: "q3", label: "Are hygiene facilities available for operatives exposed to sewage during drain excavation and repair?" },
+      { id: "q4", label: "Is the excavation fenced off to protect the public during drain excavation and repair?" },
+      { id: "q5", label: "Will the repair be tested for watertightness before backfilling?" }
+    ],
+    complexity: "high",
+    extraSections: ["excavation_safety", "underground_services", "biological_hazards"]
+  },
+  "CCTV drain survey": {
+    desc: "CCTV drain survey involves inspecting pipework internals using a camera. Work includes inserting the camera, recording footage, identifying defects, and producing a report. No excavation is typically required.",
+    hazards: ["biological", "slips_trips", "manual_handling", "public_interface"],
+    questions: [
+      { id: "q1", label: "Is access to the manhole safe and free from gas risks for CCTV drain survey?" },
+      { id: "q2", label: "Are hygiene precautions taken when handling camera equipment for CCTV drain survey?" },
+      { id: "q3", label: "Is the camera unit powered safely with cables managed to avoid trips during CCTV drain survey?" },
+      { id: "q4", label: "Are you protecting the public from open manholes during the CCTV drain survey?" },
+      { id: "q5", label: "Will findings be recorded accurately in the CCTV drain survey report?" }
+    ]
+  },
+  "Septic tank emptying": {
+    desc: "Septic tank emptying involves using a vacuum tanker to remove sewage sludge. Risks include exposure to raw sewage, toxic gases (H2S), and biological hazards. Operatives must avoid entering the tank unless strictly necessary and under confined space controls. Spillage prevention is critical.",
+    hazards: ["biological", "confined_space", "hazardous_substances", "manual_handling"],
+    questions: [
+      { id: "q1", label: "Is the tanker positioned on firm ground?" },
+      { id: "q2", label: "Are gas monitors worn to detect Hydrogen Sulfide (H2S)?" },
+      { id: "q3", label: "Are hygiene gloves and coveralls worn to prevent sewage contact?" },
+      { id: "q4", label: "Is the tank lid secured immediately after emptying?" },
+      { id: "q5", label: "Are spill kits available in case of hose failure?" }
+    ],
+    complexity: "high",
+    extraSections: ["biological_hazards", "confined_space_entry", "hazardous_substances"]
+  },
+  "Gutter cleaning (vacuum)": {
+    desc: "Gutter cleaning using a vacuum system allows work to be done from the ground, reducing height risks. However, risks remain from handling long poles, falling debris, and uneven ground. Inspection cameras are often used to verify cleaning.",
+    hazards: ["manual_handling", "slips_trips", "falling_objects", "electrical"],
+    questions: [
+      { id: "q1", label: "Are overhead power lines identified before raising poles?" },
+      { id: "q2", label: "Is the ground area clear of trip hazards?" },
+      { id: "q3", label: "Are you rotating tasks to avoid repetitive strain from pole handling?" },
+      { id: "q4", label: "Is eye protection worn to prevent debris entering eyes?" },
+      { id: "q5", label: "Is the vacuum unit positioned to avoid obstructing walkways?" }
+    ]
+  },
+  "Manhole cover replacement": {
+    desc: "Manhole cover replacement involves removing damaged covers and frames and installing new ones. This often requires breaking out concrete and mixing new mortar. Manual handling of heavy ironwork is a significant risk. Traffic management is needed if in a road.",
+    hazards: ["manual_handling", "hand_arm_vibration", "moving_vehicles", "silica_dust"],
+    questions: [
+      { id: "q1", label: "Are lifting keys or mechanical lifters used for the manhole cover?" },
+      { id: "q2", label: "Is the work area guarded to prevent falls into the open manhole?" },
+      { id: "q3", label: "Is traffic management in place if working in the carriageway?" },
+      { id: "q4", label: "Are you using wet cutting or extraction for breaking out concrete?" },
+      { id: "q5", label: "Is the new frame bedded securely on fresh mortar?" }
+    ]
+  },
+  "Soakaway installation": {
+    desc: "Soakaway installation involves excavating a pit and installing crates or rubble to manage surface water. Deep excavations require shoring or stepping. Soil type must be suitable for drainage. Manual handling of crates and piping is required.",
+    hazards: ["excavation_collapse", "manual_handling", "underground_services", "slips_trips"],
+    questions: [
+      { id: "q1", label: "Has a percolation test been carried out to confirm soil suitability?" },
+      { id: "q2", label: "Is the excavation supported or battered back if deep?" },
+      { id: "q3", label: "Are soakaway crates assembled correctly according to instructions?" },
+      { id: "q4", label: "Is geotextile membrane used to wrap the crates?" },
+      { id: "q5", label: "Is the backfill compacted in layers to prevent settlement?" }
+    ]
+  },
+  "Drain relining (no-dig)": {
+    desc: "Drain relining involves inserting a resin-impregnated liner into a damaged pipe and curing it to create a new pipe within a pipe. This avoids excavation but involves handling chemicals (resins) and using inflation equipment. Confined space entry may be needed for access.",
+    hazards: ["chemical_coshh", "confined_space", "manual_handling", "pressure_systems"],
+    questions: [
+      { id: "q1", label: "Are safety data sheets (SDS) available for the resin and hardener?" },
+      { id: "q2", label: "Is the liner curing method (hot water/steam/UV) controlled safely?" },
+      { id: "q3", label: "Are operatives trained in the specific relining system?" },
+      { id: "q4", label: "Is ventilation provided to remove resin fumes?" },
+      { id: "q5", label: "Has the liner been checked for wrinkles or defects after curing?" }
+    ],
+    complexity: "high",
+    extraSections: ["hazardous_substances", "confined_space_entry", "pressure_systems"]
+  }
+};
+
+const GLAZIER_CLUSTERS: Record<string, JobCluster> = {
+  "Window pane replacement (ground level)": {
+    desc: "Window pane replacement at ground level involves removing broken or failed glass and installing new sealed units. Risks include cuts from glass shards and manual handling of heavy units.",
+    hazards: ["glass_sharps", "manual_handling", "slips_trips", "public_interface"],
+    questions: [
+      { id: "q1", label: "Are you wearing cut-resistant gloves and arm protection for window pane replacement?" },
+      { id: "q2", label: "Is the area cordoned off to protect the public from glass during window pane replacement?" },
+      { id: "q3", label: "Have you measured the unit correctly to avoid forcing it during window pane replacement?" },
+      { id: "q4", label: "Is there a safe method for disposing of old glass from window pane replacement?" },
+      { id: "q5", label: "Will the new unit be sealed and beaded securely on completion of window pane replacement?" }
+    ]
+  },
+  "High level glazing replacement": {
+    desc: "High level glazing replacement involves changing glass units at height, often using cranes, winches, or MEWPs. The risk of falling glass and falls from height is significant. Detailed lifting plans and exclusion zones are required.",
+    hazards: ["work_at_height", "falling_objects", "glass_sharps", "lifting_operations"],
+    questions: [
+      { id: "q1", label: "Is a lifting plan in place for the high level glazing replacement?" },
+      { id: "q2", label: "Are exclusion zones established below the work area for high level glazing replacement?" },
+      { id: "q3", label: "Is the access equipment (MEWP/cradle) suitable for the weight of the glass and operatives?" },
+      { id: "q4", label: "Are suction lifters inspected and tested before use in high level glazing replacement?" },
+      { id: "q5", label: "Have weather conditions (wind) been checked before starting high level glazing replacement?" }
+    ],
+    complexity: "high",
+    extraSections: ["lifting_operations", "working_at_height", "public_protection"]
+  },
+  "Emergency boarding up": {
+    desc: "Emergency boarding up secures broken windows or doors, often after break-ins or damage. Work may be out of hours and involve handling broken glass and power tools. Security and speed are key factors.",
+    hazards: ["glass_sharps", "power_tools", "lone_working", "public_interface"],
+    questions: [
+      { id: "q1", label: "Is the site safe to approach (police clearance) before emergency boarding up?" },
+      { id: "q2", label: "Are you wearing full cut-resistant PPE for handling broken glass during emergency boarding up?" },
+      { id: "q3", label: "Do you have suitable boards and fixings to secure the opening during emergency boarding up?" },
+      { id: "q4", label: "Is loose glass removed safely before fixing boards during emergency boarding up?" },
+      { id: "q5", label: "Will the boarding provide adequate security and weather protection?" }
+    ]
+  },
+  "Shop front replacement": {
+    desc: "Shop front replacement involves removing existing frames and glazing and installing new aluminium or timber fronts. This is heavy structural work often in public areas. Risks include manual handling of large frames, glass handling, and public safety. Structural support may be needed during removal.",
+    hazards: ["manual_handling", "glass_sharps", "structural_stability", "public_interface"],
+    questions: [
+      { id: "q1", label: "Is the pavement closed or diverted to protect the public?" },
+      { id: "q2", label: "Are props used to support the opening during frame removal?" },
+      { id: "q3", label: "Is mechanical lifting available for heavy steel or glass beams?" },
+      { id: "q4", label: "Are floor springs or door closers adjusted correctly?" },
+      { id: "q5", label: "Is the site secured if work takes more than one day?" }
+    ],
+    complexity: "high",
+    extraSections: ["structural_stability", "public_protection", "lifting_operations"]
+  },
+  "Mirror installation": {
+    desc: "Mirror installation involves fixing large mirrors to walls using adhesive or screws. Mirrors are fragile and heavy. Breakage can result in severe cuts. Accurate measuring and levelling are essential for a good finish.",
+    hazards: ["glass_sharps", "manual_handling", "chemical_coshh"],
+    questions: [
+      { id: "q1", label: "Is the wall surface flat and suitable for the mirror weight?" },
+      { id: "q2", label: "Are you using mirror adhesive that is compatible with the backing?" },
+      { id: "q3", label: "Are suction cups used to position the mirror safely?" },
+      { id: "q4", label: "Is the mirror supported while the adhesive cures?" },
+      { id: "q5", label: "Are safety backed mirrors used in public areas?" }
+    ]
+  },
+  "Double glazing unit replacement": {
+    desc: "Double glazing unit replacement involves removing failed or misted sealed units from UPVC, timber, or aluminium frames. The beading is removed, and the unit swapped. Care must be taken not to damage the frame or beads. Glass handling is the main risk.",
+    hazards: ["glass_sharps", "manual_handling", "hand_tools"],
+    questions: [
+      { id: "q1", label: "Are you using the correct tools (chisel/knife) to remove beads?" },
+      { id: "q2", label: "Is the new unit the correct thickness and dimension?" },
+      { id: "q3", label: "Are packers used to toe and heel the glass correctly?" },
+      { id: "q4", label: "Is the old glass disposed of in a recycling bin?" },
+      { id: "q5", label: "Are gaskets or seals replaced if damaged?" }
+    ]
+  },
+  "Secondary glazing installation": {
+    desc: "Secondary glazing installation involves fitting a supplementary window inside an existing one for sound or thermal insulation. Work is usually internal. Risks include handling glass and drilling into reveals. Dust control is important in occupied rooms.",
+    hazards: ["glass_sharps", "manual_handling", "dust_fumes", "hand_tools"],
+    questions: [
+      { id: "q1", label: "Is the sub-frame level and plumb?" },
+      { id: "q2", label: "Are you checking for hidden cables before drilling reveals?" },
+      { id: "q3", label: "Is the glass toughened or laminated for safety?" },
+      { id: "q4", label: "Are furniture and carpets protected from dust?" },
+      { id: "q5", label: "Do the sliding panels operate smoothly?" }
+    ]
+  },
+  "Glass partition installation": {
+    desc: "Glass partition installation involves fitting track systems and large glass panels to create office dividers. The glass is heavy and often toughened. Handling requires vacuum lifters or team lifts. Accurate cutting of tracks is required.",
+    hazards: ["glass_sharps", "manual_handling", "slips_trips", "hand_tools"],
+    questions: [
+      { id: "q1", label: "Are floor and ceiling tracks fixed securely to the structure?" },
+      { id: "q2", label: "Is the glass handled with edge protection or lifters?" },
+      { id: "q3", label: "Are dry joints or silicone seals applied neatly?" },
+      { id: "q4", label: "Are manifestation (safety stickers) applied to the glass immediately?" },
+      { id: "q5", label: "Is the work area clear of other trades during installation?" }
+    ]
+  }
+};
+
+const SCAFFOLDING_CLUSTERS: Record<string, JobCluster> = {
+  "Scaffold erection (general)": {
+    desc: "Scaffold erection involves building temporary access structures using tubes, fittings, and boards. It is a high-risk activity involving work at height, manual handling of heavy components, and structural stability. Compliance with TG20 and SG4 is essential.",
+    hazards: ["work_at_height", "falling_objects", "manual_handling", "structural_collapse"],
+    questions: [
+      { id: "q1", label: "Is the ground condition suitable for the scaffold erection loads?" },
+      { id: "q2", label: "Are all scaffolders trained (CISRS) and wearing harnesses for scaffold erection?" },
+      { id: "q3", label: "Is a handover certificate (Scafftag) planned on completion of scaffold erection?" },
+      { id: "q4", label: "Are exclusion zones in place to protect the public during scaffold erection?" },
+      { id: "q5", label: "Is the design compliant with TG20 or a specific design drawing for scaffold erection?" }
+    ],
+    complexity: "high",
+    extraSections: ["scaffold_safety", "working_at_height", "lifting_operations"]
+  },
+  "Scaffold dismantling": {
+    desc: "Scaffold dismantling is the reverse of erection but carries similar risks, plus the potential for loose components and debris. Stability must be maintained as ties are removed. Controlled lowering of materials is critical.",
+    hazards: ["work_at_height", "falling_objects", "manual_handling", "structural_collapse"],
+    questions: [
+      { id: "q1", label: "Has the scaffold been inspected before starting scaffold dismantling?" },
+      { id: "q2", label: "Are ties left in place until the relevant lift is removed during scaffold dismantling?" },
+      { id: "q3", label: "Are materials lowered safely (gin wheel/line) and not thrown during scaffold dismantling?" },
+      { id: "q4", label: "Is the exclusion zone maintained until all materials are cleared from scaffold dismantling?" },
+      { id: "q5", label: "Are anchor holes made good after scaffold dismantling?" }
+    ],
+    complexity: "high",
+    extraSections: ["scaffold_safety", "working_at_height", "public_protection"]
+  },
+  "Tower scaffold assembly": {
+    desc: "Tower scaffold assembly involves erecting mobile aluminium towers. Risks include overturning if not assembled correctly (3T or AGR method) or if used on uneven ground. Fall protection is integrated into the assembly process.",
+    hazards: ["work_at_height", "structural_collapse", "manual_handling"],
+    questions: [
+      { id: "q1", label: "Are you trained (PASMA) to assemble the tower scaffold?" },
+      { id: "q2", label: "Are outriggers or stabilisers deployed correctly for the tower scaffold assembly?" },
+      { id: "q3", label: "Is the ground level and firm for the tower scaffold assembly?" },
+      { id: "q4", label: "Are guardrails fitted before accessing the platform of the tower scaffold?" },
+      { id: "q5", label: "Will the tower be inspected before use and after moving?" }
+    ]
+  },
+  "Temporary roof installation": {
+    desc: "Temporary roof installation involves erecting a weather protection structure over a building. This is a complex scaffold requiring design drawings. Risks include wind loading, manual handling of large beams/sheets, and falls from height. Stability is critical.",
+    hazards: ["work_at_height", "structural_collapse", "environmental_weather", "manual_handling"],
+    questions: [
+      { id: "q1", label: "Is the temporary roof built strictly to the design drawing?" },
+      { id: "q2", label: "Are kentledge or ground anchors used to resist wind uplift?" },
+      { id: "q3", label: "Is the sheeting installed securely to prevent flapping?" },
+      { id: "q4", label: "Are operatives using fall arrest systems during roof sheet installation?" },
+      { id: "q5", label: "Is a rescue plan in place for work on the temporary roof?" }
+    ],
+    complexity: "high",
+    extraSections: ["scaffold_safety", "working_at_height", "lifting_operations"]
+  },
+  "Chimney scaffold": {
+    desc: "Chimney scaffold involves erecting access around a chimney stack. This often requires roof saddles or cantilever sections. Risks include falling materials, damage to roof tiles, and exposure to smoke/fumes. Load distribution on the roof is key.",
+    hazards: ["work_at_height", "falling_objects", "structural_stability", "manual_handling"],
+    questions: [
+      { id: "q1", label: "Is the roof structure capable of supporting the scaffold load?" },
+      { id: "q2", label: "Are roof tiles protected with boards or padding?" },
+      { id: "q3", label: "Is the scaffold tied into the chimney or structure securely?" },
+      { id: "q4", label: "Are toe boards fitted to prevent debris falling down the roof?" },
+      { id: "q5", label: "Is safe access provided to the roof level?" }
+    ],
+    complexity: "high",
+    extraSections: ["scaffold_safety", "working_at_height", "roof_work"]
+  },
+  "Birdcage scaffold": {
+    desc: "Birdcage scaffold is a large internal or external independent scaffold with a grid of standards. It is used for ceiling access or crash decks. Risks include stability during erection and manual handling of many components. Lighting levels may be reduced underneath.",
+    hazards: ["work_at_height", "structural_collapse", "manual_handling", "slips_trips"],
+    questions: [
+      { id: "q1", label: "Is the birdcage braced correctly in all directions?" },
+      { id: "q2", label: "Are lighting levels adequate underneath the deck?" },
+      { id: "q3", label: "Is the top deck fully boarded with no gaps?" },
+      { id: "q4", label: "Are access points (ladders/gates) positioned safely?" },
+      { id: "q5", label: "Is the structure tied to the building or self-supporting?" }
+    ],
+    complexity: "high",
+    extraSections: ["scaffold_safety", "working_at_height", "confined_space"]
+  },
+  "Rubbish chute installation": {
+    desc: "Rubbish chute installation involves fixing a series of plastic chute sections to a scaffold. Risks include falling objects during installation and blockages during use. The chute must be securely fixed at every level. A skip must be positioned correctly at the bottom.",
+    hazards: ["falling_objects", "work_at_height", "manual_handling"],
+    questions: [
+      { id: "q1", label: "Is the chute secured with chains/fixings at every lift?" },
+      { id: "q2", label: "Is the skip covered or fenced off to prevent debris scatter?" },
+      { id: "q3", label: "Are hopper sections installed at loading levels?" },
+      { id: "q4", label: "Is the chute inspected daily for blockages or damage?" },
+      { id: "q5", label: "Are operatives trained not to overload the chute?" }
+    ]
+  },
+  "Staircase tower": {
+    desc: "Staircase tower erection provides safe access between scaffold levels. It involves installing pre-fabricated stair units or tube and fitting stairs. Risks include manual handling of heavy stair flights and falls during assembly. Handrails must be continuous.",
+    hazards: ["work_at_height", "manual_handling", "slips_trips"],
+    questions: [
+      { id: "q1", label: "Are the stair units compatible with the scaffold system?" },
+      { id: "q2", label: "Are handrails and toe boards fitted to all landings and stairs?" },
+      { id: "q3", label: "Is the tower tied to the main scaffold or structure?" },
+      { id: "q4", label: "Is the entry and exit point clear and safe?" },
+      { id: "q5", label: "Is the stair width suitable for the expected foot traffic?" }
+    ]
+  }
+};
+
+// ==========================================
+//  BATCH 2: CONSTRUCTION & TRADES
+// ==========================================
+
+const TILER_CLUSTERS: Record<string, JobCluster> = {
+  "Wall tiling (ceramic/porcelain)": {
+    desc: "Wall tiling involves fixing tiles to vertical surfaces using adhesive. Work requires surface preparation, setting out, cutting tiles, and grouting. Risks include dust from cutting, manual handling of boxes, and working at height for upper sections.",
+    hazards: ["manual_handling", "dust_fumes", "silica_dust", "slips_trips"],
+    questions: [
+      { id: "q1", label: "Is the substrate (wall) sound and capable of supporting the tile weight?" },
+      { id: "q2", label: "Are you using wet cutting or extraction to control silica dust during wall tiling?" },
+      { id: "q3", label: "Is suitable access equipment used for higher courses of wall tiling?" },
+      { id: "q4", label: "Are adhesives and grouts mixed in a ventilated area?" },
+      { id: "q5", label: "Is the work area kept clear of tile offcuts and packaging?" }
+    ]
+  },
+  "Wet room tiling": {
+    desc: "Wet room tiling involves tanking (waterproofing) and tiling areas subject to direct water flow. Critical for preventing leaks. Gradients must be maintained for drainage. Slip resistance of floor tiles is a key safety factor for the end user.",
+    hazards: ["manual_handling", "chemical_coshh", "slips_trips"],
+    questions: [
+      { id: "q1", label: "Has the tanking system been applied and tested before wet room tiling?" },
+      { id: "q2", label: "Are the floor tiles specified as anti-slip for wet room use?" },
+      { id: "q3", label: "Have you maintained the correct fall to the drain during wet room tiling?" },
+      { id: "q4", label: "Are waterproof adhesives and grouts being used for the wet room tiling?" },
+      { id: "q5", label: "Is the drain outlet protected from debris during wet room tiling?" }
+    ],
+    complexity: "high",
+    extraSections: ["waterproofing", "drainage_considerations", "slip_resistance"]
+  },
+  "Floor tiling (large format)": {
+    desc: "Laying large format floor tiles requires careful handling due to their weight and size. A flat substrate is essential. Risks include back strain from lifting and kneeling. Suction lifters may be needed.",
+    hazards: ["manual_handling", "ergonomics", "silica_dust", "slips_trips"],
+    questions: [
+      { id: "q1", label: "Are vacuum lifters available for handling large format tiles?" },
+      { id: "q2", label: "Is the sub-floor level and free from movement?" },
+      { id: "q3", label: "Are you using a decoupling membrane if required?" },
+      { id: "q4", label: "Are knee pads worn to prevent joint injury?" },
+      { id: "q5", label: "Is the adhesive suitable for the tile size and weight?" }
+    ]
+  },
+  "Mosaic tiling": {
+    desc: "Mosaic tiling involves fixing sheets of small tiles. Precision is key. Cutting small glass or ceramic pieces can create sharp shards. Grouting requires attention to detail.",
+    hazards: ["sharp_objects", "chemical_coshh", "ergonomics"],
+    questions: [
+      { id: "q1", label: "Are you wearing eye protection when cutting small mosaic pieces?" },
+      { id: "q2", label: "Is the surface perfectly flat to prevent lippage?" },
+      { id: "q3", label: "Are you using a non-abrasive grout for glass mosaics?" },
+      { id: "q4", label: "Is skin protection worn during grouting?" },
+      { id: "q5", label: "Are sheets checked for defects before fixing?" }
+    ]
+  },
+  "Natural stone installation": {
+    desc: "Natural stone installation involves heavy materials like marble, granite, or limestone. Sealing is often required, involving solvents. Dust from cutting stone is hazardous (silica).",
+    hazards: ["manual_handling", "silica_dust", "chemical_coshh", "slips_trips"],
+    questions: [
+      { id: "q1", label: "Is the stone sealed before grouting to prevent staining?" },
+      { id: "q2", label: "Are you using white adhesive for light-coloured stone?" },
+      { id: "q3", label: "Is respiratory protection worn when cutting stone?" },
+      { id: "q4", label: "Are heavy stone slabs lifted by two people or mechanical means?" },
+      { id: "q5", label: "Is the floor structure capable of taking the additional load?" }
+    ]
+  },
+  "Swimming pool tiling": {
+    desc: "Swimming pool tiling is a specialist task requiring high-performance adhesives and grouts. The environment may be humid or enclosed. Chemical resistance and water pressure are key factors.",
+    hazards: ["chemical_coshh", "confined_space", "slips_trips", "work_at_height"],
+    questions: [
+      { id: "q1", label: "Is the pool tank fully cured and water-tested before tiling?" },
+      { id: "q2", label: "Are epoxy grouts used for chemical resistance?" },
+      { id: "q3", label: "Is ventilation adequate if working in an empty pool tank?" },
+      { id: "q4", label: "Are movement joints incorporated into the tiling layout?" },
+      { id: "q5", label: "Is the lighting sufficient for detailed work?" }
+    ],
+    complexity: "high",
+    extraSections: ["waterproofing", "chemical_safety", "confined_space"]
+  },
+  "Re-grouting": {
+    desc: "Re-grouting involves removing old, often mouldy grout and replacing it. Dust and flying debris from raking out joints are risks. Mould spores can be hazardous.",
+    hazards: ["dust_fumes", "biological", "hand_arm_vibration", "eye_injury"],
+    questions: [
+      { id: "q1", label: "Are you using a mechanical grout remover or hand tool?" },
+      { id: "q2", label: "Is eye protection worn to prevent debris injury?" },
+      { id: "q3", label: "Is the area ventilated to remove dust and mould spores?" },
+      { id: "q4", label: "Are tiles protected from damage during grout removal?" },
+      { id: "q5", label: "Is the new grout compatible with the existing tiles?" }
+    ]
+  }
+};
+
+const PLASTERER_CLUSTERS: Record<string, JobCluster> = {
+  "Internal skimming": {
+    desc: "Internal skimming involves applying a thin coat of finish plaster to walls or ceilings. Work is physically demanding and often involves working from hop-ups or stilts. Good ventilation is needed for drying but drafts should be avoided.",
+    hazards: ["manual_handling", "work_at_height", "slips_trips", "dust_fumes"],
+    questions: [
+      { id: "q1", label: "Is the access equipment (hop-ups/stilts) in good condition for internal skimming?" },
+      { id: "q2", label: "Are floor surfaces protected from plaster splashes?" },
+      { id: "q3", label: "Is there adequate lighting for the internal skimming work?" },
+      { id: "q4", label: "Are mixing stations set up to minimise dust and mess?" },
+      { id: "q5", label: "Have electrical sockets been isolated or protected during internal skimming?" }
+    ]
+  },
+  "External rendering": {
+    desc: "External rendering involves applying sand/cement or monocouche render to external facades. Work is typically at height and weather dependent. Scaffolding is usually required. Mixing large quantities of material poses manual handling risks.",
+    hazards: ["work_at_height", "manual_handling", "dust_fumes", "environmental_weather"],
+    questions: [
+      { id: "q1", label: "Is the scaffold suitable and signed off for external rendering?" },
+      { id: "q2", label: "Are you protecting windows and doors from render splashes?" },
+      { id: "q3", label: "Is a mechanical mixer used to reduce manual handling for external rendering?" },
+      { id: "q4", label: "Have weather conditions (rain/frost) been checked before external rendering?" },
+      { id: "q5", label: "Are expansion joints incorporated into the external rendering where required?" }
+    ],
+    complexity: "high",
+    extraSections: ["working_at_height", "scaffold_safety", "weather_protection"]
+  },
+  "Dry lining (taping & jointing)": {
+    desc: "Dry lining involves fixing plasterboard and finishing joints. Dust from sanding is a major hazard. Manual handling of large boards requires technique. Stilts are often used for ceilings.",
+    hazards: ["dust_fumes", "manual_handling", "work_at_height", "slips_trips"],
+    questions: [
+      { id: "q1", label: "Is respiratory protection (mask) worn during sanding?" },
+      { id: "q2", label: "Are board lifters used for ceiling sheets?" },
+      { id: "q3", label: "Is the floor clear of debris for stilt users?" },
+      { id: "q4", label: "Are electrical boxes cut out accurately?" },
+      { id: "q5", label: "Is waste plasterboard segregated for recycling?" }
+    ]
+  },
+  "Pebble dashing": {
+    desc: "Pebble dashing is a decorative external finish involving throwing stones onto wet render. Eye protection is critical due to rebounding stones. Scaffolding is required for upper levels.",
+    hazards: ["eye_injury", "work_at_height", "manual_handling", "environmental_weather"],
+    questions: [
+      { id: "q1", label: "Are safety goggles worn to protect eyes from rebounding pebbles?" },
+      { id: "q2", label: "Is the ground covered to catch loose stones?" },
+      { id: "q3", label: "Is the render mix consistent for an even finish?" },
+      { id: "q4", label: "Are scaffold boards cleared of loose pebbles regularly?" },
+      { id: "q5", label: "Is the work programmed to avoid wet weather?" }
+    ]
+  },
+  "K-Rend application": {
+    desc: "K-Rend is a silicone-based render applied externally. It is often sprayed or hand-applied. Chemical handling and weather protection are important. The finish is scraped back, creating dust.",
+    hazards: ["chemical_coshh", "dust_fumes", "work_at_height", "environmental_weather"],
+    questions: [
+      { id: "q1", label: "Is the substrate primed correctly before application?" },
+      { id: "q2", label: "Are you wearing a mask during the scraping process?" },
+      { id: "q3", label: "Is the machine pump cleaned safely after use?" },
+      { id: "q4", label: "Are adjacent surfaces masked off effectively?" },
+      { id: "q5", label: "Is the material stored in dry conditions?" }
+    ]
+  },
+  "Coving/Cornice installation": {
+    desc: "Installing coving or cornice involves fixing decorative mouldings at ceiling level. Manual handling of long lengths and working at height are risks. Adhesive can be hazardous.",
+    hazards: ["work_at_height", "manual_handling", "chemical_coshh"],
+    questions: [
+      { id: "q1", label: "Are two people used to handle long lengths of cornice?" },
+      { id: "q2", label: "Is the adhesive suitable for the material (plaster/polystyrene)?" },
+      { id: "q3", label: "Are mitres cut safely using a mitre block or saw?" },
+      { id: "q4", label: "Is the wall/ceiling surface keyed for adhesion?" },
+      { id: "q5", label: "Is access equipment stable for the duration of the task?" }
+    ]
+  },
+  "Lime plastering": {
+    desc: "Lime plastering is a traditional method used in heritage work. Lime is caustic and can cause skin burns and eye damage. PPE is essential. Curing times are longer and environment dependent.",
+    hazards: ["chemical_coshh", "skin_irritation", "eye_injury", "manual_handling"],
+    questions: [
+      { id: "q1", label: "Are goggles and alkali-resistant gloves worn?" },
+      { id: "q2", label: "Is an eye wash station available immediately on site?" },
+      { id: "q3", label: "Is the background dampened to control suction?" },
+      { id: "q4", label: "Is hair covered to prevent lime burns?" },
+      { id: "q5", label: "Is the drying process monitored to prevent cracking?" }
+    ],
+    complexity: "high",
+    extraSections: ["hazardous_substances", "heritage_work", "skin_protection"]
+  }
+};
+
+const HANDYMAN_CLUSTERS: Record<string, JobCluster> = {
+  "General repairs and maintenance": {
+    desc: "General repairs cover a wide range of minor tasks such as fixing handles, easing doors, or replacing sealants. Work is varied and often in occupied premises. Tools are typically hand-held or battery operated.",
+    hazards: ["manual_handling", "slips_trips", "hand_tools", "public_interface"],
+    questions: [
+      { id: "q1", label: "Have you assessed the specific risks of the task before starting general repairs?" },
+      { id: "q2", label: "Do you have the correct tools for the general repair task?" },
+      { id: "q3", label: "Is the work area clear of occupants during the general repair?" },
+      { id: "q4", label: "Are you competent to undertake the specific general repair task?" },
+      { id: "q5", label: "Have you cleaned up fully after completing the general repair?" }
+    ]
+  },
+  "Flat pack assembly": {
+    desc: "Flat pack assembly involves building furniture from component parts. Risks include manual handling of heavy boxes, pinch points, and use of hand tools. Space is often limited.",
+    hazards: ["manual_handling", "hand_tools", "ergonomics"],
+    questions: [
+      { id: "q1", label: "Is there sufficient space to assemble the item safely?" },
+      { id: "q2", label: "Are heavy boxes lifted by two people?" },
+      { id: "q3", label: "Are small parts kept away from children/pets?" },
+      { id: "q4", label: "Are tools used correctly to avoid slipping?" },
+      { id: "q5", label: "Is the finished item stable and secured to the wall if needed?" }
+    ]
+  },
+  "Shelf/TV mounting": {
+    desc: "Mounting shelves or TVs involves drilling into walls. Hidden cables and pipes are a major risk. Dust from drilling requires control. The fixing must be suitable for the load.",
+    hazards: ["underground_services", "dust_fumes", "manual_handling", "work_at_height"],
+    questions: [
+      { id: "q1", label: "Have you scanned the wall for cables and pipes?" },
+      { id: "q2", label: "Are the fixings suitable for the wall type (plasterboard/brick)?" },
+      { id: "q3", label: "Is dust collected at source during drilling?" },
+      { id: "q4", label: "Is the TV/shelf level checked before final fixing?" },
+      { id: "q5", label: "Is the load capacity confirmed for the bracket/shelf?" }
+    ]
+  },
+  "Picture hanging": {
+    desc: "Picture hanging is a low-risk task but requires care with ladders and tools. Accurate positioning is key. Glass in frames poses a cut hazard if broken.",
+    hazards: ["work_at_height", "glass_sharps", "hand_tools"],
+    questions: [
+      { id: "q1", label: "Is the step ladder inspected and safe to use?" },
+      { id: "q2", label: "Are the hooks/fixings rated for the picture weight?" },
+      { id: "q3", label: "Is the glass protected during handling?" },
+      { id: "q4", label: "Are you working away from door swings?" },
+      { id: "q5", label: "Is the picture secured against accidental dislodgement?" }
+    ]
+  },
+  "Curtain rail installation": {
+    desc: "Installing curtain rails involves working at height, often above windows. Drilling into lintels can be difficult. Dust and falling debris are risks.",
+    hazards: ["work_at_height", "dust_fumes", "hand_tools", "manual_handling"],
+    questions: [
+      { id: "q1", label: "Is the ladder positioned on a stable, non-slip surface?" },
+      { id: "q2", label: "Are you checking for the lintel type (concrete/steel)?" },
+      { id: "q3", label: "Is eye protection worn when drilling overhead?" },
+      { id: "q4", label: "Are curtains hung safely without overreaching?" },
+      { id: "q5", label: "Is the rail tested for stability before hanging curtains?" }
+    ]
+  },
+  "Basic painting touch-ups": {
+    desc: "Basic painting involves touching up scuffs or small areas. Fumes from solvent-based paints can be an issue in confined spaces. Spills can damage carpets.",
+    hazards: ["chemical_coshh", "slips_trips", "working_environment"],
+    questions: [
+      { id: "q1", label: "Is the area ventilated if using solvent paints?" },
+      { id: "q2", label: "Are dust sheets used to protect flooring?" },
+      { id: "q3", label: "Are brushes cleaned safely and waste disposed of?" },
+      { id: "q4", label: "Is the paint stored correctly after use?" },
+      { id: "q5", label: "Are wet paint signs displayed if in a public area?" }
+    ]
+  }
+};
+
+const REMOVALS_CLUSTERS: Record<string, JobCluster> = {
+  "House removal (loading/unloading)": {
+    desc: "House removal involves lifting and moving furniture and boxes. Manual handling is the primary risk, along with slips and trips. protecting the property and goods is essential.",
+    hazards: ["manual_handling", "slips_trips", "vehicle_movement"],
+    questions: [
+      { id: "q1", label: "Has a manual handling assessment been done for heavy items in the house removal?" },
+      { id: "q2", label: "Are walkways clear of obstacles for the house removal?" },
+      { id: "q3", label: "Is the vehicle parked safely for loading/unloading during the house removal?" },
+      { id: "q4", label: "Are floor coverings protected during the house removal?" },
+      { id: "q5", label: "Are team lifts used for large items during the house removal?" }
+    ]
+  },
+  "Piano/heavy item moving": {
+    desc: "Moving pianos or safes requires specialist equipment (skates, hoists) and techniques. The extreme weight poses crushing and strain risks. Route planning is critical.",
+    hazards: ["manual_handling", "crushing", "slips_trips"],
+    questions: [
+      { id: "q1", label: "Is specialist equipment (skates/straps) available for the piano/heavy item move?" },
+      { id: "q2", label: "Is the floor structure capable of supporting the weight during the move?" },
+      { id: "q3", label: "Have you measured doorways and turns for the piano/heavy item move?" },
+      { id: "q4", label: "Are enough operatives present for the piano/heavy item move?" },
+      { id: "q5", label: "Is the item secured to prevent tipping during transport?" }
+    ],
+    complexity: "high",
+    extraSections: ["manual_handling", "specialist_lifting", "route_planning"]
+  },
+  "Office relocation": {
+    desc: "Office relocation involves moving desks, chairs, and filing cabinets. Volume of items is high. Trip hazards from cables and boxes are common. Lift availability is often a constraint.",
+    hazards: ["manual_handling", "slips_trips", "fire_safety"],
+    questions: [
+      { id: "q1", label: "Are filing cabinets emptied before moving?" },
+      { id: "q2", label: "Are crates stacked safely (not too high)?" },
+      { id: "q3", label: "Is the lift protection installed to prevent damage?" },
+      { id: "q4", label: "Are fire exits kept clear during the move?" },
+      { id: "q5", label: "Is IT equipment disconnected by competent persons?" }
+    ]
+  },
+  "IT equipment moving": {
+    desc: "Moving IT equipment requires care to prevent damage and data loss. Static shock and manual handling of servers/UPS units are risks. Cable management is essential.",
+    hazards: ["manual_handling", "electrical", "slips_trips"],
+    questions: [
+      { id: "q1", label: "Are servers powered down and racked/unracked safely?" },
+      { id: "q2", label: "Are anti-static measures taken for sensitive components?" },
+      { id: "q3", label: "Are monitors protected from screen damage?" },
+      { id: "q4", label: "Are cables bagged with the relevant equipment?" },
+      { id: "q5", label: "Is the transport vehicle suspension suitable for IT gear?" }
+    ]
+  },
+  "Packing service": {
+    desc: "Packing involves wrapping and boxing items before a move. Repetitive motion and cuts from knives/tape dispensers are risks. Dust and paper cuts are minor hazards.",
+    hazards: ["ergonomics", "sharp_objects", "manual_handling"],
+    questions: [
+      { id: "q1", label: "Are boxes packed to a manageable weight?" },
+      { id: "q2", label: "Are fragile items wrapped individually?" },
+      { id: "q3", label: "Are safety cutters used for tape/bubble wrap?" },
+      { id: "q4", label: "Is the packing area kept tidy to prevent trips?" },
+      { id: "q5", label: "Are hazardous items (chemicals/flammables) identified and segregated?" }
+    ]
+  },
+  "International shipping packing": {
+    desc: "Export packing involves wrapping items for long-distance transport. Moisture protection and shock absorption are key. Timber crates must be ISPM15 compliant.",
+    hazards: ["manual_handling", "hand_tools", "dust_fumes"],
+    questions: [
+      { id: "q1", label: "Is the timber packaging ISPM15 stamped?" },
+      { id: "q2", label: "Are items secured within crates to prevent movement?" },
+      { id: "q3", label: "Is moisture barrier foil used for sea freight?" },
+      { id: "q4", label: "Are crates marked with centre of gravity and lifting points?" },
+      { id: "q5", label: "Is a packing list created for customs purposes?" }
+    ]
+  },
+  "Storage container loading": {
+    desc: "Loading storage containers requires maximizing space while ensuring stability. Items can shift during transport if not packed tight. Heat and condensation can affect stored goods.",
+    hazards: ["manual_handling", "falling_objects", "confined_space", "thermal_comfort"],
+    questions: [
+      { id: "q1", label: "Is the heaviest items loaded at the bottom?" },
+      { id: "q2", label: "Is the load tied off at intervals to prevent collapse?" },
+      { id: "q3", label: "Is the container inspected for leaks/holes before loading?" },
+      { id: "q4", label: "Are moisture traps/desiccants used?" },
+      { id: "q5", label: "Is a ramp used for safe access to the container?" }
+    ]
+  }
+};
+
+const FENCING_CLUSTERS: Record<string, JobCluster> = {
+  "Timber fence installation": {
+    desc: "Timber fence installation involves digging post holes and fixing panels or rails. Underground services are a major hazard during excavation. Manual handling of posts and cement is also significant.",
+    hazards: ["underground_services", "manual_handling", "hand_tools", "splinters"],
+    questions: [
+      { id: "q1", label: "Have you scanned for underground services before digging for timber fence installation?" },
+      { id: "q2", label: "Are posts and panels handled safely (team lift) during timber fence installation?" },
+      { id: "q3", label: "Is the fence line clear of vegetation and obstacles?" },
+      { id: "q4", label: "Are posts set securely with concrete or postcrete?" },
+      { id: "q5", label: "Is the finished fence stable and free of protruding nails/screws?" }
+    ]
+  },
+  "Security fencing installation": {
+    desc: "Security fencing (e.g. palisade, mesh) involves heavier steel components and often deeper foundations. Work may be on commercial or sensitive sites. Anti-climb features can be sharp.",
+    hazards: ["underground_services", "manual_handling", "sharp_objects", "plant_machinery"],
+    questions: [
+      { id: "q1", label: "Has a permit to dig been issued for the security fencing installation?" },
+      { id: "q2", label: "Are gloves worn to protect against sharp edges of security fencing?" },
+      { id: "q3", label: "Is mechanical lifting used for heavy steel posts or mesh rolls?" },
+      { id: "q4", label: "Are temporary fences used to maintain security during installation?" },
+      { id: "q5", label: "Is the fence grounded/earthed if required (e.g. near substations)?" }
+    ],
+    complexity: "high",
+    extraSections: ["underground_services", "site_security", "lifting_operations"]
+  },
+  "Concrete post installation": {
+    desc: "Installing concrete posts is physically demanding due to their weight. Crushing injuries and back strain are risks. Posts must be plumb and aligned correctly.",
+    hazards: ["manual_handling", "crushing", "underground_services"],
+    questions: [
+      { id: "q1", label: "Are two people lifting each concrete post?" },
+      { id: "q2", label: "Is the hole depth sufficient for the post length?" },
+      { id: "q3", label: "Are toes protected with steel-capped boots?" },
+      { id: "q4", label: "Is the post supported while concrete sets?" },
+      { id: "q5", label: "Are gravel boards installed level?" }
+    ]
+  },
+  "Chain link fencing": {
+    desc: "Chain link fencing involves tensioning wire mesh between posts. The wire under tension can whip back if it snaps. Eye protection is essential. Tangling hazards exist.",
+    hazards: ["stored_energy", "eye_injury", "sharp_objects", "manual_handling"],
+    questions: [
+      { id: "q1", label: "Are tensioning tools in good condition?" },
+      { id: "q2", label: "Is eye protection worn during wire tensioning?" },
+      { id: "q3", label: "Are wire ends trimmed and turned in to prevent snagging?" },
+      { id: "q4", label: "Is the line wire threaded correctly through the mesh?" },
+      { id: "q5", label: "Are gates adjusted to close smoothly?" }
+    ]
+  },
+  "Agricultural fencing": {
+    desc: "Agricultural fencing (stock fencing) covers long distances over uneven terrain. Machinery (post knockers) is often used. Lone working is common. Barbed wire presents a cut hazard.",
+    hazards: ["plant_machinery", "lone_working", "sharp_objects", "terrain"],
+    questions: [
+      { id: "q1", label: "Is the post driver operator trained and competent?" },
+      { id: "q2", label: "Are hearing defenders worn near the post driver?" },
+      { id: "q3", label: "Is communication available in remote areas?" },
+      { id: "q4", label: "Are heavy duty gloves worn for handling barbed wire?" },
+      { id: "q5", label: "Is the fence tensioned correctly to contain stock?" }
+    ]
+  },
+  "Gate automation prep": {
+    desc: "Preparing for gate automation involves laying cables and installing ground boxes. Electrical and groundworks hazards combine. Coordination with electricians is needed.",
+    hazards: ["electrical", "excavation_collapse", "manual_handling"],
+    questions: [
+      { id: "q1", label: "Are cable ducts laid to the correct depth?" },
+      { id: "q2", label: "Is drainage provided for ground boxes?" },
+      { id: "q3", label: "Are gate posts reinforced for the motor torque?" },
+      { id: "q4", label: "Is the power supply isolated before connection?" },
+      { id: "q5", label: "Are safety edges planned for the final install?" }
+    ]
+  },
+  "Trellis installation": {
+    desc: "Trellis installation is lighter work but often involves working at height on top of fences or walls. Wind loading can be an issue if not secured well. Fragile nature of trellis requires care.",
+    hazards: ["work_at_height", "manual_handling", "hand_tools"],
+    questions: [
+      { id: "q1", label: "Is the existing fence/wall strong enough for the trellis?" },
+      { id: "q2", label: "Are you working from a stable platform?" },
+      { id: "q3", label: "Are screws/fixings corrosion resistant?" },
+      { id: "q4", label: "Is the trellis treated with preservative?" },
+      { id: "q5", label: "Are climbing plants accounted for in the load?" }
+    ]
+  }
+};
+
+const PAVING_CLUSTERS: Record<string, JobCluster> = {
+  "Patio laying": {
+    desc: "Patio laying involves excavating, preparing a sub-base, and laying slabs. Manual handling of heavy slabs and mixing bedding mortar are key tasks. Cutting slabs creates silica dust.",
+    hazards: ["manual_handling", "silica_dust", "hand_arm_vibration", "slips_trips"],
+    questions: [
+      { id: "q1", label: "Is the sub-base compacted correctly for the patio laying?" },
+      { id: "q2", label: "Are you using wet cutting or extraction for slab cutting?" },
+      { id: "q3", label: "Are vacuum lifters used for heavy patio slabs?" },
+      { id: "q4", label: "Is the fall correct for drainage on the patio?" },
+      { id: "q5", label: "Is skin protection worn when handling wet mortar?" }
+    ]
+  },
+  "Block paving driveway": {
+    desc: "Block paving involves laying small concrete blocks on sand. Repetitive handling and cutting are main risks. The sub-base must be substantial for vehicle traffic. Edge restraints are critical.",
+    hazards: ["manual_handling", "ergonomics", "silica_dust", "moving_vehicles"],
+    questions: [
+      { id: "q1", label: "Is the sub-base depth suitable for the traffic load?" },
+      { id: "q2", label: "Are edge restraints concreted in place?" },
+      { id: "q3", label: "Is a block splitter used to minimize dust?" },
+      { id: "q4", label: "Is the sand screeded level before laying?" },
+      { id: "q5", label: "Is kiln-dried sand brushed in after vibrating?" }
+    ]
+  },
+  "Porcelain patio": {
+    desc: "Porcelain slabs are dense and require a slurry primer for adhesion. Cutting requires specialist diamond blades. They can be slippery when wet if not anti-slip rated.",
+    hazards: ["manual_handling", "silica_dust", "chemical_coshh", "slips_trips"],
+    questions: [
+      { id: "q1", label: "Is the back of each slab primed with slurry?" },
+      { id: "q2", label: "Are you using a continuous diamond rim blade for cutting?" },
+      { id: "q3", label: "Are spacers used to maintain joint width?" },
+      { id: "q4", label: "Is the grout suitable for external porcelain?" },
+      { id: "q5", label: "Are expansion joints included for large areas?" }
+    ]
+  },
+  "Driveway cleaning/sealing": {
+    desc: "Cleaning driveways usually involves high pressure washing. Flying debris and water spray are risks. Sealing involves applying chemicals which may be flammable or toxic.",
+    hazards: ["high_pressure_water", "chemical_coshh", "slips_trips", "eye_injury"],
+    questions: [
+      { id: "q1", label: "Are you wearing a face visor for pressure washing?" },
+      { id: "q2", label: "Is the area cleared of loose debris before washing?" },
+      { id: "q3", label: "Is the surface dry before applying sealer?" },
+      { id: "q4", label: "Are pets and children kept off the wet sealer?" },
+      { id: "q5", label: "Is drainage protected from sand/silt runoff?" }
+    ]
+  },
+  "Kerb laying": {
+    desc: "Kerb laying involves handling heavy concrete or stone units. Crushing injuries to hands/feet are a risk. Mechanical lifters should be used where possible. Alignment is critical.",
+    hazards: ["manual_handling", "crushing", "moving_vehicles", "silica_dust"],
+    questions: [
+      { id: "q1", label: "Are kerb lifters (mechanical or manual) used?" },
+      { id: "q2", label: "Is the concrete bed mixed to the correct consistency?" },
+      { id: "q3", label: "Are string lines used for alignment and level?" },
+      { id: "q4", label: "Is the haunching sufficient to support the kerb?" },
+      { id: "q5", label: "Are drop kerbs installed correctly for vehicle access?" }
+    ]
+  },
+  "Gravel driveway installation": {
+    desc: "Gravel driveways require a retention system (grids) to prevent migration. Spreading gravel involves manual handling. Dust can be an issue with dry aggregate.",
+    hazards: ["manual_handling", "dust_fumes", "slips_trips"],
+    questions: [
+      { id: "q1", label: "Is a weed membrane installed under the gravel?" },
+      { id: "q2", label: "Are gravel grids used to stabilise the surface?" },
+      { id: "q3", label: "Is the gravel size suitable for vehicles (angular vs rounded)?" },
+      { id: "q4", label: "Is the depth correct (too deep causes sinking)?" },
+      { id: "q5", label: "Is the entrance paved to prevent gravel spill onto the road?" }
+    ]
+  }
+};
+
+const WELDER_CLUSTERS: Record<string, JobCluster> = {
+  "On-site structural welding": {
+    desc: "On-site structural welding involves joining steel components in a construction environment. Hazards include arc eye, fumes, fire, and burns. Hot work permits are almost always required.",
+    hazards: ["fire_explosion", "welding_fumes", "optical_radiation", "burns"],
+    questions: [
+      { id: "q1", label: "Is a Hot Work Permit in place for the on-site structural welding?" },
+      { id: "q2", label: "Are welding screens used to protect others from the arc?" },
+      { id: "q3", label: "Is local exhaust ventilation (LEV) or RPE used for welding fumes?" },
+      { id: "q4", label: "Is a fire watcher present with a suitable extinguisher?" },
+      { id: "q5", label: "Are the welds inspected (NDT) as per the specification?" }
+    ],
+    complexity: "high",
+    extraSections: ["hot_works", "fire_safety", "fume_control"]
+  },
+  "Pipe welding": {
+    desc: "Pipe welding often involves positional welding on pressure vessels or pipework. Radiographic testing is common. Confined spaces and purging gases (argon) are risks.",
+    hazards: ["fire_explosion", "welding_fumes", "confined_space", "pressure_systems"],
+    questions: [
+      { id: "q1", label: "Is the pipe purged with inert gas safely?" },
+      { id: "q2", label: "Are you qualified for the specific welding position (e.g. 6G)?" },
+      { id: "q3", label: "Is the area monitored for oxygen depletion?" },
+      { id: "q4", label: "Are heat blankets used to control cooling?" },
+      { id: "q5", label: "Is the weld prepped and cleaned correctly?" }
+    ],
+    complexity: "high",
+    extraSections: ["hot_works", "confined_space", "pressure_systems"]
+  },
+  "Balustrade fabrication": {
+    desc: "Fabricating balustrades involves cutting, grinding, and welding metal sections. Aesthetic finish is important, so grinding and polishing are key. Noise and vibration are hazards.",
+    hazards: ["noise_vibration", "dust_fumes", "cuts_abrasions", "fire_explosion"],
+    questions: [
+      { id: "q1", label: "Are measurements checked on site before fabrication?" },
+      { id: "q2", label: "Is hearing protection worn during grinding?" },
+      { id: "q3", label: "Are welds ground flush and polished smooth?" },
+      { id: "q4", label: "Is the metal grade correct (e.g. 316 for external)?" },
+      { id: "q5", label: "Are fixings designed for the load?" }
+    ]
+  },
+  "Mobile welding repair": {
+    desc: "Mobile welding involves travelling to site to repair plant or structures. Equipment is portable. Weather conditions and unknown site hazards are challenges. Generator use is common.",
+    hazards: ["fire_explosion", "electrical", "environmental_weather", "lone_working"],
+    questions: [
+      { id: "q1", label: "Is the generator earthed and ventilated?" },
+      { id: "q2", label: "Is the work area dry and safe for electrical welding?" },
+      { id: "q3", label: "Are flammable materials cleared from the repair area?" },
+      { id: "q4", label: "Is the equipment secured in the van during transport?" },
+      { id: "q5", label: "Do you have a fire extinguisher in the vehicle?" }
+    ]
+  },
+  "Stainless steel polishing": {
+    desc: "Polishing stainless steel creates fine metal dust. Respiratory protection is critical. Rotating polishing mops can snag clothing. Heat build-up in the metal can cause burns.",
+    hazards: ["dust_fumes", "entanglement", "burns", "noise_vibration"],
+    questions: [
+      { id: "q1", label: "Is RPE worn to prevent inhaling metal dust?" },
+      { id: "q2", label: "Are loose clothing and jewellery removed?" },
+      { id: "q3", label: "Is the polishing compound suitable for the finish?" },
+      { id: "q4", label: "Is the metal allowed to cool before handling?" },
+      { id: "q5", label: "Is the area cleaned to prevent cross-contamination?" }
+    ]
+  },
+  "Oxy-fuel cutting": {
+    desc: "Oxy-fuel cutting uses fuel gas and oxygen to cut metal. The risk of fire and explosion is high. Flashback arrestors are mandatory. Molten metal slag creates a fire hazard below.",
+    hazards: ["fire_explosion", "burns", "fumes", "compressed_gas"],
+    questions: [
+      { id: "q1", label: "Are flashback arrestors fitted to both regulators?" },
+      { id: "q2", label: "Are hoses checked for leaks and damage?" },
+      { id: "q3", label: "Is the area below the cut protected from slag?" },
+      { id: "q4", label: "Are cylinders secured upright in a trolley?" },
+      { id: "q5", label: "Are shaded goggles worn to protect eyes?" }
+    ],
+    complexity: "high",
+    extraSections: ["hot_works", "gas_safety", "fire_safety"]
+  }
+};
+
+// ==========================================
+//  BATCH 3: SECURITY & SAFETY
+// ==========================================
+
+const LOCKSMITH_CLUSTERS: Record<string, JobCluster> = {
+  "Lock change/repair": {
+    desc: "Lock change/repair involves replacing cylinders, mortice locks, or mechanisms. Work is often on external doors. Risks include sharp tools, manual handling, and lone working.",
+    hazards: ["hand_tools", "manual_handling", "lone_working", "security_risk"],
+    questions: [
+      { id: "q1", label: "Have you verified the identity/authority of the person requesting the lock change?" },
+      { id: "q2", label: "Are you using the correct tools to avoid damage to the door?" },
+      { id: "q3", label: "Is the work area well lit?" },
+      { id: "q4", label: "Have you tested the new lock for smooth operation?" },
+      { id: "q5", label: "Are old keys and parts disposed of securely?" }
+    ]
+  },
+  "Emergency entry (non-destructive)": {
+    desc: "Emergency entry involves gaining access to a property without damaging the door if possible. Techniques include picking or bypassing. Verification of ownership is critical. Lone working risks are high.",
+    hazards: ["lone_working", "security_risk", "public_interface", "hand_tools"],
+    questions: [
+      { id: "q1", label: "Has proof of ownership/residency been provided before emergency entry?" },
+      { id: "q2", label: "Is the client present and safe during the entry?" },
+      { id: "q3", label: "Are you carrying ID and wearing a uniform/branded clothing?" },
+      { id: "q4", label: "Have you assessed the risk of confrontation?" },
+      { id: "q5", label: "Is the property secured again if the lock was damaged during entry?" }
+    ]
+  },
+  "Safe opening": {
+    desc: "Safe opening involves drilling or manipulating locks to open secure containers. Heavy lifting equipment may be needed if the safe is moved. Dust from drilling hard plate is a hazard.",
+    hazards: ["manual_handling", "hand_tools", "dust_fumes", "noise_vibration"],
+    questions: [
+      { id: "q1", label: "Is the safe empty or contents known?" },
+      { id: "q2", label: "Are you wearing eye and ear protection during drilling?" },
+      { id: "q3", label: "Is the drill bit cooled to prevent overheating?" },
+      { id: "q4", label: "Is the area ventilated to remove metal dust?" },
+      { id: "q5", label: "Is the safe secured against tipping if moved?" }
+    ]
+  },
+  "Digital lock installation": {
+    desc: "Installing digital locks involves drilling doors and wiring (if mains powered). Accuracy is critical. Battery handling and disposal are minor risks.",
+    hazards: ["hand_tools", "dust_fumes", "electrical"],
+    questions: [
+      { id: "q1", label: "Is the door thickness suitable for the lock?" },
+      { id: "q2", label: "Are you using a template for drilling holes?" },
+      { id: "q3", label: "Is the battery compartment accessible for future changes?" },
+      { id: "q4", label: "Is the code set to a default or user-specified number?" },
+      { id: "q5", label: "Is the lock tested before closing the door?" }
+    ]
+  },
+  "UPVC door mechanism repair": {
+    desc: "Repairing multi-point locks on UPVC doors involves removing the door leaf or mechanism. Doors can be heavy and awkward to handle. Mechanisms are under spring tension.",
+    hazards: ["manual_handling", "hand_tools", "pinch_points"],
+    questions: [
+      { id: "q1", label: "Is the door supported if removed from hinges?" },
+      { id: "q2", label: "Are you using the correct gearbox/mechanism replacement?" },
+      { id: "q3", label: "Are fingers kept clear of moving parts?" },
+      { id: "q4", label: "Is the door alignment checked after repair?" },
+      { id: "q5", label: "Are old parts recycled where possible?" }
+    ]
+  },
+  "Master key system install": {
+    desc: "Installing a master key system involves changing multiple cylinders. Key management and security are paramount. Documentation must be accurate.",
+    hazards: ["security_risk", "manual_handling", "lone_working"],
+    questions: [
+      { id: "q1", label: "Is the key chart verified against the door schedule?" },
+      { id: "q2", label: "Are keys handed over to the authorised person only?" },
+      { id: "q3", label: "Are old cylinders removed from site securely?" },
+      { id: "q4", label: "Is the system tested with master and sub-keys?" },
+      { id: "q5", label: "Is the client trained on key ordering procedures?" }
+    ]
+  },
+  "Boarding up (security)": {
+    desc: "Boarding up secures a property after damage or eviction. It involves cutting timber and fixing it over openings. Power tools and working at height may be required.",
+    hazards: ["hand_tools", "work_at_height", "manual_handling", "security_risk"],
+    questions: [
+      { id: "q1", label: "Is the property confirmed vacant before boarding?" },
+      { id: "q2", label: "Are you using security screws or bolts?" },
+      { id: "q3", label: "Is ventilation provided if required (e.g. letterbox seal)?" },
+      { id: "q4", label: "Are utilities isolated if the property is long-term vacant?" },
+      { id: "q5", label: "Is a warning notice displayed on the boarding?" }
+    ]
+  }
+};
+
+const SECURITY_CLUSTERS: Record<string, JobCluster> = {
+  "Manned guarding": {
+    desc: "Manned guarding involves static or patrolling guards to protect property and people. Risks include confrontation, violence, and lone working. Licensing (SIA) is mandatory.",
+    hazards: ["violence_aggression", "lone_working", "slips_trips", "environmental_weather"],
+    questions: [
+      { id: "q1", label: "Do you hold a valid SIA license for manned guarding?" },
+      { id: "q2", label: "Is there a check-call system in place for lone working?" },
+      { id: "q3", label: "Are assignment instructions clear and up to date?" },
+      { id: "q4", label: "Do you have means of communication (radio/phone) at all times?" },
+      { id: "q5", label: "Are you aware of the emergency procedures for the site?" }
+    ]
+  },
+  "Mobile patrol": {
+    desc: "Mobile patrol involves visiting multiple sites in a vehicle to check security. Driving risks and lone working are significant. Key holding responsibilities add to the risk.",
+    hazards: ["driving_road_safety", "lone_working", "violence_aggression", "slips_trips"],
+    questions: [
+      { id: "q1", label: "Is the patrol vehicle roadworthy and equipped with a tracker?" },
+      { id: "q2", label: "Are keys held securely and not identifiable to the address?" },
+      { id: "q3", label: "Do you assess the perimeter before exiting the vehicle?" },
+      { id: "q4", label: "Is a torch and personal alarm available for night patrols?" },
+      { id: "q5", label: "Are patrol logs completed accurately?" }
+    ]
+  },
+  "Event security": {
+    desc: "Event security involves crowd control, access control, and emergency response at public gatherings. High volumes of people create crushing and conflict risks. Communication is key.",
+    hazards: ["crowd_safety", "violence_aggression", "noise_vibration", "environmental_weather"],
+    questions: [
+      { id: "q1", label: "Are you briefed on the event layout and emergency exits?" },
+      { id: "q2", label: "Is hearing protection worn near loud music/speakers?" },
+      { id: "q3", label: "Are you trained in conflict management and physical intervention?" },
+      { id: "q4", label: "Is radio communication tested before the event starts?" },
+      { id: "q5", label: "Are you wearing high-visibility clothing if required?" }
+    ]
+  },
+  "CCTV monitoring": {
+    desc: "CCTV monitoring involves observing camera feeds to detect crime or safety issues. It is sedentary work, often in low light. Eye strain and fatigue are risks. Data protection laws apply.",
+    hazards: ["ergonomics", "visual_fatigue", "lone_working"],
+    questions: [
+      { id: "q1", label: "Is the workstation set up for long duration monitoring?" },
+      { id: "q2", label: "Are regular breaks taken to rest eyes?" },
+      { id: "q3", label: "Is the control room secure from unauthorised access?" },
+      { id: "q4", label: "Are you trained in data protection (GDPR) for CCTV?" },
+      { id: "q5", label: "Is the recording equipment functioning correctly?" }
+    ]
+  },
+  "Concierge duties": {
+    desc: "Concierge duties involve front-of-house security and reception tasks. Risks include public interaction, lone working out of hours, and handling parcels/keys.",
+    hazards: ["public_interface", "lone_working", "manual_handling", "fire_safety"],
+    questions: [
+      { id: "q1", label: "Is the reception desk designed to prevent aggression?" },
+      { id: "q2", label: "Are you trained in fire evacuation procedures for the building?" },
+      { id: "q3", label: "Is there a panic button or duress code available?" },
+      { id: "q4", label: "Are parcels handled safely to avoid back injury?" },
+      { id: "q5", label: "Is a visitor log maintained accurately?" }
+    ]
+  },
+  "Key holding response": {
+    desc: "Key holding response involves attending alarm activations. This is often at night and alone. The risk of encountering intruders is real. Police attendance may be required.",
+    hazards: ["violence_aggression", "lone_working", "driving_road_safety", "security_risk"],
+    questions: [
+      { id: "q1", label: "Do you wait for backup/police if signs of entry are found?" },
+      { id: "q2", label: "Is the vehicle parked to allow a quick exit?" },
+      { id: "q3", label: "Are you carrying a torch and personal safety device?" },
+      { id: "q4", label: "Is the control room updated on your arrival and departure?" },
+      { id: "q5", label: "Are keys kept on your person at all times?" }
+    ]
+  },
+  "Retail security": {
+    desc: "Retail security involves preventing theft and protecting staff in shops. Confrontation with shoplifters is a primary hazard. Standing for long periods is common.",
+    hazards: ["violence_aggression", "ergonomics", "public_interface", "slips_trips"],
+    questions: [
+      { id: "q1", label: "Are you positioned to observe high-risk areas?" },
+      { id: "q2", label: "Do you follow the store's policy on apprehension?" },
+      { id: "q3", label: "Are you wearing comfortable footwear for standing?" },
+      { id: "q4", label: "Is radio communication with store management effective?" },
+      { id: "q5", label: "Are you aware of the store's fire evacuation routes?" }
+    ]
+  }
+};
+
+const FIRE_SAFETY_CLUSTERS: Record<string, JobCluster> = {
+  "Fire extinguisher service": {
+    desc: "Fire extinguisher service involves inspecting and maintaining portable fire fighting equipment. Handling pressurised vessels and heavy units are key risks. Discharge tests may be required.",
+    hazards: ["manual_handling", "pressure_systems", "slips_trips"],
+    questions: [
+      { id: "q1", label: "Are you competent (BAFE qualified) to service fire extinguishers?" },
+      { id: "q2", label: "Are discharge tests conducted in a safe area?" },
+      { id: "q3", label: "Are pins and seals replaced correctly after service?" },
+      { id: "q4", label: "Is the weight of the extinguisher checked against the manufacturer's data?" },
+      { id: "q5", label: "Are service labels updated on each unit?" }
+    ]
+  },
+  "Sprinkler system maintenance": {
+    desc: "Sprinkler system maintenance involves checking pumps, valves, and heads. Work may be at height or in plant rooms. Water damage risks if not isolated correctly. Flow tests involve high pressure water.",
+    hazards: ["work_at_height", "water_ingress", "pressure_systems", "manual_handling"],
+    questions: [
+      { id: "q1", label: "Has the system been isolated from the monitoring station before testing?" },
+      { id: "q2", label: "Are flow tests directed to a suitable drain or tank?" },
+      { id: "q3", label: "Is access to high level sprinkler heads safe (MEWP/scaffold)?" },
+      { id: "q4", label: "Are pumps and valves locked off if working on the pipework?" },
+      { id: "q5", label: "Is the system fully reinstated and live on completion?" }
+    ],
+    complexity: "high",
+    extraSections: ["fire_safety", "working_at_height", "water_damage_control"]
+  },
+  "Fire alarm installation": {
+    desc: "Installing fire alarms involves running cables and fixing detectors/panels. Work at height is common. Dust from drilling and electrical connections are hazards. System testing can be noisy.",
+    hazards: ["work_at_height", "electrical", "dust_fumes", "noise_vibration"],
+    questions: [
+      { id: "q1", label: "Is the power supply isolated before working on the panel?" },
+      { id: "q2", label: "Are detectors covered to prevent dust contamination during install?" },
+      { id: "q3", label: "Is hearing protection worn during sounder testing?" },
+      { id: "q4", label: "Are cables clipped securely to prevent sagging?" },
+      { id: "q5", label: "Is the system commissioned by a competent engineer?" }
+    ]
+  },
+  "Emergency light install": {
+    desc: "Emergency lighting installation ensures safe exit during power failure. Work involves ladder work and electrical connections. Battery packs can be heavy.",
+    hazards: ["work_at_height", "electrical", "manual_handling"],
+    questions: [
+      { id: "q1", label: "Is the circuit isolated and locked off?" },
+      { id: "q2", label: "Are batteries connected correctly (polarity)?" },
+      { id: "q3", label: "Is the light fitting positioned to illuminate the escape route?" },
+      { id: "q4", label: "Is the charge indicator LED visible?" },
+      { id: "q5", label: "Is a duration test scheduled after charging?" }
+    ]
+  },
+  "Fire door inspection": {
+    desc: "Fire door inspection involves checking seals, hinges, and closers. It is non-intrusive but requires access to all areas. Finger traps are a risk when testing closers.",
+    hazards: ["pinch_points", "manual_handling", "lone_working"],
+    questions: [
+      { id: "q1", label: "Are intumescent strips present and undamaged?" },
+      { id: "q2", label: "Does the door close fully into the frame from any angle?" },
+      { id: "q3", label: "Are gaps between door and frame within tolerance (3-4mm)?" },
+      { id: "q4", label: "Is the glazing fire-rated and stamped?" },
+      { id: "q5", label: "Are hinges certified and free from oil leaks?" }
+    ]
+  },
+  "Dry riser testing": {
+    desc: "Dry riser testing involves pumping water into the system to check for leaks. High pressure water is used. Burst hoses or fittings can cause injury. Water damage is a risk.",
+    hazards: ["high_pressure_water", "water_ingress", "manual_handling"],
+    questions: [
+      { id: "q1", label: "Is the system visually inspected before pressurising?" },
+      { id: "q2", label: "Are warning signs displayed during the pressure test?" },
+      { id: "q3", label: "Is the pump operator in communication with the top landing?" },
+      { id: "q4", label: "Are landing valves closed and caps secured?" },
+      { id: "q5", label: "Is the system drained fully after testing?" }
+    ],
+    complexity: "high",
+    extraSections: ["pressure_systems", "water_damage_control", "public_protection"]
+  },
+  "Fire risk assessment survey": {
+    desc: "A fire risk assessment involves surveying a building to identify fire hazards. It is observational but may involve accessing lofts or plant rooms. Lone working and asbestos are potential risks.",
+    hazards: ["lone_working", "asbestos", "work_at_height", "confined_space"],
+    questions: [
+      { id: "q1", label: "Have you reviewed the asbestos register before the survey?" },
+      { id: "q2", label: "Is access to roof spaces or basements safe?" },
+      { id: "q3", label: "Are you carrying keys/access cards for all areas?" },
+      { id: "q4", label: "Is a torch available for dark areas?" },
+      { id: "q5", label: "Are findings recorded accurately with photos?" }
+    ]
+  }
+};
+
+const IT_SUPPORT_CLUSTERS: Record<string, JobCluster> = {
+  "Desktop/workstation setup": {
+    desc: "Desktop setup involves installing computers, monitors, and peripherals. Manual handling of equipment and cable management are the main tasks. Ergonomics (DSE) is important.",
+    hazards: ["manual_handling", "electrical", "slips_trips", "ergonomics"],
+    questions: [
+      { id: "q1", label: "Are cables routed to avoid trip hazards under desks?" },
+      { id: "q2", label: "Is equipment checked for damage before connection?" },
+      { id: "q3", label: "Are heavy monitors or PCs lifted safely?" },
+      { id: "q4", label: "Is the workstation set up to DSE standards?" },
+      { id: "q5", label: "Are packaging materials cleared away promptly?" }
+    ]
+  },
+  "Server room maintenance": {
+    desc: "Server room maintenance involves working on rack-mounted equipment. Risks include noise, cold temperatures, and electrical hazards. Fire suppression systems (gas) may be present.",
+    hazards: ["electrical", "manual_handling", "noise_vibration", "fire_suppression_gas"],
+    questions: [
+      { id: "q1", label: "Are you authorised to enter the server room?" },
+      { id: "q2", label: "Is the gas suppression system isolated if required?" },
+      { id: "q3", label: "Are earthing straps used when handling components?" },
+      { id: "q4", label: "Is hearing protection worn if server noise is high?" },
+      { id: "q5", label: "Are floor tiles replaced immediately after under-floor work?" }
+    ],
+    complexity: "high",
+    extraSections: ["electrical_safety", "fire_suppression", "manual_handling"]
+  },
+  "Network cabling (Cat6)": {
+    desc: "Installing network cabling involves pulling cables through ceilings and floors. Working at height and in confined spaces (ceiling voids) is common. Dust and fibreglass irritation are risks.",
+    hazards: ["work_at_height", "confined_space", "dust_fumes", "manual_handling"],
+    questions: [
+      { id: "q1", label: "Are ceiling tiles removed carefully to avoid damage?" },
+      { id: "q2", label: "Is the route checked for electrical cables?" },
+      { id: "q3", label: "Are rods used to pull cables safely?" },
+      { id: "q4", label: "Is dust protection used for furniture below?" },
+      { id: "q5", label: "Are cables tested and labelled correctly?" }
+    ]
+  },
+  "Wi-Fi access point install": {
+    desc: "Installing Wi-Fi APs usually involves working at height on ladders or MEWPs. Drilling into ceilings creates dust. PoE (Power over Ethernet) is low voltage but safety is still required.",
+    hazards: ["work_at_height", "dust_fumes", "hand_tools"],
+    questions: [
+      { id: "q1", label: "Is the ladder suitable for the ceiling height?" },
+      { id: "q2", label: "Are you checking for hidden services before drilling?" },
+      { id: "q3", label: "Is the AP secured to the bracket correctly?" },
+      { id: "q4", label: "Is the network cable tested before final fixing?" },
+      { id: "q5", label: "Are you working safely around building occupants?" }
+    ]
+  },
+  "Server rack installation": {
+    desc: "Installing server racks involves moving heavy steel frames and bolting them to the floor. Manual handling and crushing risks are high. Power distribution units (PDUs) involve high current electricity.",
+    hazards: ["manual_handling", "crushing", "electrical", "hand_tools"],
+    questions: [
+      { id: "q1", label: "Is the floor capable of supporting the loaded rack?" },
+      { id: "q2", label: "Are racks bolted together or to the floor for stability?" },
+      { id: "q3", label: "Is the PDU connected by a qualified electrician?" },
+      { id: "q4", label: "Are blanking panels fitted to manage airflow?" },
+      { id: "q5", label: "Is the rack earthed correctly?" }
+    ]
+  },
+  "AV equipment setup": {
+    desc: "Setting up AV equipment involves mounting screens and projectors. Heavy lifting and working at height are main risks. Trailing cables must be managed.",
+    hazards: ["manual_handling", "work_at_height", "slips_trips", "electrical"],
+    questions: [
+      { id: "q1", label: "Is the wall/ceiling mount rated for the screen weight?" },
+      { id: "q2", label: "Are two people used to lift large screens?" },
+      { id: "q3", label: "Are cables taped down or covered with matting?" },
+      { id: "q4", label: "Is the projector secured with a safety bond?" },
+      { id: "q5", label: "Are speakers mounted securely to prevent falling?" }
+    ]
+  },
+  "Printer maintenance": {
+    desc: "Printer maintenance involves changing toner, drums, and clearing jams. Toner dust can be an irritant. Hot fuser units cause burns. Moving large MFDs requires care.",
+    hazards: ["chemical_coshh", "burns", "manual_handling"],
+    questions: [
+      { id: "q1", label: "Is the printer switched off and cooled before internal work?" },
+      { id: "q2", label: "Are gloves worn when handling toner cartridges?" },
+      { id: "q3", label: "Is a vacuum with a HEPA filter used for toner spills?" },
+      { id: "q4", label: "Are waste toner bottles sealed before disposal?" },
+      { id: "q5", label: "Is the paper path clear of obstructions?" }
+    ]
+  }
+};
+
+// ==========================================
+//  BATCH 4: ENGINEERING & MAINTENANCE
+// ==========================================
+
+const APPLIANCE_REPAIR_CLUSTERS: Record<string, JobCluster> = {
+  "Washing machine/dishwasher repair": {
+    desc: "Repairing domestic appliances involves electrical testing and mechanical repairs. Moving heavy units and water leaks are common risks.",
+    hazards: ["electrical", "manual_handling", "water_ingress", "slips_trips"],
+    questions: [
+      { id: "q1", label: "Is the appliance isolated from the mains before opening?" },
+      { id: "q2", label: "Is the floor protected from water leaks?" },
+      { id: "q3", label: "Are you trained to repair this specific brand/model?" },
+      { id: "q4", label: "Is the unit heavy? Do you need assistance to move it?" },
+      { id: "q5", label: "Has the appliance been PAT tested after repair?" }
+    ]
+  },
+  "Gas cooker repair": {
+    desc: "Gas cooker repair involves working on gas supply lines and burners. Gas Safe registration is mandatory. Leak detection and ventilation are critical.",
+    hazards: ["gas_safety", "fire_explosion", "manual_handling"],
+    questions: [
+      { id: "q1", label: "Are you Gas Safe registered for this appliance type?" },
+      { id: "q2", label: "Has the gas supply been isolated and tested for tightness?" },
+      { id: "q3", label: "Is there adequate ventilation in the room?" },
+      { id: "q4", label: "Have you checked for gas leaks after the repair?" },
+      { id: "q5", label: "Is the cooker stability bracket in place?" }
+    ],
+    complexity: "high",
+    extraSections: ["gas_safety", "fire_safety", "ventilation_requirements"]
+  },
+  "Electric oven repair": {
+    desc: "Electric oven repair involves working with high voltage circuits and heating elements. Burn risks from hot components are significant. Isolation is key.",
+    hazards: ["electrical", "burns", "manual_handling"],
+    questions: [
+      { id: "q1", label: "Is the oven isolated at the consumer unit?" },
+      { id: "q2", label: "Has the oven been allowed to cool fully?" },
+      { id: "q3", label: "Are you using insulated tools?" },
+      { id: "q4", label: "Is the element tested for continuity before replacement?" },
+      { id: "q5", label: "Are all connections tight and secure?" }
+    ]
+  },
+  "Tumble dryer repair": {
+    desc: "Tumble dryer repair often involves clearing lint buildup which is a fire hazard. Moving the unit can be difficult in tight spaces. Capacitor discharge is a risk.",
+    hazards: ["fire_explosion", "electrical", "manual_handling", "dust_fumes"],
+    questions: [
+      { id: "q1", label: "Is the lint filter and ducting cleared of debris?" },
+      { id: "q2", label: "Is the appliance isolated from power?" },
+      { id: "q3", label: "Are capacitors discharged safely?" },
+      { id: "q4", label: "Is the belt tension correct?" },
+      { id: "q5", label: "Is the vent hose free from kinks?" }
+    ]
+  },
+  "Microwave repair": {
+    desc: "Microwave repair poses high voltage risks even when unplugged due to the capacitor. Radiation leakage is a specific hazard. Specialist training is required.",
+    hazards: ["electrical", "radiation_non_ionising", "burns"],
+    questions: [
+      { id: "q1", label: "Is the high voltage capacitor discharged?" },
+      { id: "q2", label: "Is a microwave leakage detector used after repair?" },
+      { id: "q3", label: "Are door interlocks tested for correct operation?" },
+      { id: "q4", label: "Is the casing secure to prevent radiation leak?" },
+      { id: "q5", label: "Are you competent to work on microwave ovens?" }
+    ]
+  },
+  "Coffee machine repair": {
+    desc: "Coffee machine repair involves high pressure steam and hot water. Scalding is a major risk. Electrical safety in a wet environment is critical.",
+    hazards: ["burns", "pressure_systems", "electrical", "slips_trips"],
+    questions: [
+      { id: "q1", label: "Is the boiler pressure released before opening?" },
+      { id: "q2", label: "Is the machine isolated from power and water?" },
+      { id: "q3", label: "Are hot surfaces allowed to cool?" },
+      { id: "q4", label: "Is the pressure relief valve functional?" },
+      { id: "q5", label: "Are leaks checked for under pressure?" }
+    ]
+  },
+  "Vacuum cleaner repair": {
+    desc: "Vacuum cleaner repair involves motor and fan maintenance. Dust exposure is common. Moving parts can cause entanglement.",
+    hazards: ["dust_fumes", "electrical", "entanglement", "noise_vibration"],
+    questions: [
+      { id: "q1", label: "Is the vacuum emptied/bag removed before work?" },
+      { id: "q2", label: "Is the motor brush carbon length checked?" },
+      { id: "q3", label: "Are filters replaced or cleaned?" },
+      { id: "q4", label: "Is the cord checked for damage?" },
+      { id: "q5", label: "Is the appliance PAT tested after reassembly?" }
+    ]
+  }
+};
+
+const CATERING_EQUIPMENT_REPAIR_CLUSTERS: Record<string, JobCluster> = {
+  "Commercial oven repair": {
+    desc: "Commercial ovens are high-power electrical or gas units. Repairs often involve hot surfaces, heavy components, and confined kitchen spaces.",
+    hazards: ["electrical", "gas_safety", "burns", "slips_trips"],
+    questions: [
+      { id: "q1", label: "Has the oven been allowed to cool before starting work?" },
+      { id: "q2", label: "Is the kitchen staff aware of the maintenance work?" },
+      { id: "q3", label: "Are electrical isolations locked off?" },
+      { id: "q4", label: "Is PPE (heat resistant gloves) available?" },
+      { id: "q5", label: "Have you checked the door seals and hinges?" }
+    ],
+    complexity: "high",
+    extraSections: ["kitchen_safety", "electrical_safety", "gas_safety"]
+  },
+  "Extraction canopy cleaning": {
+    desc: "Cleaning commercial kitchen extraction systems involves working at height and removing grease buildup. Fire risk is high if grease is not removed effectively. Chemicals are often used.",
+    hazards: ["work_at_height", "chemical_coshh", "fire_explosion", "slips_trips"],
+    questions: [
+      { id: "q1", label: "Is the kitchen closed during the extraction cleaning?" },
+      { id: "q2", label: "Are cooking appliances covered to protect them from debris?" },
+      { id: "q3", label: "Is the access equipment suitable for reaching the canopy and ductwork?" },
+      { id: "q4", label: "Are you using food-safe chemicals for cleaning?" },
+      { id: "q5", label: "Is a certificate of cleanliness issued on completion?" }
+    ],
+    complexity: "high",
+    extraSections: ["fire_safety", "working_at_height", "chemical_safety"]
+  },
+  "Deep fat fryer repair": {
+    desc: "Repairing deep fat fryers involves hot oil and electrical/gas components. Slip hazards from oil spills are high. Fire risk is significant.",
+    hazards: ["burns", "slips_trips", "fire_explosion", "electrical"],
+    questions: [
+      { id: "q1", label: "Is the oil drained or cooled before work?" },
+      { id: "q2", label: "Is the floor protected from oil spills?" },
+      { id: "q3", label: "Is the high-limit thermostat tested?" },
+      { id: "q4", label: "Are gas connections leak tested?" },
+      { id: "q5", label: "Is the fire suppression system isolated if needed?" }
+    ]
+  },
+  "Commercial dishwasher repair": {
+    desc: "Commercial dishwashers use hot water and chemicals. Electrical components are often near water. Confined access under counters is common.",
+    hazards: ["electrical", "chemical_coshh", "manual_handling", "slips_trips"],
+    questions: [
+      { id: "q1", label: "Is the machine isolated from power and water?" },
+      { id: "q2", label: "Are dosing chemicals handled safely?" },
+      { id: "q3", label: "Is the wash tank drained?" },
+      { id: "q4", label: "Are leaks repaired and tested?" },
+      { id: "q5", label: "Is the machine level and stable?" }
+    ]
+  },
+  "Bain marie repair": {
+    desc: "Bain maries use hot water or dry heat to keep food warm. Scalding from steam and water is a risk. Electrical elements can fail.",
+    hazards: ["burns", "electrical", "slips_trips"],
+    questions: [
+      { id: "q1", label: "Is the water drained safely?" },
+      { id: "q2", label: "Is the unit isolated from the mains?" },
+      { id: "q3", label: "Are elements checked for scale build-up?" },
+      { id: "q4", label: "Is the thermostat calibrating correctly?" },
+      { id: "q5", label: "Are warning signs used for hot surfaces?" }
+    ]
+  },
+  "Pizza oven maintenance": {
+    desc: "Pizza ovens operate at very high temperatures. Refractory bricks may need replacing. Gas burners or wood firing systems require checking.",
+    hazards: ["burns", "manual_handling", "dust_fumes", "gas_safety"],
+    questions: [
+      { id: "q1", label: "Has the oven cooled down sufficiently (may take hours)?" },
+      { id: "q2", label: "Is the flue clear of obstruction/soot?" },
+      { id: "q3", label: "Are bricks handled carefully to avoid dropping?" },
+      { id: "q4", label: "Is the gas burner flame picture correct?" },
+      { id: "q5", label: "Is ash disposed of in a metal container?" }
+    ]
+  },
+  "Food mixer repair": {
+    desc: "Food mixers have powerful moving parts and sharp blades. Isolation is critical to prevent amputation. Heavy lifting of bowls/motors is a risk.",
+    hazards: ["entanglement", "sharp_objects", "manual_handling", "electrical"],
+    questions: [
+      { id: "q1", label: "Is the mixer isolated and locked off?" },
+      { id: "q2", label: "Are guards and interlocks tested for function?" },
+      { id: "q3", label: "Are blades handled with cut-resistant gloves?" },
+      { id: "q4", label: "Is the bowl lift mechanism working smoothly?" },
+      { id: "q5", label: "Is the machine stable on the floor/bench?" }
+    ]
+  }
+};
+
+const REFRIGERATION_ENGINEER_CLUSTERS: Record<string, JobCluster> = {
+  "Commercial fridge/freezer repair": {
+    desc: "Repairing commercial refrigeration involves working with refrigerant gases (F-Gas). Leaks can cause asphyxiation or burns. Electrical hazards are also present.",
+    hazards: ["refrigerant_gas", "electrical", "cold_burns", "manual_handling"],
+    questions: [
+      { id: "q1", label: "Do you hold a valid F-Gas certificate?" },
+      { id: "q2", label: "Is the area ventilated in case of refrigerant leak?" },
+      { id: "q3", label: "Are you wearing gloves to prevent cold burns?" },
+      { id: "q4", label: "Is the unit isolated electrically?" },
+      { id: "q5", label: "Have you leak tested the system after repair?" }
+    ]
+  },
+  "Cold room maintenance": {
+    desc: "Cold room maintenance involves working inside temperature-controlled environments. Risks include hypothermia, entrapment, and lone working. Lone worker alarms are essential.",
+    hazards: ["cold_stress", "lone_working", "entrapment", "slips_trips"],
+    questions: [
+      { id: "q1", label: "Are you wearing suitable thermal clothing for cold room work?" },
+      { id: "q2", label: "Is there an emergency release on the door from the inside?" },
+      { id: "q3", label: "Is a lone worker alarm or buddy system in place?" },
+      { id: "q4", label: "Is the floor clear of ice build-up?" },
+      { id: "q5", label: "Have you checked the panic alarm operation?" }
+    ],
+    complexity: "high",
+    extraSections: ["cold_store_safety", "lone_working", "emergency_procedures"]
+  },
+  "Air conditioning service": {
+    desc: "Air conditioning service involves cleaning filters, checking gas pressures, and electrical testing. Working at height on external units is common. Legionella risk in some systems.",
+    hazards: ["work_at_height", "refrigerant_gas", "biological", "electrical"],
+    questions: [
+      { id: "q1", label: "Is access to the external unit safe (ladder/roof)?" },
+      { id: "q2", label: "Are filters cleaned with suitable biocides?" },
+      { id: "q3", label: "Is the condensate drain clear?" },
+      { id: "q4", label: "Are gas pressures within manufacturer limits?" },
+      { id: "q5", label: "Is the unit isolated before opening panels?" }
+    ]
+  },
+  "Ice machine repair": {
+    desc: "Ice machines have moving parts, water, and electricity. Hygiene is paramount. Scale remover chemicals are acidic.",
+    hazards: ["chemical_coshh", "electrical", "biological", "slips_trips"],
+    questions: [
+      { id: "q1", label: "Is the machine sanitised after repair?" },
+      { id: "q2", label: "Are ice scoops stored hygienically?" },
+      { id: "q3", label: "Is the water supply isolated?" },
+      { id: "q4", label: "Are scale remover chemicals handled with gloves/goggles?" },
+      { id: "q5", label: "Is the harvest cycle working correctly?" }
+    ]
+  },
+  "Cellar cooling system": {
+    desc: "Cellar cooling involves working in confined, often damp spaces. CO2 leaks from beverage systems are a major risk in cellars. Lone working is common.",
+    hazards: ["confined_space", "hazardous_substances", "lone_working", "slips_trips"],
+    questions: [
+      { id: "q1", label: "Is a CO2 monitor worn/installed in the cellar?" },
+      { id: "q2", label: "Is the cellar lighting adequate?" },
+      { id: "q3", label: "Is the evaporator fan guard in place?" },
+      { id: "q4", label: "Are you checking for beer line leaks?" },
+      { id: "q5", label: "Is the temperature set correctly for the stock?" }
+    ]
+  },
+  "Display cabinet maintenance": {
+    desc: "Display cabinets in shops require cleaning of condensers and fans. Public presence is a hazard. Glass panels can break.",
+    hazards: ["public_interface", "glass_sharps", "electrical", "manual_handling"],
+    questions: [
+      { id: "q1", label: "Is the cabinet emptied of stock if needed?" },
+      { id: "q2", label: "Are barriers used to keep shoppers away?" },
+      { id: "q3", label: "Is the condenser cleaned of dust?" },
+      { id: "q4", label: "Are night blinds working correctly?" },
+      { id: "q5", label: "Is the lighting working and safe?" }
+    ]
+  },
+  "Heat pump maintenance": {
+    desc: "Heat pump maintenance involves checking glycol levels, pressures, and electrical connections. Systems are often outdoors. High pressure refrigerant is used.",
+    hazards: ["refrigerant_gas", "electrical", "manual_handling", "environmental_weather"],
+    questions: [
+      { id: "q1", label: "Is the glycol concentration checked for frost protection?" },
+      { id: "q2", label: "Are external pipes insulated?" },
+      { id: "q3", label: "Is the flow rate correct?" },
+      { id: "q4", label: "Are you F-Gas qualified for the refrigerant type?" },
+      { id: "q5", label: "Is the controller set for the correct heating curve?" }
+    ]
+  }
+};
+
+const LIFT_ENGINEER_CLUSTERS: Record<string, JobCluster> = {
+  "Passenger lift servicing": {
+    desc: "Passenger lift servicing involves working in the shaft (pit or car top) and motor room. Risks include crushing, falls from height, and moving machinery. Strict isolation procedures are required.",
+    hazards: ["work_at_height", "crushing", "moving_machinery", "electrical"],
+    questions: [
+      { id: "q1", label: "Are barriers placed on landings to prevent public access?" },
+      { id: "q2", label: "Is the lift control switched to inspection mode?" },
+      { id: "q3", label: "Is the pit stop switch tested and working?" },
+      { id: "q4", label: "Are you wearing a harness if there is a fall risk in the shaft?" },
+      { id: "q5", label: "Is the motor room locked when you are in the shaft?" }
+    ],
+    complexity: "high",
+    extraSections: ["lift_safety", "working_at_height", "isolation_procedures"]
+  },
+  "Lift entrapment release": {
+    desc: "Releasing trapped passengers requires calm communication and manual lowering/winding of the lift. Risks include sudden movement of the car. Only trained personnel should attempt this.",
+    hazards: ["moving_machinery", "work_at_height", "public_interface", "manual_handling"],
+    questions: [
+      { id: "q1", label: "Have you communicated with the trapped passengers?" },
+      { id: "q2", label: "Is the main power supply isolated?" },
+      { id: "q3", label: "Are you using the correct release key/method?" },
+      { id: "q4", label: "Is the car levelled at a floor before opening doors?" },
+      { id: "q5", label: "Is the lift taken out of service after release?" }
+    ],
+    complexity: "high",
+    extraSections: ["lift_safety", "emergency_procedures", "public_protection"]
+  },
+  "Goods lift repair": {
+    desc: "Goods lifts are often heavy duty and may carry vehicles or pallets. Crushing risks are high. Hydraulic systems may be under high pressure.",
+    hazards: ["crushing", "pressure_systems", "manual_handling", "oil_spill"],
+    questions: [
+      { id: "q1", label: "Is the lift propped or secured against drift?" },
+      { id: "q2", label: "Are hydraulic hoses checked for leaks?" },
+      { id: "q3", label: "Is the safe working load (SWL) clearly marked?" },
+      { id: "q4", label: "Are gates and interlocks functioning?" },
+      { id: "q5", label: "Is the floor area clear of oil/grease?" }
+    ]
+  },
+  "Escalator service": {
+    desc: "Escalator service involves removing steps and working in the truss. Moving chains and gears present entrapment risks. Public access must be prevented.",
+    hazards: ["entanglement", "moving_machinery", "work_at_height", "public_interface"],
+    questions: [
+      { id: "q1", label: "Are barriers erected at both ends of the escalator?" },
+      { id: "q2", label: "Is the start key removed/isolated?" },
+      { id: "q3", label: "Are steps removed safely to access the truss?" },
+      { id: "q4", label: "Is the handrail drive checked for tension?" },
+      { id: "q5", label: "Are comb plates checked for damage?" }
+    ],
+    complexity: "high",
+    extraSections: ["machinery_safety", "public_protection", "isolation_procedures"]
+  },
+  "Stairlift installation": {
+    desc: "Stairlift installation involves fixing rails to stairs in domestic properties. Working on stairs is a fall risk. Electrical connection is usually via a spur.",
+    hazards: ["work_at_height", "manual_handling", "electrical", "public_interface"],
+    questions: [
+      { id: "q1", label: "Is the staircase clear of obstructions?" },
+      { id: "q2", label: "Are rail sections joined securely?" },
+      { id: "q3", label: "Is the power supply fused correctly?" },
+      { id: "q4", label: "Is the user trained on controls and safety sensors?" },
+      { id: "q5", label: "Is the seat belt functioning?" }
+    ]
+  },
+  "Platform lift maintenance": {
+    desc: "Platform lifts provide access for wheelchair users. Screw and nut or hydraulic drives are common. Safety edges and emergency lowering are key checks.",
+    hazards: ["crushing", "electrical", "mechanical_failure", "public_interface"],
+    questions: [
+      { id: "q1", label: "Are safety edges under the platform tested?" },
+      { id: "q2", label: "Is the emergency lowering device working?" },
+      { id: "q3", label: "Are door interlocks checked?" },
+      { id: "q4", label: "Is the drive nut/screw lubricated?" },
+      { id: "q5", label: "Is the alarm/intercom working?" }
+    ]
+  },
+  "Dumbwaiter repair": {
+    desc: "Dumbwaiters are small service lifts. Access is often difficult. Risks include reaching into the shaft and falling objects. Isolation is essential.",
+    hazards: ["crushing", "falling_objects", "manual_handling"],
+    questions: [
+      { id: "q1", label: "Is the dumbwaiter isolated before working?" },
+      { id: "q2", label: "Are you working from a safe position (not leaning in)?" },
+      { id: "q3", label: "Are ropes/chains checked for wear?" },
+      { id: "q4", label: "Are shelf supports secure?" },
+      { id: "q5", label: "Is the motor brake tested?" }
+    ]
+  },
+  "Lift shaft cleaning": {
+    desc: "Cleaning lift shafts involves removing rubbish and oil from the pit. Confined space and biological hazards (pests/needles) may exist. Car top cleaning requires fall protection.",
+    hazards: ["confined_space", "biological", "work_at_height", "fire_risk"],
+    questions: [
+      { id: "q1", label: "Is the pit stop switch engaged?" },
+      { id: "q2", label: "Are you wearing gloves for rubbish removal?" },
+      { id: "q3", label: "Is the shaft lighting adequate?" },
+      { id: "q4", label: "Are you checking for sharps/needles?" },
+      { id: "q5", label: "Is oily waste disposed of as hazardous waste?" }
+    ]
+  }
+};
+
+const GATE_BARRIER_ENGINEER_CLUSTERS: Record<string, JobCluster> = {
+  "Automated gate servicing": {
+    desc: "Automated gate servicing involves checking safety edges, motors, and sensors. Crushing and impact risks are significant. Force testing is required to ensure compliance.",
+    hazards: ["crushing", "impact", "electrical", "moving_machinery"],
+    questions: [
+      { id: "q1", label: "Is the gate isolated before working on the mechanism?" },
+      { id: "q2", label: "Are safety edges and photocells tested for correct operation?" },
+      { id: "q3", label: "Has a force test been carried out and recorded?" },
+      { id: "q4", label: "Are warning signs displayed on the gate?" },
+      { id: "q5", label: "Is the manual release mechanism functioning?" }
+    ],
+    complexity: "high",
+    extraSections: ["machinery_safety", "public_protection", "electrical_safety"]
+  },
+  "Traffic barrier repair": {
+    desc: "Traffic barriers control vehicle access. The boom arm can move suddenly. Impact risks to vehicles and pedestrians. Electrical and hydraulic systems are used.",
+    hazards: ["impact", "moving_vehicles", "electrical", "hydraulic_pressure"],
+    questions: [
+      { id: "q1", label: "Is the barrier isolated/locked off?" },
+      { id: "q2", label: "Is the boom arm secured against movement?" },
+      { id: "q3", label: "Are induction loops tested?" },
+      { id: "q4", label: "Is the area coned off to traffic?" },
+      { id: "q5", label: "Is the skirt (if fitted) undamaged?" }
+    ]
+  },
+  "Turnstile maintenance": {
+    desc: "Turnstiles control pedestrian flow. Entrapment and crushing are risks. Mechanism maintenance involves springs and solenoids.",
+    hazards: ["crushing", "pinch_points", "electrical", "manual_handling"],
+    questions: [
+      { id: "q1", label: "Is the turnstile isolated?" },
+      { id: "q2", label: "Are rotor arms secure?" },
+      { id: "q3", label: "Is the anti-rollback mechanism working?" },
+      { id: "q4", label: "Are fire alarm integration tests carried out?" },
+      { id: "q5", label: "Is the floor surface non-slip?" }
+    ]
+  },
+  "Roller shutter door repair": {
+    desc: "Roller shutters are heavy and under spring tension. Falling doors can cause fatal injuries. Working at height is required for the barrel/motor.",
+    hazards: ["crushing", "stored_energy", "work_at_height", "manual_handling"],
+    questions: [
+      { id: "q1", label: "Is the door secured/propped before working on the motor?" },
+      { id: "q2", label: "Are springs adjusted safely using winding bars?" },
+      { id: "q3", label: "Is the safety brake (anti-drop) checked?" },
+      { id: "q4", label: "Are guides clear of obstruction?" },
+      { id: "q5", label: "Is the key switch/control working correctly?" }
+    ],
+    complexity: "high",
+    extraSections: ["machinery_safety", "working_at_height", "stored_energy"]
+  },
+  "Access control system check": {
+    desc: "Access control involves card readers, maglocks, and controllers. Low voltage work but often at height or in ceiling voids. Battery backups require checking.",
+    hazards: ["electrical", "work_at_height", "dust_fumes"],
+    questions: [
+      { id: "q1", label: "Are maglocks holding with sufficient force?" },
+      { id: "q2", label: "Are break-glass units tested?" },
+      { id: "q3", label: "Is the controller battery backup healthy?" },
+      { id: "q4", label: "Are cables supported correctly?" },
+      { id: "q5", label: "Is the database backed up?" }
+    ]
+  },
+  "Bollard maintenance": {
+    desc: "Rising bollards are hydraulic or pneumatic. High pressure systems and deep excavations (pits) are involved. Crushing risk to vehicles and feet.",
+    hazards: ["crushing", "pressure_systems", "confined_space", "moving_vehicles"],
+    questions: [
+      { id: "q1", label: "Is the bollard isolated and lowered/raised safely?" },
+      { id: "q2", label: "Is the pit pumped out if flooded?" },
+      { id: "q3", label: "Are hydraulic hoses inspected?" },
+      { id: "q4", label: "Are traffic lights functioning?" },
+      { id: "q5", label: "Is the safety loop detecting vehicles?" }
+    ]
+  },
+  "Loading bay door service": {
+    desc: "Loading bay doors (sectional overhead) are large and heavy. Cable breaks can cause doors to fall. Dock levellers are also part of the bay.",
+    hazards: ["crushing", "work_at_height", "stored_energy", "falling_objects"],
+    questions: [
+      { id: "q1", label: "Are cables inspected for fraying?" },
+      { id: "q2", label: "Is the door balanced correctly?" },
+      { id: "q3", label: "Are rollers and hinges lubricated?" },
+      { id: "q4", label: "Is the dock leveller lip operating correctly?" },
+      { id: "q5", label: "Are bumpers secure?" }
+    ]
+  }
+};
+
+const CUSTOM_FACILITIES_MAINTENANCE_CLUSTERS: Record<string, JobCluster> = {
+  "Custom maintenance task": {
+    desc: "Custom maintenance task allows for specific facility works not covered elsewhere. A thorough risk assessment is required for the specific activity.",
+    hazards: ["slips_trips", "manual_handling", "public_interface"],
+    questions: [
+      { id: "q1", label: "Have you identified the specific hazards of this custom task?" },
+      { id: "q2", label: "Are you competent to perform this custom maintenance work?" },
+      { id: "q3", label: "Is the work area segregated from building users?" },
+      { id: "q4", label: "Do you have the correct tools and PPE?" },
+      { id: "q5", label: "Is the client aware of the scope of works?" }
+    ]
+  },
+  "General building maintenance": {
+    desc: "General building maintenance covers fabric repairs, painting, and minor fixes. Work is varied. Asbestos awareness is important in older buildings.",
+    hazards: ["asbestos", "work_at_height", "manual_handling", "dust_fumes"],
+    questions: [
+      { id: "q1", label: "Have you checked the asbestos register?" },
+      { id: "q2", label: "Is access equipment suitable for the height?" },
+      { id: "q3", label: "Are occupants notified of the work?" },
+      { id: "q4", label: "Is dust control in place?" },
+      { id: "q5", label: "Are waste materials removed from site?" }
+    ]
+  },
+  "Plant room inspection": {
+    desc: "Plant room inspections involve checking boilers, pumps, and panels. Noise, heat, and lone working are risks. Leaks and trips are common hazards.",
+    hazards: ["noise_vibration", "heat_stress", "lone_working", "slips_trips"],
+    questions: [
+      { id: "q1", label: "Are you wearing hearing protection if required?" },
+      { id: "q2", label: "Is the lighting adequate for inspection?" },
+      { id: "q3", label: "Are escape routes clear?" },
+      { id: "q4", label: "Are you checking for water/oil leaks?" },
+      { id: "q5", label: "Is the log book updated?" }
+    ]
+  },
+  "Lighting system maintenance": {
+    desc: "Lighting maintenance involves changing lamps and cleaning fittings. Working at height is the main risk. Isolation of circuits is required.",
+    hazards: ["work_at_height", "electrical", "manual_handling", "glass_sharps"],
+    questions: [
+      { id: "q1", label: "Is the lighting circuit isolated?" },
+      { id: "q2", label: "Is the ladder/platform stable?" },
+      { id: "q3", label: "Are old lamps (fluorescent) disposed of as hazardous waste?" },
+      { id: "q4", label: "Are diffusers cleaned and secured?" },
+      { id: "q5", label: "Is the light output sufficient?" }
+    ]
+  },
+  "Water hygiene monitoring (Legionella)": {
+    desc: "Water hygiene monitoring involves temperature checks and sampling. Scalding from hot water is a risk. Aerosol generation should be minimised.",
+    hazards: ["biological", "burns", "slips_trips", "confined_space"],
+    questions: [
+      { id: "q1", label: "Are you trained in Legionella awareness?" },
+      { id: "q2", label: "Is the thermometer calibrated?" },
+      { id: "q3", label: "Are little-used outlets flushed safely?" },
+      { id: "q4", label: "Are shower heads descaled?" },
+      { id: "q5", label: "Are tank lids secure?" }
+    ]
+  },
+  "Pest proofing works": {
+    desc: "Pest proofing involves sealing holes and installing spikes/netting. Working at height and in confined spaces is common. Zoonotic diseases from droppings are a risk.",
+    hazards: ["biological", "work_at_height", "confined_space", "hand_tools"],
+    questions: [
+      { id: "q1", label: "Are droppings cleaned up with biocide first?" },
+      { id: "q2", label: "Are gloves and masks worn?" },
+      { id: "q3", label: "Is netting secured to prevent bird entry?" },
+      { id: "q4", label: "Are bristle strips fitted to doors?" },
+      { id: "q5", label: "Is the proofing aesthetically acceptable?" }
+    ]
+  },
+  "Car park maintenance": {
+    desc: "Car park maintenance involves line marking, pothole repair, and cleaning. Moving vehicles are the primary hazard. Outdoor work involves weather risks.",
+    hazards: ["moving_vehicles", "chemical_coshh", "environmental_weather", "manual_handling"],
+    questions: [
+      { id: "q1", label: "Is the work area coned off from traffic?" },
+      { id: "q2", label: "Are high-visibility vests worn?" },
+      { id: "q3", label: "Is line marking paint handled safely?" },
+      { id: "q4", label: "Are drains kept clear of debris?" },
+      { id: "q5", label: "Is lighting checked for night safety?" }
+    ]
+  },
+  "Playground equipment inspection": {
+    desc: "Playground inspection involves checking equipment for wear and damage. Finger traps and structural failure are risks. Public safety is paramount.",
+    hazards: ["public_interface", "mechanical_failure", "biological", "sharps"],
+    questions: [
+      { id: "q1", label: "Are safety surfaces (wet pour/bark) adequate?" },
+      { id: "q2", label: "Are moving parts (swings/roundabouts) lubricated?" },
+      { id: "q3", label: "Are timber parts checked for rot?" },
+      { id: "q4", label: "Are bolts tightened and capped?" },
+      { id: "q5", label: "Is the area free from glass/dog fouling?" }
+    ]
+  }
+};
+
+const OTHER_CUSTOM_CLUSTERS: Record<string, JobCluster> = {
+  "Other / Custom Task": {
+    desc: "This category is for any task not listed in the standard clusters. The user must define the specific method statement and risk assessment details.",
+    hazards: [],
+    questions: [
+      { id: "q1", label: "Have you completed a specific risk assessment for this task?" },
+      { id: "q2", label: "Are all operatives briefed on the method statement?" },
+      { id: "q3", label: "Are necessary permits to work in place?" },
+      { id: "q4", label: "Is the work area safe and secure?" },
+      { id: "q5", label: "Have emergency procedures been agreed?" }
+    ]
+  }
+};
+
+// ==========================================
 // MASTER TRADE REGISTRY
 // ==========================================
 
@@ -10345,4 +12680,93 @@ export const TRADES: Record<
     jobs: Object.keys(LANDSCAPING_GROUNDS_MAINTENANCE_CLUSTERS).map((name) => ({ name })),
     clusters: LANDSCAPING_GROUNDS_MAINTENANCE_CLUSTERS,
   },
+  "Pest Control": {
+    jobs: Object.keys(PEST_CONTROL_CLUSTERS).map((name) => ({ name })),
+    clusters: PEST_CONTROL_CLUSTERS,
+  },
+  "Waste Management": {
+    jobs: Object.keys(WASTE_MANAGEMENT_CLUSTERS).map((name) => ({ name })),
+    clusters: WASTE_MANAGEMENT_CLUSTERS,
+  },
+  "Drainage": {
+    jobs: Object.keys(DRAINAGE_CLUSTERS).map((name) => ({ name })),
+    clusters: DRAINAGE_CLUSTERS,
+  },
+  "Glazier": {
+    jobs: Object.keys(GLAZIER_CLUSTERS).map((name) => ({ name })),
+    clusters: GLAZIER_CLUSTERS,
+  },
+  "Scaffolding": {
+    jobs: Object.keys(SCAFFOLDING_CLUSTERS).map((name) => ({ name })),
+    clusters: SCAFFOLDING_CLUSTERS,
+  },
+  "Tiler": {
+    jobs: Object.keys(TILER_CLUSTERS).map((name) => ({ name })),
+    clusters: TILER_CLUSTERS,
+  },
+  "Plasterer": {
+    jobs: Object.keys(PLASTERER_CLUSTERS).map((name) => ({ name })),
+    clusters: PLASTERER_CLUSTERS,
+  },
+  "Handyman": {
+    jobs: Object.keys(HANDYMAN_CLUSTERS).map((name) => ({ name })),
+    clusters: HANDYMAN_CLUSTERS,
+  },
+  "Removals": {
+    jobs: Object.keys(REMOVALS_CLUSTERS).map((name) => ({ name })),
+    clusters: REMOVALS_CLUSTERS,
+  },
+  "Fencing": {
+    jobs: Object.keys(FENCING_CLUSTERS).map((name) => ({ name })),
+    clusters: FENCING_CLUSTERS,
+  },
+  "Paving": {
+    jobs: Object.keys(PAVING_CLUSTERS).map((name) => ({ name })),
+    clusters: PAVING_CLUSTERS,
+  },
+  "Welder": {
+    jobs: Object.keys(WELDER_CLUSTERS).map((name) => ({ name })),
+    clusters: WELDER_CLUSTERS,
+  },
+  "Locksmith": {
+    jobs: Object.keys(LOCKSMITH_CLUSTERS).map((name) => ({ name })),
+    clusters: LOCKSMITH_CLUSTERS,
+  },
+  "Security": {
+    jobs: Object.keys(SECURITY_CLUSTERS).map((name) => ({ name })),
+    clusters: SECURITY_CLUSTERS,
+  },
+  "Fire Safety": {
+    jobs: Object.keys(FIRE_SAFETY_CLUSTERS).map((name) => ({ name })),
+    clusters: FIRE_SAFETY_CLUSTERS,
+  },
+  "IT Support": {
+    jobs: Object.keys(IT_SUPPORT_CLUSTERS).map((name) => ({ name })),
+    clusters: IT_SUPPORT_CLUSTERS,
+  },
+  "Appliance Repair": {
+    jobs: Object.keys(APPLIANCE_REPAIR_CLUSTERS).map((name) => ({ name })),
+    clusters: APPLIANCE_REPAIR_CLUSTERS,
+  },
+  "Catering Equipment Repair": {
+    jobs: Object.keys(CATERING_EQUIPMENT_REPAIR_CLUSTERS).map((name) => ({ name })),
+    clusters: CATERING_EQUIPMENT_REPAIR_CLUSTERS,
+  },
+  "Refrigeration Engineer": {
+    jobs: Object.keys(REFRIGERATION_ENGINEER_CLUSTERS).map((name) => ({ name })),
+    clusters: REFRIGERATION_ENGINEER_CLUSTERS,
+  },
+  "Lift Engineer": {
+    jobs: Object.keys(LIFT_ENGINEER_CLUSTERS).map((name) => ({ name })),
+    clusters: LIFT_ENGINEER_CLUSTERS,
+  },
+  "Gate & Barrier Engineer": {
+    jobs: Object.keys(GATE_BARRIER_ENGINEER_CLUSTERS).map((name) => ({ name })),
+    clusters: GATE_BARRIER_ENGINEER_CLUSTERS,
+  },
+  "Custom Facilities Maintenance": {
+    jobs: Object.keys(CUSTOM_FACILITIES_MAINTENANCE_CLUSTERS).map((name) => ({ name })),
+    clusters: CUSTOM_FACILITIES_MAINTENANCE_CLUSTERS,
+  },
+
 };

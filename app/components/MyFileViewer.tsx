@@ -6,7 +6,6 @@ import {
   Download,
   FileText,
   Italic,
-  PenSquare,
   Redo,
   Underline,
   Undo,
@@ -19,10 +18,18 @@ import {
   Highlighter,
   Layout,
   Printer,
+  List,
+  ListOrdered,
+  AlignLeft,
+  AlignCenter,
+  AlignRight,
+  Heading1,
+  Heading2,
+  Heading3,
+  Pilcrow,
+  Loader2,
 } from "lucide-react";
 import React, { useEffect, useRef, useState } from "react";
-import jsPDF from "jspdf";
-import html2canvas from "html2canvas";
 // @ts-ignore
 import { asBlob } from "html-docx-js-typescript";
 import { saveAs } from "file-saver";
@@ -40,6 +47,22 @@ interface MyFileViewerProps {
   onBack: () => void;
   onUpdateFile: (file: RAMSFile) => void;
 }
+
+// --- TOOLBAR COMPONENTS ---
+const ToolbarButton = ({ onClick, icon: Icon, title, active = false, className = "" }: any) => (
+  <button
+    onClick={onClick}
+    className={`p-1.5 rounded-md transition-all duration-200 ${active
+      ? "bg-blue-100 text-blue-700 shadow-sm ring-1 ring-blue-200"
+      : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+      } ${className}`}
+    title={title}
+  >
+    <Icon className="w-4 h-4" />
+  </button>
+);
+
+const ToolbarDivider = () => <div className="w-px h-5 bg-slate-200 mx-1.5 self-center" />;
 
 const MyFileViewer = ({ file, onBack, onUpdateFile }: MyFileViewerProps) => {
   const editorRef = useRef<HTMLDivElement | null>(null);
@@ -64,7 +87,7 @@ const MyFileViewer = ({ file, onBack, onUpdateFile }: MyFileViewerProps) => {
 
   const [localName, setLocalName] = useState<string>(file?.name ?? "");
   const [isEditingName, setIsEditingName] = useState(false);
-  const [showSignature, setShowSignature] = useState(false);
+  const [isExportingPdf, setIsExportingPdf] = useState(false);
   const [viewMode, setViewMode] = useState<"web" | "print">(() => {
     if (typeof window !== "undefined") {
       return (window.localStorage.getItem("rams-view-mode") as "web" | "print") || "web";
@@ -79,14 +102,14 @@ const MyFileViewer = ({ file, onBack, onUpdateFile }: MyFileViewerProps) => {
   }, [viewMode]);
 
   const [zoomLevel, setZoomLevel] = useState(1.0); // Default 100%
-  const sigCanvasRef = useRef<HTMLCanvasElement | null>(null);
-  const sigDrawing = useRef(false);
 
   // Load file into editor when it changes
   useEffect(() => {
     setLocalName(file?.name ?? "");
     if (editorRef.current && file) {
       editorRef.current.innerHTML = file.content || "";
+
+      // Auto-select removed as per user request
     }
   }, [file?.id]);
 
@@ -164,169 +187,34 @@ const MyFileViewer = ({ file, onBack, onUpdateFile }: MyFileViewerProps) => {
     }
   };
 
-  const handleExportPDF = () => {
-    window.print();
-  };
+  const handleExportPDF = async () => {
+    if (!editorRef.current) return;
+    setIsExportingPdf(true);
 
-  // Signature drawing handlers
-  const getEventPos = (
-    e: React.MouseEvent | React.TouchEvent,
-    canvas: HTMLCanvasElement
-  ) => {
-    const rect = canvas.getBoundingClientRect();
-    const clientX =
-      "touches" in e
-        ? e.touches[0]?.clientX ?? 0
-        : (e as React.MouseEvent).clientX;
-    const clientY =
-      "touches" in e
-        ? e.touches[0]?.clientY ?? 0
-        : (e as React.MouseEvent).clientY;
+    try {
+      const response = await fetch('/api/export-pdf', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          html: editorRef.current.innerHTML,
+          filename: file.name || 'RAMS_Document'
+        }),
+      });
 
-    return {
-      x: clientX - rect.left,
-      y: clientY - rect.top,
-    };
-  };
-
-  const startDraw = (e: React.MouseEvent | React.TouchEvent) => {
-    const canvas = sigCanvasRef.current;
-    if (!canvas) return;
-    sigDrawing.current = true;
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
-
-    // Set style
-    ctx.strokeStyle = "#111111";
-    ctx.lineWidth = 2.5;
-    ctx.lineCap = "round";
-    ctx.lineJoin = "round";
-
-    const { x, y } = getEventPos(e, canvas);
-    ctx.beginPath();
-    ctx.moveTo(x, y);
-  };
-
-  const moveDraw = (e: React.MouseEvent | React.TouchEvent) => {
-    if (!sigDrawing.current) return;
-    const canvas = sigCanvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
-    const { x, y } = getEventPos(e, canvas);
-    ctx.lineTo(x, y);
-    ctx.stroke();
-  };
-
-  const endDraw = () => {
-    sigDrawing.current = false;
-  };
-
-
-  const clearSignature = () => {
-    const canvas = sigCanvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-  };
-
-  const applySignature = () => {
-    const canvas = sigCanvasRef.current;
-    if (!canvas || !editorRef.current) {
-      setShowSignature(false);
-      return;
-    }
-    const dataUrl = canvas.toDataURL("image/png");
-
-    // Create draggable image
-    const img = document.createElement("img");
-    img.src = dataUrl;
-    img.className = "signature-img absolute cursor-move z-10";
-    img.style.left = "50px";
-    img.style.top = "50px";
-    img.style.width = "150px";
-    img.style.height = "auto";
-
-    // Append to editor
-    if (editorRef.current) {
-      editorRef.current.appendChild(img);
-    }
-
-    setShowSignature(false);
-    syncFromEditor();
-  };
-
-  // Handle dragging of signature images
-  useEffect(() => {
-    const container = editorRef.current;
-    if (!container) return;
-
-    let activeImg: HTMLImageElement | null = null;
-    let startX = 0;
-    let startY = 0;
-    let startLeft = 0;
-    let startTop = 0;
-
-    const onMouseDown = (e: globalThis.MouseEvent) => {
-      const target = e.target as HTMLElement;
-      if (target.tagName === "IMG" && target.classList.contains("signature-img")) {
-        e.preventDefault();
-        activeImg = target as HTMLImageElement;
-        startX = e.clientX;
-        startY = e.clientY;
-        startLeft = activeImg.offsetLeft;
-        startTop = activeImg.offsetTop;
-
-        document.addEventListener("mousemove", onMouseMove);
-        document.addEventListener("mouseup", onMouseUp);
+      if (!response.ok) {
+        const err = await response.json();
+        throw new Error(err.error || 'PDF generation failed');
       }
-    };
 
-    const onMouseMove = (e: globalThis.MouseEvent) => {
-      if (!activeImg) return;
-      const dx = e.clientX - startX;
-      const dy = e.clientY - startY;
-
-      // Calculate new position accounting for zoom if in print mode
-      const scale = viewMode === "print" ? zoomLevel : 1;
-      const newLeft = startLeft + dx / scale;
-      const newTop = startTop + dy / scale;
-
-      activeImg.style.left = `${newLeft}px`;
-      activeImg.style.top = `${newTop}px`;
-    };
-
-    const onMouseUp = () => {
-      if (activeImg) {
-        syncFromEditor(); // Save new position
-      }
-      activeImg = null;
-      document.removeEventListener("mousemove", onMouseMove);
-      document.removeEventListener("mouseup", onMouseUp);
-    };
-
-    container.addEventListener("mousedown", onMouseDown as any);
-    return () => {
-      container.removeEventListener("mousedown", onMouseDown as any);
-      document.removeEventListener("mousemove", onMouseMove);
-      document.removeEventListener("mouseup", onMouseUp);
-    };
-  }, [zoomLevel, viewMode]);
-
-  // Init signature canvas
-  useEffect(() => {
-    if (showSignature && sigCanvasRef.current) {
-      const canvas = sigCanvasRef.current;
-      const ctx = canvas.getContext("2d");
-      if (!ctx) return;
-      ctx.lineCap = "round";
-      ctx.lineJoin = "round";
-      ctx.lineWidth = 2.5;
-      ctx.strokeStyle = "#111111";
+      const blob = await response.blob();
+      saveAs(blob, `${file.name || 'RAMS_Document'}.pdf`);
+    } catch (error) {
+      console.error('PDF Export Error:', error);
+      alert('Failed to generate PDF. Please try again.');
+    } finally {
+      setIsExportingPdf(false);
     }
-  }, [showSignature]);
-
+  };
 
   return (
     <div className={`flex flex-col h-full ${viewMode === "print" ? "bg-[#f5f4f0]" : "bg-white"}`}>
@@ -338,13 +226,14 @@ const MyFileViewer = ({ file, onBack, onUpdateFile }: MyFileViewerProps) => {
         }
       `}</style>
       {/* Fixed Toolbar */}
-      <div className="shrink-0 flex items-center justify-between px-4 py-2 bg-white border-b border-slate-200 shadow-sm z-20">
+      <div className="shrink-0 flex flex-wrap items-center justify-between px-4 py-2 bg-white border-b border-slate-200 shadow-sm z-20 gap-y-2">
         <div className="flex items-center gap-3">
           <button
             onClick={onBack}
             className="flex items-center gap-1 text-sm font-medium text-slate-600 hover:text-slate-900 transition-colors"
           >
-            ← Back
+            <ArrowLeft className="w-4 h-4" />
+            Back
           </button>
           <div className="h-4 w-px bg-slate-300" />
 
@@ -369,78 +258,34 @@ const MyFileViewer = ({ file, onBack, onUpdateFile }: MyFileViewerProps) => {
           )}
         </div>
 
-        <div className="flex items-center gap-4">
-          {/* Group 1: Undo/Redo */}
-          <div className="flex items-center gap-0.5 bg-slate-50 p-1 rounded-lg border border-slate-200">
-            <button
-              onClick={() => execCmd("undo")}
-              className="p-1.5 rounded hover:bg-slate-200 text-slate-700"
-              title="Undo"
-            >
-              <Undo className="w-4 h-4" />
-            </button>
-            <button
-              onClick={() => execCmd("redo")}
-              className="p-1.5 rounded hover:bg-slate-200 text-slate-700"
-              title="Redo"
-            >
-              <Redo className="w-4 h-4" />
-            </button>
+        <div className="flex items-center gap-1 overflow-x-auto no-scrollbar">
+          {/* History */}
+          <div className="flex items-center gap-0.5">
+            <ToolbarButton onClick={() => execCmd("undo")} icon={Undo} title="Undo" />
+            <ToolbarButton onClick={() => execCmd("redo")} icon={Redo} title="Redo" />
           </div>
 
-          {/* Group 2: Formatting */}
-          <div className="flex items-center gap-0.5 bg-slate-50 p-1 rounded-lg border border-slate-200">
-            <button
-              onClick={() => execCmd("bold")}
-              className="p-1.5 rounded hover:bg-slate-200 text-slate-700"
-              title="Bold"
-            >
-              <Bold className="w-4 h-4" />
-            </button>
-            <button
-              onClick={() => execCmd("italic")}
-              className="p-1.5 rounded hover:bg-slate-200 text-slate-700"
-              title="Italic"
-            >
-              <Italic className="w-4 h-4" />
-            </button>
-            <button
-              onClick={() => execCmd("underline")}
-              className="p-1.5 rounded hover:bg-slate-200 text-slate-700"
-              title="Underline"
-            >
-              <Underline className="w-4 h-4" />
-            </button>
-            <div className="w-px h-4 bg-slate-300 mx-1" />
-            <button
-              onClick={() => execCmd("indent")}
-              className="p-1.5 rounded hover:bg-slate-200 text-slate-700"
-              title="Indent"
-            >
-              <Indent className="w-4 h-4" />
-            </button>
-            <button
-              onClick={() => execCmd("outdent")}
-              className="p-1.5 rounded hover:bg-slate-200 text-slate-700"
-              title="Outdent"
-            >
-              <Outdent className="w-4 h-4" />
-            </button>
+          <ToolbarDivider />
+
+          {/* Headings */}
+          <div className="flex items-center gap-0.5">
+            <ToolbarButton onClick={() => execCmd("formatBlock", "P")} icon={Pilcrow} title="Normal Text" />
+            <ToolbarButton onClick={() => execCmd("formatBlock", "H1")} icon={Heading1} title="Heading 1" />
+            <ToolbarButton onClick={() => execCmd("formatBlock", "H2")} icon={Heading2} title="Heading 2" />
+            <ToolbarButton onClick={() => execCmd("formatBlock", "H3")} icon={Heading3} title="Heading 3" />
           </div>
 
-          <div className="h-4 w-px bg-slate-300" />
+          <ToolbarDivider />
 
-          {/* Group 3: Font & Color */}
-          <div className="flex items-center gap-0.5 bg-slate-50 p-1 rounded-lg border border-slate-200">
-            {/* Text Color */}
+          {/* Formatting */}
+          <div className="flex items-center gap-0.5">
+            <ToolbarButton onClick={() => execCmd("bold")} icon={Bold} title="Bold" />
+            <ToolbarButton onClick={() => execCmd("italic")} icon={Italic} title="Italic" />
+            <ToolbarButton onClick={() => execCmd("underline")} icon={Underline} title="Underline" />
+
+            {/* Colors */}
             <div className="relative group">
-              <button
-                className="p-1.5 rounded hover:bg-slate-200 text-slate-700 flex items-center gap-1"
-                title="Text Color"
-                onClick={() => document.getElementById("textColorInput")?.click()}
-              >
-                <Palette className="w-4 h-4" />
-              </button>
+              <ToolbarButton onClick={() => document.getElementById("textColorInput")?.click()} icon={Palette} title="Text Color" />
               <input
                 id="textColorInput"
                 type="color"
@@ -448,16 +293,8 @@ const MyFileViewer = ({ file, onBack, onUpdateFile }: MyFileViewerProps) => {
                 onChange={(e) => execCmd("foreColor", e.target.value)}
               />
             </div>
-
-            {/* Highlight Color */}
             <div className="relative group">
-              <button
-                className="p-1.5 rounded hover:bg-slate-200 text-slate-700 flex items-center gap-1"
-                title="Highlight Color"
-                onClick={() => document.getElementById("hiliteColorInput")?.click()}
-              >
-                <Highlighter className="w-4 h-4" />
-              </button>
+              <ToolbarButton onClick={() => document.getElementById("hiliteColorInput")?.click()} icon={Highlighter} title="Highlight Color" />
               <input
                 id="hiliteColorInput"
                 type="color"
@@ -467,94 +304,92 @@ const MyFileViewer = ({ file, onBack, onUpdateFile }: MyFileViewerProps) => {
             </div>
           </div>
 
+          <ToolbarDivider />
+
+          {/* Alignment & Lists */}
+          <div className="flex items-center gap-0.5">
+            <ToolbarButton onClick={() => execCmd("justifyLeft")} icon={AlignLeft} title="Align Left" />
+            <ToolbarButton onClick={() => execCmd("justifyCenter")} icon={AlignCenter} title="Align Center" />
+            <ToolbarButton onClick={() => execCmd("justifyRight")} icon={AlignRight} title="Align Right" />
+            <ToolbarButton onClick={() => execCmd("insertUnorderedList")} icon={List} title="Bullet List" />
+            <ToolbarButton onClick={() => execCmd("insertOrderedList")} icon={ListOrdered} title="Numbered List" />
+            <ToolbarButton onClick={() => execCmd("indent")} icon={Indent} title="Indent" />
+            <ToolbarButton onClick={() => execCmd("outdent")} icon={Outdent} title="Outdent" />
+          </div>
         </div>
 
-        {/* Group 3: View Mode */}
-        <div className="flex items-center gap-0.5 bg-slate-50 p-1 rounded-lg border border-slate-200">
-          <button
-            onClick={() => setViewMode("web")}
-            className={`p-1.5 rounded ${viewMode === "web" ? "bg-white shadow text-blue-600" : "hover:bg-slate-200 text-slate-700"}`}
-            title="Web View (Full Screen)"
-          >
-            <Layout className="w-4 h-4" />
-          </button>
-          <button
-            onClick={() => setViewMode("print")}
-            className={`p-1.5 rounded ${viewMode === "print" ? "bg-white shadow text-blue-600" : "hover:bg-slate-200 text-slate-700"}`}
-            title="Print View (A4)"
-          >
-            <Printer className="w-4 h-4" />
-          </button>
-        </div>
-
-        {/* Group 4: Zoom (Only for Print Mode) */}
-        {viewMode === "print" && (
-          <div className="flex items-center gap-0.5 bg-slate-50 p-1 rounded-lg border border-slate-200">
+        <div className="flex items-center gap-3">
+          {/* View Mode */}
+          <div className="flex items-center bg-slate-100 p-0.5 rounded-lg border border-slate-200">
             <button
-              onClick={() => {
-                const idx = ZOOM_LEVELS.indexOf(zoomLevel);
-                if (idx > 0) setZoomLevel(ZOOM_LEVELS[idx - 1]);
-              }}
-              className="p-1.5 rounded hover:bg-slate-200 text-slate-700"
-              title="Zoom Out"
+              onClick={() => setViewMode("web")}
+              className={`p-1.5 rounded-md transition-all ${viewMode === "web" ? "bg-white shadow text-blue-600" : "text-slate-500 hover:text-slate-700"}`}
+              title="Web View"
             >
-              <ZoomOut className="w-3.5 h-3.5" />
+              <Layout className="w-4 h-4" />
             </button>
-            <span className="text-xs font-medium w-10 text-center select-none text-slate-700">
-              {Math.round(zoomLevel * 100)}%
-            </span>
             <button
-              onClick={() => {
-                const idx = ZOOM_LEVELS.indexOf(zoomLevel);
-                if (idx < ZOOM_LEVELS.length - 1) setZoomLevel(ZOOM_LEVELS[idx + 1]);
-              }}
-              className="p-1.5 rounded hover:bg-slate-200 text-slate-700"
-              title="Zoom In"
+              onClick={() => setViewMode("print")}
+              className={`p-1.5 rounded-md transition-all ${viewMode === "print" ? "bg-white shadow text-blue-600" : "text-slate-500 hover:text-slate-700"}`}
+              title="Print View"
             >
-              <ZoomIn className="w-3.5 h-3.5" />
+              <Printer className="w-4 h-4" />
             </button>
           </div>
-        )}
 
-        {/* Group 4: Signature */}
-        <button
-          onClick={() => setShowSignature(!showSignature)}
-          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors border whitespace-nowrap shrink-0 ${showSignature
-            ? "bg-blue-50 border-blue-200 text-blue-700"
-            : "bg-white border-slate-200 hover:bg-slate-50 text-slate-700"
-            }`}
-        >
-          <PenSquare className="w-4 h-4" />
-          {showSignature ? "Done" : "Sign"}
-        </button>
+          {/* Zoom (Print Mode Only) */}
+          {viewMode === "print" && (
+            <div className="flex items-center gap-1 bg-slate-50 px-2 py-1 rounded-lg border border-slate-200">
+              <button onClick={() => {
+                const idx = ZOOM_LEVELS.indexOf(zoomLevel);
+                if (idx > 0) setZoomLevel(ZOOM_LEVELS[idx - 1]);
+              }}>
+                <ZoomOut className="w-3.5 h-3.5 text-slate-600" />
+              </button>
+              <span className="text-xs font-medium w-8 text-center text-slate-700">{Math.round(zoomLevel * 100)}%</span>
+              <button onClick={() => {
+                const idx = ZOOM_LEVELS.indexOf(zoomLevel);
+                if (idx < ZOOM_LEVELS.length - 1) setZoomLevel(ZOOM_LEVELS[idx + 1]);
+              }}>
+                <ZoomIn className="w-3.5 h-3.5 text-slate-600" />
+              </button>
+            </div>
+          )}
 
-        <div className="h-4 w-px bg-slate-300" />
+          <div className="h-4 w-px bg-slate-300" />
 
-        {/* Group 5: Export */}
-        <div className="flex items-center gap-2">
-          <button
-            onClick={handleExportWord}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg hover:bg-slate-100 text-slate-700 text-xs font-medium border border-transparent hover:border-slate-200"
-            title="Export Word"
-          >
-            <FileText className="w-4 h-4" />
-            Word
-          </button>
-          <button
-            onClick={handleExportPDF}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg hover:bg-slate-100 text-slate-700 text-xs font-medium border border-transparent hover:border-slate-200"
-            title="Export PDF"
-          >
-            <Download className="w-4 h-4" />
-            PDF
-          </button>
+          {/* Actions */}
+          <div className="flex items-center gap-2">
+            <button
+              onClick={handleExportWord}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg hover:bg-slate-100 text-slate-700 text-xs font-medium border border-transparent hover:border-slate-200"
+            >
+              <FileText className="w-4 h-4" />
+              Word
+            </button>
+            <button
+              onClick={handleExportPDF}
+              disabled={isExportingPdf}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium border border-transparent transition-colors ${isExportingPdf
+                ? "bg-slate-100 text-slate-400 cursor-not-allowed"
+                : "hover:bg-slate-100 text-slate-700 hover:border-slate-200"
+                }`}
+            >
+              {isExportingPdf ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                <Download className="w-4 h-4" />
+              )}
+              {isExportingPdf ? "Generating..." : "PDF"}
+            </button>
+          </div>
         </div>
       </div>
 
 
       {/* Scrollable Document Area */}
-      <div className={`flex-1 overflow-y-auto relative ${viewMode === "print" ? "bg-[#f5f4f0]" : "bg-white"}`} style={viewMode === "web" ? { padding: 0, margin: 0 } : {}}>
-        <div className={`min-h-full w-full ${viewMode === "print" ? "flex justify-center py-8 px-4" : ""}`} style={viewMode === "web" ? { padding: 0, margin: 0, width: "100%", display: "block" } : {}}>
+      <div className={`flex-1 overflow-auto relative ${viewMode === "print" ? "bg-[#f5f4f0]" : "bg-white"}`} style={viewMode === "web" ? { padding: 0, margin: 0 } : {}}>
+        <div className={`min-h-full min-w-full w-fit ${viewMode === "print" ? "flex justify-center py-8 px-4" : ""}`} style={viewMode === "web" ? { padding: 0, margin: 0, width: "100%", display: "block" } : {}}>
           {/* 
              Zoom Wrapper using transform: scale for pure visual zoom.
              The outer div reserves the correct space so scrolling works.
@@ -591,53 +426,13 @@ const MyFileViewer = ({ file, onBack, onUpdateFile }: MyFileViewerProps) => {
                 boxShadow: "none"
               }}
             >
-              {/* Signature Overlay */}
-              {showSignature && (
-                <div className="absolute inset-0 z-50 pointer-events-none">
-                  <div className="sticky top-20 left-0 right-0 flex justify-center pointer-events-auto">
-                    <div className="bg-white shadow-xl rounded-lg border border-slate-200 p-4 flex flex-col gap-3">
-                      <div className="text-xs font-semibold text-slate-500 uppercase tracking-wider text-center">
-                        Draw Signature
-                      </div>
-                      <canvas
-                        ref={sigCanvasRef}
-                        width={400}
-                        height={200}
-                        className="border border-slate-300 rounded bg-slate-50 cursor-crosshair touch-none"
-                        onMouseDown={startDraw}
-                        onMouseMove={moveDraw}
-                        onMouseUp={endDraw}
-                        onMouseLeave={endDraw}
-                        onTouchStart={startDraw}
-                        onTouchMove={moveDraw}
-                        onTouchEnd={endDraw}
-                      />
-                      <div className="flex justify-between">
-                        <button
-                          onClick={clearSignature}
-                          className="text-xs text-red-600 hover:text-red-700 font-medium"
-                        >
-                          Clear
-                        </button>
-                        <button
-                          onClick={applySignature}
-                          className="text-xs bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700 font-medium"
-                        >
-                          Insert
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              )}
-
               {/* Editable Content */}
               <div
                 ref={editorRef}
                 contentEditable
                 suppressContentEditableWarning
                 onInput={syncFromEditor}
-                className={`outline-none ${viewMode === "print" ? "w-full text-slate-900" : "w-full text-slate-900"}`}
+                className={`editor-content outline-none ${viewMode === "print" ? "w-full text-slate-900" : "w-full text-slate-900"}`}
                 style={{
                   fontSize: "11pt",
                   ...(viewMode === "web" ? { padding: "24px", margin: 0, width: "100%", minHeight: "100vh", maxWidth: "none" } : {}),

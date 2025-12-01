@@ -1,0 +1,817 @@
+"use client";
+
+import { useState, useRef, useEffect } from "react";
+import {
+    Loader2,
+    MapPin,
+    Briefcase,
+    Info,
+    FileText,
+    Beaker,
+    Shield,
+    Clock,
+    CheckSquare,
+    Trash2
+} from "lucide-react";
+import TypewriterText from "./TypewriterText";
+import { SignStrip } from "./SignStrip";
+import { PPE_ICON_MAP, GHS_ICON_MAP, mapStringToPpeType, mapStringToHazardClass } from "../lib/safety-icons";
+import { COSHH_LIBRARY, PPE_DEFINITIONS } from "../lib/rams-content";
+import Toast, { ToastType } from "./Toast";
+import AnimatedTitle from "./AnimatedTitle";
+import { RAMSFile } from "./MyFileViewer";
+
+// --- SMALL TEXT SANITISER ---
+function sanitizeText(input: any): string {
+    if (!input || typeof input !== "string") return "";
+    return input
+        .replace(/\r\n/g, "\n")
+        .replace(/\n{2,}/g, "\n")
+        .replace(/[ \t]+/g, " ")
+        .replace(/ ?([.,;:!?])/g, "$1")
+        .trim();
+}
+
+// --- UI COMPONENTS ---
+const Tooltip = ({ text }: { text: string }) => (
+    <div className="group relative inline-block ml-2">
+        <Info className="w-4 h-4 text-gray-400 hover:text-black cursor-help transition-colors" />
+        <div className="invisible group-hover:visible absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-64 p-3 bg-black text-white text-xs rounded-md shadow-xl z-50 text-center leading-relaxed border border-gray-800">
+            {text}
+            <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-black" />
+        </div>
+    </div>
+);
+
+function AddressSearch({
+    label,
+    value,
+    onChange,
+    tooltip,
+    required,
+}: any) {
+    const [query, setQuery] = useState(value);
+    const [results, setResults] = useState<any[]>([]);
+    const [showDropdown, setShowDropdown] = useState(false);
+
+    useEffect(() => {
+        setQuery(value);
+    }, [value]);
+
+    const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+    const searchAddress = (text: string) => {
+        setQuery(text);
+        onChange(text);
+
+        if (timeoutRef.current) {
+            clearTimeout(timeoutRef.current);
+        }
+
+        if (text.length > 4) {
+            timeoutRef.current = setTimeout(async () => {
+                try {
+                    const res = await fetch(
+                        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(
+                            text
+                        )}&countrycodes=gb&limit=5`,
+                        {
+                            headers: {
+                                "User-Agent": "RAMS-Sorted-Web/1.0",
+                            },
+                        }
+                    );
+                    if (!res.ok) throw new Error("Network response was not ok");
+                    const data = await res.json();
+                    setResults(data);
+                    setShowDropdown(true);
+                } catch (e) {
+                    console.warn("Address search failed:", e);
+                    setResults([]);
+                }
+            }, 500);
+        } else {
+            setResults([]);
+            setShowDropdown(false);
+        }
+    };
+
+    return (
+        <div className="relative group">
+            <label className="flex items-center text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
+                {label}
+                {required && <span className="text-red-600 ml-1">*</span>}
+                {tooltip && <Tooltip text={tooltip} />}
+            </label>
+            <div className="relative">
+                <input
+                    className="w-full border border-slate-300 rounded-lg p-3 text-sm focus:ring-2 focus:ring-[#0b2040] focus:border-transparent outline-none transition-all shadow-sm bg-white"
+                    placeholder="Start typing address..."
+                    value={query}
+                    onChange={(e) => searchAddress(e.target.value)}
+                />
+                <MapPin className="w-4 h-4 absolute right-3 top-3.5 text-gray-400" />
+            </div>
+            {showDropdown && results.length > 0 && (
+                <ul className="absolute z-50 w-full bg-white border border-gray-200 rounded-lg shadow-2xl mt-1 max-h-60 overflow-auto">
+                    {results.map((r: any, i: number) => (
+                        <li
+                            key={i}
+                            onClick={() => {
+                                setQuery(r.display_name);
+                                onChange(r.display_name);
+                                setShowDropdown(false);
+                            }}
+                            className="p-3 hover:bg-gray-50 cursor-pointer text-xs border-b last:border-0 text-gray-700 leading-tight"
+                        >
+                            {r.display_name}
+                        </li>
+                    ))}
+                </ul>
+            )}
+        </div>
+    );
+}
+
+interface CoshhWizardProps {
+    onBack: () => void;
+    onSave: (file: RAMSFile) => void;
+}
+
+// --- MAIN COSHH WIZARD COMPONENT ---
+export default function CoshhWizard({ onBack, onSave }: CoshhWizardProps) {
+    const [step, setStep] = useState(0);
+    const [isGenerating, setIsGenerating] = useState(false);
+    const [toast, setToast] = useState<{ msg: string; type: ToastType } | null>(null);
+
+    const [formData, setFormData] = useState({
+        // Step 0: Basics
+        documentName: "",
+        userType: "company" as "company" | "sole_trader",
+
+        // Step 1: Project
+        companyName: "",
+        assessorName: "",
+        clientName: "",
+        projectRef: "",
+        siteAddress: "",
+        assessmentDate: new Date().toISOString().split("T")[0],
+        reviewDate: "",
+
+        // Step 2: Substances
+        selectedSubstances: [] as { name: string; hazard: string; control: string }[],
+        customSubstances: [] as { name: string; hazard: string; control: string }[],
+
+        // Step 3: Context
+        workActivity: "",
+        exposureDuration: "",
+        exposureFrequency: "",
+        personsExposed: [] as string[],
+
+        // Step 4: Controls
+        ppe: [] as string[],
+        emergencyProcedures: "",
+        additionalControls: "",
+    });
+
+    const [substanceSearch, setSubstanceSearch] = useState("");
+    const [substanceSearchOpen, setSubstanceSearchOpen] = useState(false);
+
+    // Flatten COSHH Library for search
+    const allSubstances = Object.entries(COSHH_LIBRARY).flatMap(([category, items]) =>
+        items.map(item => ({ ...item, category }))
+    );
+
+    const filteredSubstances = substanceSearch.trim().length < 2
+        ? []
+        : allSubstances.filter(s =>
+            s.substance.toLowerCase().includes(substanceSearch.toLowerCase())
+        ).slice(0, 8);
+
+    const handleInput = (field: string, value: any) => {
+        setFormData(prev => ({ ...prev, [field]: value }));
+    };
+
+    const togglePersonExposed = (person: string) => {
+        setFormData(prev => {
+            const current = prev.personsExposed;
+            return {
+                ...prev,
+                personsExposed: current.includes(person)
+                    ? current.filter(p => p !== person)
+                    : [...current, person]
+            };
+        });
+    };
+
+    const togglePPE = (item: string) => {
+        setFormData(prev => {
+            const current = prev.ppe;
+            return {
+                ...prev,
+                ppe: current.includes(item)
+                    ? current.filter(p => p !== item)
+                    : [...current, item]
+            };
+        });
+    };
+
+    const addSubstance = (substance: { name: string; hazard: string; control: string }) => {
+        if (formData.selectedSubstances.some(s => s.name === substance.name)) return;
+        setFormData(prev => ({
+            ...prev,
+            selectedSubstances: [...prev.selectedSubstances, substance]
+        }));
+        setSubstanceSearch("");
+        setSubstanceSearchOpen(false);
+    };
+
+    const removeSubstance = (name: string) => {
+        setFormData(prev => ({
+            ...prev,
+            selectedSubstances: prev.selectedSubstances.filter(s => s.name !== name)
+        }));
+    };
+
+    const nextStep = () => {
+        let errorMsg = "";
+
+        if (step === 0) {
+            if (!formData.documentName) {
+                errorMsg = "Please enter a document name.";
+            }
+        } else if (step === 1) {
+            if (!formData.companyName || !formData.assessorName || !formData.clientName) {
+                errorMsg = "Please fill in all required Project & Owner details.";
+            }
+        } else if (step === 2) {
+            if (formData.selectedSubstances.length === 0 && formData.customSubstances.length === 0) {
+                errorMsg = "Please select or add at least one substance.";
+            }
+        } else if (step === 3) {
+            if (!formData.workActivity || !formData.exposureDuration || !formData.exposureFrequency) {
+                errorMsg = "Please describe the activity and exposure details.";
+            }
+        }
+
+        if (errorMsg) {
+            setToast({ msg: errorMsg, type: "error" });
+            return;
+        }
+
+        setStep(prev => prev + 1);
+    };
+
+    const prevStep = () => setStep(prev => prev - 1);
+
+    const generateCOSHH = async () => {
+        setIsGenerating(true);
+        try {
+            const res = await fetch("/api/generate-coshh", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(formData),
+            });
+
+            if (!res.ok) {
+                const err = await res.json();
+                throw new Error(err.error || "Generation failed");
+            }
+
+            const data = await res.json();
+
+            const newFile: RAMSFile = {
+                id: Date.now().toString(),
+                name: formData.documentName || "COSHH Assessment",
+                createdAt: new Date().toLocaleString(),
+                content: data.html,
+            };
+
+            onSave(newFile);
+        } catch (e: any) {
+            console.error("COSHH Generation Error:", e);
+            setToast({ msg: e.message || "Failed to generate COSHH", type: "error" });
+        } finally {
+            setIsGenerating(false);
+        }
+    };
+
+    return (
+        <div className="flex-1 flex flex-col h-full overflow-hidden bg-white">
+            {toast && (
+                <Toast
+                    message={toast.msg}
+                    type={toast.type}
+                    onClose={() => setToast(null)}
+                    duration={4000}
+                />
+            )}
+
+            {/* HEADER */}
+            {!isGenerating && (
+                <div className="sticky top-0 z-10 bg-white border-b border-slate-200 px-8 py-4 flex items-center justify-between">
+                    <div>
+                        <h2 className="text-xl font-bold text-slate-900 flex items-center gap-2">
+                            <AnimatedTitle text="RS v1.0" />
+                        </h2>
+                        <p className="text-sm font-bold text-black mt-0.5">
+                            Step {step} of 5
+                        </p>
+                    </div>
+                    {/* Removed top-left Exit Wizard button as requested */}
+                </div>
+            )}
+
+            {/* PROGRESS BAR */}
+            {!isGenerating && (
+                <div className="h-1.5 w-full bg-slate-200">
+                    <div
+                        className="h-full bg-[#0b2040] transition-all duration-500 ease-out"
+                        style={{ width: `${step === 0 ? 0 : (step / 5) * 100}%` }}
+                    />
+                </div>
+            )}
+
+            {/* MAIN CONTENT */}
+            <div className="flex-1 overflow-y-auto">
+                {isGenerating ? (
+                    <div className="flex flex-col items-center justify-center h-full">
+                        <div className="relative mb-8">
+                            <div className="absolute inset-0 bg-blue-100 rounded-full animate-ping opacity-20"></div>
+                            <Loader2 className="w-16 h-16 animate-spin text-[#0b2040] relative z-10" />
+                        </div>
+                        <h2 className="text-2xl font-bold tracking-wide text-slate-800 h-8 text-center">
+                            <TypewriterText
+                                messages={[
+                                    "Analyzing substances...",
+                                    "Evaluating exposure risks...",
+                                    "Determining control measures...",
+                                    "Formatting assessment...",
+                                    "Finalizing document...",
+                                ]}
+                                loop={true}
+                            />
+                        </h2>
+                    </div>
+                ) : (
+                    <div className="max-w-4xl mx-auto px-6 py-8 rs-fade-slide-in">
+
+                        {/* ... steps ... */}
+                        {/* (Steps content remains unchanged, just skipping for brevity in replacement if possible, but replace_file_content needs contiguous block. I will include the steps logic if I can't skip, but wait, I can just target the progress bar and then the buttons separately or together if they are close. They are not very close. Progress bar is at top, buttons at bottom. I should use multi_replace or two calls. I'll use multi_replace.) */}
+
+                        {/* STEP 0: BASICS */}
+                        {step === 0 && (
+                            <div className="space-y-6">
+                                <div className="flex items-center gap-3 mb-6">
+                                    <div className="h-10 w-10 rounded-full bg-blue-50 flex items-center justify-center">
+                                        <Beaker className="w-5 h-5 text-[#0b2040]" />
+                                    </div>
+                                    <h2 className="text-2xl font-semibold text-slate-900">
+                                        <TypewriterText messages={["Set Up Your Assessment File"]} loop={false} />
+                                    </h2>
+                                </div>
+
+                                <div className="max-w-xl space-y-6">
+                                    <div className="space-y-2">
+                                        <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
+                                            Document Name <span className="text-red-600">*</span>
+                                        </label>
+                                        <input
+                                            className="w-full border border-slate-200 p-3 rounded-lg text-sm focus:ring-2 focus:ring-[#0b2040] outline-none"
+                                            placeholder="e.g. COSHH - Site Cleaning Chemicals"
+                                            value={formData.documentName}
+                                            onChange={(e) => handleInput("documentName", e.target.value)}
+                                            autoFocus
+                                        />
+                                    </div>
+
+                                    <div className="space-y-2">
+                                        <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
+                                            Who are you?
+                                        </label>
+                                        <div className="grid grid-cols-2 gap-4">
+                                            <button
+                                                onClick={() => handleInput("userType", "company")}
+                                                className={`p-4 rounded-xl border-2 text-left transition-all ${formData.userType === "company"
+                                                    ? "border-[#0b2040] bg-blue-50/50 ring-1 ring-[#0b2040]"
+                                                    : "border-slate-200 hover:border-slate-300 hover:bg-slate-50"
+                                                    }`}
+                                            >
+                                                <div className="font-bold text-[#0b2040] text-sm mb-1">Business</div>
+                                                <div className="text-[11px] text-slate-500 leading-tight">
+                                                    Company with employees
+                                                </div>
+                                            </button>
+
+                                            <button
+                                                onClick={() => handleInput("userType", "sole_trader")}
+                                                className={`p-4 rounded-xl border-2 text-left transition-all ${formData.userType === "sole_trader"
+                                                    ? "border-[#0b2040] bg-blue-50/50 ring-1 ring-[#0b2040]"
+                                                    : "border-slate-200 hover:border-slate-300 hover:bg-slate-50"
+                                                    }`}
+                                            >
+                                                <div className="font-bold text-[#0b2040] text-sm mb-1">Sole Trader</div>
+                                                <div className="text-[11px] text-slate-500 leading-tight">
+                                                    Independent / Self-employed
+                                                </div>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* STEP 1: PROJECT & OWNER */}
+                        {step === 1 && (
+                            <div className="space-y-6">
+                                <div className="flex items-center gap-3 mb-6">
+                                    <div className="h-10 w-10 rounded-full bg-blue-50 flex items-center justify-center">
+                                        <Briefcase className="w-5 h-5 text-[#0b2040]" />
+                                    </div>
+                                    <h2 className="text-2xl font-semibold text-slate-900">
+                                        <TypewriterText messages={["Project & Owner Details"]} loop={false} />
+                                    </h2>
+                                </div>
+
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div>
+                                        <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
+                                            {formData.userType === "company" ? "Company Name" : "Trading Name"} <span className="text-red-600">*</span>
+                                        </label>
+                                        <input
+                                            className="w-full border border-slate-200 p-3 rounded-lg text-sm focus:ring-2 focus:ring-[#0b2040] outline-none"
+                                            placeholder={formData.userType === "company" ? "Your Company Ltd" : "John Smith T/A JS Plumbing"}
+                                            value={formData.companyName}
+                                            onChange={(e) => handleInput("companyName", e.target.value)}
+                                        />
+                                    </div>
+
+                                    <div>
+                                        <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
+                                            Assessor Name <span className="text-red-600">*</span>
+                                        </label>
+                                        <input
+                                            className="w-full border border-slate-200 p-3 rounded-lg text-sm focus:ring-2 focus:ring-[#0b2040] outline-none"
+                                            placeholder="Name of Assessor"
+                                            value={formData.assessorName}
+                                            onChange={(e) => handleInput("assessorName", e.target.value)}
+                                        />
+                                    </div>
+
+                                    <div>
+                                        <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
+                                            Client Name <span className="text-red-600">*</span>
+                                        </label>
+                                        <input
+                                            className="w-full border border-slate-200 p-3 rounded-lg text-sm focus:ring-2 focus:ring-[#0b2040] outline-none"
+                                            placeholder="Client Name"
+                                            value={formData.clientName}
+                                            onChange={(e) => handleInput("clientName", e.target.value)}
+                                        />
+                                    </div>
+
+                                    <div>
+                                        <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
+                                            Project Ref (Optional)
+                                        </label>
+                                        <input
+                                            className="w-full border border-slate-200 p-3 rounded-lg text-sm focus:ring-2 focus:ring-[#0b2040] outline-none"
+                                            placeholder="e.g. PRJ-123"
+                                            value={formData.projectRef}
+                                            onChange={(e) => handleInput("projectRef", e.target.value)}
+                                        />
+                                    </div>
+
+                                    <div className="col-span-2">
+                                        <AddressSearch
+                                            label="Site Address"
+                                            value={formData.siteAddress}
+                                            onChange={(val: string) => handleInput("siteAddress", val)}
+                                        />
+                                    </div>
+
+                                    <div>
+                                        <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
+                                            Assessment Date
+                                        </label>
+                                        <input
+                                            type="date"
+                                            className="w-full border border-slate-200 p-3 rounded-lg text-sm focus:ring-2 focus:ring-[#0b2040] outline-none"
+                                            value={formData.assessmentDate}
+                                            onChange={(e) => handleInput("assessmentDate", e.target.value)}
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* STEP 2: SUBSTANCES */}
+                        {step === 2 && (
+                            <div className="space-y-6">
+                                <div className="flex items-center gap-3 mb-6">
+                                    <div className="h-10 w-10 rounded-full bg-blue-50 flex items-center justify-center">
+                                        <Beaker className="w-5 h-5 text-[#0b2040]" />
+                                    </div>
+                                    <h2 className="text-2xl font-semibold text-slate-900">
+                                        <TypewriterText messages={["Substances & Products"]} loop={false} />
+                                    </h2>
+                                </div>
+
+                                <div className="space-y-4">
+                                    <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700">
+                                        Search Library
+                                    </label>
+                                    <div className="relative">
+                                        <input
+                                            className="w-full border border-slate-300 p-3 rounded-lg text-sm focus:ring-2 focus:ring-[#0b2040] outline-none"
+                                            placeholder="Search for substances (e.g. dust, cement, adhesive)..."
+                                            value={substanceSearch}
+                                            onChange={(e) => {
+                                                setSubstanceSearch(e.target.value);
+                                                setSubstanceSearchOpen(true);
+                                            }}
+                                            onFocus={() => setSubstanceSearchOpen(true)}
+                                        />
+                                        {substanceSearchOpen && filteredSubstances.length > 0 && (
+                                            <div className="absolute z-50 w-full bg-white border border-gray-200 rounded-lg shadow-xl mt-1 max-h-60 overflow-auto">
+                                                {filteredSubstances.map((s, i) => (
+                                                    <button
+                                                        key={i}
+                                                        onClick={() => addSubstance({ name: s.substance, hazard: s.hazard, control: s.control })}
+                                                        className="w-full text-left p-3 hover:bg-blue-50 border-b last:border-0 transition-colors"
+                                                    >
+                                                        <div className="font-semibold text-sm text-slate-900">{s.substance}</div>
+                                                        <div className="text-xs text-slate-500">{s.hazard}</div>
+                                                    </button>
+                                                ))}
+                                            </div>
+                                        )}
+                                    </div>
+
+                                    {/* Selected Substances */}
+                                    <div className="space-y-2">
+                                        <h3 className="text-sm font-semibold text-slate-900">Selected Substances:</h3>
+                                        {formData.selectedSubstances.length === 0 ? (
+                                            <p className="text-sm text-slate-500 italic">No substances selected yet.</p>
+                                        ) : (
+                                            <div className="grid gap-2">
+                                                {formData.selectedSubstances.map((s, i) => (
+                                                    <div key={i} className="flex items-center justify-between p-3 bg-slate-50 rounded-lg border border-slate-200">
+                                                        <div>
+                                                            <div className="font-medium text-sm text-slate-900">{s.name}</div>
+                                                            <div className="text-xs text-slate-500">{s.hazard}</div>
+                                                            <SignStrip
+                                                                icons={[mapStringToHazardClass(s.hazard)].filter(h => h).map(h => GHS_ICON_MAP[h!])}
+                                                            />
+                                                        </div>
+                                                        <button
+                                                            onClick={() => removeSubstance(s.name)}
+                                                            className="p-1.5 text-red-500 hover:bg-red-50 rounded-md transition-colors"
+                                                        >
+                                                            <Trash2 className="w-4 h-4" />
+                                                        </button>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* STEP 3: EXPOSURE & CONTEXT */}
+                        {step === 3 && (
+                            <div className="space-y-6">
+                                <div className="flex items-center gap-3 mb-6">
+                                    <div className="h-10 w-10 rounded-full bg-blue-50 flex items-center justify-center">
+                                        <Clock className="w-5 h-5 text-[#0b2040]" />
+                                    </div>
+                                    <h2 className="text-2xl font-semibold text-slate-900">
+                                        <TypewriterText messages={["Exposure & Work Context"]} loop={false} />
+                                    </h2>
+                                </div>
+
+                                <div className="space-y-4">
+                                    <div>
+                                        <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
+                                            Work Activity Description <span className="text-red-600">*</span>
+                                        </label>
+                                        <textarea
+                                            className="w-full border border-slate-200 p-3 rounded-lg h-32 text-sm focus:ring-2 focus:ring-[#0b2040] outline-none"
+                                            placeholder="Describe how the substances are used..."
+                                            value={formData.workActivity}
+                                            onChange={(e) => handleInput("workActivity", e.target.value)}
+                                        />
+                                    </div>
+
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div>
+                                            <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
+                                                Duration of Exposure <span className="text-red-600">*</span>
+                                            </label>
+                                            <input
+                                                className="w-full border border-slate-200 p-3 rounded-lg text-sm focus:ring-2 focus:ring-[#0b2040] outline-none"
+                                                placeholder="e.g. 2 hours"
+                                                value={formData.exposureDuration}
+                                                onChange={(e) => handleInput("exposureDuration", e.target.value)}
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
+                                                Frequency of Exposure <span className="text-red-600">*</span>
+                                            </label>
+                                            <input
+                                                className="w-full border border-slate-200 p-3 rounded-lg text-sm focus:ring-2 focus:ring-[#0b2040] outline-none"
+                                                placeholder="e.g. Daily"
+                                                value={formData.exposureFrequency}
+                                                onChange={(e) => handleInput("exposureFrequency", e.target.value)}
+                                            />
+                                        </div>
+                                    </div>
+
+                                    <div>
+                                        <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-2">
+                                            Persons Exposed
+                                        </label>
+                                        <div className="flex flex-wrap gap-2">
+                                            {["Employees", "Contractors", "Public", "Visitors"].map(p => (
+                                                <button
+                                                    key={p}
+                                                    onClick={() => togglePersonExposed(p)}
+                                                    className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-colors ${formData.personsExposed.includes(p)
+                                                        ? "bg-[#0b2040] text-white border-[#0b2040]"
+                                                        : "bg-white text-slate-600 border-slate-200 hover:border-blue-300"
+                                                        }`}
+                                                >
+                                                    {p}
+                                                </button>
+                                            ))}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* STEP 4: CONTROLS & PPE */}
+                        {step === 4 && (
+                            <div className="space-y-6">
+                                <div className="flex items-center gap-3 mb-6">
+                                    <div className="h-10 w-10 rounded-full bg-blue-50 flex items-center justify-center">
+                                        <Shield className="w-5 h-5 text-[#0b2040]" />
+                                    </div>
+                                    <h2 className="text-2xl font-semibold text-slate-900">
+                                        <TypewriterText messages={["Controls & PPE"]} loop={false} />
+                                    </h2>
+                                </div>
+
+                                <div className="space-y-6">
+                                    <div>
+                                        <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-2">
+                                            Required PPE
+                                        </label>
+                                        <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                                            {Object.entries(PPE_DEFINITIONS).map(([key, def]) => (
+                                                <button
+                                                    key={key}
+                                                    onClick={() => togglePPE(def.item)}
+                                                    className={`p-3 rounded-lg border text-left transition-all ${formData.ppe.includes(def.item)
+                                                        ? "bg-blue-50 border-[#0b2040] ring-1 ring-[#0b2040]"
+                                                        : "bg-white border-slate-200 hover:border-blue-300"
+                                                        }`}
+                                                >
+                                                    <div className="font-semibold text-xs text-slate-900">{def.item}</div>
+                                                    <div className="text-[10px] text-slate-500 mt-0.5">{def.reason}</div>
+                                                </button>
+                                            ))}
+                                        </div>
+                                        <SignStrip
+                                            icons={formData.ppe
+                                                .map(p => mapStringToPpeType(p))
+                                                .filter((t): t is keyof typeof PPE_ICON_MAP => t !== null)
+                                                .map(t => PPE_ICON_MAP[t])
+                                            }
+                                            label="Mandatory PPE Signs"
+                                        />
+                                    </div>
+
+                                    <div>
+                                        <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
+                                            Additional Control Measures
+                                        </label>
+                                        <textarea
+                                            className="w-full border border-slate-200 p-3 rounded-lg h-24 text-sm focus:ring-2 focus:ring-[#0b2040] outline-none"
+                                            placeholder="Any specific engineering controls or safe systems of work..."
+                                            value={formData.additionalControls}
+                                            onChange={(e) => handleInput("additionalControls", e.target.value)}
+                                        />
+                                    </div>
+
+                                    <div>
+                                        <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
+                                            Emergency Procedures
+                                        </label>
+                                        <textarea
+                                            className="w-full border border-slate-200 p-3 rounded-lg h-24 text-sm focus:ring-2 focus:ring-[#0b2040] outline-none"
+                                            placeholder="First aid, spillage procedures, fire response..."
+                                            value={formData.emergencyProcedures}
+                                            onChange={(e) => handleInput("emergencyProcedures", e.target.value)}
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* STEP 5: REVIEW */}
+                        {step === 5 && (
+                            <div className="space-y-6">
+                                <div className="flex items-center gap-3 mb-6">
+                                    <div className="h-10 w-10 rounded-full bg-blue-50 flex items-center justify-center">
+                                        <CheckSquare className="w-5 h-5 text-[#0b2040]" />
+                                    </div>
+                                    <h2 className="text-2xl font-semibold text-slate-900">
+                                        <TypewriterText messages={["Review & Generate"]} loop={false} />
+                                    </h2>
+                                </div>
+
+                                <div className="bg-slate-50 rounded-xl p-6 border border-slate-200 space-y-4">
+                                    <div className="grid grid-cols-2 gap-4 text-sm">
+                                        <div>
+                                            <span className="text-slate-500 block text-xs uppercase">Document</span>
+                                            <span className="font-medium">{formData.documentName}</span>
+                                        </div>
+                                        <div>
+                                            <span className="text-slate-500 block text-xs uppercase">Company</span>
+                                            <span className="font-medium">{formData.companyName}</span>
+                                        </div>
+                                        <div>
+                                            <span className="text-slate-500 block text-xs uppercase">Substances</span>
+                                            <span className="font-medium">{formData.selectedSubstances.length} selected</span>
+                                        </div>
+                                        <div>
+                                            <span className="text-slate-500 block text-xs uppercase">PPE Items</span>
+                                            <span className="font-medium">{formData.ppe.length} selected</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <SignStrip
+                                    icons={formData.ppe
+                                        .map(p => mapStringToPpeType(p))
+                                        .filter((t): t is keyof typeof PPE_ICON_MAP => t !== null)
+                                        .map(t => PPE_ICON_MAP[t])
+                                    }
+                                    label="Mandatory PPE Signs"
+                                />
+                            </div>
+                        )}
+
+                        {/* NAVIGATION BUTTONS */}
+                        <div className="flex justify-between gap-3 pt-4 mt-8">
+                            <div className="flex gap-2 pt-2">
+                                {step > 0 && (
+                                    <button
+                                        onClick={prevStep}
+                                        className="inline-flex items-center justify-center rounded-lg border border-slate-300 px-4 py-2.5 text-sm font-semibold text-slate-800 hover:bg-slate-50"
+                                    >
+                                        Back
+                                    </button>
+                                )}
+                                <button
+                                    onClick={onBack}
+                                    className="inline-flex items-center justify-center rounded-lg border border-slate-300 px-4 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-50"
+                                >
+                                    {step === 0 ? "Back to RS Hub" : "← Back to RS Hub"}
+                                </button>
+                            </div>
+
+                            {step < 5 ? (
+                                <button
+                                    onClick={nextStep}
+                                    className="inline-flex items-center justify-center rounded-lg bg-[#0b2040] px-5 py-2.5 text-sm font-semibold text-white hover:bg-black transition-colors"
+                                >
+                                    Next Step
+                                </button>
+                            ) : (
+                                <button
+                                    onClick={generateCOSHH}
+                                    disabled={isGenerating}
+                                    className="inline-flex items-center justify-center gap-2 rounded-lg bg-[#0b2040] px-5 py-2.5 text-sm font-semibold text-white hover:bg-black disabled:opacity-60 disabled:cursor-not-allowed transition-colors"
+                                >
+                                    {isGenerating ? (
+                                        <Loader2 className="w-4 h-4 animate-spin" />
+                                    ) : (
+                                        <FileText className="w-4 h-4" />
+                                    )}
+                                    {isGenerating
+                                        ? "Generating..."
+                                        : "Generate & Open"}
+                                </button>
+                            )}
+                        </div>
+
+                    </div>
+                )}
+
+            </div>
+        </div >
+    );
+}

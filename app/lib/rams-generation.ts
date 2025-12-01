@@ -1,5 +1,6 @@
 import { HAZARD_DATA, TRADES } from "./constants";
 import { METHOD_STATEMENTS, PPE_DEFINITIONS, COSHH_LIBRARY } from "./rams-content";
+import { GHS_ICON_MAP, PPE_ICON_MAP, mapStringToHazardClass, mapStringToPpeType } from "./safety-icons";
 
 export interface RAMSData {
   userType: "company" | "sole_trader";
@@ -86,7 +87,7 @@ function generateMethodStatement(trade: string, jobType: string, userType: "comp
 }
 
 // Helper to generate PPE
-function generatePPE(hazards: string[], trade: string): string[] {
+export function generatePPE(hazards: string[], trade: string): string[] {
   const ppeList: Set<string> = new Set();
 
   // Always add basics
@@ -162,7 +163,11 @@ export function generateRAMSHTML(data: RAMSData): string {
 
   const methodSteps = (Array.isArray(rawSteps) ? rawSteps : []).slice(0, 4);
   const ppe = generatePPE(hazards, trade);
-  const coshh = generateCOSHH(hazards);
+
+  // Use AI-generated COSHH if available, otherwise fallback to static library
+  const coshh = (data.coshh && data.coshh.length > 0)
+    ? data.coshh
+    : generateCOSHH(hazards);
 
   // Derive checklist if not provided but answers are present
   let finalChecklist = checklist || [];
@@ -192,45 +197,51 @@ export function generateRAMSHTML(data: RAMSData): string {
 
   // 2. Project Details
   const projectDetails = `
-    <h2>1. Project & Job Scope Details</h2>
-    <table>
-      <tr>
-        <th width="20%">${userType === "company" ? "Company" : "Contractor"}</th>
-        <td width="30%">${sanitizeText(companyName)}</td>
-        <th width="20%">Client</th>
-        <td width="30%">${sanitizeText(clientName)}</td>
-      </tr>
-      <tr>
-        <th>Site Address</th>
-        <td colspan="3">${sanitizeText(siteAddress)}</td>
-      </tr>
-      <tr>
-        <th>Job / Task</th>
-        <td>${sanitizeText(jobTitle)}</td>
-        <th>Project Ref</th>
-        <td>${sanitizeText(projectRef || "—")}</td>
-      </tr>
-      <tr>
-        <th>Prepared By</th>
-        <td>${sanitizeText(contactName)}</td>
-        <th>Date</th>
-        <td>${startDate}</td>
-      </tr>
-    </table>
+    <div class="section-block keep-together">
+      <h2>1. Project & Job Scope Details</h2>
+      <table>
+        <tr>
+          <th width="20%">${userType === "company" ? "Company" : "Contractor"}</th>
+          <td width="30%">${sanitizeText(companyName)}</td>
+          <th width="20%">Client</th>
+          <td width="30%">${sanitizeText(clientName)}</td>
+        </tr>
+        <tr>
+          <th>Site Address</th>
+          <td colspan="3">${sanitizeText(siteAddress)}</td>
+        </tr>
+        <tr>
+          <th>Job / Task</th>
+          <td>${sanitizeText(jobTitle)}</td>
+          <th>Project Ref</th>
+          <td>${sanitizeText(projectRef || "—")}</td>
+        </tr>
+        <tr>
+          <th>Prepared By</th>
+          <td>${sanitizeText(contactName)}</td>
+          <th>Date</th>
+          <td>${startDate}</td>
+        </tr>
+      </table>
+    </div>
   `;
 
   // 3. Scope of Works & Extra Details
   const extraDetails = extraData && Object.keys(extraData).length > 0
     ? Object.entries(extraData).map(([key, value]) => `
-      <h3>${key.replace(/_/g, " ")}</h3>
-      <p>${sanitizeText(value)}</p>
+      <div class="section-block">
+        <h3>${key.replace(/_/g, " ")}</h3>
+        <p>${sanitizeText(value)}</p>
+      </div>
     `).join("")
     : "";
 
   const scopeSection = `
-    <h2>2. Scope of Works</h2>
-    <div style="margin-bottom: 15px;">
-      ${sanitizeText(scope).split('\n').map(line => `<p>${line}</p>`).join('')}
+    <div class="section-block">
+      <h2>2. Scope of Works</h2>
+      <div style="margin-bottom: 15px;">
+        ${sanitizeText(scope).split('\n').map(line => `<p>${line}</p>`).join('')}
+      </div>
     </div>
     ${extraDetails}
   `;
@@ -248,15 +259,21 @@ export function generateRAMSHTML(data: RAMSData): string {
     `).join("");
 
     checklistHTML = `
-      <h2>3. Pre-Start Safety Checklist</h2>
-      <table>
-        <tr>
-          <th>#</th>
-          <th>Check / Question</th>
-          <th>Status</th>
-        </tr>
-        ${checklistRows}
-      </table>
+      <div class="section-block">
+        <h2>3. Pre-Start Safety Checklist</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Check / Question</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${checklistRows}
+          </tbody>
+        </table>
+      </div>
     `;
   }
 
@@ -282,59 +299,73 @@ export function generateRAMSHTML(data: RAMSData): string {
   }).join("");
 
   const hazardsHTML = `
-    <h2>4. Risk Assessment (Hazards & Controls)</h2>
-    <p>The following hazards have been identified. Control measures must be implemented before work starts.</p>
-    
-    <div style="margin-bottom: 10px; font-size: 8pt; border: 1px solid #ccc; padding: 5px;">
-      <strong>Risk Index Legend:</strong> 
-      <span class="risk-score risk-low" style="padding: 2px 5px;">Low (1-5)</span>
-      <span class="risk-score risk-med" style="padding: 2px 5px;">Medium (6-12)</span>
-      <span class="risk-score risk-high" style="padding: 2px 5px;">High (15-25)</span>
-    </div>
+    <div class="section-block">
+      <h2>4. Risk Assessment (Hazards & Controls)</h2>
+      <p>The following hazards have been identified. Control measures must be implemented before work starts.</p>
+      
+      <div style="margin-bottom: 10px; font-size: 8pt; border: 1px solid #ccc; padding: 5px;">
+        <strong>Risk Index Legend:</strong> 
+        <span class="risk-score risk-low" style="padding: 2px 5px;">Low (1-5)</span>
+        <span class="risk-score risk-med" style="padding: 2px 5px;">Medium (6-12)</span>
+        <span class="risk-score risk-high" style="padding: 2px 5px;">High (15-25)</span>
+      </div>
 
-    <table>
-      <tr>
-        <th>Hazard</th>
-        <th>Risk / Consequence</th>
-        <th>Control Measures</th>
-        <th>Initial Risk</th>
-        <th>Residual Risk</th>
-      </tr>
-      ${hazardRows}
-    </table>
+      <table>
+        <thead>
+          <tr>
+            <th>Hazard</th>
+            <th>Risk / Consequence</th>
+            <th>Control Measures</th>
+            <th>Initial Risk</th>
+            <th>Residual Risk</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${hazardRows}
+        </tbody>
+      </table>
+    </div>
   `;
 
   // 6. Method Statement
   const methodRows = methodSteps.map((step: string, index: number) => `
-    <div style="margin-bottom: 8px; page-break-inside: avoid;">
+    <div style="margin-bottom: 8px;">
       <p><strong>Step ${index + 1}:</strong> ${step}</p>
     </div>
   `).join("");
 
   const methodHTML = `
-    <h2>5. Method Statement</h2>
-    ${methodRows}
+    <div class="section-block">
+      <h2>5. Method Statement</h2>
+      ${methodRows}
+    </div>
   `;
 
   // 7. COSHH
   const coshhRows = coshh.map((c: any) => `
     <tr>
-      <td class="bold">${c.substance}</td>
-      <td>${c.hazard}</td>
-      <td>${c.control}</td>
+      <td class="bold">${c.substance || ""}</td>
+      <td>${c.hazard || ""}</td>
+      <td>${c.control || ""}</td>
     </tr>
   `).join("");
 
   const coshhHTML = coshh.length > 0 ? `
-    <h2>6. COSHH Assessment</h2>
-    <table>
-      <tr>
-        <th>Substance</th>
-        <th>Hazard</th>
-        <th>Control Measures</th>
-      </tr>
-      ${coshhRows}
-    </table>
+    <div class="section-block">
+      <h2>6. COSHH Assessment</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Substance</th>
+            <th>Hazard</th>
+            <th>Control Measures</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${coshhRows}
+        </tbody>
+      </table>
+    </div>
   ` : "";
 
   // 8. PPE
@@ -345,64 +376,73 @@ export function generateRAMSHTML(data: RAMSData): string {
   `).join("");
 
   const ppeHTML = `
-    <h2>7. PPE Requirements</h2>
-    <div style="margin-bottom: 15px;">
-      ${ppeList}
+    <div class="section-block">
+      <h2>7. PPE Requirements</h2>
+      <div style="margin-bottom: 15px;">
+        ${ppeList}
+      </div>
     </div>
   `;
 
   // 9. Emergency & Operatives
   const operativesHTML = `
-    <h2>8. Emergency Arrangements</h2>
-    <table>
-      <tr>
-        <th width="25%">Supervisor</th>
-        <td width="25%">${sanitizeText(supervisorName)}</td>
-        <th width="25%">First Aider</th>
-        <td width="25%">${sanitizeText(firstAider)}</td>
-      </tr>
-      <tr>
-        <th>Hospital</th>
-        <td>${sanitizeText(hospital)}</td>
-        <th>Fire Assembly</th>
-        <td>${sanitizeText(fireAssembly)}</td>
-      </tr>
-      <tr>
-        <th>First Aid Kit</th>
-        <td>${sanitizeText(firstAidLoc)}</td>
-        <th>Welfare</th>
-        <td>${sanitizeText(welfare)}</td>
-      </tr>
-    </table>
-
-    <div style="page-break-before: always;"></div>
-    <h2>9. Operative Acknowledgement</h2>
-    <p>By signing below, ${terms.we.toLowerCase()} confirm ${terms.we.toLowerCase()} have read and understood this RAMS and will work in accordance with the control measures and method statement.</p>
-    
-    <table>
-      <tr>
-        <th width="30%">Name</th>
-        <th width="20%">Role</th>
-        <th width="20%">Date</th>
-        <th width="30%">Signature</th>
-      </tr>
-      ${Array.from({ length: Math.max(1, Number(operatives) || 1) }).map(() => `
+    <div class="section-block">
+      <h2>8. Emergency Arrangements</h2>
+      <table>
         <tr>
-          <td style="height: 50px;"></td>
-          <td></td>
-          <td></td>
-          <td></td>
+          <th width="25%">Supervisor</th>
+          <td width="25%">${sanitizeText(supervisorName)}</td>
+          <th width="25%">First Aider</th>
+          <td width="25%">${sanitizeText(firstAider)}</td>
         </tr>
-      `).join("")}
-    </table>
+        <tr>
+          <th>Hospital</th>
+          <td>${sanitizeText(hospital)}</td>
+          <th>Fire Assembly</th>
+          <td>${sanitizeText(fireAssembly)}</td>
+        </tr>
+        <tr>
+          <th>First Aid Kit</th>
+          <td>${sanitizeText(firstAidLoc)}</td>
+          <th>Welfare</th>
+          <td>${sanitizeText(welfare)}</td>
+        </tr>
+      </table>
+    </div>
+
+    <div class="section-block">
+      <h2>9. Operative Acknowledgement</h2>
+      <p>By signing below, ${terms.we.toLowerCase()} confirm ${terms.we.toLowerCase()} have read and understood this RAMS and will work in accordance with the control measures and method statement.</p>
+      
+      <table>
+        <thead>
+          <tr>
+            <th width="30%">Name</th>
+            <th width="20%">Role</th>
+            <th width="20%">Date</th>
+            <th width="30%">Signature</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${Array.from({ length: Math.max(1, Number(operatives) || 1) }).map(() => `
+            <tr>
+              <td style="height: 50px;"></td>
+              <td></td>
+              <td></td>
+              <td></td>
+            </tr>
+          `).join("")}
+        </tbody>
+      </table>
+    </div>
   `;
 
   // 10. Authorization
   const authorizationHTML = `
-    <div style="page-break-inside: avoid; margin-top: 30px; border: 1px solid #000; padding: 20px;">
+    <div class="signature-block">
       <h3 style="margin-top: 0; text-align: center; border-bottom: 1px solid #000; padding-bottom: 10px;">10. Authorization & Approval</h3>
       
-      <div style="margin-top: 20px;">
+      <div class="signature-section" style="margin-top: 15px;">
         <p><strong>${terms.manager} Sign-off:</strong></p>
         <p>I confirm that the above method statement and risk assessment is suitable and sufficient for the task.</p>
         <table style="border: none;">
@@ -414,7 +454,7 @@ export function generateRAMSHTML(data: RAMSData): string {
         </table>
       </div>
 
-      <div style="margin-top: 20px; border-top: 1px dashed #ccc; padding-top: 20px;">
+      <div class="signature-section" style="margin-top: 15px; border-top: 1px dashed #ccc; padding-top: 15px;">
         <p><strong>Client / Principal Contractor Acceptance (Optional):</strong></p>
         <table style="border: none;">
           <tr style="border: none;">
@@ -460,15 +500,46 @@ export const RAMS_STYLES = `
       size: A4;
       margin: 15mm;
     }
+    *, *:before, *:after {
+      box-sizing: border-box;
+    }
+    html, body {
+      height: auto;
+      width: 100%;
+      margin: 0;
+      padding: 0;
+    }
     .rams-content {
       font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
       font-size: 10pt;
-      line-height: 1.4;
+      line-height: 1.3;
       color: #111;
-      margin: 0;
-      padding: 0;
       width: 100%;
     }
+    
+    /* Semantic Blocks for Pagination */
+    .section-block {
+      margin-bottom: 10px;
+      page-break-inside: auto;
+      break-inside: auto;
+    }
+    .keep-together {
+      page-break-inside: avoid;
+      break-inside: avoid;
+    }
+    .signature-block {
+      margin-top: 20px;
+      page-break-inside: auto;
+      break-inside: auto;
+      border: 1px solid #000;
+      padding: 15px;
+    }
+    .signature-section {
+      page-break-inside: avoid;
+      break-inside: avoid;
+      margin-bottom: 15px;
+    }
+
     h1 {
       font-size: 16pt;
       font-weight: bold;
@@ -483,36 +554,51 @@ export const RAMS_STYLES = `
       font-size: 12pt;
       font-weight: bold;
       text-transform: uppercase;
-      margin-top: 25px;
-      margin-bottom: 10px;
+      margin-top: 0;
+      margin-bottom: 8px;
       border-bottom: 1px solid #000;
-      padding-bottom: 5px;
+      padding-bottom: 4px;
       page-break-after: avoid;
+      break-after: avoid;
       width: 100%;
     }
     h3 {
       font-size: 11pt;
       font-weight: bold;
-      margin-top: 15px;
-      margin-bottom: 5px;
+      margin-top: 12px;
+      margin-bottom: 4px;
       text-transform: uppercase;
       color: #333;
+      page-break-after: avoid;
+      break-after: avoid;
     }
     p {
-      margin-bottom: 8px;
+      margin-bottom: 6px;
       text-align: justify;
+      orphans: 2;
+      widows: 2;
     }
+    
+    /* Table Pagination Rules */
     table {
       width: 100%;
       border-collapse: collapse;
-      margin-bottom: 15px;
+      margin-bottom: 0;
+      page-break-inside: auto;
+      break-inside: auto;
+    }
+    tr {
       page-break-inside: avoid;
+      break-inside: avoid;
     }
     th, td {
       border: 1px solid #000;
       padding: 8px;
       vertical-align: top;
       text-align: left;
+    }
+    thead {
+      display: table-header-group; /* Repeat header on new page */
     }
     th {
       background-color: #f8f9fa;
@@ -523,6 +609,7 @@ export const RAMS_STYLES = `
     td {
       font-size: 9.5pt;
     }
+    
     .text-center { text-align: center; }
     .text-right { text-align: right; }
     .bold { font-weight: bold; }
@@ -538,10 +625,360 @@ export const RAMS_STYLES = `
     .risk-med { background-color: #fff3e0; color: #ef6c00; }
     .risk-low { background-color: #e8f5e9; color: #2e7d32; }
     
-    /* Print specific */
+    /* Word Specifics */
     @media print {
       .rams-content { padding: 0; }
-      .no-break { page-break-inside: avoid; }
-      h2 { page-break-after: avoid; }
+      .no-break { page-break-inside: avoid; break-inside: avoid; }
+      
+      /* Tighten spacing for print */
+      .section-block {
+        margin-bottom: 0.25rem !important;
+        break-inside: auto !important;
+        page-break-inside: auto !important;
+      }
+      /* Override method step spacing */
+      .section-block div {
+        margin-bottom: 0.25rem !important;
+      }
+      h1 {
+        margin-bottom: 0.5rem !important;
+        padding-bottom: 0.25rem !important;
+      }
+      h2 {
+        margin-top: 0.5rem !important;
+        margin-bottom: 0.25rem !important;
+        break-after: auto !important;
+        page-break-after: auto !important;
+      }
+      h3 {
+        margin-top: 0.5rem !important;
+        margin-bottom: 0.25rem !important;
+        break-after: auto !important;
+        page-break-after: auto !important;
+      }
+      p {
+        margin-bottom: 0.25rem !important;
+        break-inside: auto !important;
+        page-break-inside: auto !important;
+      }
+      
+      /* Critical Elements */
+      table {
+        break-inside: auto !important;
+        page-break-inside: auto !important;
+      }
+      tr {
+        break-inside: auto !important;
+        page-break-inside: auto !important;
+      }
+      /* Only keep signatures together as they are small and look bad if split */
+      .signature-section {
+        break-inside: avoid !important;
+        page-break-inside: avoid !important;
+      }
+      
+      /* Reset forced breaks */
+      h2, h3, .section-block, table, tr {
+        break-before: auto !important;
+        page-break-before: auto !important;
+      }
+    }
+    
+    /* PDF Sign Styles */
+    .pdf-sign-strip {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      margin-top: 4px;
+    }
+    .pdf-sign {
+      width: 24px;
+      height: 24px;
+      object-fit: contain;
+      vertical-align: middle;
+    }
+    .pdf-sign-large {
+      width: 32px;
+      height: 32px;
+      object-fit: contain;
+      display: block;
+      margin: 0 auto 4px auto;
     }
 `;
+
+export interface COSHHData {
+  documentName: string;
+  companyName: string;
+  assessorName: string;
+  clientName: string;
+  projectRef: string;
+  siteAddress: string;
+  assessmentDate: string;
+  reviewDate?: string;
+
+  selectedSubstances: { name: string; hazard: string; control: string }[];
+  customSubstances: { name: string; hazard: string; control: string }[];
+
+  workActivity: string;
+  exposureDuration: string;
+  exposureFrequency: string;
+  personsExposed: string[];
+
+  ppe: string[];
+  emergencyProcedures: string;
+  additionalControls: string;
+}
+
+export function generateCOSHHHTML(data: COSHHData): string {
+  const {
+    documentName,
+    companyName,
+    assessorName,
+    clientName,
+    projectRef,
+    siteAddress,
+    assessmentDate,
+    selectedSubstances,
+    customSubstances,
+    workActivity,
+    exposureDuration,
+    exposureFrequency,
+    personsExposed,
+    ppe,
+    emergencyProcedures,
+    additionalControls
+  } = data;
+
+  const allSubstances = [...selectedSubstances, ...customSubstances];
+
+  // Helper to infer extra data
+  const getExposureRoutes = (hazard: string) => {
+    const h = hazard.toLowerCase();
+    const routes = [];
+    if (h.includes("inhalation") || h.includes("respiratory") || h.includes("dust") || h.includes("fume") || h.includes("vapour")) routes.push("Inhalation");
+    if (h.includes("skin") || h.includes("burns") || h.includes("dermatitis") || h.includes("corrosive")) routes.push("Skin Contact");
+    if (h.includes("eye")) routes.push("Eye Contact");
+    if (h.includes("swallowed") || h.includes("ingestion")) routes.push("Ingestion");
+
+    if (routes.length === 0) return "Skin, Eye, Inhalation";
+    return routes.join(" / ");
+  };
+
+  const getStorage = (substance: string) => {
+    const s = substance.toLowerCase();
+    if (s.includes("flammable") || s.includes("gas")) return "Secure cage, well ventilated, away from heat";
+    if (s.includes("acid") || s.includes("caustic")) return "Cool, dry, bunded area, original container";
+    return "Cool, dry place, original container";
+  };
+
+  const getRiskLevel = (hazard: string) => {
+    const h = hazard.toLowerCase();
+    if (h.includes("cancer") || h.includes("carcinogen") || h.includes("genetic") || h.includes("toxic") || h.includes("severe")) return "High";
+    if (h.includes("corrosive") || h.includes("burns") || h.includes("flammable")) return "Medium";
+    return "Low";
+  };
+
+  // Split PPE
+  const coshhPPEKeywords = ["glove", "mask", "goggle", "glass", "eye", "shield", "respirator", "rpe", "apron", "suit", "coverall", "cream"];
+  const coshhPPE = ppe.filter(p => coshhPPEKeywords.some(k => p.toLowerCase().includes(k)));
+  const generalPPE = ppe.filter(p => !coshhPPEKeywords.some(k => p.toLowerCase().includes(k)));
+
+  const header = `
+    <div class="header-line">
+      <h1>COSHH Assessment</h1>
+    </div>
+  `;
+
+  const projectDetails = `
+    <div class="section-block keep-together">
+      <h2>1. Assessment Details</h2>
+      <table>
+        <tr>
+          <th width="20%">Company</th>
+          <td width="30%">${sanitizeText(companyName)}</td>
+          <th width="20%">Client</th>
+          <td width="30%">${sanitizeText(clientName)}</td>
+        </tr>
+        <tr>
+          <th>Site Address</th>
+          <td colspan="3">${sanitizeText(siteAddress)}</td>
+        </tr>
+        <tr>
+          <th>Assessor</th>
+          <td>${sanitizeText(assessorName)}</td>
+          <th>Date</th>
+          <td>${assessmentDate}</td>
+        </tr>
+        <tr>
+          <th>Project Ref</th>
+          <td>${sanitizeText(projectRef || "—")}</td>
+          <th>Review Date</th>
+          <td>${sanitizeText(data.reviewDate || "As required")}</td>
+        </tr>
+      </table>
+    </div>
+  `;
+
+  const substanceRows = allSubstances.map(s => {
+    const risk = getRiskLevel(s.hazard);
+    const riskClass = risk === "High" ? "risk-high" : risk === "Medium" ? "risk-med" : "risk-low";
+    const ghsType = mapStringToHazardClass(s.hazard);
+    const ghsIcon = ghsType ? GHS_ICON_MAP[ghsType] : null;
+
+    return `
+    <tr>
+      <td width="20%" class="bold">${sanitizeText(s.name)}</td>
+      <td width="20%">
+        ${ghsIcon ? `<img src="${ghsIcon}" class="pdf-sign" style="margin-right: 5px;" />` : ""}
+        ${sanitizeText(s.hazard)}
+      </td>
+      <td width="15%" class="small">${getExposureRoutes(s.hazard)}</td>
+      <td width="25%">${sanitizeText(s.control)}</td>
+      <td width="15%" class="small">${getStorage(s.name)}</td>
+      <td width="5%" class="risk-score ${riskClass}">${risk}</td>
+    </tr>
+  `}).join("");
+
+  const substancesHTML = `
+    <div class="section-block">
+      <h2>2. Hazardous Substances</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Substance / Product</th>
+            <th>Hazards / Health Effects</th>
+            <th>Exposure Routes</th>
+            <th>Control Measures</th>
+            <th>Storage & Disposal</th>
+            <th>Risk</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${substanceRows.length > 0 ? substanceRows : "<tr><td colspan='6'>No specific substances listed.</td></tr>"}
+        </tbody>
+      </table>
+    </div>
+  `;
+
+  const contextHTML = `
+    <div class="section-block">
+      <h2>3. Exposure & Work Context</h2>
+      <div style="border: 1px solid #000; padding: 10px;">
+        <ul style="margin: 0; padding-left: 20px;">
+          <li style="margin-bottom: 6px;"><strong>Work Activity:</strong> ${sanitizeText(workActivity)}</li>
+          <li style="margin-bottom: 6px;"><strong>Location / Environment:</strong> ${sanitizeText(siteAddress)}</li>
+          <li style="margin-bottom: 6px;"><strong>Duration of Exposure:</strong> ${sanitizeText(exposureDuration)}</li>
+          <li style="margin-bottom: 6px;"><strong>Frequency of Exposure:</strong> ${sanitizeText(exposureFrequency)}</li>
+          <li style="margin-bottom: 6px;"><strong>Persons Exposed:</strong> ${personsExposed.join(", ") || "Operatives only"}</li>
+        </ul>
+      </div>
+    </div>
+  `;
+
+  const coshhPPEHTML = coshhPPE.map(item => {
+    const type = mapStringToPpeType(item);
+    const icon = type ? PPE_ICON_MAP[type] : null;
+    return `
+    <div style="display: inline-block; border: 1px solid #0b2040; background-color: #f0f9ff; padding: 6px 10px; margin: 4px; border-radius: 4px; font-size: 9pt; text-align: center; min-width: 80px; vertical-align: top;">
+      ${icon ? `<img src="${icon}" class="pdf-sign-large" />` : ""}
+      <strong>${item}</strong>
+    </div>
+  `}).join("");
+
+  const generalPPEHTML = generalPPE.map(item => {
+    const type = mapStringToPpeType(item);
+    const icon = type ? PPE_ICON_MAP[type] : null;
+    return `
+    <div style="display: inline-block; border: 1px solid #ccc; padding: 6px 10px; margin: 4px; border-radius: 4px; font-size: 9pt; text-align: center; min-width: 80px; vertical-align: top;">
+      ${icon ? `<img src="${icon}" class="pdf-sign-large" />` : ""}
+      <strong>${item}</strong>
+    </div>
+  `}).join("");
+
+  const ppeHTML = `
+    <div class="section-block">
+      <h2>4. PPE Requirements</h2>
+      
+      <div style="margin-bottom: 10px;">
+        <h3 style="font-size: 10pt; margin-bottom: 5px;">COSHH Specific PPE (Mandatory for these substances)</h3>
+        ${coshhPPEHTML.length > 0 ? coshhPPEHTML : "<p>No specific COSHH PPE identified (Standard site PPE applies).</p>"}
+      </div>
+
+      <div>
+        <h3 style="font-size: 10pt; margin-bottom: 5px;">General Site PPE</h3>
+        ${generalPPEHTML.length > 0 ? generalPPEHTML : "<p>Standard site PPE.</p>"}
+      </div>
+    </div>
+  `;
+
+  const controlsHTML = `
+    <div class="section-block">
+      <h2>5. Additional Control Measures</h2>
+      <div style="padding: 5px;">
+        ${sanitizeText(additionalControls).split('\n').map(line => line.trim() ? `<p>• ${line}</p>` : '').join('')}
+      </div>
+    </div>
+
+    <div class="section-block">
+      <h2>6. Emergency Procedures</h2>
+      <div style="padding: 5px;">
+        ${sanitizeText(emergencyProcedures).split('\n').map(line => line.trim() ? `<p>• ${line}</p>` : '').join('')}
+      </div>
+    </div>
+  `;
+
+  const signatureHTML = `
+    <div class="signature-block keep-together">
+      <h3 style="margin-top: 0; text-align: center; border-bottom: 1px solid #000; padding-bottom: 10px;">7. Assessment Authorization</h3>
+      
+      <div class="signature-section" style="margin-top: 15px;">
+        <p><strong>Assessor Sign-off:</strong> I confirm that this assessment is suitable and sufficient.</p>
+        <table style="border: none;">
+          <tr style="border: none;">
+            <td style="border: none; padding: 10px 0;"><strong>Name:</strong> ${sanitizeText(assessorName)}</td>
+            <td style="border: none; padding: 10px 0;"><strong>Signature:</strong> ____________________</td>
+            <td style="border: none; padding: 10px 0;"><strong>Date:</strong> ${assessmentDate}</td>
+          </tr>
+        </table>
+      </div>
+
+      <div class="signature-section" style="margin-top: 15px; border-top: 1px dashed #ccc; padding-top: 15px;">
+        <p><strong>Operative Acknowledgement:</strong> I have read and understood this COSHH assessment.</p>
+        <table style="border: none; margin-top: 10px;">
+          <tr style="border: none;">
+             <td style="border: none; width: 50%;"><strong>Name:</strong> ____________________</td>
+             <td style="border: none; width: 50%;"><strong>Signature:</strong> ____________________</td>
+          </tr>
+          <tr style="border: none;">
+             <td style="border: none; width: 50%;"><strong>Name:</strong> ____________________</td>
+             <td style="border: none; width: 50%;"><strong>Signature:</strong> ____________________</td>
+          </tr>
+        </table>
+      </div>
+    </div>
+  `;
+
+  return `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="utf-8">
+      <title>${sanitizeText(documentName)}</title>
+      <style>
+        ${RAMS_STYLES}
+      </style>
+    </head>
+    <body>
+      <div class="rams-content">
+        ${header}
+        ${projectDetails}
+        ${substancesHTML}
+        ${contextHTML}
+        ${ppeHTML}
+        ${controlsHTML}
+        ${signatureHTML}
+      </div>
+    </body>
+    </html>
+  `;
+}

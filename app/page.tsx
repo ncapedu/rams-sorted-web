@@ -17,6 +17,7 @@ import {
   Edit2,
   Trash2,
   Plus,
+  Beaker,
 } from "lucide-react";
 import TypewriterText from "./components/TypewriterText";
 
@@ -28,9 +29,12 @@ import {
 } from "./lib/constants";
 
 import MyFileViewer, { RAMSFile } from "./components/MyFileViewer";
-import { generateRAMSHTML, RAMSData } from "./lib/rams-generation";
+import { generateRAMSHTML, RAMSData, generatePPE } from "./lib/rams-generation";
+import { SignStrip } from "./components/SignStrip";
+import { PPE_ICON_MAP, mapStringToPpeType } from "./lib/safety-icons";
 import Toast, { ToastType } from "./components/Toast";
 import ConfirmationModal from "./components/ConfirmationModal";
+import AnimatedTitle from "./components/AnimatedTitle";
 
 // --- SMALL TEXT SANITISER ---
 function sanitizeText(input: any): string {
@@ -46,31 +50,10 @@ function sanitizeText(input: any): string {
 // Single greeting – no rotation
 const BASE_GREETING = "Welcome back";
 
-const TITLE_COLORS = ["text-[#0b2040]", "text-red-700", "text-black"];
+
 
 // --- TYPED TEXT COMPONENT ---
-const TypedText = ({
-  text,
-  className,
-}: {
-  text: string;
-  className?: string;
-}) => {
-  const [display, setDisplay] = useState("");
-
-  useEffect(() => {
-    setDisplay("");
-    let i = 0;
-    const id = setInterval(() => {
-      i += 1;
-      setDisplay(text.slice(0, i));
-      if (i >= text.length) clearInterval(id);
-    }, 30);
-    return () => clearInterval(id);
-  }, [text]);
-
-  return <span className={className}>{display}</span>;
-};
+// --- TYPED TEXT COMPONENT REMOVED (Replaced by TypewriterText) ---
 
 // --- CLICK OUTSIDE HOOK ---
 function useClickOutside(action: () => void) {
@@ -190,8 +173,10 @@ function AddressSearch({
 }
 
 // --- MAIN APPLICATION ---
+import CoshhWizard from "./components/CoshhWizard";
+
 function Page() {
-  const [mode, setMode] = useState<"landing" | "wizard" | "viewer">("landing");
+  const [mode, setMode] = useState<"landing" | "wizard" | "viewer" | "coshh">("landing");
   // 0 = pre-step (name doc), 1–5 = wizard steps
   const [step, setStep] = useState(1);
   const [sidebarOpen, setSidebarOpen] = useState(true);
@@ -218,7 +203,7 @@ function Page() {
     expectedEndDate: "",
     duration: "1 Day",
     operatives: "1",
-    trade: "Electrician",
+    trade: "",
     jobType: "",
     customJobType: "",
     jobDesc: "",
@@ -260,6 +245,7 @@ function Page() {
   const [recentFiles, setRecentFiles] = useState<RAMSFile[]>([]);
   const [activeFile, setActiveFile] = useState<RAMSFile | null>(null);
   const [fileMenuOpenId, setFileMenuOpenId] = useState<string | null>(null);
+  const [renamingFileId, setRenamingFileId] = useState<string | null>(null);
   const [isLoaded, setIsLoaded] = useState(false);
 
   // Close menu on outside click
@@ -355,14 +341,7 @@ function Page() {
     return () => clearInterval(id);
   }, [mode]);
 
-  // Rotate color of "RS Wizard v1.0" while in wizard mode
-  useEffect(() => {
-    if (mode !== "wizard") return;
-    const id = setInterval(() => {
-      setTitleColorIndex((prev) => (prev + 1) % TITLE_COLORS.length);
-    }, 1200);
-    return () => clearInterval(id);
-  }, [mode]);
+
 
   // Update hazards/questions when trade/jobType changes
   useEffect(() => {
@@ -456,8 +435,33 @@ function Page() {
     }
     // Step 2 Validation
     else if (step === 2) {
-      if (!formData.jobType) {
+      if (!formData.trade) {
+        errorMsg = "Please select a Trade.";
+      } else if (!formData.jobType) {
         errorMsg = "Please select a Job Type.";
+      } else if (formData.jobType === "Other (Custom)") {
+        if (!formData.customJobTitle?.trim()) {
+          errorMsg = "Please enter a Custom Job Title.";
+        } else if (!formData.customJobDescription?.trim()) {
+          errorMsg = "Please enter a Job Description.";
+        }
+      } else {
+        // Standard job type
+        if (!formData.customDescription?.trim()) {
+          errorMsg = "Please enter a Job Description.";
+        } else {
+          // Check for extra sections (high complexity)
+          const currentTrade = TRADES[formData.trade as keyof typeof TRADES];
+          const clusterData = currentTrade?.clusters?.[formData.jobType];
+          const extraSections = clusterData?.extraSections || [];
+
+          for (const section of extraSections) {
+            if (!formData.extraData?.[section]?.trim()) {
+              errorMsg = `Please enter details for ${section.replace(/_/g, " ")}.`;
+              break;
+            }
+          }
+        }
       }
     }
     // Step 3 Validation (Safety Contacts are critical)
@@ -539,6 +543,11 @@ function Page() {
 
     const composedScope = buildScopeFromForm();
 
+    // Lookup extra sections for high complexity jobs
+    const currentTrade = TRADES[formData.trade as keyof typeof TRADES];
+    const clusterData = currentTrade?.clusters?.[formData.jobType];
+    const extraSections = clusterData?.extraSections || [];
+
     setIsGenerating(true);
     try {
       const res = await fetch("/api/generate", {
@@ -550,6 +559,7 @@ function Page() {
           answers,
           customDescription: composedScope,
           extraData: formData.extraData,
+          extraSections,
         }),
       });
 
@@ -607,6 +617,7 @@ function Page() {
         operatives: formData.operatives,
         userType: formData.userType as "company" | "sole_trader",
         methodSteps: apiData.method_steps,
+        extraData: { ...formData.extraData, ...(apiData.extraData || {}) },
       };
 
       const htmlContent = generateRAMSHTML(ramsData);
@@ -674,7 +685,7 @@ function Page() {
                   : "opacity-0 w-0 overflow-hidden"
                   }`}
               >
-                <div className="relative h-[70px] w-[100px] ml-3 transform scale-125 origin-left">
+                <div className="relative h-[85px] w-[125px] ml-3 transform origin-left">
                   <Image
                     src="/rams-logo2.png"
                     alt="RAMS Sorted logo"
@@ -734,13 +745,13 @@ function Page() {
                   </div>
                   {recentFiles.length === 0 ? (
                     <div className="px-2 py-2 text-[11px] text-slate-500">
-                      Generated RAMS documents will appear here.
+                      Generated documents will appear here.
                     </div>
                   ) : (
                     recentFiles.map((file) => (
                       <div
                         key={file.id}
-                        className={`w-full px-2 py-1 rounded-md hover:bg-slate-200/80 ${activeFile?.id === file.id ? "bg-slate-300 shadow-sm" : ""
+                        className={`w-full px-2 py-1 rounded-md transition-colors hover:bg-gray-100 ${activeFile?.id === file.id ? "bg-gray-200" : ""
                           }`}
                         onClick={() => {
                           setActiveFile(file);
@@ -749,12 +760,55 @@ function Page() {
                       >
                         <div className="flex items-center justify-between gap-2">
                           <div className="flex-1 min-w-0">
-                            <div className="font-semibold text-slate-900 truncate text-[13px]">
-                              <TypedText
-                                text={file.name}
-                                key={file.id + file.name}
+                            {renamingFileId === file.id ? (
+                              <input
+                                autoFocus
+                                className="w-full bg-white border border-blue-500 rounded px-1 py-0.5 text-[13px] font-semibold text-slate-900 focus:outline-none"
+                                defaultValue={file.name}
+                                onClick={(e) => e.stopPropagation()}
+                                onKeyDown={(e) => {
+                                  if (e.key === "Enter") {
+                                    e.preventDefault();
+                                    const newName = e.currentTarget.value.trim();
+                                    if (newName && newName !== file.name) {
+                                      const updated: RAMSFile = { ...file, name: newName };
+                                      setRecentFiles((prev) =>
+                                        prev.map((f) => (f.id === file.id ? updated : f))
+                                      );
+                                      if (activeFile?.id === file.id) {
+                                        setActiveFile(updated);
+                                      }
+                                    }
+                                    setRenamingFileId(null);
+                                  } else if (e.key === "Escape") {
+                                    setRenamingFileId(null);
+                                  }
+                                }}
+                                onBlur={(e) => {
+                                  const newName = e.currentTarget.value.trim();
+                                  if (newName && newName !== file.name) {
+                                    const updated: RAMSFile = { ...file, name: newName };
+                                    setRecentFiles((prev) =>
+                                      prev.map((f) => (f.id === file.id ? updated : f))
+                                    );
+                                    if (activeFile?.id === file.id) {
+                                      setActiveFile(updated);
+                                    }
+                                  }
+                                  setRenamingFileId(null);
+                                }}
                               />
-                            </div>
+                            ) : (
+                              <div className="font-semibold text-slate-900 truncate text-[13px]">
+                                <TypewriterText
+                                  messages={[file.name]}
+                                  key={file.id + file.name} // Key change triggers re-animation on rename
+                                  loop={false}
+                                  hideCursorOnComplete={true}
+                                  className="inline-block"
+                                />
+                              </div>
+                            )}
                             <div className="text-[11px] text-slate-500 truncate">
                               {file.createdAt}
                             </div>
@@ -778,23 +832,7 @@ function Page() {
                               >
                                 <button
                                   onClick={() => {
-                                    const newName = window.prompt(
-                                      "Rename file",
-                                      file.name
-                                    );
-                                    if (!newName || !newName.trim()) return;
-                                    const updated: RAMSFile = {
-                                      ...file,
-                                      name: newName.trim(),
-                                    };
-                                    setRecentFiles((prev) =>
-                                      prev.map((f) =>
-                                        f.id === file.id ? updated : f
-                                      )
-                                    );
-                                    if (activeFile?.id === file.id) {
-                                      setActiveFile(updated);
-                                    }
+                                    setRenamingFileId(file.id);
                                     setFileMenuOpenId(null);
                                   }}
                                   className="flex items-center gap-2 w-full px-3 py-1.5 text-[12px] hover:bg-slate-100"
@@ -856,53 +894,56 @@ function Page() {
         {/* MAIN PANEL */}
         <main className={`flex-1 flex flex-col h-full overflow-hidden ${mode === "viewer" ? "bg-white" : "bg-[#f5f4f0]"}`}>
           {isGenerating ? (
-            <div className="flex-1 flex flex-col items-center justify-center bg-white">
-              <div className="relative">
-                <div className="absolute inset-0 bg-red-100 rounded-full animate-ping opacity-20"></div>
-                <Loader2 className="w-16 h-16 animate-spin text-red-600 relative z-10" />
+            <div className="flex flex-col items-center justify-center h-full">
+              <div className="relative mb-8">
+                <div className="absolute inset-0 bg-blue-100 rounded-full animate-ping opacity-20"></div>
+                <Loader2 className="w-16 h-16 animate-spin text-[#0b2040] relative z-10" />
               </div>
-              <div className="mt-8 text-center">
-                <h2 className="text-2xl font-bold tracking-wide text-slate-800 h-8">
-                  <TypewriterText
-                    messages={[
-                      "Analyzing project requirements...",
-                      "Identifying potential hazards...",
-                      "Drafting safety control measures...",
-                      "Formatting method statement...",
-                      "Applying professional styling...",
-                      "Finalizing your RAMS document...",
-                    ]}
-                  />
-                </h2>
-              </div>
+              <h2 className="text-2xl font-bold tracking-wide text-slate-800 h-8 text-center">
+                <TypewriterText
+                  messages={[
+                    "Analyzing project requirements...",
+                    "Identifying key hazards...",
+                    "Drafting safety controls...",
+                    "Formatting document...",
+                    "Finalizing RAMS...",
+                  ]}
+                />
+              </h2>
             </div>
           ) : mode === "viewer" ? (
-            <section className="flex-1 h-full overflow-hidden flex flex-col">
+            <div className="h-full bg-white">
               <MyFileViewer
                 file={activeFile}
-                onBack={() => {
-                  setMode("landing");
-                  setActiveFile(null);
-                }}
-                onUpdateFile={(updated) => {
-                  setActiveFile(updated);
+                onBack={() => setMode("landing")}
+                onUpdateFile={(f) => {
+                  setActiveFile(f);
                   setRecentFiles((prev) =>
-                    prev.map((f) => (f.id === updated.id ? updated : f))
+                    prev.map((pf) => (pf.id === f.id ? f : pf))
                   );
                 }}
               />
-            </section>
+            </div>
+          ) : mode === "coshh" ? (
+            <CoshhWizard
+              onBack={() => setMode("landing")}
+              onSave={(file) => {
+                setRecentFiles((prev) => [file, ...prev]);
+                setActiveFile(file);
+                setMode("viewer");
+              }}
+            />
           ) : mode === "landing" ? (
-            // LANDING / HUB SCREEN
             <div className="flex-1 flex items-center justify-center px-6 rs-fade-slide-in bg-white">
               <div className="max-w-xl w-full text-center">
                 <h1 className="text-4xl md:text-5xl font-semibold text-slate-900 mb-3">
-                  <TypedText
-                    text={
+                  <TypewriterText
+                    messages={[
                       formData.contactName
                         ? `Welcome back, ${formData.contactName}`
                         : "Welcome back"
-                    }
+                    ]}
+                    loop={false}
                     className="border-b-0"
                   />
                 </h1>
@@ -915,11 +956,48 @@ function Page() {
                     onClick={() => {
                       setMode("wizard");
                       setStep(0);
+                      setFormData({
+                        userType: "company",
+                        companyName: "",
+                        officeAddress: "",
+                        contactName: "",
+                        contactPhone: "",
+                        contactEmail: "",
+                        projectSupervisor: "",
+                        clientName: "",
+                        projectRef: "",
+                        siteAddress: "",
+                        startDate: new Date().toISOString().split("T")[0],
+                        endDate: "",
+                        expectedEndDate: "",
+                        duration: "1 Day",
+                        operatives: "2",
+                        trade: "",
+                        jobType: "",
+                        customJobType: "",
+                        jobDesc: "",
+                        supervisorName: "",
+                        firstAider: "",
+                        hospital: "",
+                        fireAssembly: "",
+                        firstAidLoc: "",
+                        welfare: "",
+                        extraNotes: "",
+                        accessCode: "",
+                        customDescription: "",
+                        customJobTitle: "",
+                        customJobDescription: "",
+                        brandPrimaryColor: "black",
+                        brandSecondaryColor: "white",
+                        extraData: {},
+                      });
+                      setHazards([]);
+                      // Reset other states if necessary, but for now just fix the type error
                     }}
                     className="group flex flex-col items-center justify-center p-6 bg-white border border-slate-200 rounded-xl shadow-sm hover:shadow-md hover:border-slate-300 transition-all"
                   >
-                    <div className="h-12 w-12 rounded-full bg-blue-50 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
-                      <FileText className="w-6 h-6 text-blue-600" />
+                    <div className="h-12 w-12 rounded-full bg-red-50 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
+                      <FileText className="w-6 h-6 text-red-600" />
                     </div>
                     <span className="font-semibold text-slate-900">
                       New RAMS document
@@ -930,17 +1008,17 @@ function Page() {
                   </button>
 
                   <button
-                    disabled
-                    className="group flex flex-col items-center justify-center p-6 bg-slate-50 border border-slate-200 rounded-xl shadow-sm transition-all cursor-not-allowed opacity-60"
+                    onClick={() => setMode("coshh")}
+                    className="group flex flex-col items-center justify-center p-6 bg-white border border-slate-200 rounded-xl shadow-sm hover:shadow-md hover:border-slate-300 transition-all"
                   >
-                    <div className="h-12 w-12 rounded-full bg-slate-100 flex items-center justify-center mb-3 grayscale">
-                      <Briefcase className="w-6 h-6 text-slate-400" />
+                    <div className="h-12 w-12 rounded-full bg-purple-50 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
+                      <Beaker className="w-6 h-6 text-purple-600" />
                     </div>
-                    <span className="font-semibold text-slate-500">
-                      New Feature Coming Soon
+                    <span className="font-semibold text-slate-900">
+                      New COSHH Assessment
                     </span>
-                    <span className="text-xs text-slate-400 mt-1">
-                      Stay tuned
+                    <span className="text-xs text-slate-500 mt-1">
+                      Create a standalone assessment
                     </span>
                   </button>
                 </div>
@@ -957,9 +1035,7 @@ function Page() {
               <div className="sticky top-0 z-10 bg-white border-b border-slate-200 px-8 py-4 flex items-center justify-between">
                 <div>
                   <h2 className="text-xl font-bold text-slate-900 flex items-center gap-2">
-                    <span className={TITLE_COLORS[titleColorIndex]}>
-                      RS v1.0
-                    </span>
+                    <AnimatedTitle text="RS v1.0" />
                   </h2>
                   <p className="text-sm font-bold text-black mt-0.5">
                     Step {step} of 5
@@ -972,14 +1048,13 @@ function Page() {
                 )}
               </div>
 
-              {step > 0 && (
-                <div className="h-1.5 w-full rounded-full bg-slate-200 overflow-hidden">
-                  <div
-                    className="h-full bg-[#0b2040] transition-all duration-500 ease-out"
-                    style={{ width: `${(step / 5) * 100}%` }}
-                  />
-                </div>
-              )}
+              {/* Progress Bar - Always visible */}
+              <div className="h-1.5 w-full bg-slate-200">
+                <div
+                  className="h-full bg-[#0b2040] transition-all duration-500 ease-out"
+                  style={{ width: `${step === 0 ? 0 : (step / 5) * 100}%` }}
+                />
+              </div>
 
               {/* Content area with its own scroll */}
               <div
@@ -989,9 +1064,14 @@ function Page() {
                 {/* STEP 0: NAME DOCUMENT + BRANDING */}
                 {step === 0 && (
                   <div className="space-y-6">
-                    <h2 className="text-2xl font-semibold text-slate-900">
-                      <TypedText text="Name Your RAMS Document" />
-                    </h2>
+                    <div className="flex items-center gap-3 mb-6">
+                      <div className="h-10 w-10 rounded-full bg-blue-50 flex items-center justify-center">
+                        <FileText className="w-5 h-5 text-[#0b2040]" />
+                      </div>
+                      <h2 className="text-2xl font-semibold text-slate-900">
+                        <TypewriterText messages={["Set Up Your Assessment File"]} loop={false} />
+                      </h2>
+                    </div>
 
                     <div className="space-y-6 max-w-2xl">
                       {/* Document name */}
@@ -1045,68 +1125,7 @@ function Page() {
                         </div>
                       </div>
 
-                      {/* Branding & appearance – kept for future PDF styling */}
-                      <div className="space-y-4 bg-slate-50 border border-slate-200 rounded-xl p-4">
-                        <h3 className="text-sm font-semibold text-slate-900">
-                          Branding &amp; appearance (optional)
-                        </h3>
-                        <p className="text-xs text-slate-600">
-                          Choose a primary and secondary colour.
-                        </p>
 
-                        <div className="space-y-2">
-                          <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
-                            Primary colour
-                          </label>
-                          <select
-                            className="border border-slate-300 p-2.5 rounded-lg w-full text-sm bg-white focus:ring-2 focus:ring-[#0b2040] focus:border-transparent outline-none"
-                            value={formData.brandPrimaryColor}
-                            onChange={(e) =>
-                              handleInput("brandPrimaryColor", e.target.value)
-                            }
-                          >
-                            <option value="black">Black</option>
-                            <option value="white">White</option>
-                            <option value="navy">Navy</option>
-                            <option value="red">Red</option>
-                            <option value="blue">Blue</option>
-                            <option value="green">Green</option>
-                            <option value="orange">Orange</option>
-                            <option value="yellow">Yellow</option>
-                            <option value="grey">Grey</option>
-                          </select>
-                        </div>
-
-                        <div className="space-y-2">
-                          <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
-                            Secondary colour
-                          </label>
-                          <select
-                            className="border border-slate-300 p-2.5 rounded-lg w-full text-sm bg-white focus:ring-2 focus:ring-[#0b2040] focus:border-transparent outline-none"
-                            value={formData.brandSecondaryColor}
-                            onChange={(e) =>
-                              handleInput(
-                                "brandSecondaryColor",
-                                e.target.value
-                              )
-                            }
-                          >
-                            <option value="white">White</option>
-                            <option value="black">Black</option>
-                            <option value="navy">Navy</option>
-                            <option value="red">Red</option>
-                            <option value="blue">Blue</option>
-                            <option value="green">Green</option>
-                            <option value="orange">Orange</option>
-                            <option value="yellow">Yellow</option>
-                            <option value="grey">Grey</option>
-                          </select>
-                          <p className="text-xs text-slate-500">
-                            Used mainly for table headers and accents.
-                            Default is black on white.
-                          </p>
-                        </div>
-                      </div>
                     </div>
 
                     <div className="flex justify-between gap-3 pt-4">
@@ -1150,10 +1169,14 @@ function Page() {
                 {/* STEP 1: COMPANY & PROJECT */}
                 {step === 1 && (
                   <div className="space-y-6">
-                    <h2 className="text-2xl font-semibold text-slate-900 flex items-center gap-2">
-                      <Briefcase className="w-5 h-5 text-[#0b2040]" />
-                      <TypedText text="Company & Project Details" />
-                    </h2>
+                    <div className="flex items-center gap-3 mb-6">
+                      <div className="h-10 w-10 rounded-full bg-blue-50 flex items-center justify-center">
+                        <Briefcase className="w-5 h-5 text-[#0b2040]" />
+                      </div>
+                      <h2 className="text-2xl font-semibold text-slate-900">
+                        <TypewriterText messages={["Company & Project Details"]} loop={false} />
+                      </h2>
+                    </div>
                     <p className="text-[11px] text-slate-500">
                       Fields marked <span className="text-red-600">*</span>{" "}
                       are required. Others are optional but help create a more
@@ -1323,10 +1346,14 @@ function Page() {
                 {/* STEP 2: JOB SCOPE & PRE-START */}
                 {step === 2 && (
                   <div className="space-y-6">
-                    <h2 className="text-xl font-semibold text-slate-900 flex items-center gap-2">
-                      <FileText className="w-5 h-5 text-[#0b2040]" />
-                      <TypedText text="Job Scope & Pre-Start Checks" />
-                    </h2>
+                    <div className="flex items-center gap-3 mb-6">
+                      <div className="h-10 w-10 rounded-full bg-blue-50 flex items-center justify-center">
+                        <FileText className="w-5 h-5 text-[#0b2040]" />
+                      </div>
+                      <h2 className="text-2xl font-semibold text-slate-900">
+                        <TypewriterText messages={["Job Scope & Pre-Start Checks"]} loop={false} />
+                      </h2>
+                    </div>
                     <p className="text-[11px] text-slate-500">
                       Fields marked <span className="text-red-600">*</span>{" "}
                       are required. Use the search or dropdowns to lock in the
@@ -1417,6 +1444,7 @@ function Page() {
                             handleInput("trade", e.target.value)
                           }
                         >
+                          <option value="">Select Trade</option>
                           {Object.keys(TRADES).map((t) => (
                             <option key={t}>{t}</option>
                           ))}
@@ -1437,9 +1465,9 @@ function Page() {
                           }
                         >
                           <option value="">Select Job Type</option>
-                          {
+                          {formData.trade &&
                             // @ts-ignore
-                            TRADES[formData.trade].jobs.map((j: any) => (
+                            TRADES[formData.trade]?.jobs.map((j: any) => (
                               <option key={j.name}>{j.name}</option>
                             ))
                           }
@@ -1575,7 +1603,7 @@ function Page() {
                       <div className="space-y-4">
                         <div>
                           <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
-                            Custom job title (optional)
+                            Custom job title (required)
                           </label>
                           <input
                             className="w-full border border-slate-300 p-3 rounded-lg text-sm focus:ring-2 focus:ring-[#0b2040] focus:border-transparent outline-none bg-white"
@@ -1592,7 +1620,7 @@ function Page() {
 
                         <div>
                           <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700">
-                            Job description (optional)
+                            Job description (required)
                           </label>
                           <p className="text-xs text-slate-500 mb-1">
                             Describe exactly what will be done, where, and in
@@ -1633,7 +1661,7 @@ function Page() {
                       <div className="space-y-4">
                         <div>
                           <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700">
-                            Job description (optional)
+                            Job description (required)
                           </label>
                           <p className="text-xs text-slate-500 mb-1">
                             This is pre-filled from our library where
@@ -1652,6 +1680,45 @@ function Page() {
                             placeholder="Describe the task, location, sequence and any special considerations..."
                           />
                         </div>
+
+                        {/* Extra Sections for High Complexity Jobs */}
+                        {(() => {
+                          const currentTrade = TRADES[formData.trade as keyof typeof TRADES];
+                          const clusterData = currentTrade?.clusters?.[formData.jobType];
+                          const extraSections = clusterData?.extraSections || [];
+
+                          if (extraSections.length > 0) {
+                            return (
+                              <div className="space-y-4 pt-2 border-t border-slate-200">
+                                <div className="bg-blue-50 p-3 rounded-lg border border-blue-100 text-xs text-blue-800">
+                                  <strong>High Complexity Task:</strong> Please provide specific details for the following sections.
+                                </div>
+                                {extraSections.map((section: string) => (
+                                  <div key={section}>
+                                    <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
+                                      {section.replace(/_/g, " ")} (required)
+                                    </label>
+                                    <textarea
+                                      className="w-full border border-slate-200 p-3 rounded-lg h-24 text-sm focus:ring-2 focus:ring-[#0b2040] focus:border-transparent outline-none bg-white shadow-sm hover:border-slate-300 transition-all duration-200"
+                                      value={formData.extraData?.[section] || ""}
+                                      onChange={(e) =>
+                                        setFormData((prev) => ({
+                                          ...prev,
+                                          extraData: {
+                                            ...prev.extraData,
+                                            [section]: e.target.value,
+                                          },
+                                        }))
+                                      }
+                                      placeholder={`Enter details for ${section.replace(/_/g, " ")}...`}
+                                    />
+                                  </div>
+                                ))}
+                              </div>
+                            );
+                          }
+                          return null;
+                        })()}
 
                         <div>
                           <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700">
@@ -1673,43 +1740,6 @@ function Page() {
                       </div>
 
                     )}
-
-                    {/* Dynamic Extra Sections */}
-                    {TRADES[formData.trade]?.clusters[formData.jobType]?.extraSections &&
-                      TRADES[formData.trade].clusters[formData.jobType].extraSections!.length > 0 && (
-                        <div className="space-y-4 mt-6 pt-6 border-t border-slate-200">
-                          <div className="flex items-center gap-2 mb-2">
-                            <AlertTriangle className="w-4 h-4 text-amber-600" />
-                            <h4 className="font-semibold text-sm text-slate-900">
-                              High Complexity Job - Additional Details Required
-                            </h4>
-                          </div>
-                          <p className="text-xs text-slate-600 mb-4">
-                            This job type requires specific details for a complete safety plan.
-                          </p>
-                          {TRADES[formData.trade].clusters[formData.jobType].extraSections!.map((section) => (
-                            <div key={section}>
-                              <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
-                                {section.replace(/_/g, " ")}
-                              </label>
-                              <textarea
-                                className="w-full border border-slate-200 p-3 rounded-lg h-24 text-sm focus:ring-2 focus:ring-[#0b2040] focus:border-transparent outline-none bg-white shadow-sm hover:border-slate-300 transition-all duration-200"
-                                value={formData.extraData[section] || ""}
-                                onChange={(e) =>
-                                  setFormData((prev) => ({
-                                    ...prev,
-                                    extraData: {
-                                      ...prev.extraData,
-                                      [section]: e.target.value,
-                                    },
-                                  }))
-                                }
-                                placeholder={`Enter specific details for ${section.replace(/_/g, " ")}...`}
-                              />
-                            </div>
-                          ))}
-                        </div>
-                      )}
 
                     <div className="flex justify-between gap-3 pt-2">
                       <div className="flex gap-2">
@@ -1744,10 +1774,14 @@ function Page() {
                 {/* STEP 3: SAFETY & EMERGENCY INFO */}
                 {step === 3 && (
                   <div className="space-y-6">
-                    <h2 className="text-xl font-semibold text-slate-900 flex items-center gap-2">
-                      <AlertTriangle className="w-5 h-5 text-[#0b2040]" />
-                      <TypedText text="Safety & Emergency Information" />
-                    </h2>
+                    <div className="flex items-center gap-3 mb-6">
+                      <div className="h-10 w-10 rounded-full bg-blue-50 flex items-center justify-center">
+                        <AlertTriangle className="w-5 h-5 text-[#0b2040]" />
+                      </div>
+                      <h2 className="text-2xl font-semibold text-slate-900">
+                        <TypewriterText messages={["Safety & Emergency Information"]} loop={false} />
+                      </h2>
+                    </div>
                     <p className="text-[11px] text-slate-500">
                       Fields marked <span className="text-red-600">*</span>{" "}
                       are required. Use{" "}
@@ -1878,13 +1912,17 @@ function Page() {
                 {/* STEP 4: HAZARDS */}
                 {step === 4 && (
                   <div className="space-y-6">
-                    <h2 className="text-xl font-semibold text-slate-900 flex items-center gap-2">
-                      <AlertTriangle className="w-5 h-5 text-[#0b2040]" />
-                      <TypedText text="Hazards & Risk Controls" />
-                    </h2>
+                    <div className="flex items-center gap-3 mb-6">
+                      <div className="h-10 w-10 rounded-full bg-blue-50 flex items-center justify-center">
+                        <AlertTriangle className="w-5 h-5 text-[#0b2040]" />
+                      </div>
+                      <h2 className="text-2xl font-semibold text-slate-900">
+                        <TypewriterText messages={["Hazards & Risk Controls"]} loop={false} />
+                      </h2>
+                    </div>
 
                     <p className="text-lg font-semibold text-red-700">
-                      <TypedText text="Please ensure you select all relevant hazards for this job – this is critical for a compliant RAMS." />
+                      <TypewriterText messages={["Please ensure you select all relevant hazards for this job – this is critical for a compliant RAMS."]} loop={false} />
                     </p>
 
                     <div className="space-y-4">
@@ -1914,6 +1952,31 @@ function Page() {
                           </div>
                         )
                       )}
+
+
+                    </div>
+
+                    {/* Anticipated PPE Section */}
+                    <div className="mt-6 pt-6 border-t border-slate-200">
+                      <h3 className="text-sm font-semibold text-slate-900 mb-3">Anticipated PPE Requirements</h3>
+                      <p className="text-xs text-slate-500 mb-3">Based on your selected hazards and trade, the following PPE will be listed in the RAMS:</p>
+
+                      <div className="flex flex-wrap gap-2 mb-3">
+                        {generatePPE(hazards, formData.trade).map((ppe, i) => (
+                          <span key={i} className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-50 text-blue-700 border border-blue-100">
+                            {ppe}
+                          </span>
+                        ))}
+                      </div>
+
+                      <SignStrip
+                        icons={generatePPE(hazards, formData.trade)
+                          .map(p => mapStringToPpeType(p))
+                          .filter((t): t is keyof typeof PPE_ICON_MAP => t !== null)
+                          .map(t => PPE_ICON_MAP[t])
+                        }
+                        label="Mandatory PPE Signs"
+                      />
                     </div>
 
                     <div className="flex justify-between gap-3 pt-4 border-t border-slate-200">
@@ -1949,10 +2012,14 @@ function Page() {
                 {/* STEP 5: REVIEW & GENERATE */}
                 {step === 5 && (
                   <div className="space-y-6">
-                    <h2 className="text-xl font-semibold text-slate-900 flex items-center gap-2">
-                      <FileText className="w-5 h-5 text-[#0b2040]" />
-                      <TypedText text="Review & Generate" />
-                    </h2>
+                    <div className="flex items-center gap-3 mb-6">
+                      <div className="h-10 w-10 rounded-full bg-blue-50 flex items-center justify-center">
+                        <FileText className="w-5 h-5 text-[#0b2040]" />
+                      </div>
+                      <h2 className="text-2xl font-semibold text-slate-900">
+                        <TypewriterText messages={["Review & Generate"]} loop={false} />
+                      </h2>
+                    </div>
                     <p className="text-sm text-slate-600">
                       Final sense-check before you generate. If anything looks
                       off, go back and adjust the relevant step.
@@ -2133,24 +2200,24 @@ function Page() {
             </section>
           )}
         </main>
-      </div>
+      </div >
 
       {/* global animation for swipe/fade transitions */}
-      <style jsx global>{`
+      < style jsx global > {`
         @keyframes rsFadeSlideIn {
           from {
             opacity: 0;
-            transform: translateX(16px);
+            transform: translateY(10px);
           }
           to {
             opacity: 1;
-            transform: translateX(0);
+            transform: translateY(0);
           }
         }
         .rs-fade-slide-in {
           animation: rsFadeSlideIn 0.35s ease-out;
         }
-      `}</style>
+      `}</style >
 
     </>
   );
