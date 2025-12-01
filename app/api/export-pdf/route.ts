@@ -32,6 +32,8 @@ function embedImages(html: string): string {
   });
 }
 
+export const maxDuration = 60; // Allow up to 60 seconds for PDF generation
+
 export async function POST(req: NextRequest) {
   try {
     const { html: rawHtml, filename } = await req.json();
@@ -48,7 +50,7 @@ export async function POST(req: NextRequest) {
     if (process.env.NODE_ENV === 'production') {
       // Production: Use @sparticuz/chromium and puppeteer-core
       browser = await core.launch({
-        args: chromium.args,
+        args: [...chromium.args, '--hide-scrollbars', '--disable-web-security'],
         defaultViewport: { width: 1920, height: 1080 },
         executablePath: await chromium.executablePath(),
         headless: true,

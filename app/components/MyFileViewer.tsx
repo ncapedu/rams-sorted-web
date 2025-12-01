@@ -210,7 +210,7 @@ const MyFileViewer = ({ file, onBack, onUpdateFile }: MyFileViewerProps) => {
       saveAs(blob, `${file.name || 'RAMS_Document'}.pdf`);
     } catch (error) {
       console.error('PDF Export Error:', error);
-      alert('Failed to generate PDF. Please try again.');
+      alert(`Failed to generate PDF: ${(error as any).message || 'Unknown error'}`);
     } finally {
       setIsExportingPdf(false);
     }
