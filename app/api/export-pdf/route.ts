@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import puppeteer from 'puppeteer';
+import chromium from '@sparticuz/chromium';
+import core from 'puppeteer-core';
 import { RAMS_STYLES } from '../../lib/rams-generation';
 import fs from 'fs';
 import path from 'path';
@@ -42,11 +44,22 @@ export async function POST(req: NextRequest) {
     const html = embedImages(rawHtml);
 
     // Launch Puppeteer
-    // Note: In a real production environment (e.g. Vercel), you might need puppeteer-core and @sparticuz/chromium
-    const browser = await puppeteer.launch({
-      headless: true,
-      args: ['--no-sandbox', '--disable-setuid-sandbox'],
-    });
+    let browser;
+    if (process.env.NODE_ENV === 'production') {
+      // Production: Use @sparticuz/chromium and puppeteer-core
+      browser = await core.launch({
+        args: chromium.args,
+        defaultViewport: { width: 1920, height: 1080 },
+        executablePath: await chromium.executablePath(),
+        headless: true,
+      });
+    } else {
+      // Development: Use standard puppeteer
+      browser = await puppeteer.launch({
+        headless: true,
+        args: ['--no-sandbox', '--disable-setuid-sandbox'],
+      });
+    }
     const page = await browser.newPage();
 
     // Construct full HTML with styles
