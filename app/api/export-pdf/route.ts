@@ -1,30 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
-import chromium from '@sparticuz/chromium';
-import puppeteer from 'puppeteer-core';
 import { RAMS_STYLES } from '../../lib/rams-generation';
 import fs from 'fs';
 import path from 'path';
 
 export const runtime = 'nodejs';
 export const maxDuration = 60;
-
-// Configure Sparticuz Chromium
-chromium.setHeadlessMode = true;
-chromium.setGraphicsMode = false;
-
-async function launchBrowser() {
-  const isProd = !!process.env.VERCEL;
-  const executablePath = await chromium.executablePath();
-
-  console.log("Chromium executablePath:", executablePath, "isProd:", isProd);
-
-  return puppeteer.launch({
-    args: chromium.args,
-    defaultViewport: chromium.defaultViewport,
-    executablePath,
-    headless: chromium.headless,
-  });
-}
 
 // Helper to embed local images as base64
 function embedImages(html: string): string {
@@ -44,6 +24,37 @@ function embedImages(html: string): string {
       return match;
     }
   });
+}
+
+async function launchBrowser() {
+  const isProd = !!process.env.VERCEL;
+
+  if (isProd) {
+    console.log("PDF: Launching in Production (Sparticuz)");
+    const chromium = (await import("@sparticuz/chromium")).default;
+    const puppeteerCore = (await import("puppeteer-core")).default;
+
+    chromium.setHeadlessMode = true;
+    chromium.setGraphicsMode = false;
+
+    const executablePath = await chromium.executablePath();
+    console.log("PDF: Sparticuz executablePath:", executablePath);
+
+    return puppeteerCore.launch({
+      args: chromium.args,
+      defaultViewport: chromium.defaultViewport,
+      executablePath,
+      headless: chromium.headless,
+    });
+  } else {
+    console.log("PDF: Launching in Dev (Local Puppeteer)");
+    // Use standard puppeteer for local dev (Mac/Windows)
+    const puppeteer = (await import("puppeteer")).default;
+    return puppeteer.launch({
+      headless: true,
+      args: ['--no-sandbox', '--disable-setuid-sandbox']
+    });
+  }
 }
 
 export async function POST(req: NextRequest) {
