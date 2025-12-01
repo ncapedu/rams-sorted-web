@@ -8,6 +8,24 @@ import path from 'path';
 export const runtime = 'nodejs';
 export const maxDuration = 60;
 
+// Configure Sparticuz Chromium
+chromium.setHeadlessMode = true;
+chromium.setGraphicsMode = false;
+
+async function launchBrowser() {
+  const isProd = !!process.env.VERCEL;
+  const executablePath = await chromium.executablePath();
+
+  console.log("Chromium executablePath:", executablePath, "isProd:", isProd);
+
+  return puppeteer.launch({
+    args: chromium.args,
+    defaultViewport: chromium.defaultViewport,
+    executablePath,
+    headless: chromium.headless,
+  });
+}
+
 // Helper to embed local images as base64
 function embedImages(html: string): string {
   return html.replace(/<img[^>]+src="(\/[^"]+)"[^>]*>/g, (match, src) => {
@@ -62,31 +80,10 @@ export async function POST(req: NextRequest) {
       </html>
     `;
 
-    let browser;
-    if (process.env.NODE_ENV === 'production' || process.env.VERCEL) {
-      // Production: Use @sparticuz/chromium
-      chromium.setHeadlessMode = true;
-      chromium.setGraphicsMode = false;
-
-      browser = await puppeteer.launch({
-        args: chromium.args,
-        defaultViewport: chromium.defaultViewport,
-        executablePath: await chromium.executablePath(),
-        headless: chromium.headless,
-      });
-    } else {
-      // Local Development: Use system Chrome
-      // Adjust this path if your Chrome is installed elsewhere
-      const localExecutablePath = '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
-
-      browser = await puppeteer.launch({
-        headless: true,
-        executablePath: localExecutablePath,
-        args: ['--no-sandbox', '--disable-setuid-sandbox'],
-      });
-    }
-
+    const browser = await launchBrowser();
     const page = await browser.newPage();
+
+    // Use setContent instead of goto to render the exact HTML from the editor
     await page.setContent(fullHtml, { waitUntil: 'networkidle0', timeout: 30000 });
 
     const pdfBuffer = await page.pdf({
