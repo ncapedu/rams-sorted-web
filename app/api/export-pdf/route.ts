@@ -1,22 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server';
-import puppeteer from 'puppeteer';
 import chromium from '@sparticuz/chromium';
-import core from 'puppeteer-core';
+import puppeteer from 'puppeteer-core';
 import { RAMS_STYLES } from '../../lib/rams-generation';
 import fs from 'fs';
 import path from 'path';
 
+export const runtime = 'nodejs';
+export const maxDuration = 60;
+
 // Helper to embed local images as base64
 function embedImages(html: string): string {
-  // Regex to find <img src="/icons/..." ... />
-  // We match src="/..." and capture the path
   return html.replace(/<img[^>]+src="(\/[^"]+)"[^>]*>/g, (match, src) => {
     try {
-      // Construct absolute path
-      // In Next.js, process.cwd() is usually the project root
-      // Public assets are in /public
       const filePath = path.join(process.cwd(), 'public', src);
-
       if (fs.existsSync(filePath)) {
         const ext = path.extname(filePath).substring(1);
         const base64 = fs.readFileSync(filePath, { encoding: 'base64' });
@@ -32,8 +28,6 @@ function embedImages(html: string): string {
   });
 }
 
-export const maxDuration = 60; // Allow up to 60 seconds for PDF generation
-
 export async function POST(req: NextRequest) {
   try {
     const { html: rawHtml, filename } = await req.json();
@@ -45,27 +39,7 @@ export async function POST(req: NextRequest) {
     // Embed images
     const html = embedImages(rawHtml);
 
-    // Launch Puppeteer
-    let browser;
-    if (process.env.NODE_ENV === 'production') {
-      // Production: Use @sparticuz/chromium and puppeteer-core
-      browser = await core.launch({
-        args: [...chromium.args, '--hide-scrollbars', '--disable-web-security'],
-        defaultViewport: { width: 1920, height: 1080 },
-        executablePath: await chromium.executablePath(),
-        headless: true,
-      });
-    } else {
-      // Development: Use standard puppeteer
-      browser = await puppeteer.launch({
-        headless: true,
-        args: ['--no-sandbox', '--disable-setuid-sandbox'],
-      });
-    }
-    const page = await browser.newPage();
-
     // Construct full HTML with styles
-    // We inject the RAMS_STYLES and ensure print media is active
     const fullHtml = `
       <!DOCTYPE html>
       <html>
@@ -88,12 +62,44 @@ export async function POST(req: NextRequest) {
       </html>
     `;
 
-    await page.setContent(fullHtml, { waitUntil: 'networkidle0' });
+    let browser;
+    if (process.env.NODE_ENV === 'production' || process.env.VERCEL) {
+      // Production: Use @sparticuz/chromium
+      chromium.setHeadlessMode = true;
+      chromium.setGraphicsMode = false;
+
+      browser = await puppeteer.launch({
+        args: chromium.args,
+        defaultViewport: chromium.defaultViewport,
+        executablePath: await chromium.executablePath(),
+        headless: chromium.headless,
+      });
+    } else {
+      // Local Development: Use system Chrome
+      // Adjust this path if your Chrome is installed elsewhere
+      const localExecutablePath = '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
+
+      browser = await puppeteer.launch({
+        headless: true,
+        executablePath: localExecutablePath,
+        args: ['--no-sandbox', '--disable-setuid-sandbox'],
+      });
+    }
+
+    const page = await browser.newPage();
+    await page.setContent(fullHtml, { waitUntil: 'networkidle0', timeout: 30000 });
 
     const pdfBuffer = await page.pdf({
       printBackground: true,
       displayHeaderFooter: false,
       preferCSSPageSize: true,
+      format: 'A4',
+      margin: {
+        top: '10mm',
+        right: '10mm',
+        bottom: '10mm',
+        left: '10mm',
+      },
     });
 
     await browser.close();
