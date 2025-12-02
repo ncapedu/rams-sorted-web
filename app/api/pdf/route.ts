@@ -1,8 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
-import { launchBrowser } from "@/lib/pdf/launchBrowser";
 
-export const runtime = "nodejs"; // CRITICAL: Puppeteer only works on Node runtime
-export const maxDuration = 60; // Increase duration for PDF generation
+export const runtime = "nodejs";
+
+interface Api2PdfResponse {
+    FileUrl?: string;
+    Success?: boolean;
+    Error?: string | null;
+}
 
 export async function POST(req: NextRequest) {
     try {
@@ -12,38 +16,72 @@ export async function POST(req: NextRequest) {
             return new NextResponse("Missing HTML content", { status: 400 });
         }
 
-        const browser = await launchBrowser();
-        const page = await browser.newPage();
+        const apiKey = process.env.A2P_API_KEY;
+        if (!apiKey) {
+            console.error("A2P_API_KEY missing");
+            return new NextResponse("Server PDF config error: A2P_API_KEY missing", { status: 500 });
+        }
 
-        // Set content directly since we don't have a server-side DB to fetch by ID
-        // and localStorage is not accessible to the server-side browser.
-        await page.setContent(html, {
-            waitUntil: "networkidle0",
-            timeout: 30000,
-        });
+        console.log("[PDF] Generating via Api2Pdf (HTML mode)");
 
-        const pdfBuffer = await page.pdf({
-            format: "A4",
-            printBackground: true,
-            margin: {
-                top: "10mm",
-                right: "10mm",
-                bottom: "10mm",
-                left: "10mm",
+        // Call Api2Pdf Chrome HTML endpoint
+        // We use /chrome/html because we have the raw HTML from the client (localStorage data)
+        const a2pRes = await fetch("https://v2018.api2pdf.com/chrome/html", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: apiKey,
             },
+            body: JSON.stringify({
+                html: html,
+                options: {
+                    printBackground: true,
+                    marginTop: "10mm",
+                    marginBottom: "10mm",
+                    marginLeft: "10mm",
+                    marginRight: "10mm",
+                    format: "A4"
+                },
+            }),
         });
 
-        await browser.close();
+        if (!a2pRes.ok) {
+            const text = await a2pRes.text();
+            console.error("Api2Pdf HTTP error:", a2pRes.status, text);
+            return new NextResponse(`Failed to call PDF service: ${text}`, { status: 502 });
+        }
 
-        return new NextResponse(Buffer.from(pdfBuffer), {
+        const data = (await a2pRes.json()) as Api2PdfResponse;
+
+        if (!data.Success || !data.FileUrl) {
+            console.error("Api2Pdf logical error:", data);
+            return new NextResponse(`PDF service error: ${data.Error || "Unknown error"}`, { status: 502 });
+        }
+
+        // Download the generated PDF from FileUrl
+        const pdfRes = await fetch(data.FileUrl);
+        if (!pdfRes.ok) {
+            console.error("Failed to download PDF from Api2Pdf:", pdfRes.status);
+            return new NextResponse("Failed to fetch generated PDF", {
+                status: 502,
+            });
+        }
+
+        const pdfArrayBuffer = await pdfRes.arrayBuffer();
+        const pdfBuffer = Buffer.from(pdfArrayBuffer);
+
+        return new NextResponse(pdfBuffer, {
             status: 200,
             headers: {
                 "Content-Type": "application/pdf",
                 "Content-Disposition": 'attachment; filename="RAMS_Pack.pdf"',
             },
         });
-    } catch (err) {
-        console.error("PDF generation error:", err);
-        return new NextResponse("Failed to generate PDF", { status: 500 });
+    } catch (error: any) {
+        console.error("PDF generation error:", error);
+        return new NextResponse(
+            "Failed to generate PDF: " + (error?.message || "Unknown error"),
+            { status: 500 }
+        );
     }
 }
