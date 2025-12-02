@@ -3,9 +3,9 @@ import { NextRequest, NextResponse } from "next/server";
 export const runtime = "nodejs";
 
 interface Api2PdfResponse {
-    FileUrl?: string;
-    Success?: boolean;
-    Error?: string | null;
+    pdf?: string;
+    success?: boolean;
+    error?: string | null;
 }
 
 export async function POST(req: NextRequest) {
@@ -53,13 +53,13 @@ export async function POST(req: NextRequest) {
 
         const data = (await a2pRes.json()) as Api2PdfResponse;
 
-        if (!data.Success || !data.FileUrl) {
+        if (!data.success || !data.pdf) {
             console.error("Api2Pdf logical error:", data);
             return new NextResponse(`PDF service error: ${JSON.stringify(data)}`, { status: 502 });
         }
 
-        // Download the generated PDF from FileUrl
-        const pdfRes = await fetch(data.FileUrl);
+        // Download the generated PDF from pdf url
+        const pdfRes = await fetch(data.pdf);
         if (!pdfRes.ok) {
             console.error("Failed to download PDF from Api2Pdf:", pdfRes.status);
             return new NextResponse("Failed to fetch generated PDF", {
