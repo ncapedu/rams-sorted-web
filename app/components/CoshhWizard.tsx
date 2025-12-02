@@ -20,6 +20,7 @@ import { COSHH_LIBRARY, PPE_DEFINITIONS } from "../lib/rams-content";
 import Toast, { ToastType } from "./Toast";
 import AnimatedTitle from "./AnimatedTitle";
 import { RAMSFile } from "./MyFileViewer";
+import { generateCOSHHHTML } from "../lib/rams-generation";
 
 // --- SMALL TEXT SANITISER ---
 function sanitizeText(input: any): string {
@@ -278,13 +279,14 @@ export default function CoshhWizard({ onBack, onSave }: CoshhWizardProps) {
                 throw new Error(err.error || "Generation failed");
             }
 
-            const data = await res.json();
+            const apiRes = await res.json();
+            const htmlContent = await generateCOSHHHTML(apiRes.data);
 
             const newFile: RAMSFile = {
                 id: Date.now().toString(),
                 name: formData.documentName || "COSHH Assessment",
                 createdAt: new Date().toLocaleString(),
-                content: data.html,
+                content: htmlContent,
             };
 
             onSave(newFile);

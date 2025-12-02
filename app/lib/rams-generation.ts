@@ -753,7 +753,7 @@ export interface COSHHData {
   additionalControls: string;
 }
 
-export function generateCOSHHHTML(data: COSHHData): string {
+export async function generateCOSHHHTML(data: COSHHData): Promise<string> {
   const {
     documentName,
     companyName,
@@ -843,11 +843,14 @@ export function generateCOSHHHTML(data: COSHHData): string {
     </div>
   `;
 
-  const substanceRows = allSubstances.map(s => {
+  const substanceRowsPromises = allSubstances.map(async s => {
     const risk = getRiskLevel(s.hazard);
     const riskClass = risk === "High" ? "risk-high" : risk === "Medium" ? "risk-med" : "risk-low";
     const ghsType = mapStringToHazardClass(s.hazard);
-    const ghsIcon = ghsType ? GHS_ICON_MAP[ghsType] : null;
+    const ghsIconSvg = ghsType ? GHS_ICON_MAP[ghsType] : null;
+
+    // Convert to PNG if icon exists
+    const ghsIcon = ghsIconSvg ? await svgToPngDataUri(ghsIconSvg, 64, 64) : null;
 
     return `
     <tr>
@@ -861,7 +864,9 @@ export function generateCOSHHHTML(data: COSHHData): string {
       <td width="15%" class="small">${getStorage(s.name)}</td>
       <td width="5%" class="risk-score ${riskClass}">${risk}</td>
     </tr>
-  `}).join("");
+  `});
+
+  const substanceRows = (await Promise.all(substanceRowsPromises)).join("");
 
   const substancesHTML = `
     <div class="section-block">
@@ -899,25 +904,37 @@ export function generateCOSHHHTML(data: COSHHData): string {
     </div>
   `;
 
-  const coshhPPEHTML = coshhPPE.map(item => {
+  const coshhPPEHTMLPromises = coshhPPE.map(async item => {
     const type = mapStringToPpeType(item);
-    const icon = type ? PPE_ICON_MAP[type] : null;
+    const iconSvg = type ? PPE_ICON_MAP[type] : null;
+
+    // Convert to PNG if icon exists
+    const icon = iconSvg ? await svgToPngDataUri(iconSvg, 64, 64) : null;
+
     return `
     <div style="display: inline-block; border: 1px solid #0b2040; background-color: #f0f9ff; padding: 6px 10px; margin: 4px; border-radius: 4px; font-size: 9pt; text-align: center; min-width: 80px; vertical-align: top;">
       ${icon ? `<img src="${icon}" class="pdf-sign-large" />` : ""}
       <strong>${item}</strong>
     </div>
-  `}).join("");
+  `});
 
-  const generalPPEHTML = generalPPE.map(item => {
+  const coshhPPEHTML = (await Promise.all(coshhPPEHTMLPromises)).join("");
+
+  const generalPPEHTMLPromises = generalPPE.map(async item => {
     const type = mapStringToPpeType(item);
-    const icon = type ? PPE_ICON_MAP[type] : null;
+    const iconSvg = type ? PPE_ICON_MAP[type] : null;
+
+    // Convert to PNG if icon exists
+    const icon = iconSvg ? await svgToPngDataUri(iconSvg, 64, 64) : null;
+
     return `
     <div style="display: inline-block; border: 1px solid #ccc; padding: 6px 10px; margin: 4px; border-radius: 4px; font-size: 9pt; text-align: center; min-width: 80px; vertical-align: top;">
       ${icon ? `<img src="${icon}" class="pdf-sign-large" />` : ""}
       <strong>${item}</strong>
     </div>
-  `}).join("");
+  `});
+
+  const generalPPEHTML = (await Promise.all(generalPPEHTMLPromises)).join("");
 
   const ppeHTML = `
     <div class="section-block">

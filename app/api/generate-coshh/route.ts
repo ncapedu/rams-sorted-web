@@ -1,6 +1,6 @@
 import OpenAI from "openai";
 import { NextResponse } from "next/server";
-import { generateCOSHHHTML, COSHHData } from "../../lib/rams-generation";
+import { COSHHData } from "../../lib/rams-generation";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -65,9 +65,7 @@ export async function POST(req: Request) {
             emergencyProcedures: enhanced.emergencyProcedures || body.emergencyProcedures,
         };
 
-        const html = generateCOSHHHTML(coshhData);
-
-        return NextResponse.json({ html });
+        return NextResponse.json({ data: coshhData });
 
     } catch (err: any) {
         console.error("COSHH API Error:", err);
