@@ -65,13 +65,40 @@ export function mapStringToPpeType(input: string): PpeType | null {
 
 export function mapStringToHazardClass(input: string): HazardClass | null {
     const lower = input.toLowerCase();
-    if (lower.includes("corrosive") || lower.includes("burns")) return "Corrosive";
-    if (lower.includes("flammable") || lower.includes("fire")) return "Flammable";
-    if (lower.includes("irritant") || lower.includes("irritation")) return "Irritant";
-    if (lower.includes("health") || lower.includes("toxic") || lower.includes("carcinogen")) return "HealthHazard";
+
+    // 1. Fire / Explosion / Gas
     if (lower.includes("explosive") || lower.includes("explosion")) return "Explosive";
+    if (lower.includes("flammable") || lower.includes("fire") || lower.includes("hot work") || lower.includes("ignition")) return "Flammable";
     if (lower.includes("oxidising") || lower.includes("oxidizer")) return "Oxidising";
     if (lower.includes("gas") || lower.includes("pressure")) return "GasUnderPressure";
-    if (lower.includes("environment") || lower.includes("aquatic")) return "Environmental";
-    return null;
+
+    // 2. Health / Long-term / Toxic
+    if (lower.includes("health") || lower.includes("toxic") || lower.includes("carcinogen") || lower.includes("cancer")) return "HealthHazard";
+    if (lower.includes("asbestos") || lower.includes("silica") || lower.includes("dust") || lower.includes("fume") || lower.includes("lead")) return "HealthHazard";
+    if (lower.includes("biological") || lower.includes("bacteria") || lower.includes("virus")) return "HealthHazard";
+    if (lower.includes("noise") || lower.includes("vibration") || lower.includes("havs")) return "HealthHazard";
+    if (lower.includes("cement") || lower.includes("damp")) return "Corrosive"; // Cement is corrosive
+
+    // 3. Corrosive
+    if (lower.includes("corrosive") || lower.includes("burns") || lower.includes("acid")) return "Corrosive";
+
+    // 4. Environmental
+    if (lower.includes("environment") || lower.includes("aquatic") || lower.includes("water") || lower.includes("weather")) return "Environmental";
+
+    // 5. Physical / General Warning (Map to Irritant/Exclamation)
+    // Electricity, Heights, Slips, Manual Handling, Machinery, etc.
+    if (lower.includes("irritant") || lower.includes("irritation")) return "Irritant";
+    if (lower.includes("electric") || lower.includes("voltage") || lower.includes("live")) return "Irritant";
+    if (lower.includes("height") || lower.includes("fall") || lower.includes("ladder") || lower.includes("scaffold") || lower.includes("fragile")) return "Irritant";
+    if (lower.includes("manual") || lower.includes("lifting") || lower.includes("handling")) return "Irritant";
+    if (lower.includes("slip") || lower.includes("trip")) return "Irritant";
+    if (lower.includes("vehicle") || lower.includes("traffic") || lower.includes("plant") || lower.includes("machinery") || lower.includes("crane") || lower.includes("mewp")) return "Irritant";
+    if (lower.includes("sharp") || lower.includes("cut") || lower.includes("glass")) return "Irritant";
+    if (lower.includes("confined")) return "Irritant"; // Or HealthHazard? Irritant implies "Warning"
+    if (lower.includes("structural") || lower.includes("collapse") || lower.includes("excavation")) return "Irritant";
+    if (lower.includes("lone") || lower.includes("security") || lower.includes("public")) return "Irritant";
+    if (lower.includes("stored energy") || lower.includes("isolation")) return "Irritant";
+    if (lower.includes("tool")) return "Irritant";
+
+    return "Irritant"; // Default fallback to Exclamation Mark for any identified hazard
 }
