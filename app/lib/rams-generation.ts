@@ -294,7 +294,7 @@ export async function generateRAMSHTML(data: RAMSData): Promise<string> {
     // Convert to PNG if icon exists
     const iconSrc = iconSrcSvg ? await svgToPngDataUri(iconSrcSvg, 64, 64) : null;
 
-    const iconHtml = iconSrc ? `<img src="${iconSrc}" style="width: 24px; height: 24px; vertical-align: middle; margin-right: 8px;" />` : "";
+    const iconHtml = iconSrc ? `<img src="${iconSrc}" width="24" height="24" style="width: 24px; height: 24px; vertical-align: middle; margin-right: 8px;" />` : "";
 
     return `
       <tr>
@@ -388,7 +388,7 @@ export async function generateRAMSHTML(data: RAMSData): Promise<string> {
     // Convert to PNG if icon exists
     const iconSrc = iconSrcSvg ? await svgToPngDataUri(iconSrcSvg, 64, 64) : null;
 
-    const iconHtml = iconSrc ? `<img src="${iconSrc}" style="width: 32px; height: 32px; display: block; margin: 0 auto 4px auto;" />` : "";
+    const iconHtml = iconSrc ? `<img src="${iconSrc}" width="32" height="32" style="width: 32px; height: 32px; display: block; margin: 0 auto 4px auto;" />` : "";
 
     return `
     <div style="display: inline-block; border: 1px solid #ccc; padding: 8px 12px; margin: 4px; border-radius: 4px; font-size: 9pt; text-align: center; min-width: 80px; vertical-align: top;">
@@ -856,7 +856,7 @@ export async function generateCOSHHHTML(data: COSHHData): Promise<string> {
     <tr>
       <td width="20%" class="bold">${sanitizeText(s.name)}</td>
       <td width="20%">
-        ${ghsIcon ? `<img src="${ghsIcon}" class="pdf-sign" style="margin-right: 5px;" />` : ""}
+        ${ghsIcon ? `<img src="${ghsIcon}" width="24" height="24" class="pdf-sign" style="width: 24px; height: 24px; margin-right: 5px;" />` : ""}
         ${sanitizeText(s.hazard)}
       </td>
       <td width="15%" class="small">${getExposureRoutes(s.hazard)}</td>
@@ -913,7 +913,7 @@ export async function generateCOSHHHTML(data: COSHHData): Promise<string> {
 
     return `
     <div style="display: inline-block; border: 1px solid #0b2040; background-color: #f0f9ff; padding: 6px 10px; margin: 4px; border-radius: 4px; font-size: 9pt; text-align: center; min-width: 80px; vertical-align: top;">
-      ${icon ? `<img src="${icon}" class="pdf-sign-large" />` : ""}
+      ${icon ? `<img src="${icon}" width="32" height="32" class="pdf-sign-large" style="width: 32px; height: 32px;" />` : ""}
       <strong>${item}</strong>
     </div>
   `});
@@ -929,7 +929,7 @@ export async function generateCOSHHHTML(data: COSHHData): Promise<string> {
 
     return `
     <div style="display: inline-block; border: 1px solid #ccc; padding: 6px 10px; margin: 4px; border-radius: 4px; font-size: 9pt; text-align: center; min-width: 80px; vertical-align: top;">
-      ${icon ? `<img src="${icon}" class="pdf-sign-large" />` : ""}
+      ${icon ? `<img src="${icon}" width="32" height="32" class="pdf-sign-large" style="width: 32px; height: 32px;" />` : ""}
       <strong>${item}</strong>
     </div>
   `});

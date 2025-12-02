@@ -678,16 +678,16 @@ function Page() {
         >
           <div className="flex h-full flex-col bg-[#FAF9F6] text-slate-900">
             {/* Top brand + toggle */}
-            <div className="flex items-center justify-between px-3 pt-3 pb-2">
+            <div className="relative flex items-center justify-center px-3 pt-3 pb-2">
               <div
                 className={`flex items-center gap-2 transition-all ${sidebarOpen
                   ? "opacity-100 w-auto"
                   : "opacity-0 w-0 overflow-hidden"
                   }`}
               >
-                <div className="relative h-[85px] w-[125px] ml-3 transform origin-left">
+                <div className="relative h-[60px] w-[90px] transform origin-left mr-9">
                   <Image
-                    src="/rams-logo2.png"
+                    src="/rams-logo4.png"
                     alt="RAMS Sorted logo"
                     fill
                     className="object-contain"
@@ -696,7 +696,7 @@ function Page() {
               </div>
               <button
                 onClick={() => setSidebarOpen((prev) => !prev)}
-                className="flex h-8 w-8 items-center justify-center rounded-lg border border-slate-400/60 bg-[#c8eee6] hover:bg-slate-200/80 transition-colors"
+                className="absolute right-3 flex h-8 w-8 items-center justify-center rounded-lg border border-slate-400/60 bg-[#c8eee6] hover:bg-slate-200/80 transition-colors"
               >
                 {sidebarOpen ? (
                   <ChevronRight className="w-4 h-4 text-slate-700 rotate-180" />
@@ -1069,7 +1069,7 @@ function Page() {
                         <FileText className="w-5 h-5 text-[#0b2040]" />
                       </div>
                       <h2 className="text-2xl font-semibold text-slate-900">
-                        <TypewriterText messages={["Set Up Your Assessment File"]} loop={false} />
+                        <TypewriterText messages={["Set Up Your RAMS File"]} loop={false} />
                       </h2>
                     </div>
 

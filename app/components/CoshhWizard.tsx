@@ -356,7 +356,7 @@ export default function CoshhWizard({ onBack, onSave }: CoshhWizardProps) {
                         </h2>
                     </div>
                 ) : (
-                    <div className="max-w-4xl mx-auto px-6 py-8 rs-fade-slide-in">
+                    <div className="max-w-4xl mx-auto px-6 py-8 rs-fade-slide-in" key={step}>
 
                         {/* ... steps ... */}
                         {/* (Steps content remains unchanged, just skipping for brevity in replacement if possible, but replace_file_content needs contiguous block. I will include the steps logic if I can't skip, but wait, I can just target the progress bar and then the buttons separately or together if they are close. They are not very close. Progress bar is at top, buttons at bottom. I should use multi_replace or two calls. I'll use multi_replace.) */}
@@ -369,7 +369,7 @@ export default function CoshhWizard({ onBack, onSave }: CoshhWizardProps) {
                                         <Beaker className="w-5 h-5 text-[#0b2040]" />
                                     </div>
                                     <h2 className="text-2xl font-semibold text-slate-900">
-                                        <TypewriterText messages={["Set Up Your Assessment File"]} loop={false} />
+                                        <TypewriterText messages={["Set Up Your COSHH File"]} loop={false} />
                                     </h2>
                                 </div>
 
