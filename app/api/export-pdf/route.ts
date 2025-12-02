@@ -42,6 +42,9 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'No HTML content provided' }, { status: 400 });
     }
 
+    console.log(`PDF: Received HTML length: ${rawHtml.length}`);
+    console.log(`PDF: First 500 chars: ${rawHtml.substring(0, 500)}`);
+
     // Embed images
     const html = embedImages(rawHtml);
 
@@ -99,7 +102,21 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Failed to fetch rendered PDF from Doppio' }, { status: 502 });
     }
 
+    const contentType = pdfRes.headers.get('content-type');
+    console.log(`PDF: Doppio response content-type: ${contentType}`);
+
     const pdfBuffer = Buffer.from(await pdfRes.arrayBuffer());
+
+    // Validate PDF header
+    const header = pdfBuffer.subarray(0, 5).toString('utf8');
+    if (header !== '%PDF-') {
+      const errorBody = pdfBuffer.subarray(0, 500).toString('utf8');
+      console.error(`PDF: Invalid PDF header. Received: ${header}`);
+      console.error(`PDF: Response body preview: ${errorBody}`);
+      return NextResponse.json({ error: `Doppio returned invalid PDF content: ${errorBody.substring(0, 100)}` }, { status: 500 });
+    }
+
+    console.log(`PDF: Valid PDF generated. Length: ${pdfBuffer.length}`);
 
     return new NextResponse(pdfBuffer, {
       headers: {
