@@ -192,18 +192,17 @@ const MyFileViewer = ({ file, onBack, onUpdateFile }: MyFileViewerProps) => {
     setIsExportingPdf(true);
 
     try {
-      const response = await fetch('/api/export-pdf', {
+      const response = await fetch('/api/pdf', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           html: editorRef.current.innerHTML,
-          filename: file.name || 'RAMS_Document'
         }),
       });
 
       if (!response.ok) {
-        const err = await response.json();
-        throw new Error(err.error || 'PDF generation failed');
+        const err = await response.text();
+        throw new Error(err || 'PDF generation failed');
       }
 
       const blob = await response.blob();
