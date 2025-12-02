@@ -620,7 +620,7 @@ function Page() {
         extraData: { ...formData.extraData, ...(apiData.extraData || {}) },
       };
 
-      const htmlContent = generateRAMSHTML(ramsData);
+      const htmlContent = await generateRAMSHTML(ramsData);
 
       const now = new Date();
       const newFile: RAMSFile = {

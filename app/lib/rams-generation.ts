@@ -1,6 +1,6 @@
 import { HAZARD_DATA, TRADES } from "./constants";
 import { METHOD_STATEMENTS, PPE_DEFINITIONS, COSHH_LIBRARY } from "./rams-content";
-import { GHS_ICON_MAP, PPE_ICON_MAP, mapStringToHazardClass, mapStringToPpeType } from "./safety-icons";
+import { GHS_ICON_MAP, PPE_ICON_MAP, mapStringToHazardClass, mapStringToPpeType, svgToPngDataUri } from "./safety-icons";
 
 export interface RAMSData {
   userType: "company" | "sole_trader";
@@ -119,7 +119,7 @@ function generateCOSHH(hazards: string[]): { substance: string; hazard: string; 
   return coshhList;
 }
 
-export function generateRAMSHTML(data: RAMSData): string {
+export async function generateRAMSHTML(data: RAMSData): Promise<string> {
   const {
     userType = "company", // Default to company
     companyName,
@@ -278,7 +278,8 @@ export function generateRAMSHTML(data: RAMSData): string {
   }
 
   // 5. Hazards
-  const hazardRows = hazards.map((hKey: string) => {
+  // Pre-convert hazard icons to PNG
+  const hazardRowsPromises = hazards.map(async (hKey: string) => {
     // @ts-ignore
     const h = HAZARD_DATA[hKey];
     if (!h) return "";
@@ -288,7 +289,11 @@ export function generateRAMSHTML(data: RAMSData): string {
     else if (h.initial_score.includes("Medium")) scoreClass = "risk-med";
 
     const hazardClass = mapStringToHazardClass(h.label);
-    const iconSrc = hazardClass ? GHS_ICON_MAP[hazardClass] : null;
+    const iconSrcSvg = hazardClass ? GHS_ICON_MAP[hazardClass] : null;
+
+    // Convert to PNG if icon exists
+    const iconSrc = iconSrcSvg ? await svgToPngDataUri(iconSrcSvg, 64, 64) : null;
+
     const iconHtml = iconSrc ? `<img src="${iconSrc}" style="width: 24px; height: 24px; vertical-align: middle; margin-right: 8px;" />` : "";
 
     return `
@@ -300,7 +305,9 @@ export function generateRAMSHTML(data: RAMSData): string {
         <td width="15%" class="risk-score risk-low">${h.residual_score}</td>
       </tr>
     `;
-  }).join("");
+  });
+
+  const hazardRows = (await Promise.all(hazardRowsPromises)).join("");
 
   const hazardsHTML = `
     <div class="section-block">
@@ -373,9 +380,14 @@ export function generateRAMSHTML(data: RAMSData): string {
   ` : "";
 
   // 8. PPE
-  const ppeList = ppe.map((item: string) => {
+  // Pre-convert PPE icons to PNG
+  const ppeListPromises = ppe.map(async (item: string) => {
     const ppeType = mapStringToPpeType(item);
-    const iconSrc = ppeType ? PPE_ICON_MAP[ppeType] : null;
+    const iconSrcSvg = ppeType ? PPE_ICON_MAP[ppeType] : null;
+
+    // Convert to PNG if icon exists
+    const iconSrc = iconSrcSvg ? await svgToPngDataUri(iconSrcSvg, 64, 64) : null;
+
     const iconHtml = iconSrc ? `<img src="${iconSrc}" style="width: 32px; height: 32px; display: block; margin: 0 auto 4px auto;" />` : "";
 
     return `
@@ -383,7 +395,9 @@ export function generateRAMSHTML(data: RAMSData): string {
       ${iconHtml}
       <strong>${item}</strong>
     </div>
-  `}).join("");
+  `});
+
+  const ppeList = (await Promise.all(ppeListPromises)).join("");
 
   const ppeHTML = `
     <div class="section-block">

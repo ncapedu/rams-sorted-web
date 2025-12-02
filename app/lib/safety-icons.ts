@@ -102,3 +102,35 @@ export function mapStringToHazardClass(input: string): HazardClass | null {
 
     return "Irritant"; // Default fallback to Exclamation Mark for any identified hazard
 }
+
+// Helper to convert SVG data URI to PNG data URI (Client-side only)
+export function svgToPngDataUri(svgDataUri: string, width: number = 64, height: number = 64): Promise<string> {
+    return new Promise((resolve, reject) => {
+        if (typeof window === "undefined") {
+            // Server-side fallback: return original SVG (Word/PDF might fail but won't crash)
+            resolve(svgDataUri);
+            return;
+        }
+
+        const img = new Image();
+        img.crossOrigin = "anonymous";
+        img.onload = () => {
+            const canvas = document.createElement("canvas");
+            canvas.width = width;
+            canvas.height = height;
+            const ctx = canvas.getContext("2d");
+            if (!ctx) {
+                reject(new Error("Failed to get canvas context"));
+                return;
+            }
+            ctx.drawImage(img, 0, 0, width, height);
+            resolve(canvas.toDataURL("image/png"));
+        };
+        img.onerror = (err) => {
+            console.error("Failed to load SVG for conversion", err);
+            // Fallback to original SVG if conversion fails
+            resolve(svgDataUri);
+        };
+        img.src = svgDataUri;
+    });
+}
