@@ -287,9 +287,13 @@ export function generateRAMSHTML(data: RAMSData): string {
     if (h.initial_score.includes("High")) scoreClass = "risk-high";
     else if (h.initial_score.includes("Medium")) scoreClass = "risk-med";
 
+    const hazardClass = mapStringToHazardClass(h.label);
+    const iconSrc = hazardClass ? GHS_ICON_MAP[hazardClass] : null;
+    const iconHtml = iconSrc ? `<img src="${iconSrc}" style="width: 24px; height: 24px; vertical-align: middle; margin-right: 8px;" />` : "";
+
     return `
       <tr>
-        <td width="20%" class="bold">${h.label}</td>
+        <td width="20%" class="bold">${iconHtml}${h.label}</td>
         <td width="25%">${h.risk}</td>
         <td width="30%">${h.control}</td>
         <td width="10%" class="risk-score ${scoreClass}">${h.initial_score}</td>
@@ -369,11 +373,17 @@ export function generateRAMSHTML(data: RAMSData): string {
   ` : "";
 
   // 8. PPE
-  const ppeList = ppe.map((item: string) => `
-    <div style="display: inline-block; border: 1px solid #ccc; padding: 8px 12px; margin: 4px; border-radius: 4px; font-size: 9pt; text-align: center; min-width: 80px;">
+  const ppeList = ppe.map((item: string) => {
+    const ppeType = mapStringToPpeType(item);
+    const iconSrc = ppeType ? PPE_ICON_MAP[ppeType] : null;
+    const iconHtml = iconSrc ? `<img src="${iconSrc}" style="width: 32px; height: 32px; display: block; margin: 0 auto 4px auto;" />` : "";
+
+    return `
+    <div style="display: inline-block; border: 1px solid #ccc; padding: 8px 12px; margin: 4px; border-radius: 4px; font-size: 9pt; text-align: center; min-width: 80px; vertical-align: top;">
+      ${iconHtml}
       <strong>${item}</strong>
     </div>
-  `).join("");
+  `}).join("");
 
   const ppeHTML = `
     <div class="section-block">

@@ -1,3 +1,15 @@
+import { GHS_SVGS, PPE_SVGS } from "./svg-icons";
+
+// Helper for universal base64 encoding
+const toBase64 = (str: string) => {
+    if (typeof window === "undefined") {
+        return Buffer.from(str).toString("base64");
+    }
+    return window.btoa(str);
+};
+
+const svgToDataUri = (svg: string) => `data:image/svg+xml;base64,${toBase64(svg)}`;
+
 export type PpeType =
     | "EyeProtection"
     | "Gloves"
@@ -8,13 +20,13 @@ export type PpeType =
     | "HardHat";
 
 export const PPE_ICON_MAP: Record<PpeType, string> = {
-    EyeProtection: "/icons/ppe/ppe-eye-protection.svg",
-    Gloves: "/icons/ppe/ppe-gloves.svg",
-    Respirator: "/icons/ppe/ppe-respirator.svg",
-    Coveralls: "/icons/ppe/ppe-coveralls.svg",
-    SafetyFootwear: "/icons/ppe/ppe-safety-footwear.svg",
-    HiVis: "/icons/ppe/ppe-hi-vis.svg",
-    HardHat: "/icons/ppe/ppe-hard-hat.svg",
+    EyeProtection: svgToDataUri(PPE_SVGS.EyeProtection),
+    Gloves: svgToDataUri(PPE_SVGS.Gloves),
+    Respirator: svgToDataUri(PPE_SVGS.Respirator),
+    Coveralls: svgToDataUri(PPE_SVGS.Coveralls),
+    SafetyFootwear: svgToDataUri(PPE_SVGS.SafetyFootwear),
+    HiVis: svgToDataUri(PPE_SVGS.HiVis),
+    HardHat: svgToDataUri(PPE_SVGS.HardHat),
 };
 
 export type HazardClass =
@@ -28,14 +40,14 @@ export type HazardClass =
     | "Environmental";
 
 export const GHS_ICON_MAP: Record<HazardClass, string> = {
-    Corrosive: "/icons/ghs/ghs-corrosive.svg",
-    Flammable: "/icons/ghs/ghs-flammable.svg",
-    Irritant: "/icons/ghs/ghs-exclamation.svg",
-    HealthHazard: "/icons/ghs/ghs-health-hazard.svg",
-    Explosive: "/icons/ghs/ghs-explosive.svg",
-    Oxidising: "/icons/ghs/ghs-oxidising.svg",
-    GasUnderPressure: "/icons/ghs/ghs-gas-cylinder.svg",
-    Environmental: "/icons/ghs/ghs-environment.svg",
+    Corrosive: svgToDataUri(GHS_SVGS.Corrosive),
+    Flammable: svgToDataUri(GHS_SVGS.Flammable),
+    Irritant: svgToDataUri(GHS_SVGS.Irritant),
+    HealthHazard: svgToDataUri(GHS_SVGS.HealthHazard),
+    Explosive: svgToDataUri(GHS_SVGS.Explosive),
+    Oxidising: svgToDataUri(GHS_SVGS.Oxidising),
+    GasUnderPressure: svgToDataUri(GHS_SVGS.GasUnderPressure),
+    Environmental: svgToDataUri(GHS_SVGS.Environmental),
 };
 
 // Fuzzy matching helpers
