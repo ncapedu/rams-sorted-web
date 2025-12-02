@@ -45,8 +45,9 @@ export async function POST(req: NextRequest) {
     console.log(`PDF: Received HTML length: ${rawHtml.length}`);
     console.log(`PDF: First 500 chars: ${rawHtml.substring(0, 500)}`);
 
-    // Embed images
-    const html = embedImages(rawHtml);
+    // Embed images - Temporarily disabled to debug content corruption
+    // const html = embedImages(rawHtml);
+    const html = rawHtml;
 
     // Construct full HTML with styles
     const fullHtml = `
