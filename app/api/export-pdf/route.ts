@@ -7,8 +7,6 @@ import path from 'path';
 export const runtime = 'nodejs';
 export const maxDuration = 60;
 
-const doppio = new Doppio(process.env.DOPPIO_API_KEY!);
-
 // Helper to embed local images as base64
 function embedImages(html: string): string {
   return html.replace(/<img[^>]+src="(\/[^"]+)"[^>]*>/g, (match, src) => {
@@ -31,6 +29,13 @@ function embedImages(html: string): string {
 
 export async function POST(req: NextRequest) {
   try {
+    const apiKey = process.env.DOPPIO_API_KEY;
+    if (!apiKey) {
+      console.error('DOPPIO_API_KEY is not set');
+      return NextResponse.json({ error: 'Server configuration error: DOPPIO_API_KEY missing' }, { status: 500 });
+    }
+
+    const doppio = new Doppio(apiKey);
     const { html: rawHtml, filename } = await req.json();
 
     if (!rawHtml) {
