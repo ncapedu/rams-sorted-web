@@ -15,7 +15,7 @@ export async function launchBrowser(): Promise<Browser> {
 
     // PRODUCTION (Vercel, Linux serverless)
     // Use puppeteer-core + Sparticuz chromium-min
-    const chromium = (await import("@sparticuz/chromium-min")).default;
+    const chromium = (await import("@sparticuz/chromium")).default;
     const puppeteerCore = await import("puppeteer-core");
 
     chromium.setHeadlessMode = true;
