@@ -1,10 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { Doppio } from 'doppio-nodejs';
 import { RAMS_STYLES } from '../../lib/rams-generation';
 import fs from 'fs';
 import path from 'path';
 
 export const runtime = 'nodejs';
 export const maxDuration = 60;
+
+const doppio = new Doppio(process.env.DOPPIO_API_KEY!);
 
 // Helper to embed local images as base64
 function embedImages(html: string): string {
@@ -24,37 +27,6 @@ function embedImages(html: string): string {
       return match;
     }
   });
-}
-
-async function launchBrowser() {
-  const isProd = !!process.env.VERCEL;
-
-  if (isProd) {
-    console.log("PDF: Launching in Production (Sparticuz)");
-    const chromium = (await import("@sparticuz/chromium")).default;
-    const puppeteerCore = (await import("puppeteer-core")).default;
-
-    chromium.setHeadlessMode = true;
-    chromium.setGraphicsMode = false;
-
-    const executablePath = await chromium.executablePath();
-    console.log("PDF: Sparticuz executablePath:", executablePath);
-
-    return puppeteerCore.launch({
-      args: chromium.args,
-      defaultViewport: chromium.defaultViewport,
-      executablePath,
-      headless: chromium.headless,
-    });
-  } else {
-    console.log("PDF: Launching in Dev (Local Puppeteer)");
-    // Use standard puppeteer for local dev (Mac/Windows)
-    const puppeteer = (await import("puppeteer")).default;
-    return puppeteer.launch({
-      headless: true,
-      args: ['--no-sandbox', '--disable-setuid-sandbox']
-    });
-  }
 }
 
 export async function POST(req: NextRequest) {
@@ -91,28 +63,40 @@ export async function POST(req: NextRequest) {
       </html>
     `;
 
-    const browser = await launchBrowser();
-    const page = await browser.newPage();
-
-    // Use setContent instead of goto to render the exact HTML from the editor
-    await page.setContent(fullHtml, { waitUntil: 'networkidle0', timeout: 30000 });
-
-    const pdfBuffer = await page.pdf({
-      printBackground: true,
-      displayHeaderFooter: false,
-      preferCSSPageSize: true,
-      format: 'A4',
-      margin: {
-        top: '10mm',
-        right: '10mm',
-        bottom: '10mm',
-        left: '10mm',
+    // Use Doppio to render the HTML directly
+    const result = await doppio.renderPdfSync({
+      setContent: {
+        html: fullHtml,
+        options: {
+          waitUntil: ['networkidle0'],
+        },
+      },
+      pdf: {
+        printBackground: true,
+        format: 'A4',
+        margin: {
+          top: '10mm',
+          right: '10mm',
+          bottom: '10mm',
+          left: '10mm',
+        },
       },
     });
 
-    await browser.close();
+    if (!result.documentUrl) {
+      console.error('Doppio render error:', result);
+      return NextResponse.json({ error: 'Failed to render PDF via Doppio' }, { status: 500 });
+    }
 
-    return new NextResponse(Buffer.from(pdfBuffer), {
+    // Download the PDF from Doppio
+    const pdfRes = await fetch(result.documentUrl);
+    if (!pdfRes.ok) {
+      return NextResponse.json({ error: 'Failed to fetch rendered PDF from Doppio' }, { status: 502 });
+    }
+
+    const pdfBuffer = Buffer.from(await pdfRes.arrayBuffer());
+
+    return new NextResponse(pdfBuffer, {
       headers: {
         'Content-Type': 'application/pdf',
         'Content-Disposition': `attachment; filename="${filename || 'document'}.pdf"`,
