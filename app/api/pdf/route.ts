@@ -55,7 +55,7 @@ export async function POST(req: NextRequest) {
 
         if (!data.Success || !data.FileUrl) {
             console.error("Api2Pdf logical error:", data);
-            return new NextResponse(`PDF service error: ${data.Error || "Unknown error"}`, { status: 502 });
+            return new NextResponse(`PDF service error: ${JSON.stringify(data)}`, { status: 502 });
         }
 
         // Download the generated PDF from FileUrl
