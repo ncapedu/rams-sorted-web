@@ -748,7 +748,7 @@ function Page() {
               {/* My files – only when open */}
               {sidebarOpen && (
                 <div className="mt-6 space-y-1 text-xs text-slate-700">
-                  <div className="px-2 py-1 font-semibold text-[11px] uppercase tracking-wide text-slate-500">
+                  <div className="px-2 py-1 font-semibold text-xs uppercase tracking-wide text-slate-500 mb-2">
                     My files
                   </div>
                   {recentFiles.length === 0 ? (
@@ -817,9 +817,7 @@ function Page() {
                                 />
                               </div>
                             )}
-                            <div className="text-[11px] text-slate-500 truncate">
-                              {file.createdAt}
-                            </div>
+
                           </div>
                           <div className="relative">
                             <button
@@ -904,8 +902,8 @@ function Page() {
           {isGenerating ? (
             <div className="flex flex-col items-center justify-center h-full">
               <div className="relative mb-8">
-                <div className="absolute inset-0 bg-blue-100 rounded-full animate-ping opacity-20"></div>
-                <Loader2 className="w-16 h-16 animate-spin text-[#0b2040] relative z-10" />
+                <div className="absolute inset-0 bg-red-100 rounded-full animate-ping opacity-20"></div>
+                <Loader2 className="w-16 h-16 animate-spin text-red-600 relative z-10" />
               </div>
               <h2 className="text-2xl font-bold tracking-wide text-slate-800 h-8 text-center">
                 <TypewriterText

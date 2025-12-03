@@ -136,6 +136,18 @@ export default function ToolboxWizard({ onBack, onComplete }: ToolboxWizardProps
                 setToast({ message: "Please enter the company name.", type: "error" });
                 return;
             }
+            if (!formData.date) {
+                setToast({ message: "Please select a date.", type: "error" });
+                return;
+            }
+            if (!formData.location.trim()) {
+                setToast({ message: "Please enter the location.", type: "error" });
+                return;
+            }
+            if (!formData.audience) {
+                setToast({ message: "Please select an audience.", type: "error" });
+                return;
+            }
         }
 
         if (step === 2) {
@@ -162,9 +174,15 @@ export default function ToolboxWizard({ onBack, onComplete }: ToolboxWizardProps
         }
 
         if (step === 3) {
-            if (formData.attendanceConfig.include && !formData.attendanceConfig.notes?.trim()) {
-                setToast({ message: "Please enter notes for attendees.", type: "error" });
-                return;
+            if (formData.attendanceConfig.include) {
+                if (!formData.attendanceConfig.expectedAttendees?.trim()) {
+                    setToast({ message: "Please enter expected attendees.", type: "error" });
+                    return;
+                }
+                if (!formData.attendanceConfig.notes?.trim()) {
+                    setToast({ message: "Please enter notes for attendees.", type: "error" });
+                    return;
+                }
             }
         }
 
@@ -248,7 +266,7 @@ export default function ToolboxWizard({ onBack, onComplete }: ToolboxWizardProps
                             "Structuring safety points...",
                             "Analyzing hazards...",
                             "Drafting control measures...",
-                            "Preparing attendance sheet..."
+                            ...(formData.attendanceConfig.include ? ["Preparing attendance sheet..."] : [])
                         ]}
                     />
                 </h2>
@@ -362,7 +380,7 @@ export default function ToolboxWizard({ onBack, onComplete }: ToolboxWizardProps
                                     {/* Date */}
                                     <div>
                                         <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
-                                            Date
+                                            Date <span className="text-red-600">*</span>
                                         </label>
                                         <input
                                             type="date"
@@ -375,7 +393,7 @@ export default function ToolboxWizard({ onBack, onComplete }: ToolboxWizardProps
                                     {/* Location */}
                                     <div>
                                         <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
-                                            Location
+                                            Location <span className="text-red-600">*</span>
                                         </label>
                                         <input
                                             className="w-full border border-slate-300 rounded-lg p-3 text-sm focus:ring-2 focus:ring-emerald-500 outline-none"
@@ -414,7 +432,7 @@ export default function ToolboxWizard({ onBack, onComplete }: ToolboxWizardProps
                                     {/* Audience */}
                                     <div>
                                         <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
-                                            Audience / Trade
+                                            Audience / Trade <span className="text-red-600">*</span>
                                         </label>
                                         <select
                                             className="w-full border border-slate-300 rounded-lg p-3 text-sm focus:ring-2 focus:ring-emerald-500 outline-none"
@@ -562,7 +580,7 @@ export default function ToolboxWizard({ onBack, onComplete }: ToolboxWizardProps
                                     <div className="space-y-4 animate-in fade-in slide-in-from-top-2">
                                         <div>
                                             <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
-                                                Expected Attendees (Optional)
+                                                Expected Attendees <span className="text-red-600">*</span>
                                             </label>
                                             <input
                                                 className="w-full border border-slate-300 rounded-lg p-3 text-sm focus:ring-2 focus:ring-emerald-500 outline-none"
@@ -576,7 +594,7 @@ export default function ToolboxWizard({ onBack, onComplete }: ToolboxWizardProps
                                         </div>
                                         <div>
                                             <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
-                                                Notes for Attendees
+                                                Notes for Attendees <span className="text-red-600">*</span>
                                             </label>
                                             <textarea
                                                 className="w-full border border-slate-300 rounded-lg p-3 text-sm focus:ring-2 focus:ring-emerald-500 outline-none"

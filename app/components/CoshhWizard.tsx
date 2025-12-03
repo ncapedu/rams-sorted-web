@@ -258,8 +258,6 @@ export default function CoshhWizard({ onBack, onSave }: CoshhWizardProps) {
         } else if (step === 4) {
             if (formData.ppe.length === 0) {
                 errorMsg = "Please select at least one required PPE.";
-            } else if (!formData.emergencyProcedures.trim()) {
-                errorMsg = "Please enter emergency procedures.";
             }
         }
 
