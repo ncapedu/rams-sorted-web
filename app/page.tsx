@@ -964,10 +964,10 @@ function Page() {
               }}
             />
           ) : mode === "landing" ? (
-            <div className="flex-1 overflow-y-auto bg-white flex flex-col">
+            <div className="flex-1 overflow-y-auto bg-white flex flex-col" style={{ scrollbarGutter: 'stable' }}>
               <div className="flex-grow flex flex-col items-center justify-center py-12 px-6 rs-fade-slide-in">
                 <div className="max-w-7xl w-full text-center">
-                  <h1 className="text-4xl md:text-5xl font-semibold text-slate-900 mb-3">
+                  <h1 className="text-4xl md:text-5xl font-semibold text-slate-900 mb-2">
                     <TypewriterText
                       messages={[
                         formData.contactName
@@ -978,11 +978,11 @@ function Page() {
                       className="border-b-0"
                     />
                   </h1>
-                  <p className="text-slate-500 mb-8 text-lg">
+                  <p className="text-slate-500 text-lg">
                     How can we help you today?
                   </p>
 
-                  <div className="mt-10 flex flex-col items-center gap-6 md:flex-row md:justify-center md:items-stretch md:gap-8 w-full">
+                  <div className="mt-8 flex flex-col items-center gap-6 md:flex-row md:justify-center md:items-stretch md:gap-8 w-full max-w-5xl mx-auto">
                     <button
                       onClick={() => {
                         setMode("wizard");
@@ -1033,9 +1033,9 @@ function Page() {
                         <span className="font-semibold text-lg text-slate-900 block">
                           New RAMS Document
                         </span>
-                        <span className="text-sm text-slate-500 mt-0.5 block">
+                        <p className="mt-1 text-sm text-slate-500 leading-relaxed">
                           Start a full RAMS pack in guided steps.
-                        </span>
+                        </p>
                       </div>
                     </button>
 
@@ -1050,9 +1050,9 @@ function Page() {
                         <span className="font-semibold text-lg text-slate-900 block">
                           New COSHH Assessment
                         </span>
-                        <span className="text-sm text-slate-500 mt-0.5 block">
+                        <p className="mt-1 text-sm text-slate-500 leading-relaxed">
                           Create a standalone COSHH assessment.
-                        </span>
+                        </p>
                       </div>
                     </button>
 
@@ -1070,9 +1070,9 @@ function Page() {
                         <span className="font-semibold text-lg text-slate-900 block">
                           New Toolbox Talk
                         </span>
-                        <span className="text-sm text-slate-500 mt-0.5 block">
+                        <p className="mt-1 text-sm text-slate-500 leading-relaxed">
                           Build a ready-to-use toolbox talk.
-                        </span>
+                        </p>
                       </div>
                     </button>
                   </div>
