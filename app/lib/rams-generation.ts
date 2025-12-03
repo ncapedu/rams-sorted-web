@@ -532,207 +532,207 @@ export const RAMS_STYLES = `
     size: A4;
     margin: 15mm;
   }
-    *, *: before, *:after {
-    box - sizing: border - box;
+  *, *:before, *:after {
+    box-sizing: border-box;
   }
   html, body {
     height: auto;
-    width: 100 %;
+    width: 100%;
     margin: 0;
     padding: 0;
   }
-    .rams - content {
-    font - family: 'Helvetica Neue', Helvetica, Arial, sans - serif;
-    font - size: 10pt;
-    line - height: 1.3;
+  .rams-content {
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-size: 10pt;
+    line-height: 1.3;
     color: #111;
-    width: 100 %;
+    width: 100%;
   }
 
-    /* Semantic Blocks for Pagination */
-    .section - block {
-    margin - bottom: 10px;
-    page -break-inside: auto;
+  /* Semantic Blocks for Pagination */
+  .section-block {
+    margin-bottom: 10px;
+    page-break-inside: auto;
     break-inside: auto;
   }
-    .keep - together {
-    page -break-inside: avoid;
+  .keep-together {
+    page-break-inside: avoid;
     break-inside: avoid;
   }
-    .signature - block {
-    margin - top: 20px;
-    page -break-inside: auto;
+  .signature-block {
+    margin-top: 20px;
+    page-break-inside: auto;
     break-inside: auto;
     border: 1px solid #000;
     padding: 15px;
   }
-    .signature - section {
-    page -break-inside: avoid;
+  .signature-section {
+    page-break-inside: avoid;
     break-inside: avoid;
-    margin - bottom: 15px;
+    margin-bottom: 15px;
   }
 
-    h1 {
-    font - size: 16pt;
-    font - weight: bold;
-    text - transform: uppercase;
+  h1 {
+    font-size: 16pt;
+    font-weight: bold;
+    text-transform: uppercase;
     margin: 0 0 10px 0;
-    text - align: center;
-    letter - spacing: 1px;
-    border - bottom: 2px solid #000;
-    padding - bottom: 10px;
+    text-align: center;
+    letter-spacing: 1px;
+    border-bottom: 2px solid #000;
+    padding-bottom: 10px;
   }
-    h2 {
-    font - size: 12pt;
-    font - weight: bold;
-    text - transform: uppercase;
-    margin - top: 0;
-    margin - bottom: 8px;
-    border - bottom: 1px solid #000;
-    padding - bottom: 4px;
-    page -break-after: avoid;
+  h2 {
+    font-size: 12pt;
+    font-weight: bold;
+    text-transform: uppercase;
+    margin-top: 0;
+    margin-bottom: 8px;
+    border-bottom: 1px solid #000;
+    padding-bottom: 4px;
+    page-break-after: avoid;
     break-after: avoid;
-    width: 100 %;
+    width: 100%;
   }
-    h3 {
-    font - size: 11pt;
-    font - weight: bold;
-    margin - top: 12px;
-    margin - bottom: 4px;
-    text - transform: uppercase;
+  h3 {
+    font-size: 11pt;
+    font-weight: bold;
+    margin-top: 12px;
+    margin-bottom: 4px;
+    text-transform: uppercase;
     color: #333;
-    page -break-after: avoid;
+    page-break-after: avoid;
     break-after: avoid;
   }
-    p {
-    margin - bottom: 6px;
-    text - align: justify;
+  p {
+    margin-bottom: 6px;
+    text-align: justify;
     orphans: 2;
     widows: 2;
   }
 
-    /* Table Pagination Rules */
-    table {
-    width: 100 %;
-    border - collapse: collapse;
-    margin - bottom: 0;
-    page -break-inside: auto;
+  /* Table Pagination Rules */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 0;
+    page-break-inside: auto;
     break-inside: auto;
   }
-    tr {
-    page -break-inside: avoid;
+  tr {
+    page-break-inside: avoid;
     break-inside: avoid;
   }
   th, td {
     border: 1px solid #000;
     padding: 8px;
-    vertical - align: top;
-    text - align: left;
+    vertical-align: top;
+    text-align: left;
   }
-    thead {
-    display: table - header - group; /* Repeat header on new page */
+  thead {
+    display: table-header-group; /* Repeat header on new page */
   }
-    th {
-    background - color: #f8f9fa;
-    font - weight: bold;
-    font - size: 9pt;
+  th {
+    background-color: #f8f9fa;
+    font-weight: bold;
+    font-size: 9pt;
     color: #000;
   }
-    td {
-    font - size: 9.5pt;
+  td {
+    font-size: 9.5pt;
   }
     
-    .text - center { text - align: center; }
-    .text - right { text - align: right; }
-    .bold { font - weight: bold; }
-    .small { font - size: 8pt; color: #555; }
-    .header - line {
-    margin - bottom: 30px;
+  .text-center { text-align: center; }
+  .text-right { text-align: right; }
+  .bold { font-weight: bold; }
+  .small { font-size: 8pt; color: #555; }
+  .header-line {
+    margin-bottom: 30px;
   }
-    .risk - score {
-    font - weight: bold;
-    text - align: center;
+  .risk-score {
+    font-weight: bold;
+    text-align: center;
   }
-    .risk - high { background - color: #ffebee; color: #c62828; }
-    .risk - med { background - color: #fff3e0; color: #ef6c00; }
-    .risk - low { background - color: #e8f5e9; color: #2e7d32; }
+  .risk-high { background-color: #ffebee; color: #c62828; }
+  .risk-med { background-color: #fff3e0; color: #ef6c00; }
+  .risk-low { background-color: #e8f5e9; color: #2e7d32; }
 
   /* Word Specifics */
   @media print {
-      .rams - content { padding: 0; }
-      .no -break { page -break-inside: avoid; break-inside: avoid; }
+    .rams-content { padding: 0; }
+    .no-break { page-break-inside: avoid; break-inside: avoid; }
 
-      /* Tighten spacing for print */
-      .section - block {
-      margin - bottom: 0.25rem!important;
+    /* Tighten spacing for print */
+    .section-block {
+      margin-bottom: 0.25rem!important;
       break-inside: auto!important;
-      page -break-inside: auto!important;
+      page-break-inside: auto!important;
     }
-      /* Override method step spacing */
-      .section - block div {
-      margin - bottom: 0.25rem!important;
+    /* Override method step spacing */
+    .section-block div {
+      margin-bottom: 0.25rem!important;
     }
-      h1 {
-      margin - bottom: 0.5rem!important;
-      padding - bottom: 0.25rem!important;
+    h1 {
+      margin-bottom: 0.5rem!important;
+      padding-bottom: 0.25rem!important;
     }
-      h2 {
-      margin - top: 0.5rem!important;
-      margin - bottom: 0.25rem!important;
+    h2 {
+      margin-top: 0.5rem!important;
+      margin-bottom: 0.25rem!important;
       break-after: auto!important;
-      page -break-after: auto!important;
+      page-break-after: auto!important;
     }
-      h3 {
-      margin - top: 0.5rem!important;
-      margin - bottom: 0.25rem!important;
+    h3 {
+      margin-top: 0.5rem!important;
+      margin-bottom: 0.25rem!important;
       break-after: auto!important;
-      page -break-after: auto!important;
+      page-break-after: auto!important;
     }
-      p {
-      margin - bottom: 0.25rem!important;
+    p {
+      margin-bottom: 0.25rem!important;
       break-inside: auto!important;
-      page -break-inside: auto!important;
+      page-break-inside: auto!important;
     }
 
-      /* Critical Elements */
-      table {
+    /* Critical Elements */
+    table {
       break-inside: auto!important;
-      page -break-inside: auto!important;
+      page-break-inside: auto!important;
     }
-      tr {
+    tr {
       break-inside: auto!important;
-      page -break-inside: auto!important;
+      page-break-inside: auto!important;
     }
-      /* Only keep signatures together as they are small and look bad if split */
-      .signature - section {
+    /* Only keep signatures together as they are small and look bad if split */
+    .signature-section {
       break-inside: avoid!important;
-      page -break-inside: avoid!important;
+      page-break-inside: avoid!important;
     }
 
     /* Reset forced breaks */
-    h2, h3, .section - block, table, tr {
+    h2, h3, .section-block, table, tr {
       break-before: auto!important;
-      page -break-before: auto!important;
+      page-break-before: auto!important;
     }
   }
 
-    /* PDF Sign Styles */
-    .pdf - sign - strip {
+  /* PDF Sign Styles */
+  .pdf-sign-strip {
     display: flex;
-    flex - wrap: wrap;
+    flex-wrap: wrap;
     gap: 4px;
-    margin - top: 4px;
+    margin-top: 4px;
   }
-    .pdf - sign {
+  .pdf-sign {
     width: 24px;
     height: 24px;
-    object - fit: contain;
-    vertical - align: middle;
+    object-fit: contain;
+    vertical-align: middle;
   }
-    .pdf - sign - large {
+  .pdf-sign-large {
     width: 32px;
     height: 32px;
-    object - fit: contain;
+    object-fit: contain;
     display: block;
     margin: 0 auto 4px auto;
   }
