@@ -314,7 +314,8 @@ export default function CoshhWizard({ onBack, onSave }: CoshhWizardProps) {
                 <div className="sticky top-0 z-10 bg-white border-b border-slate-200 px-8 py-4 flex items-center justify-between">
                     <div>
                         <h2 className="text-xl font-bold text-slate-900 flex items-center gap-2">
-                            <AnimatedTitle text="RS v1.0" />
+                            <img src="/favicon.ico" alt="RS" className="w-5 h-5" />
+                            <AnimatedTitle text="v1.0" />
                         </h2>
                         <p className="text-sm font-bold text-black mt-0.5">
                             Step {step} of 5
@@ -523,31 +524,76 @@ export default function CoshhWizard({ onBack, onSave }: CoshhWizardProps) {
                                     <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700">
                                         Search Library
                                     </label>
-                                    <div className="relative">
-                                        <input
-                                            className="w-full border border-slate-300 p-3 rounded-lg text-sm focus:ring-2 focus:ring-[#0b2040] outline-none"
-                                            placeholder="Search for substances (e.g. dust, cement, adhesive)..."
-                                            value={substanceSearch}
-                                            onChange={(e) => {
-                                                setSubstanceSearch(e.target.value);
-                                                setSubstanceSearchOpen(true);
-                                            }}
-                                            onFocus={() => setSubstanceSearchOpen(true)}
-                                        />
-                                        {substanceSearchOpen && filteredSubstances.length > 0 && (
-                                            <div className="absolute z-50 w-full bg-white border border-gray-200 rounded-lg shadow-xl mt-1 max-h-60 overflow-auto">
-                                                {filteredSubstances.map((s, i) => (
-                                                    <button
-                                                        key={i}
-                                                        onClick={() => addSubstance({ name: s.substance, hazard: s.hazard, control: s.control })}
-                                                        className="w-full text-left p-3 hover:bg-blue-50 border-b last:border-0 transition-colors"
-                                                    >
-                                                        <div className="font-semibold text-sm text-slate-900">{s.substance}</div>
-                                                        <div className="text-xs text-slate-500">{s.hazard}</div>
-                                                    </button>
-                                                ))}
-                                            </div>
-                                        )}
+                                    <div className="flex gap-2 relative">
+                                        <div className="relative flex-1">
+                                            <input
+                                                className="w-full border border-slate-300 p-3 rounded-lg text-sm focus:ring-2 focus:ring-[#0b2040] outline-none"
+                                                placeholder="Search for substances (e.g. dust, cement, adhesive)..."
+                                                value={substanceSearch}
+                                                onChange={(e) => {
+                                                    setSubstanceSearch(e.target.value);
+                                                    setSubstanceSearchOpen(true);
+                                                }}
+                                                onFocus={() => setSubstanceSearchOpen(true)}
+                                            />
+                                            {substanceSearchOpen && filteredSubstances.length > 0 && (
+                                                <div className="absolute z-50 w-full bg-white border border-gray-200 rounded-lg shadow-xl mt-1 max-h-60 overflow-auto">
+                                                    {filteredSubstances.map((s, i) => (
+                                                        <button
+                                                            key={i}
+                                                            onClick={() => addSubstance({ name: s.substance, hazard: s.hazard, control: s.control })}
+                                                            className="w-full text-left p-3 hover:bg-blue-50 border-b last:border-0 transition-colors"
+                                                        >
+                                                            <div className="font-semibold text-sm text-slate-900">{s.substance}</div>
+                                                            <div className="text-xs text-slate-500">{s.hazard}</div>
+                                                        </button>
+                                                    ))}
+                                                </div>
+                                            )}
+                                        </div>
+
+                                        <div className="relative">
+                                            <button
+                                                onClick={() => setSubstanceSearchOpen(!substanceSearchOpen && substanceSearch === "BROWSE_ALL")}
+                                                className="h-full px-4 bg-slate-100 border border-slate-300 rounded-lg text-slate-700 font-semibold text-sm hover:bg-slate-200 transition-colors whitespace-nowrap"
+                                                onMouseDown={() => {
+                                                    if (substanceSearch === "BROWSE_ALL") {
+                                                        setSubstanceSearch("");
+                                                    } else {
+                                                        setSubstanceSearch("BROWSE_ALL");
+                                                    }
+                                                }}
+                                            >
+                                                Browse Library
+                                            </button>
+
+                                            {substanceSearch === "BROWSE_ALL" && (
+                                                <div className="absolute right-0 top-full mt-2 w-80 bg-white border border-gray-200 rounded-xl shadow-2xl z-50 max-h-96 overflow-y-auto p-2">
+                                                    {Object.entries(COSHH_LIBRARY).map(([category, items]) => (
+                                                        <div key={category} className="mb-2 last:mb-0">
+                                                            <div className="px-2 py-1.5 bg-slate-50 text-xs font-bold uppercase text-slate-500 rounded-md mb-1 sticky top-0">
+                                                                {category.replace(/_/g, " ")}
+                                                            </div>
+                                                            <div className="space-y-0.5">
+                                                                {items.map((item, idx) => (
+                                                                    <button
+                                                                        key={idx}
+                                                                        onClick={() => {
+                                                                            addSubstance({ name: item.substance, hazard: item.hazard, control: item.control });
+                                                                            setSubstanceSearch("");
+                                                                        }}
+                                                                        className="w-full text-left px-2 py-1.5 hover:bg-blue-50 rounded text-sm text-slate-700 hover:text-[#0b2040] transition-colors truncate"
+                                                                        title={item.substance}
+                                                                    >
+                                                                        {item.substance}
+                                                                    </button>
+                                                                ))}
+                                                            </div>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            )}
+                                        </div>
                                     </div>
 
                                     {/* Selected Substances */}
@@ -735,24 +781,86 @@ export default function CoshhWizard({ onBack, onSave }: CoshhWizardProps) {
                                     </h2>
                                 </div>
 
-                                <div className="bg-slate-50 rounded-xl p-6 border border-slate-200 space-y-4">
-                                    <div className="grid grid-cols-2 gap-4 text-sm">
+                                <div className="bg-slate-50 rounded-xl p-6 border border-slate-200 space-y-6">
+                                    {/* Project Details */}
+                                    <div className="grid grid-cols-2 gap-4 text-sm border-b border-slate-200 pb-4">
                                         <div>
-                                            <span className="text-slate-500 block text-xs uppercase">Document</span>
-                                            <span className="font-medium">{formData.documentName}</span>
+                                            <span className="text-slate-500 block text-xs uppercase tracking-wide mb-1">Document Name</span>
+                                            <span className="font-semibold text-slate-900">{formData.documentName}</span>
                                         </div>
                                         <div>
-                                            <span className="text-slate-500 block text-xs uppercase">Company</span>
-                                            <span className="font-medium">{formData.companyName}</span>
+                                            <span className="text-slate-500 block text-xs uppercase tracking-wide mb-1">Company / User</span>
+                                            <span className="font-semibold text-slate-900">{formData.companyName} <span className="text-slate-400 font-normal">({formData.userType === "company" ? "Business" : "Sole Trader"})</span></span>
                                         </div>
                                         <div>
-                                            <span className="text-slate-500 block text-xs uppercase">Substances</span>
-                                            <span className="font-medium">{formData.selectedSubstances.length} selected</span>
+                                            <span className="text-slate-500 block text-xs uppercase tracking-wide mb-1">Client & Project</span>
+                                            <span className="font-semibold text-slate-900">{formData.clientName} {formData.projectRef && <span className="text-slate-500">({formData.projectRef})</span>}</span>
                                         </div>
                                         <div>
-                                            <span className="text-slate-500 block text-xs uppercase">PPE Items</span>
-                                            <span className="font-medium">{formData.ppe.length} selected</span>
+                                            <span className="text-slate-500 block text-xs uppercase tracking-wide mb-1">Assessment Date</span>
+                                            <span className="font-semibold text-slate-900">{formData.assessmentDate}</span>
                                         </div>
+                                    </div>
+
+                                    {/* Substances */}
+                                    <div>
+                                        <h4 className="text-xs font-bold uppercase text-slate-500 mb-3 flex items-center gap-2">
+                                            <Beaker className="w-3.5 h-3.5" /> Selected Substances ({formData.selectedSubstances.length})
+                                        </h4>
+                                        <div className="grid gap-2">
+                                            {formData.selectedSubstances.map((s, i) => (
+                                                <div key={i} className="bg-white p-2.5 rounded border border-slate-200 text-sm flex justify-between items-center">
+                                                    <span className="font-medium text-slate-800">{s.name}</span>
+                                                    <span className="text-xs text-slate-500 max-w-[50%] text-right truncate">{s.hazard}</span>
+                                                </div>
+                                            ))}
+                                            {formData.selectedSubstances.length === 0 && <p className="text-sm text-slate-400 italic">No substances selected.</p>}
+                                        </div>
+                                    </div>
+
+                                    {/* Activity Context */}
+                                    <div>
+                                        <h4 className="text-xs font-bold uppercase text-slate-500 mb-2 flex items-center gap-2">
+                                            <Briefcase className="w-3.5 h-3.5" /> Work Activity
+                                        </h4>
+                                        <p className="text-sm text-slate-700 bg-white p-3 rounded border border-slate-200 whitespace-pre-wrap">
+                                            {formData.workActivity || "No description provided."}
+                                        </p>
+                                        <div className="flex gap-4 mt-2 text-xs text-slate-600">
+                                            <span><strong>Duration:</strong> {formData.exposureDuration}</span>
+                                            <span><strong>Frequency:</strong> {formData.exposureFrequency}</span>
+                                            <span><strong>Exposed:</strong> {formData.personsExposed.join(", ") || "None selected"}</span>
+                                        </div>
+                                    </div>
+
+                                    {/* Controls & PPE */}
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                        <div>
+                                            <h4 className="text-xs font-bold uppercase text-slate-500 mb-2 flex items-center gap-2">
+                                                <Shield className="w-3.5 h-3.5" /> PPE Required
+                                            </h4>
+                                            <div className="flex flex-wrap gap-1.5">
+                                                {formData.ppe.length > 0 ? formData.ppe.map(p => (
+                                                    <span key={p} className="px-2 py-1 bg-white border border-slate-200 rounded text-xs font-medium text-slate-700">
+                                                        {p}
+                                                    </span>
+                                                )) : <span className="text-sm text-slate-400 italic">No PPE selected</span>}
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <h4 className="text-xs font-bold uppercase text-slate-500 mb-2">Additional Controls</h4>
+                                            <p className="text-xs text-slate-600 bg-white p-2 rounded border border-slate-200 min-h-[40px]">
+                                                {formData.additionalControls || "None specified."}
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                    {/* Emergency */}
+                                    <div>
+                                        <h4 className="text-xs font-bold uppercase text-slate-500 mb-2">Emergency Procedures</h4>
+                                        <p className="text-xs text-slate-600 bg-white p-2 rounded border border-slate-200 min-h-[40px]">
+                                            {formData.emergencyProcedures || "Standard site procedures apply."}
+                                        </p>
                                     </div>
                                 </div>
                                 <SignStrip

@@ -18,6 +18,7 @@ import {
   Trash2,
   Plus,
   Beaker,
+  CheckSquare,
 } from "lucide-react";
 import TypewriterText from "./components/TypewriterText";
 
@@ -1035,7 +1036,8 @@ function Page() {
               <div className="sticky top-0 z-10 bg-white border-b border-slate-200 px-8 py-4 flex items-center justify-between">
                 <div>
                   <h2 className="text-xl font-bold text-slate-900 flex items-center gap-2">
-                    <AnimatedTitle text="RS v1.0" />
+                    <img src="/favicon.ico" alt="RS" className="w-5 h-5" />
+                    <AnimatedTitle text="v1.0" />
                   </h2>
                   <p className="text-sm font-bold text-black mt-0.5">
                     Step {step} of 5
@@ -2014,7 +2016,7 @@ function Page() {
                   <div className="space-y-6">
                     <div className="flex items-center gap-3 mb-6">
                       <div className="h-10 w-10 rounded-full bg-blue-50 flex items-center justify-center">
-                        <FileText className="w-5 h-5 text-[#0b2040]" />
+                        <CheckSquare className="w-5 h-5 text-[#0b2040]" />
                       </div>
                       <h2 className="text-2xl font-semibold text-slate-900">
                         <TypewriterText messages={["Review & Generate"]} loop={false} />

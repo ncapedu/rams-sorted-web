@@ -30,17 +30,25 @@ export async function POST(req: Request) {
                 {
                     role: "system",
                     content: `You are a Health & Safety Consultant. Review the provided COSHH assessment details.
-          Your task is to REWRITE the "additionalControls" and "emergencyProcedures" to be OPERATIONAL and ACTIONABLE.
-          
+          Your task is to REWRITE the "additionalControls", "emergencyProcedures", "exposureRoutes", "storageDisposal", and "controlMeasures" to be DETAILED, PROFESSIONAL, and COMPREHENSIVE.
+
           GUIDELINES:
-          1. Avoid generic corporate language (e.g. "implement comprehensive measures").
-          2. Use short, punchy bullet points (3-5 per section).
-          3. Tie directly to the specific substances/hazards listed.
-             - Example (Dust): "Stop work and move away if dust clouds form despite controls; check water suppression."
-             - Example (Acid): "If acid contacts skin/eyes, flush immediately for 15 mins and seek medical attention."
-          4. Return PLAIN TEXT lines separated by newlines. DO NOT use bullet characters (-, •, *) in the output string, as the frontend adds them.
+          1. **Exposure Routes**: List ALL relevant routes (Inhalation, Skin, Eye, Ingestion) and explain briefly for each (3-5 sentences total).
+          2. **Control Measures**: Provide a robust mix of Engineering, Administrative, and PPE controls. Reference the hierarchy of control. (Approx 100-150 words).
+          3. **Storage & Disposal**: Specify storage conditions (temp, ventilation, segregation) and disposal (hazardous waste, no drains). (Approx 50-80 words).
+          4. **Additional Controls**: Suggest supplementary controls like training, supervision, monitoring, signage. (Approx 50-80 words).
+          5. **Emergency Procedures**: Actionable steps for Spills, Fire, and Exposure (First Aid). Bullet points are good.
+
+          OUTPUT JSON: { 
+            "workActivity": "...", 
+            "exposureRoutes": "...", 
+            "controlMeasures": "...", 
+            "storageDisposal": "...", 
+            "additionalControls": "...", 
+            "emergencyProcedures": "..." 
+          }
           
-          OUTPUT JSON: { "workActivity": "...", "additionalControls": "...", "emergencyProcedures": "..." }`
+          Return PLAIN TEXT strings for the values. Do not use markdown formatting inside the JSON strings.`
                 },
                 {
                     role: "user",
@@ -49,11 +57,13 @@ export async function POST(req: Request) {
             Controls: ${body.additionalControls}
             Emergency: ${body.emergencyProcedures}
             Substances: ${body.selectedSubstances.map((s: any) => s.name).join(", ")}
+            Duration: ${body.exposureDuration}
+            Frequency: ${body.exposureFrequency}
           `
                 }
             ],
             response_format: { type: "json_object" },
-            temperature: 0.3,
+            temperature: 0.4,
         });
 
         const enhanced = JSON.parse(completion.choices[0].message.content || "{}");
@@ -61,6 +71,9 @@ export async function POST(req: Request) {
         const coshhData: COSHHData = {
             ...body,
             workActivity: enhanced.workActivity || body.workActivity,
+            exposureRoutes: enhanced.exposureRoutes || "Inhalation, Skin Contact, Eye Contact. Ensure good ventilation and use PPE.",
+            controlMeasures: enhanced.controlMeasures || "Use appropriate PPE and ensure ventilation.",
+            storageDisposal: enhanced.storageDisposal || "Store in cool, dry place. Dispose of as hazardous waste.",
             additionalControls: enhanced.additionalControls || body.additionalControls,
             emergencyProcedures: enhanced.emergencyProcedures || body.emergencyProcedures,
         };
