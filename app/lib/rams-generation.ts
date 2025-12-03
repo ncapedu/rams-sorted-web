@@ -730,6 +730,182 @@ export const RAMS_STYLES = `
     }
 `;
 
+import { ToolboxTalkData } from "../components/MyFileViewer";
+
+export async function generateToolboxHTML(data: ToolboxTalkData): Promise<string> {
+  const {
+    topic,
+    date,
+    location,
+    supervisorName,
+    audience,
+    hazards,
+    keyMessages,
+    ppe,
+    emergencyArrangements,
+    attendanceConfig,
+    aiContent
+  } = data;
+
+  // Fallback if AI content is missing
+  const content = aiContent || {
+    title: topic,
+    headerInfo: { topic, date, location, presenter: supervisorName },
+    introduction: "This toolbox talk covers essential safety information regarding " + topic + ".",
+    hazardsSection: hazards.map(h => ({ hazard: h, description: "Potential risk associated with " + h })),
+    controlsSection: [{ title: "General Controls", description: "Follow standard site safety rules." }],
+    emergencySection: emergencyArrangements || "Follow site emergency procedures.",
+    keyMessagesSection: keyMessages ? keyMessages.split("\n") : ["Work safely."],
+    attendeeNote: "I confirm that I have attended this briefing and understand the points discussed."
+  };
+
+  const header = `
+    <div class="header-line" style="border-bottom: 3px solid #059669;">
+      <h1 style="color: #059669; border-bottom: none;">Toolbox Talk Record</h1>
+    </div>
+  `;
+
+  const infoTable = `
+    <div class="section-block">
+      <table style="border: 1px solid #059669;">
+        <tr>
+          <th width="20%" style="background-color: #ecfdf5; color: #065f46;">Topic</th>
+          <td width="30%">${content.headerInfo.topic}</td>
+          <th width="20%" style="background-color: #ecfdf5; color: #065f46;">Date</th>
+          <td width="30%">${content.headerInfo.date}</td>
+        </tr>
+        <tr>
+          <th style="background-color: #ecfdf5; color: #065f46;">Location</th>
+          <td>${content.headerInfo.location}</td>
+          <th style="background-color: #ecfdf5; color: #065f46;">Presenter</th>
+          <td>${content.headerInfo.presenter}</td>
+        </tr>
+        <tr>
+          <th style="background-color: #ecfdf5; color: #065f46;">Audience</th>
+          <td colspan="3">${audience || "General Site Personnel"}</td>
+        </tr>
+      </table>
+    </div>
+  `;
+
+  const introSection = `
+    <div class="section-block">
+      <h2 style="color: #059669; border-bottom-color: #059669;">1. Introduction</h2>
+      <p>${content.introduction}</p>
+    </div>
+  `;
+
+  const hazardsSection = `
+    <div class="section-block">
+      <h2 style="color: #059669; border-bottom-color: #059669;">2. Key Hazards</h2>
+      <ul>
+        ${content.hazardsSection.map((h: any) => `
+          <li style="margin-bottom: 8px;">
+            <strong>${h.hazard}:</strong> ${h.description}
+          </li>
+        `).join("")}
+      </ul>
+    </div>
+  `;
+
+  const controlsSection = `
+    <div class="section-block">
+      <h2 style="color: #059669; border-bottom-color: #059669;">3. Control Measures</h2>
+      <ul>
+        ${content.controlsSection.map((c: any) => `
+          <li style="margin-bottom: 8px;">
+            <strong>${c.title}:</strong> ${c.description}
+          </li>
+        `).join("")}
+      </ul>
+    </div>
+  `;
+
+  const keyMessagesSection = `
+    <div class="section-block">
+      <h2 style="color: #059669; border-bottom-color: #059669;">4. Key Messages</h2>
+      <ul>
+        ${content.keyMessagesSection.map((m: string) => `<li>${m}</li>`).join("")}
+      </ul>
+    </div>
+  `;
+
+  const ppeSection = `
+    <div class="section-block">
+      <h2 style="color: #059669; border-bottom-color: #059669;">5. PPE Required</h2>
+      <p>The following PPE is mandatory for this task:</p>
+      <p><strong>${ppe.join(", ") || "Standard Site PPE"}</strong></p>
+    </div>
+  `;
+
+  const emergencySection = `
+    <div class="section-block">
+      <h2 style="color: #059669; border-bottom-color: #059669;">6. Emergency Procedures</h2>
+      <p>${content.emergencySection}</p>
+    </div>
+  `;
+
+  let attendanceHTML = "";
+  if (attendanceConfig.include) {
+    const rows = Math.max(10, Number(attendanceConfig.expectedAttendees) || 10);
+
+    attendanceHTML = `
+      <div class="section-block keep-together" style="margin-top: 20px;">
+        <h2 style="color: #059669; border-bottom-color: #059669;">7. Attendee Acknowledgement</h2>
+        <p><em>"${content.attendeeNote}"</em></p>
+        ${attendanceConfig.notes ? `<p><strong>Note:</strong> ${attendanceConfig.notes}</p>` : ""}
+        
+        <table style="margin-top: 10px; border: 1px solid #059669;">
+          <thead>
+            <tr>
+              <th width="30%" style="background-color: #ecfdf5; color: #065f46;">Name (Print)</th>
+              <th width="25%" style="background-color: #ecfdf5; color: #065f46;">Company</th>
+              <th width="25%" style="background-color: #ecfdf5; color: #065f46;">Signature</th>
+              <th width="20%" style="background-color: #ecfdf5; color: #065f46;">Date</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${Array.from({ length: rows }).map(() => `
+              <tr>
+                <td style="height: 40px;"></td>
+                <td></td>
+                <td></td>
+                <td></td>
+              </tr>
+            `).join("")}
+          </tbody>
+        </table>
+      </div>
+    `;
+  }
+
+  return `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="utf-8">
+      <title>${data.topic} - Toolbox Talk</title>
+      <style>
+        ${RAMS_STYLES}
+      </style>
+    </head>
+    <body>
+      <div class="rams-content">
+        ${header}
+        ${infoTable}
+        ${introSection}
+        ${hazardsSection}
+        ${controlsSection}
+        ${keyMessagesSection}
+        ${ppeSection}
+        ${emergencySection}
+        ${attendanceHTML}
+      </div>
+    </body>
+    </html>
+  `;
+}
+
 export interface COSHHData {
   documentName: string;
   companyName: string;

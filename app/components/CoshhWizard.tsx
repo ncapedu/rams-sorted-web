@@ -148,7 +148,7 @@ export default function CoshhWizard({ onBack, onSave }: CoshhWizardProps) {
     const [formData, setFormData] = useState({
         // Step 0: Basics
         documentName: "",
-        userType: "company" as "company" | "sole_trader",
+        userType: "" as "company" | "sole_trader" | "",
 
         // Step 1: Project
         companyName: "",
@@ -240,16 +240,14 @@ export default function CoshhWizard({ onBack, onSave }: CoshhWizardProps) {
         if (step === 0) {
             if (!formData.documentName) {
                 errorMsg = "Please enter a document name.";
+            } else if (!formData.userType) {
+                errorMsg = "Please select whether you are a Business or Sole Trader.";
             }
         } else if (step === 1) {
-            if (!formData.companyName || !formData.assessorName || !formData.clientName) {
-                errorMsg = "Please fill in all required Project & Owner details.";
-            }
-        } else if (step === 2) {
             if (formData.selectedSubstances.length === 0 && formData.customSubstances.length === 0) {
                 errorMsg = "Please select or add at least one substance.";
             }
-        } else if (step === 3) {
+        } else if (step === 2) {
             if (!formData.workActivity || !formData.exposureDuration || !formData.exposureFrequency) {
                 errorMsg = "Please describe the activity and exposure details.";
             }
@@ -326,10 +324,11 @@ export default function CoshhWizard({ onBack, onSave }: CoshhWizardProps) {
             )}
 
             {/* PROGRESS BAR */}
+            {/* PROGRESS BAR */}
             {!isGenerating && (
                 <div className="h-1.5 w-full bg-slate-200">
                     <div
-                        className="h-full bg-[#0b2040] transition-all duration-500 ease-out"
+                        className="h-full bg-blue-700 transition-all duration-500 ease-out"
                         style={{ width: `${step === 0 ? 0 : (step / 5) * 100}%` }}
                     />
                 </div>
@@ -341,7 +340,7 @@ export default function CoshhWizard({ onBack, onSave }: CoshhWizardProps) {
                     <div className="flex flex-col items-center justify-center h-full">
                         <div className="relative mb-8">
                             <div className="absolute inset-0 bg-blue-100 rounded-full animate-ping opacity-20"></div>
-                            <Loader2 className="w-16 h-16 animate-spin text-[#0b2040] relative z-10" />
+                            <Loader2 className="w-16 h-16 animate-spin text-blue-700 relative z-10" />
                         </div>
                         <h2 className="text-2xl font-bold tracking-wide text-slate-800 h-8 text-center">
                             <TypewriterText
@@ -359,32 +358,30 @@ export default function CoshhWizard({ onBack, onSave }: CoshhWizardProps) {
                 ) : (
                     <div className="max-w-4xl mx-auto px-6 py-8 rs-fade-slide-in" key={step}>
 
-                        {/* ... steps ... */}
-                        {/* (Steps content remains unchanged, just skipping for brevity in replacement if possible, but replace_file_content needs contiguous block. I will include the steps logic if I can't skip, but wait, I can just target the progress bar and then the buttons separately or together if they are close. They are not very close. Progress bar is at top, buttons at bottom. I should use multi_replace or two calls. I'll use multi_replace.) */}
-
-                        {/* STEP 0: BASICS */}
+                        {/* STEP 0: SETUP */}
                         {step === 0 && (
                             <div className="space-y-6">
                                 <div className="flex items-center gap-3 mb-6">
                                     <div className="h-10 w-10 rounded-full bg-blue-50 flex items-center justify-center">
-                                        <Beaker className="w-5 h-5 text-[#0b2040]" />
+                                        <Beaker className="w-5 h-5 text-blue-600" />
                                     </div>
                                     <h2 className="text-2xl font-semibold text-slate-900">
-                                        <TypewriterText messages={["Set Up Your COSHH File"]} loop={false} />
+                                        <TypewriterText messages={["Set Up Your COSHH Assessment"]} loop={false} />
                                     </h2>
                                 </div>
 
-                                <div className="max-w-xl space-y-6">
+                                <div className="space-y-6 max-w-2xl">
+                                    {/* Document name */}
                                     <div className="space-y-2">
                                         <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
-                                            Document Name <span className="text-red-600">*</span>
+                                            Assessment Name <span className="text-red-600">*</span>
                                         </label>
                                         <input
-                                            className="w-full border border-slate-200 p-3 rounded-lg text-sm focus:ring-2 focus:ring-[#0b2040] outline-none"
-                                            placeholder="e.g. COSHH - Site Cleaning Chemicals"
+                                            className="border border-slate-200 p-3 rounded-lg w-full text-sm focus:ring-2 focus:ring-blue-700 focus:border-transparent outline-none bg-white shadow-sm hover:border-slate-300 transition-all duration-200"
+                                            placeholder="e.g. Paint Stripping - Block A"
                                             value={formData.documentName}
                                             onChange={(e) => handleInput("documentName", e.target.value)}
-                                            autoFocus
+                                            onKeyDown={(e) => e.key === "Enter" && nextStep()}
                                         />
                                     </div>
 
@@ -396,11 +393,11 @@ export default function CoshhWizard({ onBack, onSave }: CoshhWizardProps) {
                                             <button
                                                 onClick={() => handleInput("userType", "company")}
                                                 className={`p-4 rounded-xl border-2 text-left transition-all ${formData.userType === "company"
-                                                    ? "border-[#0b2040] bg-blue-50/50 ring-1 ring-[#0b2040]"
+                                                    ? "border-blue-700 bg-blue-50/50 ring-1 ring-blue-700"
                                                     : "border-slate-200 hover:border-slate-300 hover:bg-slate-50"
                                                     }`}
                                             >
-                                                <div className="font-bold text-[#0b2040] text-sm mb-1">Business</div>
+                                                <div className={`font-bold text-sm mb-1 ${formData.userType === "company" ? "text-blue-800" : "text-slate-900"}`}>Business</div>
                                                 <div className="text-[11px] text-slate-500 leading-tight">
                                                     Company with employees
                                                 </div>
@@ -409,11 +406,11 @@ export default function CoshhWizard({ onBack, onSave }: CoshhWizardProps) {
                                             <button
                                                 onClick={() => handleInput("userType", "sole_trader")}
                                                 className={`p-4 rounded-xl border-2 text-left transition-all ${formData.userType === "sole_trader"
-                                                    ? "border-[#0b2040] bg-blue-50/50 ring-1 ring-[#0b2040]"
+                                                    ? "border-blue-700 bg-blue-50/50 ring-1 ring-blue-700"
                                                     : "border-slate-200 hover:border-slate-300 hover:bg-slate-50"
                                                     }`}
                                             >
-                                                <div className="font-bold text-[#0b2040] text-sm mb-1">Sole Trader</div>
+                                                <div className={`font-bold text-sm mb-1 ${formData.userType === "sole_trader" ? "text-blue-800" : "text-slate-900"}`}>Sole Trader</div>
                                                 <div className="text-[11px] text-slate-500 leading-tight">
                                                     Independent / Self-employed
                                                 </div>
@@ -424,99 +421,15 @@ export default function CoshhWizard({ onBack, onSave }: CoshhWizardProps) {
                             </div>
                         )}
 
-                        {/* STEP 1: PROJECT & OWNER */}
+                        {/* STEP 1: SUBSTANCES */}
                         {step === 1 && (
                             <div className="space-y-6">
                                 <div className="flex items-center gap-3 mb-6">
                                     <div className="h-10 w-10 rounded-full bg-blue-50 flex items-center justify-center">
-                                        <Briefcase className="w-5 h-5 text-[#0b2040]" />
+                                        <Beaker className="w-5 h-5 text-blue-600" />
                                     </div>
                                     <h2 className="text-2xl font-semibold text-slate-900">
-                                        <TypewriterText messages={["Project & Owner Details"]} loop={false} />
-                                    </h2>
-                                </div>
-
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <div>
-                                        <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
-                                            {formData.userType === "company" ? "Company Name" : "Trading Name"} <span className="text-red-600">*</span>
-                                        </label>
-                                        <input
-                                            className="w-full border border-slate-200 p-3 rounded-lg text-sm focus:ring-2 focus:ring-[#0b2040] outline-none"
-                                            placeholder={formData.userType === "company" ? "Your Company Ltd" : "John Smith T/A JS Plumbing"}
-                                            value={formData.companyName}
-                                            onChange={(e) => handleInput("companyName", e.target.value)}
-                                        />
-                                    </div>
-
-                                    <div>
-                                        <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
-                                            Assessor Name <span className="text-red-600">*</span>
-                                        </label>
-                                        <input
-                                            className="w-full border border-slate-200 p-3 rounded-lg text-sm focus:ring-2 focus:ring-[#0b2040] outline-none"
-                                            placeholder="Name of Assessor"
-                                            value={formData.assessorName}
-                                            onChange={(e) => handleInput("assessorName", e.target.value)}
-                                        />
-                                    </div>
-
-                                    <div>
-                                        <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
-                                            Client Name <span className="text-red-600">*</span>
-                                        </label>
-                                        <input
-                                            className="w-full border border-slate-200 p-3 rounded-lg text-sm focus:ring-2 focus:ring-[#0b2040] outline-none"
-                                            placeholder="Client Name"
-                                            value={formData.clientName}
-                                            onChange={(e) => handleInput("clientName", e.target.value)}
-                                        />
-                                    </div>
-
-                                    <div>
-                                        <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
-                                            Project Ref (Optional)
-                                        </label>
-                                        <input
-                                            className="w-full border border-slate-200 p-3 rounded-lg text-sm focus:ring-2 focus:ring-[#0b2040] outline-none"
-                                            placeholder="e.g. PRJ-123"
-                                            value={formData.projectRef}
-                                            onChange={(e) => handleInput("projectRef", e.target.value)}
-                                        />
-                                    </div>
-
-                                    <div className="col-span-2">
-                                        <AddressSearch
-                                            label="Site Address"
-                                            value={formData.siteAddress}
-                                            onChange={(val: string) => handleInput("siteAddress", val)}
-                                        />
-                                    </div>
-
-                                    <div>
-                                        <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
-                                            Assessment Date
-                                        </label>
-                                        <input
-                                            type="date"
-                                            className="w-full border border-slate-200 p-3 rounded-lg text-sm focus:ring-2 focus:ring-[#0b2040] outline-none"
-                                            value={formData.assessmentDate}
-                                            onChange={(e) => handleInput("assessmentDate", e.target.value)}
-                                        />
-                                    </div>
-                                </div>
-                            </div>
-                        )}
-
-                        {/* STEP 2: SUBSTANCES */}
-                        {step === 2 && (
-                            <div className="space-y-6">
-                                <div className="flex items-center gap-3 mb-6">
-                                    <div className="h-10 w-10 rounded-full bg-blue-50 flex items-center justify-center">
-                                        <Beaker className="w-5 h-5 text-[#0b2040]" />
-                                    </div>
-                                    <h2 className="text-2xl font-semibold text-slate-900">
-                                        <TypewriterText messages={["Substances & Products"]} loop={false} />
+                                        Identify Substances
                                     </h2>
                                 </div>
 
@@ -527,7 +440,7 @@ export default function CoshhWizard({ onBack, onSave }: CoshhWizardProps) {
                                     <div className="flex gap-2 relative">
                                         <div className="relative flex-1">
                                             <input
-                                                className="w-full border border-slate-300 p-3 rounded-lg text-sm focus:ring-2 focus:ring-[#0b2040] outline-none"
+                                                className="w-full border border-slate-300 p-3 rounded-lg text-sm focus:ring-2 focus:ring-blue-600 outline-none"
                                                 placeholder="Search for substances (e.g. dust, cement, adhesive)..."
                                                 value={substanceSearch}
                                                 onChange={(e) => {
@@ -582,7 +495,7 @@ export default function CoshhWizard({ onBack, onSave }: CoshhWizardProps) {
                                                                             addSubstance({ name: item.substance, hazard: item.hazard, control: item.control });
                                                                             setSubstanceSearch("");
                                                                         }}
-                                                                        className="w-full text-left px-2 py-1.5 hover:bg-blue-50 rounded text-sm text-slate-700 hover:text-[#0b2040] transition-colors truncate"
+                                                                        className="w-full text-left px-2 py-1.5 hover:bg-blue-50 rounded text-sm text-slate-700 hover:text-blue-600 transition-colors truncate"
                                                                         title={item.substance}
                                                                     >
                                                                         {item.substance}
@@ -627,12 +540,96 @@ export default function CoshhWizard({ onBack, onSave }: CoshhWizardProps) {
                             </div>
                         )}
 
+                        {/* STEP 2: PROJECT & OWNER */}
+                        {step === 2 && (
+                            <div className="space-y-6">
+                                <div className="flex items-center gap-3 mb-6">
+                                    <div className="h-10 w-10 rounded-full bg-blue-50 flex items-center justify-center">
+                                        <Briefcase className="w-5 h-5 text-blue-600" />
+                                    </div>
+                                    <h2 className="text-2xl font-semibold text-slate-900">
+                                        <TypewriterText messages={["Project & Owner Details"]} loop={false} />
+                                    </h2>
+                                </div>
+
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div>
+                                        <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
+                                            {formData.userType === "company" ? "Company Name" : "Trading Name"} <span className="text-red-600">*</span>
+                                        </label>
+                                        <input
+                                            className="w-full border border-slate-200 p-3 rounded-lg text-sm focus:ring-2 focus:ring-blue-600 outline-none"
+                                            placeholder={formData.userType === "company" ? "Your Company Ltd" : "John Smith T/A JS Plumbing"}
+                                            value={formData.companyName}
+                                            onChange={(e) => handleInput("companyName", e.target.value)}
+                                        />
+                                    </div>
+
+                                    <div>
+                                        <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
+                                            Assessor Name <span className="text-red-600">*</span>
+                                        </label>
+                                        <input
+                                            className="w-full border border-slate-200 p-3 rounded-lg text-sm focus:ring-2 focus:ring-blue-600 outline-none"
+                                            placeholder="Name of Assessor"
+                                            value={formData.assessorName}
+                                            onChange={(e) => handleInput("assessorName", e.target.value)}
+                                        />
+                                    </div>
+
+                                    <div>
+                                        <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
+                                            Client Name <span className="text-red-600">*</span>
+                                        </label>
+                                        <input
+                                            className="w-full border border-slate-200 p-3 rounded-lg text-sm focus:ring-2 focus:ring-blue-600 outline-none"
+                                            placeholder="Client Name"
+                                            value={formData.clientName}
+                                            onChange={(e) => handleInput("clientName", e.target.value)}
+                                        />
+                                    </div>
+
+                                    <div>
+                                        <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
+                                            Project Ref (Optional)
+                                        </label>
+                                        <input
+                                            className="w-full border border-slate-200 p-3 rounded-lg text-sm focus:ring-2 focus:ring-blue-600 outline-none"
+                                            placeholder="e.g. PRJ-123"
+                                            value={formData.projectRef}
+                                            onChange={(e) => handleInput("projectRef", e.target.value)}
+                                        />
+                                    </div>
+
+                                    <div className="col-span-2">
+                                        <AddressSearch
+                                            label="Site Address"
+                                            value={formData.siteAddress}
+                                            onChange={(val: string) => handleInput("siteAddress", val)}
+                                        />
+                                    </div>
+
+                                    <div>
+                                        <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
+                                            Assessment Date
+                                        </label>
+                                        <input
+                                            type="date"
+                                            className="w-full border border-slate-200 p-3 rounded-lg text-sm focus:ring-2 focus:ring-blue-600 outline-none"
+                                            value={formData.assessmentDate}
+                                            onChange={(e) => handleInput("assessmentDate", e.target.value)}
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
                         {/* STEP 3: EXPOSURE & CONTEXT */}
                         {step === 3 && (
                             <div className="space-y-6">
                                 <div className="flex items-center gap-3 mb-6">
                                     <div className="h-10 w-10 rounded-full bg-blue-50 flex items-center justify-center">
-                                        <Clock className="w-5 h-5 text-[#0b2040]" />
+                                        <Clock className="w-5 h-5 text-blue-600" />
                                     </div>
                                     <h2 className="text-2xl font-semibold text-slate-900">
                                         <TypewriterText messages={["Exposure & Work Context"]} loop={false} />
@@ -645,7 +642,7 @@ export default function CoshhWizard({ onBack, onSave }: CoshhWizardProps) {
                                             Work Activity Description <span className="text-red-600">*</span>
                                         </label>
                                         <textarea
-                                            className="w-full border border-slate-200 p-3 rounded-lg h-32 text-sm focus:ring-2 focus:ring-[#0b2040] outline-none"
+                                            className="w-full border border-slate-200 p-3 rounded-lg h-32 text-sm focus:ring-2 focus:ring-blue-600 outline-none"
                                             placeholder="Describe how the substances are used..."
                                             value={formData.workActivity}
                                             onChange={(e) => handleInput("workActivity", e.target.value)}
@@ -658,7 +655,7 @@ export default function CoshhWizard({ onBack, onSave }: CoshhWizardProps) {
                                                 Duration of Exposure <span className="text-red-600">*</span>
                                             </label>
                                             <input
-                                                className="w-full border border-slate-200 p-3 rounded-lg text-sm focus:ring-2 focus:ring-[#0b2040] outline-none"
+                                                className="w-full border border-slate-200 p-3 rounded-lg text-sm focus:ring-2 focus:ring-blue-600 outline-none"
                                                 placeholder="e.g. 2 hours"
                                                 value={formData.exposureDuration}
                                                 onChange={(e) => handleInput("exposureDuration", e.target.value)}
@@ -669,7 +666,7 @@ export default function CoshhWizard({ onBack, onSave }: CoshhWizardProps) {
                                                 Frequency of Exposure <span className="text-red-600">*</span>
                                             </label>
                                             <input
-                                                className="w-full border border-slate-200 p-3 rounded-lg text-sm focus:ring-2 focus:ring-[#0b2040] outline-none"
+                                                className="w-full border border-slate-200 p-3 rounded-lg text-sm focus:ring-2 focus:ring-blue-600 outline-none"
                                                 placeholder="e.g. Daily"
                                                 value={formData.exposureFrequency}
                                                 onChange={(e) => handleInput("exposureFrequency", e.target.value)}
@@ -687,7 +684,7 @@ export default function CoshhWizard({ onBack, onSave }: CoshhWizardProps) {
                                                     key={p}
                                                     onClick={() => togglePersonExposed(p)}
                                                     className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-colors ${formData.personsExposed.includes(p)
-                                                        ? "bg-[#0b2040] text-white border-[#0b2040]"
+                                                        ? "bg-blue-600 text-white border-blue-600"
                                                         : "bg-white text-slate-600 border-slate-200 hover:border-blue-300"
                                                         }`}
                                                 >
@@ -705,7 +702,7 @@ export default function CoshhWizard({ onBack, onSave }: CoshhWizardProps) {
                             <div className="space-y-6">
                                 <div className="flex items-center gap-3 mb-6">
                                     <div className="h-10 w-10 rounded-full bg-blue-50 flex items-center justify-center">
-                                        <Shield className="w-5 h-5 text-[#0b2040]" />
+                                        <Shield className="w-5 h-5 text-blue-600" />
                                     </div>
                                     <h2 className="text-2xl font-semibold text-slate-900">
                                         <TypewriterText messages={["Controls & PPE"]} loop={false} />
@@ -723,7 +720,7 @@ export default function CoshhWizard({ onBack, onSave }: CoshhWizardProps) {
                                                     key={key}
                                                     onClick={() => togglePPE(def.item)}
                                                     className={`p-3 rounded-lg border text-left transition-all ${formData.ppe.includes(def.item)
-                                                        ? "bg-blue-50 border-[#0b2040] ring-1 ring-[#0b2040]"
+                                                        ? "bg-blue-50 border-blue-600 ring-1 ring-blue-600"
                                                         : "bg-white border-slate-200 hover:border-blue-300"
                                                         }`}
                                                 >
@@ -747,7 +744,7 @@ export default function CoshhWizard({ onBack, onSave }: CoshhWizardProps) {
                                             Additional Control Measures
                                         </label>
                                         <textarea
-                                            className="w-full border border-slate-200 p-3 rounded-lg h-24 text-sm focus:ring-2 focus:ring-[#0b2040] outline-none"
+                                            className="w-full border border-slate-200 p-3 rounded-lg h-24 text-sm focus:ring-2 focus:ring-blue-600 outline-none"
                                             placeholder="Any specific engineering controls or safe systems of work..."
                                             value={formData.additionalControls}
                                             onChange={(e) => handleInput("additionalControls", e.target.value)}
@@ -759,7 +756,7 @@ export default function CoshhWizard({ onBack, onSave }: CoshhWizardProps) {
                                             Emergency Procedures
                                         </label>
                                         <textarea
-                                            className="w-full border border-slate-200 p-3 rounded-lg h-24 text-sm focus:ring-2 focus:ring-[#0b2040] outline-none"
+                                            className="w-full border border-slate-200 p-3 rounded-lg h-24 text-sm focus:ring-2 focus:ring-blue-600 outline-none"
                                             placeholder="First aid, spillage procedures, fire response..."
                                             value={formData.emergencyProcedures}
                                             onChange={(e) => handleInput("emergencyProcedures", e.target.value)}
@@ -774,7 +771,7 @@ export default function CoshhWizard({ onBack, onSave }: CoshhWizardProps) {
                             <div className="space-y-6">
                                 <div className="flex items-center gap-3 mb-6">
                                     <div className="h-10 w-10 rounded-full bg-blue-50 flex items-center justify-center">
-                                        <CheckSquare className="w-5 h-5 text-[#0b2040]" />
+                                        <CheckSquare className="w-5 h-5 text-blue-600" />
                                     </div>
                                     <h2 className="text-2xl font-semibold text-slate-900">
                                         <TypewriterText messages={["Review & Generate"]} loop={false} />
@@ -904,7 +901,7 @@ export default function CoshhWizard({ onBack, onSave }: CoshhWizardProps) {
                                 <button
                                     onClick={generateCOSHH}
                                     disabled={isGenerating}
-                                    className="inline-flex items-center justify-center gap-2 rounded-lg bg-[#0b2040] px-5 py-2.5 text-sm font-semibold text-white hover:bg-black disabled:opacity-60 disabled:cursor-not-allowed transition-colors"
+                                    className="inline-flex items-center justify-center gap-2 rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-blue-700 disabled:opacity-60 disabled:cursor-not-allowed transition-colors"
                                 >
                                     {isGenerating ? (
                                         <Loader2 className="w-4 h-4 animate-spin" />

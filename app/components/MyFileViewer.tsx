@@ -35,11 +35,40 @@ import { asBlob } from "html-docx-js-typescript";
 import { saveAs } from "file-saver";
 import { RAMS_STYLES } from "../lib/rams-generation";
 
+export interface ToolboxTalkData {
+  topic: string;
+  date: string;
+  location: string;
+  supervisorName: string;
+  audience: string;
+  hazards: string[];
+  keyMessages: string;
+  ppe: string[];
+  emergencyArrangements: string;
+  attendanceConfig: {
+    include: boolean;
+    expectedAttendees?: string;
+    notes?: string;
+  };
+  aiContent?: {
+    title: string;
+    headerInfo: any;
+    introduction: string;
+    hazardsSection: any[];
+    controlsSection: any[];
+    emergencySection: string;
+    keyMessagesSection: string[];
+    attendeeNote: string;
+  };
+}
+
 export interface RAMSFile {
   id: string;
   name: string;
   createdAt: string;
   content: string; // HTML string
+  type?: "RAMS" | "COSHH" | "TOOLBOX_TALK";
+  toolboxData?: ToolboxTalkData;
 }
 
 interface MyFileViewerProps {

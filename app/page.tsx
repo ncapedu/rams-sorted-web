@@ -19,6 +19,8 @@ import {
   Plus,
   Beaker,
   CheckSquare,
+  Users,
+  Shield,
 } from "lucide-react";
 import TypewriterText from "./components/TypewriterText";
 
@@ -175,9 +177,10 @@ function AddressSearch({
 
 // --- MAIN APPLICATION ---
 import CoshhWizard from "./components/CoshhWizard";
+import ToolboxWizard from "./components/ToolboxWizard";
 
 function Page() {
-  const [mode, setMode] = useState<"landing" | "wizard" | "viewer" | "coshh">("landing");
+  const [mode, setMode] = useState<"landing" | "wizard" | "viewer" | "coshh" | "toolbox">("landing");
   // 0 = pre-step (name doc), 1–5 = wizard steps
   const [step, setStep] = useState(1);
   const [sidebarOpen, setSidebarOpen] = useState(true);
@@ -934,94 +937,141 @@ function Page() {
                 setMode("viewer");
               }}
             />
+          ) : mode === "toolbox" ? (
+            <ToolboxWizard
+              onBack={() => setMode("landing")}
+              onComplete={async (data) => {
+                const { generateToolboxHTML } = await import("./lib/rams-generation");
+                const htmlContent = await generateToolboxHTML(data);
+
+                const now = new Date();
+                const newFile: RAMSFile = {
+                  id: now.getTime().toString(),
+                  name: data.documentName,
+                  createdAt: now.toLocaleString(),
+                  content: htmlContent,
+                  type: "TOOLBOX_TALK",
+                  toolboxData: data
+                };
+
+                setRecentFiles(prev => [newFile, ...prev].slice(0, 20));
+                setActiveFile(newFile);
+                setMode("viewer");
+              }}
+            />
           ) : mode === "landing" ? (
-            <div className="flex-1 flex items-center justify-center px-6 rs-fade-slide-in bg-white">
-              <div className="max-w-xl w-full text-center">
-                <h1 className="text-4xl md:text-5xl font-semibold text-slate-900 mb-3">
-                  <TypewriterText
-                    messages={[
-                      formData.contactName
-                        ? `Welcome back, ${formData.contactName}`
-                        : "Welcome back"
-                    ]}
-                    loop={false}
-                    className="border-b-0"
-                  />
-                </h1>
-                <p className="text-slate-500 mb-8 text-lg">
-                  How can we help you today?
-                </p>
+            <div className="flex-1 overflow-y-auto bg-white">
+              <div className="min-h-full flex flex-col items-center justify-center py-12 px-6 rs-fade-slide-in">
+                <div className="max-w-7xl w-full text-center">
+                  <h1 className="text-4xl md:text-5xl font-semibold text-slate-900 mb-3">
+                    <TypewriterText
+                      messages={[
+                        formData.contactName
+                          ? `Welcome back, ${formData.contactName}`
+                          : "Welcome back"
+                      ]}
+                      loop={false}
+                      className="border-b-0"
+                    />
+                  </h1>
+                  <p className="text-slate-500 mb-8 text-lg">
+                    How can we help you today?
+                  </p>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <button
-                    onClick={() => {
-                      setMode("wizard");
-                      setStep(0);
-                      setFormData({
-                        userType: "company",
-                        companyName: "",
-                        officeAddress: "",
-                        contactName: "",
-                        contactPhone: "",
-                        contactEmail: "",
-                        projectSupervisor: "",
-                        clientName: "",
-                        projectRef: "",
-                        siteAddress: "",
-                        startDate: new Date().toISOString().split("T")[0],
-                        endDate: "",
-                        expectedEndDate: "",
-                        duration: "1 Day",
-                        operatives: "2",
-                        trade: "",
-                        jobType: "",
-                        customJobType: "",
-                        jobDesc: "",
-                        supervisorName: "",
-                        firstAider: "",
-                        hospital: "",
-                        fireAssembly: "",
-                        firstAidLoc: "",
-                        welfare: "",
-                        extraNotes: "",
-                        accessCode: "",
-                        customDescription: "",
-                        customJobTitle: "",
-                        customJobDescription: "",
-                        brandPrimaryColor: "black",
-                        brandSecondaryColor: "white",
-                        extraData: {},
-                      });
-                      setHazards([]);
-                      // Reset other states if necessary, but for now just fix the type error
-                    }}
-                    className="group flex flex-col items-center justify-center p-6 bg-white border border-slate-200 rounded-xl shadow-sm hover:shadow-md hover:border-slate-300 transition-all"
-                  >
-                    <div className="h-12 w-12 rounded-full bg-red-50 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
-                      <FileText className="w-6 h-6 text-red-600" />
-                    </div>
-                    <span className="font-semibold text-slate-900">
-                      New RAMS document
-                    </span>
-                    <span className="text-xs text-slate-500 mt-1">
-                      Start from scratch
-                    </span>
-                  </button>
+                  <div className="mt-10 flex flex-col items-center gap-6 md:flex-row md:justify-center md:items-stretch md:gap-8 w-full">
+                    <button
+                      onClick={() => {
+                        setMode("wizard");
+                        setStep(0);
+                        setFormData({
+                          userType: "", // Removed default
+                          companyName: "",
+                          officeAddress: "",
+                          contactName: "",
+                          contactPhone: "",
+                          contactEmail: "",
+                          projectSupervisor: "",
+                          clientName: "",
+                          projectRef: "",
+                          siteAddress: "",
+                          startDate: new Date().toISOString().split("T")[0],
+                          endDate: "",
+                          expectedEndDate: "",
+                          duration: "1 Day",
+                          operatives: "2",
+                          trade: "",
+                          jobType: "",
+                          customJobType: "",
+                          jobDesc: "",
+                          supervisorName: "",
+                          firstAider: "",
+                          hospital: "",
+                          fireAssembly: "",
+                          firstAidLoc: "",
+                          welfare: "",
+                          extraNotes: "",
+                          accessCode: "",
+                          customDescription: "",
+                          customJobTitle: "",
+                          customJobDescription: "",
+                          brandPrimaryColor: "black",
+                          brandSecondaryColor: "white",
+                          extraData: {},
+                        });
+                        setHazards([]);
+                      }}
+                      className="flex flex-1 flex-col items-center gap-4 rounded-3xl border border-slate-200 bg-white px-8 py-6 text-center shadow-sm transition hover:shadow-md"
+                    >
+                      <div className="h-14 w-14 rounded-full bg-red-50 flex items-center justify-center group-hover:scale-110 transition-transform shrink-0">
+                        <FileText className="w-7 h-7 text-red-600" />
+                      </div>
+                      <div>
+                        <span className="font-semibold text-lg text-slate-900 block">
+                          New RAMS Document
+                        </span>
+                        <span className="text-sm text-slate-500 mt-0.5 block">
+                          Start a full RAMS pack in guided steps.
+                        </span>
+                      </div>
+                    </button>
 
-                  <button
-                    onClick={() => setMode("coshh")}
-                    className="group flex flex-col items-center justify-center p-6 bg-white border border-slate-200 rounded-xl shadow-sm hover:shadow-md hover:border-slate-300 transition-all"
-                  >
-                    <div className="h-12 w-12 rounded-full bg-purple-50 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
-                      <Beaker className="w-6 h-6 text-purple-600" />
-                    </div>
-                    <span className="font-semibold text-slate-900">
-                      New COSHH Assessment
-                    </span>
-                    <span className="text-xs text-slate-500 mt-1">
-                      Create a standalone assessment
-                    </span>
-                  </button>
+                    <button
+                      onClick={() => setMode("coshh")}
+                      className="flex flex-1 flex-col items-center gap-4 rounded-3xl border border-slate-200 bg-white px-8 py-6 text-center shadow-sm transition hover:shadow-md"
+                    >
+                      <div className="h-14 w-14 rounded-full bg-blue-50 flex items-center justify-center group-hover:scale-110 transition-transform shrink-0">
+                        <Beaker className="w-7 h-7 text-blue-600" />
+                      </div>
+                      <div>
+                        <span className="font-semibold text-lg text-slate-900 block">
+                          New COSHH Assessment
+                        </span>
+                        <span className="text-sm text-slate-500 mt-0.5 block">
+                          Create a standalone COSHH assessment.
+                        </span>
+                      </div>
+                    </button>
+
+                    <button
+                      onClick={() => {
+                        setMode("toolbox");
+                        setStep(0);
+                      }}
+                      className="flex flex-1 flex-col items-center gap-4 rounded-3xl border border-slate-200 bg-white px-8 py-6 text-center shadow-sm transition hover:shadow-md"
+                    >
+                      <div className="h-14 w-14 rounded-full bg-emerald-50 flex items-center justify-center group-hover:scale-110 transition-transform shrink-0">
+                        <Users className="w-7 h-7 text-emerald-600" />
+                      </div>
+                      <div>
+                        <span className="font-semibold text-lg text-slate-900 block">
+                          New Toolbox Talk
+                        </span>
+                        <span className="text-sm text-slate-500 mt-0.5 block">
+                          Build a ready-to-use toolbox talk.
+                        </span>
+                      </div>
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
@@ -1031,7 +1081,6 @@ function Page() {
               ref={mainScrollRef}
               className="flex-1 overflow-y-auto bg-white"
             >
-              {/* Wizard Header */}
               {/* Wizard Header */}
               <div className="sticky top-0 z-10 bg-white border-b border-slate-200 px-8 py-4 flex items-center justify-between">
                 <div>
@@ -1053,7 +1102,7 @@ function Page() {
               {/* Progress Bar - Always visible */}
               <div className="h-1.5 w-full bg-slate-200">
                 <div
-                  className="h-full bg-[#0b2040] transition-all duration-500 ease-out"
+                  className="h-full bg-red-600 transition-all duration-500 ease-out"
                   style={{ width: `${step === 0 ? 0 : (step / 5) * 100}%` }}
                 />
               </div>
@@ -1067,8 +1116,8 @@ function Page() {
                 {step === 0 && (
                   <div className="space-y-6">
                     <div className="flex items-center gap-3 mb-6">
-                      <div className="h-10 w-10 rounded-full bg-blue-50 flex items-center justify-center">
-                        <FileText className="w-5 h-5 text-[#0b2040]" />
+                      <div className="h-10 w-10 rounded-full bg-red-50 flex items-center justify-center">
+                        <FileText className="w-5 h-5 text-red-600" />
                       </div>
                       <h2 className="text-2xl font-semibold text-slate-900">
                         <TypewriterText messages={["Set Up Your RAMS File"]} loop={false} />
@@ -1102,11 +1151,11 @@ function Page() {
                           <button
                             onClick={() => handleInput("userType", "company")}
                             className={`p-4 rounded-xl border-2 text-left transition-all duration-200 ${formData.userType === "company"
-                              ? "border-[#0b2040] bg-blue-50/50 ring-1 ring-[#0b2040]"
+                              ? "border-red-600 bg-red-50/50 ring-1 ring-red-600"
                               : "border-slate-200 hover:border-slate-300 hover:bg-slate-50"
                               }`}
                           >
-                            <div className="font-bold text-[#0b2040] text-sm mb-1">Business</div>
+                            <div className={`font-bold text-sm mb-1 ${formData.userType === "company" ? "text-red-700" : "text-slate-900"}`}>Business</div>
                             <div className="text-[11px] text-slate-500 leading-tight">
                               Company with employees
                             </div>
@@ -1115,11 +1164,11 @@ function Page() {
                           <button
                             onClick={() => handleInput("userType", "sole_trader")}
                             className={`p-4 rounded-xl border-2 text-left transition-all duration-200 ${formData.userType === "sole_trader"
-                              ? "border-[#0b2040] bg-blue-50/50 ring-1 ring-[#0b2040]"
+                              ? "border-red-600 bg-red-50/50 ring-1 ring-red-600"
                               : "border-slate-200 hover:border-slate-300 hover:bg-slate-50"
                               }`}
                           >
-                            <div className="font-bold text-[#0b2040] text-sm mb-1">Sole Trader</div>
+                            <div className={`font-bold text-sm mb-1 ${formData.userType === "sole_trader" ? "text-red-700" : "text-slate-900"}`}>Sole Trader</div>
                             <div className="text-[11px] text-slate-500 leading-tight">
                               Independent / Self-employed
                             </div>
@@ -1162,7 +1211,7 @@ function Page() {
                         }}
                         className="inline-flex items-center justify-center rounded-lg bg-[#0b2040] px-5 py-2.5 text-sm font-semibold text-white hover:bg-black transition-colors"
                       >
-                        Continue to Step 1
+                        Next Step
                       </button>
                     </div>
                   </div>
@@ -1172,11 +1221,11 @@ function Page() {
                 {step === 1 && (
                   <div className="space-y-6">
                     <div className="flex items-center gap-3 mb-6">
-                      <div className="h-10 w-10 rounded-full bg-blue-50 flex items-center justify-center">
-                        <Briefcase className="w-5 h-5 text-[#0b2040]" />
+                      <div className="h-10 w-10 rounded-full bg-red-50 flex items-center justify-center">
+                        <Briefcase className="w-5 h-5 text-red-600" />
                       </div>
                       <h2 className="text-2xl font-semibold text-slate-900">
-                        <TypewriterText messages={["Company & Project Details"]} loop={false} />
+                        <TypewriterText messages={["Project Details"]} loop={false} />
                       </h2>
                     </div>
                     <p className="text-[11px] text-slate-500">
@@ -1339,7 +1388,7 @@ function Page() {
                         onClick={nextStep}
                         className="inline-flex items-center justify-center rounded-lg bg-[#0b2040] px-5 py-2.5 text-sm font-semibold text-white hover:bg-black transition-colors"
                       >
-                        Next: Job Scope
+                        Next Step
                       </button>
                     </div>
                   </div>
@@ -1349,11 +1398,11 @@ function Page() {
                 {step === 2 && (
                   <div className="space-y-6">
                     <div className="flex items-center gap-3 mb-6">
-                      <div className="h-10 w-10 rounded-full bg-blue-50 flex items-center justify-center">
-                        <FileText className="w-5 h-5 text-[#0b2040]" />
+                      <div className="h-10 w-10 rounded-full bg-red-50 flex items-center justify-center">
+                        <FileText className="w-5 h-5 text-red-600" />
                       </div>
                       <h2 className="text-2xl font-semibold text-slate-900">
-                        <TypewriterText messages={["Job Scope & Pre-Start Checks"]} loop={false} />
+                        <TypewriterText messages={["Job Details"]} loop={false} />
                       </h2>
                     </div>
                     <p className="text-[11px] text-slate-500">
@@ -1767,7 +1816,7 @@ function Page() {
                         onClick={nextStep}
                         className="inline-flex items-center justify-center rounded-lg bg-[#0b2040] px-5 py-2.5 text-sm font-semibold text-white hover:bg-black transition-colors"
                       >
-                        Next: Safety Info
+                        Next Step
                       </button>
                     </div>
                   </div>
@@ -1905,21 +1954,21 @@ function Page() {
                         onClick={nextStep}
                         className="inline-flex items-center justify-center rounded-lg bg-[#0b2040] px-5 py-2.5 text-sm font-semibold text-white hover:bg-black transition-colors"
                       >
-                        Next: Hazards
+                        Next Step
                       </button>
                     </div>
                   </div>
                 )}
 
-                {/* STEP 4: HAZARDS */}
+                {/* STEP 4: RISK ASSESSMENT */}
                 {step === 4 && (
                   <div className="space-y-6">
                     <div className="flex items-center gap-3 mb-6">
-                      <div className="h-10 w-10 rounded-full bg-blue-50 flex items-center justify-center">
-                        <AlertTriangle className="w-5 h-5 text-[#0b2040]" />
+                      <div className="h-10 w-10 rounded-full bg-red-50 flex items-center justify-center">
+                        <AlertTriangle className="w-5 h-5 text-red-600" />
                       </div>
                       <h2 className="text-2xl font-semibold text-slate-900">
-                        <TypewriterText messages={["Hazards & Risk Controls"]} loop={false} />
+                        <TypewriterText messages={["Risk Assessment"]} loop={false} />
                       </h2>
                     </div>
 
@@ -2005,7 +2054,145 @@ function Page() {
                         onClick={nextStep}
                         className="inline-flex items-center justify-center rounded-lg bg-[#0b2040] px-5 py-2.5 text-sm font-semibold text-white hover:bg-black transition-colors"
                       >
-                        Next: Review &amp; Generate
+                        Next Step
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                {/* STEP 4: EMERGENCY */}
+                {step === 4 && (
+                  <div className="space-y-6">
+                    <div className="flex items-center gap-3 mb-6">
+                      <div className="h-10 w-10 rounded-full bg-red-50 flex items-center justify-center">
+                        <Shield className="w-5 h-5 text-red-600" />
+                      </div>
+                      <h2 className="text-2xl font-semibold text-slate-900">
+                        <TypewriterText messages={["Emergency & Welfare"]} loop={false} />
+                      </h2>
+                    </div>
+                    <p className="text-[11px] text-slate-500">
+                      Fields marked <span className="text-red-600">*</span>{" "}
+                      are required. Use{" "}
+                      <span className="font-semibold">N/A</span> where details
+                      are genuinely not available.
+                    </p>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-slate-50 p-4 rounded-xl border border-slate-200">
+                      <div>
+                        <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
+                          Supervisor Name
+                          <span className="text-red-600 ml-0.5">*</span>
+                        </label>
+                        <input
+                          className="border border-slate-300 p-2.5 rounded-lg w-full text-sm focus:ring-2 focus:ring-[#0b2040] focus:border-transparent outline-none bg-white"
+                          placeholder="Site supervisor or lead"
+                          value={formData.supervisorName}
+                          onChange={(e) =>
+                            handleInput(
+                              "supervisorName",
+                              e.target.value
+                            )
+                          }
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
+                          First Aider
+                          <span className="text-red-600 ml-0.5">*</span>
+                        </label>
+                        <input
+                          className="border border-slate-300 p-2.5 rounded-lg w-full text-sm focus:ring-2 focus:ring-[#0b2040] focus:border-transparent outline-none bg-white"
+                          placeholder="Appointed person"
+                          value={formData.firstAider}
+                          onChange={(e) =>
+                            handleInput("firstAider", e.target.value)
+                          }
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
+                          Nearest Hospital
+                          <span className="text-red-600 ml-0.5">*</span>
+                        </label>
+                        <input
+                          className="border border-slate-300 p-2.5 rounded-lg w-full text-sm focus:ring-2 focus:ring-[#0b2040] focus:border-transparent outline-none bg-white"
+                          placeholder="e.g. Nearest A&E (N/A if unknown)"
+                          value={formData.hospital}
+                          onChange={(e) =>
+                            handleInput("hospital", e.target.value)
+                          }
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
+                          Fire Assembly Point
+                          <span className="text-red-600 ml-0.5">*</span>
+                        </label>
+                        <input
+                          className="border border-slate-300 p-2.5 rounded-lg w-full text-sm focus:ring-2 focus:ring-[#0b2040] focus:border-transparent outline-none bg-white"
+                          placeholder="As briefed in induction (or N/A)"
+                          value={formData.fireAssembly}
+                          onChange={(e) =>
+                            handleInput("fireAssembly", e.target.value)
+                          }
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
+                          First aid kit location (optional)
+                        </label>
+                        <input
+                          className="border border-slate-300 p-2.5 rounded-lg w-full text-sm focus:ring-2 focus:ring-[#0b2040] focus:border-transparent outline-none bg-white"
+                          placeholder="e.g. Site vehicle, reception, welfare cabin"
+                          value={formData.firstAidLoc}
+                          onChange={(e) =>
+                            handleInput("firstAidLoc", e.target.value)
+                          }
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
+                          Welfare / facilities (optional)
+                        </label>
+                        <input
+                          className="border border-slate-300 p-2.5 rounded-lg w-full text-sm focus:ring-2 focus:ring-[#0b2040] focus:border-transparent outline-none bg-white"
+                          placeholder="Toilets, wash stations, canteen, etc."
+                          value={formData.welfare}
+                          onChange={(e) =>
+                            handleInput("welfare", e.target.value)
+                          }
+                        />
+                      </div>
+                    </div>
+
+                    <div className="flex justify-between gap-3 pt-2">
+                      <div className="flex gap-2">
+                        <button
+                          onClick={prevStep}
+                          className="inline-flex items-center justify-center rounded-lg border border-slate-300 px-4 py-2.5 text-sm font-semibold text-slate-800 hover:bg-slate-50"
+                        >
+                          Back
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setMode("landing");
+                            setStep(1);
+                            setActiveFile(null);
+                          }}
+                          className="inline-flex items-center justify-center rounded-lg border border-slate-300 px-3 py-2 text-[11px] font-semibold text-slate-700 hover:bg-slate-50"
+                        >
+                          ← Back to RS Hub
+                        </button>
+                      </div>
+                      <button
+                        onClick={nextStep}
+                        className="inline-flex items-center justify-center rounded-lg bg-[#0b2040] px-5 py-2.5 text-sm font-semibold text-white hover:bg-black transition-colors"
+                      >
+                        Next Step
                       </button>
                     </div>
                   </div>
