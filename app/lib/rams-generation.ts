@@ -41,6 +41,11 @@ function sanitizeText(input: any): string {
     .trim();
 }
 
+function isFilled(input: any): boolean {
+  if (Array.isArray(input)) return input.length > 0;
+  return !!input && typeof input === "string" && input.trim().length > 0;
+}
+
 // Helper to get terminology based on user type
 function getTerminology(userType: "company" | "sole_trader") {
   return userType === "sole_trader"
@@ -213,8 +218,7 @@ export async function generateRAMSHTML(data: RAMSData): Promise<string> {
         <tr>
           <th>Job / Task</th>
           <td>${sanitizeText(jobTitle)}</td>
-          <th>Project Ref</th>
-          <td>${sanitizeText(projectRef || "—")}</td>
+          ${isFilled(projectRef) ? `<th>Project Ref</th><td>${sanitizeText(projectRef)}</td>` : `<th></th><td></td>`}
         </tr>
         <tr>
           <th>Prepared By</th>
@@ -236,13 +240,17 @@ export async function generateRAMSHTML(data: RAMSData): Promise<string> {
     `).join("")
     : "";
 
-  const scopeSection = `
+  const scopeHTML = isFilled(scope) ? `
     <div class="section-block">
       <h2>2. Scope of Works</h2>
       <div style="margin-bottom: 15px;">
         ${sanitizeText(scope).split('\n').map(line => `<p>${line}</p>`).join('')}
       </div>
     </div>
+  ` : "";
+
+  const scopeSection = `
+    ${scopeHTML}
     ${extraDetails}
   `;
 
@@ -309,7 +317,7 @@ export async function generateRAMSHTML(data: RAMSData): Promise<string> {
 
   const hazardRows = (await Promise.all(hazardRowsPromises)).join("");
 
-  const hazardsHTML = `
+  const hazardsHTML = hazards.length > 0 ? `
     <div class="section-block">
       <h2>4. Risk Assessment (Hazards & Controls)</h2>
       <p>The following hazards have been identified. Control measures must be implemented before work starts.</p>
@@ -336,7 +344,7 @@ export async function generateRAMSHTML(data: RAMSData): Promise<string> {
         </tbody>
       </table>
     </div>
-  `;
+  ` : "";
 
   // 6. Method Statement
   const methodRows = methodSteps.map((step: string, index: number) => `
@@ -345,12 +353,12 @@ export async function generateRAMSHTML(data: RAMSData): Promise<string> {
     </div>
   `).join("");
 
-  const methodHTML = `
+  const methodHTML = methodSteps.length > 0 ? `
     <div class="section-block">
       <h2>5. Method Statement</h2>
       ${methodRows}
     </div>
-  `;
+  ` : "";
 
   // 7. COSHH
   const coshhRows = coshh.map((c: any) => `
@@ -388,28 +396,28 @@ export async function generateRAMSHTML(data: RAMSData): Promise<string> {
     // Convert to PNG if icon exists
     const iconSrc = iconSrcSvg ? await svgToPngDataUri(iconSrcSvg, 64, 64) : null;
 
-    const iconHtml = iconSrc ? `<img src="${iconSrc}" width="32" height="32" style="width: 32px; height: 32px; display: block; margin: 0 auto 4px auto;" />` : "";
+    const iconHtml = iconSrc ? `< img src = "${iconSrc}" width = "32" height = "32" style = "width: 32px; height: 32px; display: block; margin: 0 auto 4px auto;" /> ` : "";
 
     return `
-    <div style="display: inline-block; border: 1px solid #ccc; padding: 8px 12px; margin: 4px; border-radius: 4px; font-size: 9pt; text-align: center; min-width: 80px; vertical-align: top;">
+    < div style = "display: inline-block; border: 1px solid #ccc; padding: 8px 12px; margin: 4px; border-radius: 4px; font-size: 9pt; text-align: center; min-width: 80px; vertical-align: top;" >
       ${iconHtml}
-      <strong>${item}</strong>
+  <strong>${item} </strong>
     </div>
-  `});
+      `});
 
   const ppeList = (await Promise.all(ppeListPromises)).join("");
 
-  const ppeHTML = `
+  const ppeHTML = ppe.length > 0 ? `
     <div class="section-block">
       <h2>7. PPE Requirements</h2>
-      <div style="margin-bottom: 15px;">
-        ${ppeList}
-      </div>
+        <div style="margin-bottom: 15px;">
+          ${ppeList}
+        </div>
     </div>
-  `;
+  ` : "";
 
   // 9. Emergency & Operatives
-  const operativesHTML = `
+  const emergencyHTML = (isFilled(supervisorName) || isFilled(firstAider) || isFilled(hospital) || isFilled(fireAssembly) || isFilled(firstAidLoc) || isFilled(welfare)) ? `
     <div class="section-block">
       <h2>8. Emergency Arrangements</h2>
       <table>
@@ -433,21 +441,23 @@ export async function generateRAMSHTML(data: RAMSData): Promise<string> {
         </tr>
       </table>
     </div>
+  ` : "";
 
+  const signoffHTML = `
     <div class="section-block">
-      <h2>9. Operative Acknowledgement</h2>
-      <p>By signing below, ${terms.we.toLowerCase()} confirm ${terms.we.toLowerCase()} have read and understood this RAMS and will work in accordance with the control measures and method statement.</p>
-      
-      <table>
-        <thead>
-          <tr>
-            <th width="30%">Name</th>
-            <th width="20%">Role</th>
-            <th width="20%">Date</th>
-            <th width="30%">Signature</th>
-          </tr>
-        </thead>
-        <tbody>
+                              <h2>9. Operative Acknowledgement </h2>
+                                < p > By signing below, ${terms.we.toLowerCase()} confirm ${terms.we.toLowerCase()} have read and understood this RAMS and will work in accordance with the control measures and method statement.</p>
+
+                                  < table >
+                                  <thead>
+                                  <tr>
+                                  <th width="30%" > Name </th>
+                                    < th width = "20%" > Role </th>
+                                      < th width = "20%" > Date </th>
+                                        < th width = "30%" > Signature </th>
+                                          </tr>
+                                          </thead>
+                                          <tbody>
           ${Array.from({ length: Math.max(1, Number(operatives) || 1) }).map(() => `
             <tr>
               <td style="height: 50px;"></td>
@@ -455,41 +465,42 @@ export async function generateRAMSHTML(data: RAMSData): Promise<string> {
               <td></td>
               <td></td>
             </tr>
-          `).join("")}
-        </tbody>
-      </table>
+          `).join("")
+    }
+  </tbody>
+    </table>
     </div>
-  `;
+      `;
 
   // 10. Authorization
   const authorizationHTML = `
-    <div class="signature-block">
-      <h3 style="margin-top: 0; text-align: center; border-bottom: 1px solid #000; padding-bottom: 10px;">10. Authorization & Approval</h3>
-      
-      <div class="signature-section" style="margin-top: 15px;">
-        <p><strong>${terms.manager} Sign-off:</strong></p>
-        <p>I confirm that the above method statement and risk assessment is suitable and sufficient for the task.</p>
-        <table style="border: none;">
-          <tr style="border: none;">
-            <td style="border: none; padding: 10px 0;"><strong>Name:</strong> ${sanitizeText(supervisorName)}</td>
-            <td style="border: none; padding: 10px 0;"><strong>Signature:</strong> ____________________</td>
-            <td style="border: none; padding: 10px 0;"><strong>Date:</strong> ${startDate}</td>
-          </tr>
-        </table>
-      </div>
+    < div class="signature-block" >
+      <h3 style="margin-top: 0; text-align: center; border-bottom: 1px solid #000; padding-bottom: 10px;" > 10. Authorization & Approval </h3>
 
-      <div class="signature-section" style="margin-top: 15px; border-top: 1px dashed #ccc; padding-top: 15px;">
-        <p><strong>Client / Principal Contractor Acceptance (Optional):</strong></p>
-        <table style="border: none;">
-          <tr style="border: none;">
-            <td style="border: none; padding: 10px 0;"><strong>Name:</strong> ____________________</td>
-            <td style="border: none; padding: 10px 0;"><strong>Signature:</strong> ____________________</td>
-            <td style="border: none; padding: 10px 0;"><strong>Date:</strong> ____________________</td>
-          </tr>
-        </table>
-      </div>
-    </div>
-  `;
+        < div class="signature-section" style = "margin-top: 15px;" >
+          <p><strong>${terms.manager} Sign - off: </strong></p >
+            <p>I confirm that the above method statement and risk assessment is suitable and sufficient for the task.</p>
+              < table style = "border: none;" >
+              <tr style= "border: none;" >
+                <td style="border: none; padding: 10px 0;" > <strong>Name: </strong> ${sanitizeText(supervisorName)}</td >
+                  <td style="border: none; padding: 10px 0;" > <strong>Signature: </strong> ____________________</td >
+                    <td style="border: none; padding: 10px 0;" > <strong>Date: </strong> ${startDate}</td >
+                      </tr>
+                      </table>
+                      </div>
+
+                      < div class="signature-section" style = "margin-top: 15px; border-top: 1px dashed #ccc; padding-top: 15px;" >
+                        <p><strong>Client / Principal Contractor Acceptance(Optional): </strong></p >
+                          <table style="border: none;" >
+                            <tr style="border: none;" >
+                              <td style="border: none; padding: 10px 0;" > <strong>Name: </strong> ____________________</td >
+                                <td style="border: none; padding: 10px 0;" > <strong>Signature: </strong> ____________________</td >
+                                  <td style="border: none; padding: 10px 0;" > <strong>Date: </strong> ____________________</td >
+                                    </tr>
+                                    </table>
+                                    </div>
+                                    </div>
+                                      `;
 
   return `
     <!DOCTYPE html>
@@ -511,7 +522,8 @@ export async function generateRAMSHTML(data: RAMSData): Promise<string> {
         ${methodHTML}
         ${coshhHTML}
         ${ppeHTML}
-        ${operativesHTML}
+        ${emergencyHTML}
+        ${signoffHTML}
         ${authorizationHTML}
       </div>
     </body>
@@ -520,215 +532,215 @@ export async function generateRAMSHTML(data: RAMSData): Promise<string> {
 }
 
 export const RAMS_STYLES = `
-    @page {
-      size: A4;
-      margin: 15mm;
-    }
-    *, *:before, *:after {
-      box-sizing: border-box;
-    }
-    html, body {
-      height: auto;
-      width: 100%;
-      margin: 0;
-      padding: 0;
-    }
-    .rams-content {
-      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-      font-size: 10pt;
-      line-height: 1.3;
-      color: #111;
-      width: 100%;
-    }
-    
+  @page {
+    size: A4;
+    margin: 15mm;
+  }
+    *, *: before, *:after {
+    box - sizing: border - box;
+  }
+  html, body {
+    height: auto;
+    width: 100 %;
+    margin: 0;
+    padding: 0;
+  }
+    .rams - content {
+    font - family: 'Helvetica Neue', Helvetica, Arial, sans - serif;
+    font - size: 10pt;
+    line - height: 1.3;
+    color: #111;
+    width: 100 %;
+  }
+
     /* Semantic Blocks for Pagination */
-    .section-block {
-      margin-bottom: 10px;
-      page-break-inside: auto;
-      break-inside: auto;
-    }
-    .keep-together {
-      page-break-inside: avoid;
-      break-inside: avoid;
-    }
-    .signature-block {
-      margin-top: 20px;
-      page-break-inside: auto;
-      break-inside: auto;
-      border: 1px solid #000;
-      padding: 15px;
-    }
-    .signature-section {
-      page-break-inside: avoid;
-      break-inside: avoid;
-      margin-bottom: 15px;
-    }
+    .section - block {
+    margin - bottom: 10px;
+    page -break-inside: auto;
+    break-inside: auto;
+  }
+    .keep - together {
+    page -break-inside: avoid;
+    break-inside: avoid;
+  }
+    .signature - block {
+    margin - top: 20px;
+    page -break-inside: auto;
+    break-inside: auto;
+    border: 1px solid #000;
+    padding: 15px;
+  }
+    .signature - section {
+    page -break-inside: avoid;
+    break-inside: avoid;
+    margin - bottom: 15px;
+  }
 
     h1 {
-      font-size: 16pt;
-      font-weight: bold;
-      text-transform: uppercase;
-      margin: 0 0 10px 0;
-      text-align: center;
-      letter-spacing: 1px;
-      border-bottom: 2px solid #000;
-      padding-bottom: 10px;
-    }
+    font - size: 16pt;
+    font - weight: bold;
+    text - transform: uppercase;
+    margin: 0 0 10px 0;
+    text - align: center;
+    letter - spacing: 1px;
+    border - bottom: 2px solid #000;
+    padding - bottom: 10px;
+  }
     h2 {
-      font-size: 12pt;
-      font-weight: bold;
-      text-transform: uppercase;
-      margin-top: 0;
-      margin-bottom: 8px;
-      border-bottom: 1px solid #000;
-      padding-bottom: 4px;
-      page-break-after: avoid;
-      break-after: avoid;
-      width: 100%;
-    }
+    font - size: 12pt;
+    font - weight: bold;
+    text - transform: uppercase;
+    margin - top: 0;
+    margin - bottom: 8px;
+    border - bottom: 1px solid #000;
+    padding - bottom: 4px;
+    page -break-after: avoid;
+    break-after: avoid;
+    width: 100 %;
+  }
     h3 {
-      font-size: 11pt;
-      font-weight: bold;
-      margin-top: 12px;
-      margin-bottom: 4px;
-      text-transform: uppercase;
-      color: #333;
-      page-break-after: avoid;
-      break-after: avoid;
-    }
+    font - size: 11pt;
+    font - weight: bold;
+    margin - top: 12px;
+    margin - bottom: 4px;
+    text - transform: uppercase;
+    color: #333;
+    page -break-after: avoid;
+    break-after: avoid;
+  }
     p {
-      margin-bottom: 6px;
-      text-align: justify;
-      orphans: 2;
-      widows: 2;
-    }
-    
+    margin - bottom: 6px;
+    text - align: justify;
+    orphans: 2;
+    widows: 2;
+  }
+
     /* Table Pagination Rules */
     table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-bottom: 0;
-      page-break-inside: auto;
-      break-inside: auto;
-    }
+    width: 100 %;
+    border - collapse: collapse;
+    margin - bottom: 0;
+    page -break-inside: auto;
+    break-inside: auto;
+  }
     tr {
-      page-break-inside: avoid;
-      break-inside: avoid;
-    }
-    th, td {
-      border: 1px solid #000;
-      padding: 8px;
-      vertical-align: top;
-      text-align: left;
-    }
+    page -break-inside: avoid;
+    break-inside: avoid;
+  }
+  th, td {
+    border: 1px solid #000;
+    padding: 8px;
+    vertical - align: top;
+    text - align: left;
+  }
     thead {
-      display: table-header-group; /* Repeat header on new page */
-    }
+    display: table - header - group; /* Repeat header on new page */
+  }
     th {
-      background-color: #f8f9fa;
-      font-weight: bold;
-      font-size: 9pt;
-      color: #000;
-    }
+    background - color: #f8f9fa;
+    font - weight: bold;
+    font - size: 9pt;
+    color: #000;
+  }
     td {
-      font-size: 9.5pt;
-    }
+    font - size: 9.5pt;
+  }
     
-    .text-center { text-align: center; }
-    .text-right { text-align: right; }
-    .bold { font-weight: bold; }
-    .small { font-size: 8pt; color: #555; }
-    .header-line {
-      margin-bottom: 30px;
-    }
-    .risk-score {
-      font-weight: bold;
-      text-align: center;
-    }
-    .risk-high { background-color: #ffebee; color: #c62828; }
-    .risk-med { background-color: #fff3e0; color: #ef6c00; }
-    .risk-low { background-color: #e8f5e9; color: #2e7d32; }
-    
-    /* Word Specifics */
-    @media print {
-      .rams-content { padding: 0; }
-      .no-break { page-break-inside: avoid; break-inside: avoid; }
-      
+    .text - center { text - align: center; }
+    .text - right { text - align: right; }
+    .bold { font - weight: bold; }
+    .small { font - size: 8pt; color: #555; }
+    .header - line {
+    margin - bottom: 30px;
+  }
+    .risk - score {
+    font - weight: bold;
+    text - align: center;
+  }
+    .risk - high { background - color: #ffebee; color: #c62828; }
+    .risk - med { background - color: #fff3e0; color: #ef6c00; }
+    .risk - low { background - color: #e8f5e9; color: #2e7d32; }
+
+  /* Word Specifics */
+  @media print {
+      .rams - content { padding: 0; }
+      .no -break { page -break-inside: avoid; break-inside: avoid; }
+
       /* Tighten spacing for print */
-      .section-block {
-        margin-bottom: 0.25rem !important;
-        break-inside: auto !important;
-        page-break-inside: auto !important;
-      }
+      .section - block {
+      margin - bottom: 0.25rem!important;
+      break-inside: auto!important;
+      page -break-inside: auto!important;
+    }
       /* Override method step spacing */
-      .section-block div {
-        margin-bottom: 0.25rem !important;
-      }
+      .section - block div {
+      margin - bottom: 0.25rem!important;
+    }
       h1 {
-        margin-bottom: 0.5rem !important;
-        padding-bottom: 0.25rem !important;
-      }
+      margin - bottom: 0.5rem!important;
+      padding - bottom: 0.25rem!important;
+    }
       h2 {
-        margin-top: 0.5rem !important;
-        margin-bottom: 0.25rem !important;
-        break-after: auto !important;
-        page-break-after: auto !important;
-      }
+      margin - top: 0.5rem!important;
+      margin - bottom: 0.25rem!important;
+      break-after: auto!important;
+      page -break-after: auto!important;
+    }
       h3 {
-        margin-top: 0.5rem !important;
-        margin-bottom: 0.25rem !important;
-        break-after: auto !important;
-        page-break-after: auto !important;
-      }
+      margin - top: 0.5rem!important;
+      margin - bottom: 0.25rem!important;
+      break-after: auto!important;
+      page -break-after: auto!important;
+    }
       p {
-        margin-bottom: 0.25rem !important;
-        break-inside: auto !important;
-        page-break-inside: auto !important;
-      }
-      
+      margin - bottom: 0.25rem!important;
+      break-inside: auto!important;
+      page -break-inside: auto!important;
+    }
+
       /* Critical Elements */
       table {
-        break-inside: auto !important;
-        page-break-inside: auto !important;
-      }
+      break-inside: auto!important;
+      page -break-inside: auto!important;
+    }
       tr {
-        break-inside: auto !important;
-        page-break-inside: auto !important;
-      }
+      break-inside: auto!important;
+      page -break-inside: auto!important;
+    }
       /* Only keep signatures together as they are small and look bad if split */
-      .signature-section {
-        break-inside: avoid !important;
-        page-break-inside: avoid !important;
-      }
-      
-      /* Reset forced breaks */
-      h2, h3, .section-block, table, tr {
-        break-before: auto !important;
-        page-break-before: auto !important;
-      }
+      .signature - section {
+      break-inside: avoid!important;
+      page -break-inside: avoid!important;
     }
-    
+
+    /* Reset forced breaks */
+    h2, h3, .section - block, table, tr {
+      break-before: auto!important;
+      page -break-before: auto!important;
+    }
+  }
+
     /* PDF Sign Styles */
-    .pdf-sign-strip {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 4px;
-      margin-top: 4px;
-    }
-    .pdf-sign {
-      width: 24px;
-      height: 24px;
-      object-fit: contain;
-      vertical-align: middle;
-    }
-    .pdf-sign-large {
-      width: 32px;
-      height: 32px;
-      object-fit: contain;
-      display: block;
-      margin: 0 auto 4px auto;
-    }
-`;
+    .pdf - sign - strip {
+    display: flex;
+    flex - wrap: wrap;
+    gap: 4px;
+    margin - top: 4px;
+  }
+    .pdf - sign {
+    width: 24px;
+    height: 24px;
+    object - fit: contain;
+    vertical - align: middle;
+  }
+    .pdf - sign - large {
+    width: 32px;
+    height: 32px;
+    object - fit: contain;
+    display: block;
+    margin: 0 auto 4px auto;
+  }
+  `;
 
 import { ToolboxTalkData } from "../components/MyFileViewer";
 
@@ -760,111 +772,113 @@ export async function generateToolboxHTML(data: ToolboxTalkData): Promise<string
   };
 
   const header = `
-    <div class="header-line" style="border-bottom: 3px solid #000;">
-      <h1 style="color: #000; border-bottom: none;">Toolbox Talk Record</h1>
-    </div>
-  `;
+    < div class="header-line" style = "border-bottom: 3px solid #000;" >
+      <h1 style="color: #000; border-bottom: none;" > Toolbox Talk Record </h1>
+        </div>
+          `;
 
   const infoTable = `
-    <div class="section-block">
-      <table style="border: 1px solid #000;">
-        <tr>
-          <th width="20%" style="background-color: #f8fafc; color: #000;">Topic</th>
-          <td width="30%">${content.headerInfo.topic}</td>
-          <th width="20%" style="background-color: #f8fafc; color: #000;">Date</th>
-          <td width="30%">${content.headerInfo.date}</td>
-        </tr>
-        <tr>
-          <th style="background-color: #f8fafc; color: #000;">Location</th>
-          <td>${content.headerInfo.location}</td>
-          <th style="background-color: #f8fafc; color: #000;">Presenter</th>
-          <td>${content.headerInfo.presenter}</td>
-        </tr>
-        <tr>
-          <th style="background-color: #f8fafc; color: #000;">Audience</th>
-          <td colspan="3">${audience || "General Site Personnel"}</td>
-        </tr>
-      </table>
-    </div>
-  `;
+        < div class="section-block" >
+          <table style="border: 1px solid #000;" >
+            <tr>
+            <th width="20%" style = "background-color: #f8fafc; color: #000;" > Topic </th>
+              < td width = "30%" > ${content.headerInfo.topic} </td>
+                < th width = "20%" style = "background-color: #f8fafc; color: #000;" > Date </th>
+                  < td width = "30%" > ${content.headerInfo.date} </td>
+                    </tr>
+                    < tr >
+                    <th style="background-color: #f8fafc; color: #000;" > Location </th>
+                      < td > ${content.headerInfo.location} </td>
+                        < th style = "background-color: #f8fafc; color: #000;" > Presenter </th>
+                          < td > ${content.headerInfo.presenter} </td>
+                            </tr>
+                            < tr >
+                            <th style="background-color: #f8fafc; color: #000;" > Audience </th>
+                              < td colspan = "3" > ${audience || "General Site Personnel"} </td>
+                                </tr>
+                                </table>
+                                </div>
+                                  `;
 
   const introSection = `
-    <div class="section-block">
-      <h2 style="color: #000; border-bottom-color: #000;">1. Introduction</h2>
-      <p>${content.introduction}</p>
-    </div>
-  `;
+                                < div class="section-block" >
+                                  <h2 style="color: #000; border-bottom-color: #000;" > 1. Introduction </h2>
+                                    < p > ${content.introduction} </p>
+                                      </div>
+                                        `;
 
-  const hazardsSection = `
-    <div class="section-block">
-      <h2 style="color: #000; border-bottom-color: #000;">2. Key Hazards</h2>
-      <ul>
+  const hazardsSection = content.hazardsSection.length > 0 ? `
+                                      < div class="section-block" >
+                                        <h2 style="color: #000; border-bottom-color: #000;" > 2. Key Hazards </h2>
+                                          <ul>
         ${content.hazardsSection.map((h: any) => `
           <li style="margin-bottom: 8px;">
             <strong>${h.hazard}:</strong> ${h.description}
           </li>
-        `).join("")}
-      </ul>
+        `).join("")
+    }
+  </ul>
     </div>
-  `;
+      ` : "";
 
-  const controlsSection = `
-    <div class="section-block">
-      <h2 style="color: #000; border-bottom-color: #000;">3. Control Measures</h2>
-      <ul>
+  const controlsSection = content.controlsSection.length > 0 ? `
+    < div class="section-block" >
+      <h2 style="color: #000; border-bottom-color: #000;" > 3. Control Measures </h2>
+        <ul>
         ${content.controlsSection.map((c: any) => `
           <li style="margin-bottom: 8px;">
             <strong>${c.title}:</strong> ${c.description}
           </li>
-        `).join("")}
-      </ul>
+        `).join("")
+    }
+  </ul>
     </div>
-  `;
+      ` : "";
 
-  const keyMessagesSection = `
-    <div class="section-block">
-      <h2 style="color: #000; border-bottom-color: #000;">4. Key Messages</h2>
-      <ul>
+  const keyMessagesSection = content.keyMessagesSection.length > 0 ? `
+    < div class="section-block" >
+      <h2 style="color: #000; border-bottom-color: #000;" > 4. Key Messages </h2>
+        <ul>
         ${content.keyMessagesSection.map((m: string) => `<li>${m}</li>`).join("")}
-      </ul>
+  </ul>
     </div>
-  `;
+      ` : "";
 
-  const ppeSection = `
-    <div class="section-block">
-      <h2 style="color: #000; border-bottom-color: #000;">5. PPE Required</h2>
-      <p>The following PPE is mandatory for this task:</p>
-      <p><strong>${ppe.join(", ") || "Standard Site PPE"}</strong></p>
-    </div>
-  `;
+  const ppeSection = ppe.length > 0 ? `
+    < div class="section-block" >
+      <h2 style="color: #000; border-bottom-color: #000;" > 5. PPE Required </h2>
+        < p > The following PPE is mandatory for this task: </p>
+          < p > <strong>${ppe.join(", ")} </strong></p >
+            </div>
+              ` : "";
 
-  const emergencySection = `
-    <div class="section-block">
-      <h2 style="color: #000; border-bottom-color: #000;">6. Emergency Procedures</h2>
-      <p>${content.emergencySection}</p>
-    </div>
-  `;
+  const emergencySection = isFilled(content.emergencySection) ? `
+            < div class="section-block" >
+              <h2 style="color: #000; border-bottom-color: #000;" > 6. Emergency Procedures </h2>
+                < p > ${content.emergencySection} </p>
+                  </div>
+                    ` : "";
 
   let attendanceHTML = "";
   if (attendanceConfig.include) {
     const rows = Math.max(10, Number(attendanceConfig.expectedAttendees) || 10);
 
     attendanceHTML = `
-      <div class="section-block keep-together" style="margin-top: 20px;">
-        <h2 style="color: #000; border-bottom-color: #000;">7. Attendee Acknowledgement</h2>
-        <p><em>"${content.attendeeNote}"</em></p>
-        ${attendanceConfig.notes ? `<p><strong>Note:</strong> ${attendanceConfig.notes}</p>` : ""}
-        
-        <table style="margin-top: 10px; border: 1px solid #000;">
-          <thead>
-            <tr>
-              <th width="30%" style="background-color: #f8fafc; color: #000;">Name (Print)</th>
-              <th width="25%" style="background-color: #f8fafc; color: #000;">Company</th>
-              <th width="25%" style="background-color: #f8fafc; color: #000;">Signature</th>
-              <th width="20%" style="background-color: #f8fafc; color: #000;">Date</th>
+                  < div class="section-block keep-together" style = "margin-top: 20px;" >
+                    <h2 style="color: #000; border-bottom-color: #000;" > 7. Attendee Acknowledgement </h2>
+                      < p > <em>"${content.attendeeNote}" < /em></p >
+                      ${attendanceConfig.notes ? `<p><strong>Note:</strong> ${attendanceConfig.notes}</p>` : ""}
+
+  <table style="margin-top: 10px; border: 1px solid #000;" >
+    <thead>
+    <tr>
+    <th width="30%" style = "background-color: #f8fafc; color: #000;" > Name(Print) </th>
+      < th width = "25%" style = "background-color: #f8fafc; color: #000;" > Company </th>
+        < th width = "25%" style = "background-color: #f8fafc; color: #000;" > Signature </th>
+          < th width = "20%" style = "background-color: #f8fafc; color: #000;" > Date </th>
             </tr>
-          </thead>
-          <tbody>
+            </thead>
+            <tbody>
             ${Array.from({ length: rows }).map(() => `
               <tr>
                 <td style="height: 40px;"></td>
@@ -872,26 +886,27 @@ export async function generateToolboxHTML(data: ToolboxTalkData): Promise<string
                 <td></td>
                 <td></td>
               </tr>
-            `).join("")}
-          </tbody>
-        </table>
-      </div>
-    `;
+            `).join("")
+      }
+  </tbody>
+    </table>
+    </div>
+      `;
   }
 
   return `
-    <!DOCTYPE html>
-    <html>
-    <head>
-      <meta charset="utf-8">
-      <title>${data.topic} - Toolbox Talk</title>
-      <style>
+    < !DOCTYPE html >
+      <html>
+      <head>
+      <meta charset="utf-8" >
+        <title>${data.topic} - Toolbox Talk </title>
+          <style>
         ${RAMS_STYLES}
-      </style>
+  </style>
     </head>
-    <body>
-      <div class="rams-content">
-        ${header}
+    < body >
+    <div class="rams-content" >
+      ${header}
         ${infoTable}
         ${introSection}
         ${hazardsSection}
@@ -900,10 +915,10 @@ export async function generateToolboxHTML(data: ToolboxTalkData): Promise<string
         ${ppeSection}
         ${emergencySection}
         ${attendanceHTML}
-      </div>
+  </div>
     </body>
     </html>
-  `;
+      `;
 }
 
 export interface COSHHData {
@@ -984,40 +999,40 @@ export async function generateCOSHHHTML(data: COSHHData): Promise<string> {
   const generalPPE = ppe.filter(p => !coshhPPEKeywords.some(k => p.toLowerCase().includes(k)));
 
   const header = `
-    <div class="header-line">
-      <h1>COSHH Assessment</h1>
-    </div>
-  `;
+    < div class="header-line" >
+      <h1>COSHH Assessment </h1>
+        </div>
+          `;
 
   const projectDetails = `
-    <div class="section-block keep-together">
-      <h2>1. Assessment Details</h2>
-      <table>
+        < div class="section-block keep-together" >
+          <h2>1. Assessment Details </h2>
+            < table >
+            <tr>
+            <th width="20%" > Company </th>
+              < td width = "30%" > ${sanitizeText(companyName)} </td>
+                < th width = "20%" > Client </th>
+                  < td width = "30%" > ${sanitizeText(clientName)} </td>
+                    </tr>
+                    < tr >
+                    <th>Site Address </th>
+                      < td colspan = "3" > ${sanitizeText(siteAddress)} </td>
+                        </tr>
+                        < tr >
+                        <th>Assessor </th>
+                        < td > ${sanitizeText(assessorName)} </td>
+                          < th > Date </th>
+                          < td > ${assessmentDate} </td>
+                            </tr>
+        ${isFilled(projectRef) || isFilled(data.reviewDate) ? `
         <tr>
-          <th width="20%">Company</th>
-          <td width="30%">${sanitizeText(companyName)}</td>
-          <th width="20%">Client</th>
-          <td width="30%">${sanitizeText(clientName)}</td>
-        </tr>
-        <tr>
-          <th>Site Address</th>
-          <td colspan="3">${sanitizeText(siteAddress)}</td>
-        </tr>
-        <tr>
-          <th>Assessor</th>
-          <td>${sanitizeText(assessorName)}</td>
-          <th>Date</th>
-          <td>${assessmentDate}</td>
-        </tr>
-        <tr>
-          <th>Project Ref</th>
-          <td>${sanitizeText(projectRef || "—")}</td>
-          <th>Review Date</th>
-          <td>${sanitizeText(data.reviewDate || "As required")}</td>
-        </tr>
-      </table>
+          ${isFilled(projectRef) ? `<th>Project Ref</th><td>${sanitizeText(projectRef)}</td>` : `<th></th><td></td>`}
+          ${isFilled(data.reviewDate) ? `<th>Review Date</th><td>${sanitizeText(data.reviewDate)}</td>` : `<th></th><td></td>`}
+        </tr>` : ""
+    }
+  </table>
     </div>
-  `;
+      `;
 
   const substanceRowsPromises = allSubstances.map(async s => {
     const risk = getRiskLevel(s.hazard);
@@ -1029,56 +1044,56 @@ export async function generateCOSHHHTML(data: COSHHData): Promise<string> {
     const ghsIcon = ghsIconSvg ? await svgToPngDataUri(ghsIconSvg, 64, 64) : null;
 
     return `
-    <tr>
-      <td width="20%" class="bold">${sanitizeText(s.name)}</td>
-      <td width="20%">
+    < tr >
+    <td width="20%" class="bold" > ${sanitizeText(s.name)} </td>
+      < td width = "20%" >
         ${ghsIcon ? `<img src="${ghsIcon}" width="24" height="24" class="pdf-sign" style="width: 24px; height: 24px; margin-right: 5px;" />` : ""}
         ${sanitizeText(s.hazard)}
-      </td>
-      <td width="15%" class="small">${getExposureRoutes(s.hazard)}</td>
-      <td width="25%">${sanitizeText(s.control)}</td>
-      <td width="15%" class="small">${getStorage(s.name)}</td>
-      <td width="5%" class="risk-score ${riskClass}">${risk}</td>
-    </tr>
-  `});
+  </td>
+    < td width = "15%" class="small" > ${getExposureRoutes(s.hazard)} </td>
+      < td width = "25%" > ${sanitizeText(s.control)} </td>
+        < td width = "15%" class="small" > ${getStorage(s.name)} </td>
+          < td width = "5%" class="risk-score ${riskClass}" > ${risk} </td>
+            </tr>
+              `});
 
   const substanceRows = (await Promise.all(substanceRowsPromises)).join("");
 
   const substancesHTML = `
-    <div class="section-block">
-      <h2>2. Hazardous Substances</h2>
-      <table>
-        <thead>
-          <tr>
-            <th>Substance / Product</th>
-            <th>Hazards / Health Effects</th>
-            <th>Exposure Routes</th>
-            <th>Control Measures</th>
-            <th>Storage & Disposal</th>
-            <th>Risk</th>
-          </tr>
-        </thead>
-        <tbody>
+            < div class="section-block" >
+              <h2>2. Hazardous Substances </h2>
+                < table >
+                <thead>
+                <tr>
+                <th>Substance / Product </th>
+                < th > Hazards / Health Effects </th>
+                  < th > Exposure Routes </th>
+                    < th > Control Measures </th>
+                      < th > Storage & Disposal </th>
+                      < th > Risk </th>
+                      </tr>
+                      </thead>
+                      <tbody>
           ${substanceRows.length > 0 ? substanceRows : "<tr><td colspan='6'>No specific substances listed.</td></tr>"}
-        </tbody>
-      </table>
+  </tbody>
+    </table>
     </div>
-  `;
+      `;
 
   const contextHTML = `
-    <div class="section-block">
-      <h2>3. Exposure & Work Context</h2>
-      <div style="border: 1px solid #000; padding: 10px;">
-        <ul style="margin: 0; padding-left: 20px;">
-          <li style="margin-bottom: 6px;"><strong>Work Activity:</strong> ${sanitizeText(workActivity)}</li>
-          <li style="margin-bottom: 6px;"><strong>Location / Environment:</strong> ${sanitizeText(siteAddress)}</li>
-          <li style="margin-bottom: 6px;"><strong>Duration of Exposure:</strong> ${sanitizeText(exposureDuration)}</li>
-          <li style="margin-bottom: 6px;"><strong>Frequency of Exposure:</strong> ${sanitizeText(exposureFrequency)}</li>
-          <li style="margin-bottom: 6px;"><strong>Persons Exposed:</strong> ${personsExposed.join(", ") || "Operatives only"}</li>
-        </ul>
-      </div>
-    </div>
-  `;
+    < div class="section-block" >
+      <h2>3. Exposure & Work Context </h2>
+        < div style = "border: 1px solid #000; padding: 10px;" >
+          <ul style="margin: 0; padding-left: 20px;" >
+            <li style="margin-bottom: 6px;" > <strong>Work Activity: </strong> ${sanitizeText(workActivity)}</li >
+              <li style="margin-bottom: 6px;" > <strong>Location / Environment: </strong> ${sanitizeText(siteAddress)}</li >
+                <li style="margin-bottom: 6px;" > <strong>Duration of Exposure: </strong> ${sanitizeText(exposureDuration)}</li >
+                  <li style="margin-bottom: 6px;" > <strong>Frequency of Exposure: </strong> ${sanitizeText(exposureFrequency)}</li >
+                    <li style="margin-bottom: 6px;" > <strong>Persons Exposed: </strong> ${personsExposed.join(", ") || "Operatives only"}</li >
+                      </ul>
+                      </div>
+                      </div>
+                        `;
 
   const coshhPPEHTMLPromises = coshhPPE.map(async item => {
     const type = mapStringToPpeType(item);
@@ -1088,11 +1103,11 @@ export async function generateCOSHHHTML(data: COSHHData): Promise<string> {
     const icon = iconSvg ? await svgToPngDataUri(iconSvg, 64, 64) : null;
 
     return `
-    <div style="display: inline-block; border: 1px solid #0b2040; background-color: #f0f9ff; padding: 6px 10px; margin: 4px; border-radius: 4px; font-size: 9pt; text-align: center; min-width: 80px; vertical-align: top;">
-      ${icon ? `<img src="${icon}" width="32" height="32" class="pdf-sign-large" style="width: 32px; height: 32px;" />` : ""}
-      <strong>${item}</strong>
+                      < div style = "display: inline-block; border: 1px solid #0b2040; background-color: #f0f9ff; padding: 6px 10px; margin: 4px; border-radius: 4px; font-size: 9pt; text-align: center; min-width: 80px; vertical-align: top;" >
+                        ${icon ? `<img src="${icon}" width="32" height="32" class="pdf-sign-large" style="width: 32px; height: 32px;" />` : ""}
+  <strong>${item} </strong>
     </div>
-  `});
+      `});
 
   const coshhPPEHTML = (await Promise.all(coshhPPEHTMLPromises)).join("");
 
@@ -1104,98 +1119,101 @@ export async function generateCOSHHHTML(data: COSHHData): Promise<string> {
     const icon = iconSvg ? await svgToPngDataUri(iconSvg, 64, 64) : null;
 
     return `
-    <div style="display: inline-block; border: 1px solid #ccc; padding: 6px 10px; margin: 4px; border-radius: 4px; font-size: 9pt; text-align: center; min-width: 80px; vertical-align: top;">
+    < div style = "display: inline-block; border: 1px solid #ccc; padding: 6px 10px; margin: 4px; border-radius: 4px; font-size: 9pt; text-align: center; min-width: 80px; vertical-align: top;" >
       ${icon ? `<img src="${icon}" width="32" height="32" class="pdf-sign-large" style="width: 32px; height: 32px;" />` : ""}
-      <strong>${item}</strong>
+  <strong>${item} </strong>
     </div>
-  `});
+      `});
 
   const generalPPEHTML = (await Promise.all(generalPPEHTMLPromises)).join("");
 
   const ppeHTML = `
-    <div class="section-block">
-      <h2>4. PPE Requirements</h2>
-      
-      <div style="margin-bottom: 10px;">
-        <h3 style="font-size: 10pt; margin-bottom: 5px;">COSHH Specific PPE (Mandatory for these substances)</h3>
+    < div class="section-block" >
+      <h2>4. PPE Requirements </h2>
+
+        < div style = "margin-bottom: 10px;" >
+          <h3 style="font-size: 10pt; margin-bottom: 5px;" > COSHH Specific PPE(Mandatory for these substances)</h3>
         ${coshhPPEHTML.length > 0 ? coshhPPEHTML : "<p>No specific COSHH PPE identified (Standard site PPE applies).</p>"}
-      </div>
+  </div>
 
-      <div>
-        <h3 style="font-size: 10pt; margin-bottom: 5px;">General Site PPE</h3>
+    < div >
+    <h3 style="font-size: 10pt; margin-bottom: 5px;" > General Site PPE </h3>
         ${generalPPEHTML.length > 0 ? generalPPEHTML : "<p>Standard site PPE.</p>"}
-      </div>
+  </div>
     </div>
-  `;
+      `;
 
-  const controlsHTML = `
-    <div class="section-block">
-      <h2>5. Additional Control Measures</h2>
-      <div style="padding: 5px;">
-        ${sanitizeText(additionalControls).split('\n').map(line => line.trim() ? `<p>• ${line}</p>` : '').join('')}
-      </div>
+  const controlsHTML = isFilled(additionalControls) ? `
+    < div class="section-block" >
+      <h2>5. Additional Control Measures </h2>
+        < div style = "padding: 5px;" >
+          ${sanitizeText(additionalControls).split('\n').map(line => line.trim() ? `<p>• ${line}</p>` : '').join('')}
+  </div>
     </div>
+      ` : "";
 
-    <div class="section-block">
-      <h2>6. Emergency Procedures</h2>
-      <div style="padding: 5px;">
-        ${sanitizeText(emergencyProcedures).split('\n').map(line => line.trim() ? `<p>• ${line}</p>` : '').join('')}
-      </div>
+  const emergencyHTML = isFilled(emergencyProcedures) ? `
+    < div class="section-block" >
+      <h2>6. Emergency Procedures </h2>
+        < div style = "padding: 5px;" >
+          ${sanitizeText(emergencyProcedures).split('\n').map(line => line.trim() ? `<p>• ${line}</p>` : '').join('')}
+  </div>
     </div>
-  `;
+      ` : "";
 
   const signatureHTML = `
-    <div class="signature-block keep-together">
-      <h3 style="margin-top: 0; text-align: center; border-bottom: 1px solid #000; padding-bottom: 10px;">7. Assessment Authorization</h3>
-      
-      <div class="signature-section" style="margin-top: 15px;">
-        <p><strong>Assessor Sign-off:</strong> I confirm that this assessment is suitable and sufficient.</p>
-        <table style="border: none;">
-          <tr style="border: none;">
-            <td style="border: none; padding: 10px 0;"><strong>Name:</strong> ${sanitizeText(assessorName)}</td>
-            <td style="border: none; padding: 10px 0;"><strong>Signature:</strong> ____________________</td>
-            <td style="border: none; padding: 10px 0;"><strong>Date:</strong> ${assessmentDate}</td>
-          </tr>
-        </table>
-      </div>
+    < div class="signature-block keep-together" >
+      <h3 style="margin-top: 0; text-align: center; border-bottom: 1px solid #000; padding-bottom: 10px;" > 7. Assessment Authorization </h3>
 
-      <div class="signature-section" style="margin-top: 15px; border-top: 1px dashed #ccc; padding-top: 15px;">
-        <p><strong>Operative Acknowledgement:</strong> I have read and understood this COSHH assessment.</p>
-        <table style="border: none; margin-top: 10px;">
-          <tr style="border: none;">
-             <td style="border: none; width: 50%;"><strong>Name:</strong> ____________________</td>
-             <td style="border: none; width: 50%;"><strong>Signature:</strong> ____________________</td>
-          </tr>
-          <tr style="border: none;">
-             <td style="border: none; width: 50%;"><strong>Name:</strong> ____________________</td>
-             <td style="border: none; width: 50%;"><strong>Signature:</strong> ____________________</td>
-          </tr>
-        </table>
-      </div>
-    </div>
-  `;
+        < div class="signature-section" style = "margin-top: 15px;" >
+          <p><strong>Assessor Sign - off: </strong> I confirm that this assessment is suitable and sufficient.</p >
+            <table style="border: none;" >
+              <tr style="border: none;" >
+                <td style="border: none; padding: 10px 0;" > <strong>Name: </strong> ${sanitizeText(assessorName)}</td >
+                  <td style="border: none; padding: 10px 0;" > <strong>Signature: </strong> ____________________</td >
+                    <td style="border: none; padding: 10px 0;" > <strong>Date: </strong> ${assessmentDate}</td >
+                      </tr>
+                      </table>
+                      </div>
+
+                      < div class="signature-section" style = "margin-top: 15px; border-top: 1px dashed #ccc; padding-top: 15px;" >
+                        <p><strong>Operative Acknowledgement: </strong> I have read and understood this COSHH assessment.</p >
+                          <table style="border: none; margin-top: 10px;" >
+                            <tr style="border: none;" >
+                              <td style="border: none; width: 50%;" > <strong>Name: </strong> ____________________</td >
+                                <td style="border: none; width: 50%;" > <strong>Signature: </strong> ____________________</td >
+                                  </tr>
+                                  < tr style = "border: none;" >
+                                    <td style="border: none; width: 50%;" > <strong>Name: </strong> ____________________</td >
+                                      <td style="border: none; width: 50%;" > <strong>Signature: </strong> ____________________</td >
+                                        </tr>
+                                        </table>
+                                        </div>
+                                        </div>
+                                          `;
 
   return `
-    <!DOCTYPE html>
-    <html>
-    <head>
-      <meta charset="utf-8">
-      <title>${sanitizeText(documentName)}</title>
-      <style>
+                                        < !DOCTYPE html >
+                                          <html>
+                                          <head>
+                                          <meta charset="utf-8" >
+                                            <title>${sanitizeText(documentName)} </title>
+                                              <style>
         ${RAMS_STYLES}
-      </style>
+  </style>
     </head>
-    <body>
-      <div class="rams-content">
-        ${header}
+    < body >
+    <div class="rams-content" >
+      ${header}
         ${projectDetails}
         ${substancesHTML}
         ${contextHTML}
         ${ppeHTML}
         ${controlsHTML}
+        ${emergencyHTML}
         ${signatureHTML}
-      </div>
+  </div>
     </body>
     </html>
-  `;
+      `;
 }

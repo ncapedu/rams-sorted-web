@@ -256,16 +256,10 @@ export default function CoshhWizard({ onBack, onSave }: CoshhWizardProps) {
                 errorMsg = "Please describe the activity, duration, and frequency of exposure.";
             }
         } else if (step === 4) {
-            // Check if at least one control is selected (if controls array exists/is used) or just ensure PPE is selected
-            // Assuming controls might be text or array, but user said "controls and PPE below it... have to be mandatory"
-            // Looking at the file, I don't see a 'controls' array in the state in the previous view_file output, 
-            // but I see 'additionalControls' string. 
-            // Wait, I need to check the state definition for 'controls' or similar.
-            // Let's assume 'ppe' is the main one to check based on "required PPEs".
-            // User said: "controls and PPE below it... they have to be mandatory"
-            // I'll check if 'ppe' array is empty.
             if (formData.ppe.length === 0) {
                 errorMsg = "Please select at least one required PPE.";
+            } else if (!formData.emergencyProcedures.trim()) {
+                errorMsg = "Please enter emergency procedures.";
             }
         }
 

@@ -151,6 +151,14 @@ export default function ToolboxWizard({ onBack, onComplete }: ToolboxWizardProps
                 setToast({ message: "Please enter at least one key message.", type: "error" });
                 return;
             }
+            if (formData.ppe.length === 0) {
+                setToast({ message: "Please select at least one required PPE.", type: "error" });
+                return;
+            }
+            if (!formData.emergencyArrangements.trim()) {
+                setToast({ message: "Please enter emergency arrangements.", type: "error" });
+                return;
+            }
         }
 
         if (step === 3) {
@@ -492,7 +500,7 @@ export default function ToolboxWizard({ onBack, onComplete }: ToolboxWizardProps
                                 {/* PPE */}
                                 <div>
                                     <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
-                                        PPE Required
+                                        PPE Required <span className="text-red-600">*</span>
                                     </label>
                                     <input
                                         className="w-full border border-slate-300 rounded-lg p-3 text-sm focus:ring-2 focus:ring-emerald-500 outline-none"
@@ -505,7 +513,7 @@ export default function ToolboxWizard({ onBack, onComplete }: ToolboxWizardProps
                                 {/* Emergency */}
                                 <div>
                                     <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
-                                        Emergency Arrangements
+                                        Emergency Arrangements <span className="text-red-600">*</span>
                                     </label>
                                     <input
                                         className="w-full border border-slate-300 rounded-lg p-3 text-sm focus:ring-2 focus:ring-emerald-500 outline-none"
