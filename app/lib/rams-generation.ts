@@ -392,23 +392,24 @@ export async function generateRAMSHTML(data: RAMSData): Promise<string> {
     // Convert to PNG if icon exists
     const iconSrc = iconSrcSvg ? await svgToPngDataUri(iconSrcSvg, 64, 64) : null;
 
-    const iconHtml = iconSrc ? `< img src = "${iconSrc}" width = "32" height = "32" style = "width: 32px; height: 32px; display: block; margin: 0 auto 4px auto;" /> ` : "";
+    const iconHtml = iconSrc ? `<img src="${iconSrc}" width="32" height="32" style="width: 32px; height: 32px; display: block; margin: 0 auto 4px auto;" />` : "";
 
     return `
-    < div style = "display: inline-block; border: 1px solid #ccc; padding: 8px 12px; margin: 4px; border-radius: 4px; font-size: 9pt; text-align: center; min-width: 80px; vertical-align: top;" >
-      ${iconHtml}
-  <strong>${item} </strong>
-    </div>
-      `});
+      <div style="display: inline-block; border: 1px solid #ccc; padding: 8px 12px; margin: 4px; border-radius: 4px; font-size: 9pt; text-align: center; min-width: 80px; vertical-align: top;">
+        ${iconHtml}
+        <strong>${item}</strong>
+      </div>
+    `;
+  });
 
   const ppeList = (await Promise.all(ppeListPromises)).join("");
 
   const ppeHTML = `
     <div class="section-block">
       <h2>7. PPE Requirements</h2>
-        <div style="margin-bottom: 15px;">
-          ${ppeList}
-        </div>
+      <div style="margin-bottom: 15px;">
+        ${ppeList}
+      </div>
     </div>
   `;
 
@@ -441,19 +442,19 @@ export async function generateRAMSHTML(data: RAMSData): Promise<string> {
 
   const signoffHTML = `
     <div class="section-block">
-                              <h2>9. Operative Acknowledgement </h2>
-                                < p > By signing below, ${terms.we.toLowerCase()} confirm ${terms.we.toLowerCase()} have read and understood this RAMS and will work in accordance with the control measures and method statement.</p>
+      <h2>9. Operative Acknowledgement</h2>
+      <p>By signing below, ${terms.we.toLowerCase()} confirm ${terms.we.toLowerCase()} have read and understood this RAMS and will work in accordance with the control measures and method statement.</p>
 
-                                  < table >
-                                  <thead>
-                                  <tr>
-                                  <th width="30%" > Name </th>
-                                    < th width = "20%" > Role </th>
-                                      < th width = "20%" > Date </th>
-                                        < th width = "30%" > Signature </th>
-                                          </tr>
-                                          </thead>
-                                          <tbody>
+      <table>
+        <thead>
+          <tr>
+            <th width="30%">Name</th>
+            <th width="20%">Role</th>
+            <th width="20%">Date</th>
+            <th width="30%">Signature</th>
+          </tr>
+        </thead>
+        <tbody>
           ${Array.from({ length: Math.max(1, Number(operatives) || 1) }).map(() => `
             <tr>
               <td style="height: 50px;"></td>
@@ -461,42 +462,41 @@ export async function generateRAMSHTML(data: RAMSData): Promise<string> {
               <td></td>
               <td></td>
             </tr>
-          `).join("")
-    }
-  </tbody>
-    </table>
+          `).join("")}
+        </tbody>
+      </table>
     </div>
-      `;
+  `;
 
   // 10. Authorization
   const authorizationHTML = `
-    < div class="signature-block" >
-      <h3 style="margin-top: 0; text-align: center; border-bottom: 1px solid #000; padding-bottom: 10px;" > 10. Authorization & Approval </h3>
+    <div class="signature-block">
+      <h3 style="margin-top: 0; text-align: center; border-bottom: 1px solid #000; padding-bottom: 10px;">10. Authorization & Approval</h3>
+      
+      <div class="signature-section" style="margin-top: 15px;">
+        <p><strong>${terms.manager} Sign-off:</strong></p>
+        <p>I confirm that the above method statement and risk assessment is suitable and sufficient for the task.</p>
+        <table style="border: none;">
+          <tr style="border: none;">
+            <td style="border: none; padding: 10px 0;"><strong>Name:</strong> ${sanitizeText(supervisorName)}</td>
+            <td style="border: none; padding: 10px 0;"><strong>Signature:</strong> ____________________</td>
+            <td style="border: none; padding: 10px 0;"><strong>Date:</strong> ${startDate}</td>
+          </tr>
+        </table>
+      </div>
 
-        < div class="signature-section" style = "margin-top: 15px;" >
-          <p><strong>${terms.manager} Sign - off: </strong></p >
-            <p>I confirm that the above method statement and risk assessment is suitable and sufficient for the task.</p>
-              < table style = "border: none;" >
-              <tr style= "border: none;" >
-                <td style="border: none; padding: 10px 0;" > <strong>Name: </strong> ${sanitizeText(supervisorName)}</td >
-                  <td style="border: none; padding: 10px 0;" > <strong>Signature: </strong> ____________________</td >
-                    <td style="border: none; padding: 10px 0;" > <strong>Date: </strong> ${startDate}</td >
-                      </tr>
-                      </table>
-                      </div>
-
-                      < div class="signature-section" style = "margin-top: 15px; border-top: 1px dashed #ccc; padding-top: 15px;" >
-                        <p><strong>Client / Principal Contractor Acceptance(Optional): </strong></p >
-                          <table style="border: none;" >
-                            <tr style="border: none;" >
-                              <td style="border: none; padding: 10px 0;" > <strong>Name: </strong> ____________________</td >
-                                <td style="border: none; padding: 10px 0;" > <strong>Signature: </strong> ____________________</td >
-                                  <td style="border: none; padding: 10px 0;" > <strong>Date: </strong> ____________________</td >
-                                    </tr>
-                                    </table>
-                                    </div>
-                                    </div>
-                                      `;
+      <div class="signature-section" style="margin-top: 15px; border-top: 1px dashed #ccc; padding-top: 15px;">
+        <p><strong>Client / Principal Contractor Acceptance (Optional):</strong></p>
+        <table style="border: none;">
+          <tr style="border: none;">
+            <td style="border: none; padding: 10px 0;"><strong>Name:</strong> ____________________</td>
+            <td style="border: none; padding: 10px 0;"><strong>Signature:</strong> ____________________</td>
+            <td style="border: none; padding: 10px 0;"><strong>Date:</strong> ____________________</td>
+          </tr>
+        </table>
+      </div>
+    </div>
+  `;
 
   return `
     <!DOCTYPE html>
