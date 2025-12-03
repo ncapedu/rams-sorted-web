@@ -240,17 +240,13 @@ export async function generateRAMSHTML(data: RAMSData): Promise<string> {
     `).join("")
     : "";
 
-  const scopeHTML = isFilled(scope) ? `
+  const scopeSection = `
     <div class="section-block">
       <h2>2. Scope of Works</h2>
       <div style="margin-bottom: 15px;">
         ${sanitizeText(scope).split('\n').map(line => `<p>${line}</p>`).join('')}
       </div>
     </div>
-  ` : "";
-
-  const scopeSection = `
-    ${scopeHTML}
     ${extraDetails}
   `;
 
@@ -317,7 +313,7 @@ export async function generateRAMSHTML(data: RAMSData): Promise<string> {
 
   const hazardRows = (await Promise.all(hazardRowsPromises)).join("");
 
-  const hazardsHTML = hazards.length > 0 ? `
+  const hazardsHTML = `
     <div class="section-block">
       <h2>4. Risk Assessment (Hazards & Controls)</h2>
       <p>The following hazards have been identified. Control measures must be implemented before work starts.</p>
@@ -344,7 +340,7 @@ export async function generateRAMSHTML(data: RAMSData): Promise<string> {
         </tbody>
       </table>
     </div>
-  ` : "";
+  `;
 
   // 6. Method Statement
   const methodRows = methodSteps.map((step: string, index: number) => `
@@ -353,12 +349,12 @@ export async function generateRAMSHTML(data: RAMSData): Promise<string> {
     </div>
   `).join("");
 
-  const methodHTML = methodSteps.length > 0 ? `
+  const methodHTML = `
     <div class="section-block">
       <h2>5. Method Statement</h2>
       ${methodRows}
     </div>
-  ` : "";
+  `;
 
   // 7. COSHH
   const coshhRows = coshh.map((c: any) => `
@@ -369,7 +365,7 @@ export async function generateRAMSHTML(data: RAMSData): Promise<string> {
     </tr>
   `).join("");
 
-  const coshhHTML = coshh.length > 0 ? `
+  const coshhHTML = `
     <div class="section-block">
       <h2>6. COSHH Assessment</h2>
       <table>
@@ -385,7 +381,7 @@ export async function generateRAMSHTML(data: RAMSData): Promise<string> {
         </tbody>
       </table>
     </div>
-  ` : "";
+  `;
 
   // 8. PPE
   // Pre-convert PPE icons to PNG
@@ -407,17 +403,17 @@ export async function generateRAMSHTML(data: RAMSData): Promise<string> {
 
   const ppeList = (await Promise.all(ppeListPromises)).join("");
 
-  const ppeHTML = ppe.length > 0 ? `
+  const ppeHTML = `
     <div class="section-block">
       <h2>7. PPE Requirements</h2>
         <div style="margin-bottom: 15px;">
           ${ppeList}
         </div>
     </div>
-  ` : "";
+  `;
 
   // 9. Emergency & Operatives
-  const emergencyHTML = (isFilled(supervisorName) || isFilled(firstAider) || isFilled(hospital) || isFilled(fireAssembly) || isFilled(firstAidLoc) || isFilled(welfare)) ? `
+  const emergencyHTML = `
     <div class="section-block">
       <h2>8. Emergency Arrangements</h2>
       <table>
@@ -441,7 +437,7 @@ export async function generateRAMSHTML(data: RAMSData): Promise<string> {
         </tr>
       </table>
     </div>
-  ` : "";
+  `;
 
   const signoffHTML = `
     <div class="section-block">
@@ -772,113 +768,111 @@ export async function generateToolboxHTML(data: ToolboxTalkData): Promise<string
   };
 
   const header = `
-    < div class="header-line" style = "border-bottom: 3px solid #000;" >
-      <h1 style="color: #000; border-bottom: none;" > Toolbox Talk Record </h1>
-        </div>
-          `;
+    <div class="header-line" style="border-bottom: 3px solid #000;">
+      <h1 style="color: #000; border-bottom: none;">Toolbox Talk Record</h1>
+    </div>
+  `;
 
   const infoTable = `
-        < div class="section-block" >
-          <table style="border: 1px solid #000;" >
-            <tr>
-            <th width="20%" style = "background-color: #f8fafc; color: #000;" > Topic </th>
-              < td width = "30%" > ${content.headerInfo.topic} </td>
-                < th width = "20%" style = "background-color: #f8fafc; color: #000;" > Date </th>
-                  < td width = "30%" > ${content.headerInfo.date} </td>
-                    </tr>
-                    < tr >
-                    <th style="background-color: #f8fafc; color: #000;" > Location </th>
-                      < td > ${content.headerInfo.location} </td>
-                        < th style = "background-color: #f8fafc; color: #000;" > Presenter </th>
-                          < td > ${content.headerInfo.presenter} </td>
-                            </tr>
-                            < tr >
-                            <th style="background-color: #f8fafc; color: #000;" > Audience </th>
-                              < td colspan = "3" > ${audience || "General Site Personnel"} </td>
-                                </tr>
-                                </table>
-                                </div>
-                                  `;
+    <div class="section-block">
+      <table style="border: 1px solid #000;">
+        <tr>
+          <th width="20%" style="background-color: #f8fafc; color: #000;">Topic</th>
+          <td width="30%">${content.headerInfo.topic}</td>
+          <th width="20%" style="background-color: #f8fafc; color: #000;">Date</th>
+          <td width="30%">${content.headerInfo.date}</td>
+        </tr>
+        <tr>
+          <th style="background-color: #f8fafc; color: #000;">Location</th>
+          <td>${content.headerInfo.location}</td>
+          <th style="background-color: #f8fafc; color: #000;">Presenter</th>
+          <td>${content.headerInfo.presenter}</td>
+        </tr>
+        <tr>
+          <th style="background-color: #f8fafc; color: #000;">Audience</th>
+          <td colspan="3">${audience || "General Site Personnel"}</td>
+        </tr>
+      </table>
+    </div>
+  `;
 
   const introSection = `
-                                < div class="section-block" >
-                                  <h2 style="color: #000; border-bottom-color: #000;" > 1. Introduction </h2>
-                                    < p > ${content.introduction} </p>
-                                      </div>
-                                        `;
+    <div class="section-block">
+      <h2 style="color: #000; border-bottom-color: #000;">1. Introduction</h2>
+      <p>${content.introduction}</p>
+    </div>
+  `;
 
-  const hazardsSection = content.hazardsSection.length > 0 ? `
-                                      < div class="section-block" >
-                                        <h2 style="color: #000; border-bottom-color: #000;" > 2. Key Hazards </h2>
-                                          <ul>
+  const hazardsSection = `
+    <div class="section-block">
+      <h2 style="color: #000; border-bottom-color: #000;">2. Key Hazards</h2>
+      <ul>
         ${content.hazardsSection.map((h: any) => `
           <li style="margin-bottom: 8px;">
             <strong>${h.hazard}:</strong> ${h.description}
           </li>
-        `).join("")
-    }
-  </ul>
+        `).join("")}
+      </ul>
     </div>
-      ` : "";
+  `;
 
-  const controlsSection = content.controlsSection.length > 0 ? `
-    < div class="section-block" >
-      <h2 style="color: #000; border-bottom-color: #000;" > 3. Control Measures </h2>
-        <ul>
+  const controlsSection = `
+    <div class="section-block">
+      <h2 style="color: #000; border-bottom-color: #000;">3. Control Measures</h2>
+      <ul>
         ${content.controlsSection.map((c: any) => `
           <li style="margin-bottom: 8px;">
             <strong>${c.title}:</strong> ${c.description}
           </li>
-        `).join("")
-    }
-  </ul>
+        `).join("")}
+      </ul>
     </div>
-      ` : "";
+  `;
 
-  const keyMessagesSection = content.keyMessagesSection.length > 0 ? `
-    < div class="section-block" >
-      <h2 style="color: #000; border-bottom-color: #000;" > 4. Key Messages </h2>
-        <ul>
+  const keyMessagesSection = `
+    <div class="section-block">
+      <h2 style="color: #000; border-bottom-color: #000;">4. Key Messages</h2>
+      <ul>
         ${content.keyMessagesSection.map((m: string) => `<li>${m}</li>`).join("")}
-  </ul>
+      </ul>
     </div>
-      ` : "";
+  `;
 
-  const ppeSection = ppe.length > 0 ? `
-    < div class="section-block" >
-      <h2 style="color: #000; border-bottom-color: #000;" > 5. PPE Required </h2>
-        < p > The following PPE is mandatory for this task: </p>
-          < p > <strong>${ppe.join(", ")} </strong></p >
-            </div>
-              ` : "";
+  const ppeSection = `
+    <div class="section-block">
+      <h2 style="color: #000; border-bottom-color: #000;">5. PPE Required</h2>
+      <p>The following PPE is mandatory for this task:</p>
+      <p><strong>${ppe.join(", ")}</strong></p>
+    </div>
+  `;
 
-  const emergencySection = isFilled(content.emergencySection) ? `
-            < div class="section-block" >
-              <h2 style="color: #000; border-bottom-color: #000;" > 6. Emergency Procedures </h2>
-                < p > ${content.emergencySection} </p>
-                  </div>
-                    ` : "";
+  const emergencySection = `
+    <div class="section-block">
+      <h2 style="color: #000; border-bottom-color: #000;">6. Emergency Procedures</h2>
+      <p>${content.emergencySection}</p>
+    </div>
+  `;
 
   let attendanceHTML = "";
   if (attendanceConfig.include) {
     const rows = Math.max(10, Number(attendanceConfig.expectedAttendees) || 10);
 
     attendanceHTML = `
-                  < div class="section-block keep-together" style = "margin-top: 20px;" >
-                    <h2 style="color: #000; border-bottom-color: #000;" > 7. Attendee Acknowledgement </h2>
-                      < p > <em>"${content.attendeeNote}" < /em></p >
-                      ${attendanceConfig.notes ? `<p><strong>Note:</strong> ${attendanceConfig.notes}</p>` : ""}
+      <div class="section-block keep-together" style="margin-top: 20px;">
+        <h2 style="color: #000; border-bottom-color: #000;">7. Attendee Acknowledgement</h2>
+        <p><em>"${content.attendeeNote}"</em></p>
+        ${attendanceConfig.notes ? `<p><strong>Note:</strong> ${attendanceConfig.notes}</p>` : ""}
 
-  <table style="margin-top: 10px; border: 1px solid #000;" >
-    <thead>
-    <tr>
-    <th width="30%" style = "background-color: #f8fafc; color: #000;" > Name(Print) </th>
-      < th width = "25%" style = "background-color: #f8fafc; color: #000;" > Company </th>
-        < th width = "25%" style = "background-color: #f8fafc; color: #000;" > Signature </th>
-          < th width = "20%" style = "background-color: #f8fafc; color: #000;" > Date </th>
+        <table style="margin-top: 10px; border: 1px solid #000;">
+          <thead>
+            <tr>
+              <th width="30%" style="background-color: #f8fafc; color: #000;">Name (Print)</th>
+              <th width="25%" style="background-color: #f8fafc; color: #000;">Company</th>
+              <th width="25%" style="background-color: #f8fafc; color: #000;">Signature</th>
+              <th width="20%" style="background-color: #f8fafc; color: #000;">Date</th>
             </tr>
-            </thead>
-            <tbody>
+          </thead>
+          <tbody>
             ${Array.from({ length: rows }).map(() => `
               <tr>
                 <td style="height: 40px;"></td>
@@ -886,27 +880,26 @@ export async function generateToolboxHTML(data: ToolboxTalkData): Promise<string
                 <td></td>
                 <td></td>
               </tr>
-            `).join("")
-      }
-  </tbody>
-    </table>
-    </div>
-      `;
+            `).join("")}
+          </tbody>
+        </table>
+      </div>
+    `;
   }
 
   return `
-    < !DOCTYPE html >
-      <html>
-      <head>
-      <meta charset="utf-8" >
-        <title>${data.topic} - Toolbox Talk </title>
-          <style>
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="utf-8">
+      <title>${data.topic} - Toolbox Talk</title>
+      <style>
         ${RAMS_STYLES}
-  </style>
+      </style>
     </head>
-    < body >
-    <div class="rams-content" >
-      ${header}
+    <body>
+      <div class="rams-content">
+        ${header}
         ${infoTable}
         ${introSection}
         ${hazardsSection}
@@ -915,10 +908,10 @@ export async function generateToolboxHTML(data: ToolboxTalkData): Promise<string
         ${ppeSection}
         ${emergencySection}
         ${attendanceHTML}
-  </div>
+      </div>
     </body>
     </html>
-      `;
+  `;
 }
 
 export interface COSHHData {
@@ -966,31 +959,25 @@ export async function generateCOSHHHTML(data: COSHHData): Promise<string> {
 
   const allSubstances = [...selectedSubstances, ...customSubstances];
 
-  // Helper to infer extra data
-  const getExposureRoutes = (hazard: string) => {
-    const h = hazard.toLowerCase();
-    const routes = [];
-    if (h.includes("inhalation") || h.includes("respiratory") || h.includes("dust") || h.includes("fume") || h.includes("vapour")) routes.push("Inhalation");
-    if (h.includes("skin") || h.includes("burns") || h.includes("dermatitis") || h.includes("corrosive")) routes.push("Skin Contact");
-    if (h.includes("eye")) routes.push("Eye Contact");
-    if (h.includes("swallowed") || h.includes("ingestion")) routes.push("Ingestion");
-
-    if (routes.length === 0) return "Skin, Eye, Inhalation";
-    return routes.join(" / ");
-  };
-
-  const getStorage = (substance: string) => {
-    const s = substance.toLowerCase();
-    if (s.includes("flammable") || s.includes("gas")) return "Secure cage, well ventilated, away from heat";
-    if (s.includes("acid") || s.includes("caustic")) return "Cool, dry, bunded area, original container";
-    return "Cool, dry place, original container";
-  };
-
+  // Helper functions
   const getRiskLevel = (hazard: string) => {
-    const h = hazard.toLowerCase();
-    if (h.includes("cancer") || h.includes("carcinogen") || h.includes("genetic") || h.includes("toxic") || h.includes("severe")) return "High";
-    if (h.includes("corrosive") || h.includes("burns") || h.includes("flammable")) return "Medium";
+    if (hazard.includes("Toxic") || hazard.includes("Carcinogen")) return "High";
+    if (hazard.includes("Corrosive") || hazard.includes("Irritant")) return "Medium";
     return "Low";
+  };
+
+  const getExposureRoutes = (hazard: string) => {
+    const routes = [];
+    if (hazard.includes("Inhalation") || hazard.includes("Respiratory")) routes.push("Inhalation");
+    if (hazard.includes("Skin") || hazard.includes("Contact")) routes.push("Skin Contact");
+    if (hazard.includes("Ingestion")) routes.push("Ingestion");
+    if (hazard.includes("Eye")) routes.push("Eye Contact");
+    return routes.length > 0 ? routes.join(", ") : "Inhalation, Skin Contact";
+  };
+
+  const getStorage = (name: string) => {
+    if (name.toLowerCase().includes("flammable")) return "Fire resistant cabinet";
+    return "Cool, dry place, secure container";
   };
 
   // Split PPE
@@ -999,101 +986,106 @@ export async function generateCOSHHHTML(data: COSHHData): Promise<string> {
   const generalPPE = ppe.filter(p => !coshhPPEKeywords.some(k => p.toLowerCase().includes(k)));
 
   const header = `
-    < div class="header-line" >
-      <h1>COSHH Assessment </h1>
-        </div>
-          `;
+    <div class="header-line">
+      <h1>COSHH Assessment</h1>
+    </div>
+  `;
 
   const projectDetails = `
-        < div class="section-block keep-together" >
-          <h2>1. Assessment Details </h2>
-            < table >
-            <tr>
-            <th width="20%" > Company </th>
-              < td width = "30%" > ${sanitizeText(companyName)} </td>
-                < th width = "20%" > Client </th>
-                  < td width = "30%" > ${sanitizeText(clientName)} </td>
-                    </tr>
-                    < tr >
-                    <th>Site Address </th>
-                      < td colspan = "3" > ${sanitizeText(siteAddress)} </td>
-                        </tr>
-                        < tr >
-                        <th>Assessor </th>
-                        < td > ${sanitizeText(assessorName)} </td>
-                          < th > Date </th>
-                          < td > ${assessmentDate} </td>
-                            </tr>
-        ${isFilled(projectRef) || isFilled(data.reviewDate) ? `
+    <div class="section-block keep-together">
+      <h2>1. Assessment Details</h2>
+      <table>
         <tr>
-          ${isFilled(projectRef) ? `<th>Project Ref</th><td>${sanitizeText(projectRef)}</td>` : `<th></th><td></td>`}
-          ${isFilled(data.reviewDate) ? `<th>Review Date</th><td>${sanitizeText(data.reviewDate)}</td>` : `<th></th><td></td>`}
-        </tr>` : ""
-    }
-  </table>
+          <th width="20%">Company</th>
+          <td width="30%">${sanitizeText(companyName)}</td>
+          <th width="20%">Client</th>
+          <td width="30%">${sanitizeText(clientName)}</td>
+        </tr>
+        <tr>
+          <th>Site Address</th>
+          <td colspan="3">${sanitizeText(siteAddress)}</td>
+        </tr>
+        <tr>
+          <th>Assessor</th>
+          <td>${sanitizeText(assessorName)}</td>
+          <th>Date</th>
+          <td>${assessmentDate}</td>
+        </tr>
+        <tr>
+          <th>Project Ref</th>
+          <td>${sanitizeText(projectRef)}</td>
+          <th>Review Date</th>
+          <td>${sanitizeText(data.reviewDate || "")}</td>
+        </tr>
+      </table>
     </div>
-      `;
+  `;
 
   const substanceRowsPromises = allSubstances.map(async s => {
-    const risk = getRiskLevel(s.hazard);
+    // @ts-ignore
+    const libEntry = COSHH_LIBRARY[s.name];
+    const substanceData = (libEntry && libEntry[0]) ? { ...s, ...libEntry[0] } : s;
+
+    const risk = getRiskLevel(substanceData.hazard);
     const riskClass = risk === "High" ? "risk-high" : risk === "Medium" ? "risk-med" : "risk-low";
-    const ghsType = mapStringToHazardClass(s.hazard);
+    const ghsType = mapStringToHazardClass(substanceData.hazard);
     const ghsIconSvg = ghsType ? GHS_ICON_MAP[ghsType] : null;
 
     // Convert to PNG if icon exists
     const ghsIcon = ghsIconSvg ? await svgToPngDataUri(ghsIconSvg, 64, 64) : null;
 
     return `
-    < tr >
-    <td width="20%" class="bold" > ${sanitizeText(s.name)} </td>
-      < td width = "20%" >
-        ${ghsIcon ? `<img src="${ghsIcon}" width="24" height="24" class="pdf-sign" style="width: 24px; height: 24px; margin-right: 5px;" />` : ""}
-        ${sanitizeText(s.hazard)}
-  </td>
-    < td width = "15%" class="small" > ${getExposureRoutes(s.hazard)} </td>
-      < td width = "25%" > ${sanitizeText(s.control)} </td>
-        < td width = "15%" class="small" > ${getStorage(s.name)} </td>
-          < td width = "5%" class="risk-score ${riskClass}" > ${risk} </td>
-            </tr>
-              `});
+      <tr>
+        <td width="20%" class="bold">${sanitizeText(substanceData.name)}</td>
+        <td width="20%">
+          ${ghsIcon ? `<img src="${ghsIcon}" width="24" height="24" class="pdf-sign" style="width: 24px; height: 24px; margin-right: 5px;" />` : ""}
+          ${sanitizeText(substanceData.hazard)}
+        </td>
+        <td width="15%" class="small">${getExposureRoutes(substanceData.hazard)}</td>
+        <td width="25%">${sanitizeText(substanceData.control)}</td>
+        <td width="15%" class="small">${getStorage(substanceData.name)}</td>
+        <td width="5%" class="risk-score ${riskClass}">${risk}</td>
+      </tr>
+    `;
+  });
 
   const substanceRows = (await Promise.all(substanceRowsPromises)).join("");
 
   const substancesHTML = `
-            < div class="section-block" >
-              <h2>2. Hazardous Substances </h2>
-                < table >
-                <thead>
-                <tr>
-                <th>Substance / Product </th>
-                < th > Hazards / Health Effects </th>
-                  < th > Exposure Routes </th>
-                    < th > Control Measures </th>
-                      < th > Storage & Disposal </th>
-                      < th > Risk </th>
-                      </tr>
-                      </thead>
-                      <tbody>
+    <div class="section-block">
+      <h2>2. Hazardous Substances</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Substance / Product</th>
+            <th>Hazards / Health Effects</th>
+            <th>Exposure Routes</th>
+            <th>Control Measures</th>
+            <th>Storage & Disposal</th>
+            <th>Risk</th>
+          </tr>
+        </thead>
+        <tbody>
           ${substanceRows.length > 0 ? substanceRows : "<tr><td colspan='6'>No specific substances listed.</td></tr>"}
-  </tbody>
-    </table>
+        </tbody>
+      </table>
     </div>
-      `;
+  `;
 
   const contextHTML = `
-    < div class="section-block" >
-      <h2>3. Exposure & Work Context </h2>
-        < div style = "border: 1px solid #000; padding: 10px;" >
-          <ul style="margin: 0; padding-left: 20px;" >
-            <li style="margin-bottom: 6px;" > <strong>Work Activity: </strong> ${sanitizeText(workActivity)}</li >
-              <li style="margin-bottom: 6px;" > <strong>Location / Environment: </strong> ${sanitizeText(siteAddress)}</li >
-                <li style="margin-bottom: 6px;" > <strong>Duration of Exposure: </strong> ${sanitizeText(exposureDuration)}</li >
-                  <li style="margin-bottom: 6px;" > <strong>Frequency of Exposure: </strong> ${sanitizeText(exposureFrequency)}</li >
-                    <li style="margin-bottom: 6px;" > <strong>Persons Exposed: </strong> ${personsExposed.join(", ") || "Operatives only"}</li >
-                      </ul>
-                      </div>
-                      </div>
-                        `;
+    <div class="section-block">
+      <h2>3. Exposure & Work Context</h2>
+      <div style="border: 1px solid #000; padding: 10px;">
+        <ul style="margin: 0; padding-left: 20px;">
+          <li style="margin-bottom: 6px;"><strong>Work Activity:</strong> ${sanitizeText(workActivity)}</li>
+          <li style="margin-bottom: 6px;"><strong>Location / Environment:</strong> ${sanitizeText(siteAddress)}</li>
+          <li style="margin-bottom: 6px;"><strong>Duration of Exposure:</strong> ${sanitizeText(exposureDuration)}</li>
+          <li style="margin-bottom: 6px;"><strong>Frequency of Exposure:</strong> ${sanitizeText(exposureFrequency)}</li>
+          <li style="margin-bottom: 6px;"><strong>Persons Exposed:</strong> ${personsExposed.join(", ") || "Operatives only"}</li>
+        </ul>
+      </div>
+    </div>
+  `;
 
   const coshhPPEHTMLPromises = coshhPPE.map(async item => {
     const type = mapStringToPpeType(item);
@@ -1103,11 +1095,12 @@ export async function generateCOSHHHTML(data: COSHHData): Promise<string> {
     const icon = iconSvg ? await svgToPngDataUri(iconSvg, 64, 64) : null;
 
     return `
-                      < div style = "display: inline-block; border: 1px solid #0b2040; background-color: #f0f9ff; padding: 6px 10px; margin: 4px; border-radius: 4px; font-size: 9pt; text-align: center; min-width: 80px; vertical-align: top;" >
-                        ${icon ? `<img src="${icon}" width="32" height="32" class="pdf-sign-large" style="width: 32px; height: 32px;" />` : ""}
-  <strong>${item} </strong>
-    </div>
-      `});
+      <div style="display: inline-block; border: 1px solid #0b2040; background-color: #f0f9ff; padding: 6px 10px; margin: 4px; border-radius: 4px; font-size: 9pt; text-align: center; min-width: 80px; vertical-align: top;">
+        ${icon ? `<img src="${icon}" width="32" height="32" class="pdf-sign-large" style="width: 32px; height: 32px;" />` : ""}
+        <strong>${item}</strong>
+      </div>
+    `;
+  });
 
   const coshhPPEHTML = (await Promise.all(coshhPPEHTMLPromises)).join("");
 
@@ -1119,92 +1112,93 @@ export async function generateCOSHHHTML(data: COSHHData): Promise<string> {
     const icon = iconSvg ? await svgToPngDataUri(iconSvg, 64, 64) : null;
 
     return `
-    < div style = "display: inline-block; border: 1px solid #ccc; padding: 6px 10px; margin: 4px; border-radius: 4px; font-size: 9pt; text-align: center; min-width: 80px; vertical-align: top;" >
-      ${icon ? `<img src="${icon}" width="32" height="32" class="pdf-sign-large" style="width: 32px; height: 32px;" />` : ""}
-  <strong>${item} </strong>
-    </div>
-      `});
+      <div style="display: inline-block; border: 1px solid #ccc; padding: 6px 10px; margin: 4px; border-radius: 4px; font-size: 9pt; text-align: center; min-width: 80px; vertical-align: top;">
+        ${icon ? `<img src="${icon}" width="32" height="32" class="pdf-sign-large" style="width: 32px; height: 32px;" />` : ""}
+        <strong>${item}</strong>
+      </div>
+    `;
+  });
 
   const generalPPEHTML = (await Promise.all(generalPPEHTMLPromises)).join("");
 
   const ppeHTML = `
-    < div class="section-block" >
-      <h2>4. PPE Requirements </h2>
-
-        < div style = "margin-bottom: 10px;" >
-          <h3 style="font-size: 10pt; margin-bottom: 5px;" > COSHH Specific PPE(Mandatory for these substances)</h3>
+    <div class="section-block">
+      <h2>4. PPE Requirements</h2>
+      
+      <div style="margin-bottom: 10px;">
+        <h3 style="font-size: 10pt; margin-bottom: 5px;">COSHH Specific PPE (Mandatory for these substances)</h3>
         ${coshhPPEHTML.length > 0 ? coshhPPEHTML : "<p>No specific COSHH PPE identified (Standard site PPE applies).</p>"}
-  </div>
+      </div>
 
-    < div >
-    <h3 style="font-size: 10pt; margin-bottom: 5px;" > General Site PPE </h3>
+      <div>
+        <h3 style="font-size: 10pt; margin-bottom: 5px;">General Site PPE</h3>
         ${generalPPEHTML.length > 0 ? generalPPEHTML : "<p>Standard site PPE.</p>"}
-  </div>
+      </div>
     </div>
-      `;
+  `;
 
-  const controlsHTML = isFilled(additionalControls) ? `
-    < div class="section-block" >
-      <h2>5. Additional Control Measures </h2>
-        < div style = "padding: 5px;" >
-          ${sanitizeText(additionalControls).split('\n').map(line => line.trim() ? `<p>• ${line}</p>` : '').join('')}
-  </div>
+  const controlsHTML = `
+    <div class="section-block">
+      <h2>5. Additional Control Measures</h2>
+      <div style="padding: 5px;">
+        ${sanitizeText(additionalControls).split('\n').map(line => line.trim() ? `<p>• ${line}</p>` : '').join('')}
+      </div>
     </div>
-      ` : "";
+  `;
 
-  const emergencyHTML = isFilled(emergencyProcedures) ? `
-    < div class="section-block" >
-      <h2>6. Emergency Procedures </h2>
-        < div style = "padding: 5px;" >
-          ${sanitizeText(emergencyProcedures).split('\n').map(line => line.trim() ? `<p>• ${line}</p>` : '').join('')}
-  </div>
+  const emergencyHTML = `
+    <div class="section-block">
+      <h2>6. Emergency Procedures</h2>
+      <div style="padding: 5px;">
+        ${sanitizeText(emergencyProcedures).split('\n').map(line => line.trim() ? `<p>• ${line}</p>` : '').join('')}
+      </div>
     </div>
-      ` : "";
+  `;
 
   const signatureHTML = `
-    < div class="signature-block keep-together" >
-      <h3 style="margin-top: 0; text-align: center; border-bottom: 1px solid #000; padding-bottom: 10px;" > 7. Assessment Authorization </h3>
+    <div class="signature-block keep-together">
+      <h3 style="margin-top: 0; text-align: center; border-bottom: 1px solid #000; padding-bottom: 10px;">7. Assessment Authorization</h3>
+      
+      <div class="signature-section" style="margin-top: 15px;">
+        <p><strong>Assessor Sign-off:</strong> I confirm that this assessment is suitable and sufficient.</p>
+        <table style="border: none;">
+          <tr style="border: none;">
+            <td style="border: none; padding: 10px 0;"><strong>Name:</strong> ${sanitizeText(assessorName)}</td>
+            <td style="border: none; padding: 10px 0;"><strong>Signature:</strong> ____________________</td>
+            <td style="border: none; padding: 10px 0;"><strong>Date:</strong> ${assessmentDate}</td>
+          </tr>
+        </table>
+      </div>
 
-        < div class="signature-section" style = "margin-top: 15px;" >
-          <p><strong>Assessor Sign - off: </strong> I confirm that this assessment is suitable and sufficient.</p >
-            <table style="border: none;" >
-              <tr style="border: none;" >
-                <td style="border: none; padding: 10px 0;" > <strong>Name: </strong> ${sanitizeText(assessorName)}</td >
-                  <td style="border: none; padding: 10px 0;" > <strong>Signature: </strong> ____________________</td >
-                    <td style="border: none; padding: 10px 0;" > <strong>Date: </strong> ${assessmentDate}</td >
-                      </tr>
-                      </table>
-                      </div>
-
-                      < div class="signature-section" style = "margin-top: 15px; border-top: 1px dashed #ccc; padding-top: 15px;" >
-                        <p><strong>Operative Acknowledgement: </strong> I have read and understood this COSHH assessment.</p >
-                          <table style="border: none; margin-top: 10px;" >
-                            <tr style="border: none;" >
-                              <td style="border: none; width: 50%;" > <strong>Name: </strong> ____________________</td >
-                                <td style="border: none; width: 50%;" > <strong>Signature: </strong> ____________________</td >
-                                  </tr>
-                                  < tr style = "border: none;" >
-                                    <td style="border: none; width: 50%;" > <strong>Name: </strong> ____________________</td >
-                                      <td style="border: none; width: 50%;" > <strong>Signature: </strong> ____________________</td >
-                                        </tr>
-                                        </table>
-                                        </div>
-                                        </div>
-                                          `;
+      <div class="signature-section" style="margin-top: 15px; border-top: 1px dashed #ccc; padding-top: 15px;">
+        <p><strong>Operative Acknowledgement:</strong> I have read and understood this COSHH assessment.</p>
+        <table style="border: none; margin-top: 10px;">
+          <tr style="border: none;">
+            <td style="border: none; width: 50%;"><strong>Name:</strong> ____________________</td>
+            <td style="border: none; width: 50%;"><strong>Signature:</strong> ____________________</td>
+          </tr>
+          <tr style="border: none;">
+            <td style="border: none; width: 50%;"><strong>Name:</strong> ____________________</td>
+            <td style="border: none; width: 50%;"><strong>Signature:</strong> ____________________</td>
+          </tr>
+        </table>
+      </div>
+    </div>
+  `;
 
   return `
-                                        < !DOCTYPE html >
-                                          <html>
-                                          <head>
-                                          <meta charset="utf-8" >
-                                            <title>${sanitizeText(documentName)} </title>
-                                              <style>
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="utf-8">
+      <title>${sanitizeText(documentName)}</title>
+      <style>
         ${RAMS_STYLES}
-  </style>
+      </style>
     </head>
-    < body >
-    <div class="rams-content" >
-      ${header}
+    <body>
+      <div class="rams-content">
+        ${header}
         ${projectDetails}
         ${substancesHTML}
         ${contextHTML}
@@ -1212,8 +1206,8 @@ export async function generateCOSHHHTML(data: COSHHData): Promise<string> {
         ${controlsHTML}
         ${emergencyHTML}
         ${signatureHTML}
-  </div>
+      </div>
     </body>
     </html>
-      `;
+  `;
 }
