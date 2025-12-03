@@ -2,26 +2,26 @@ import { NextResponse } from "next/server";
 import OpenAI from "openai";
 
 const openai = new OpenAI({
-    apiKey: process.env.OPENAI_API_KEY,
+  apiKey: process.env.OPENAI_API_KEY,
 });
 
 export async function POST(req: Request) {
-    try {
-        const body = await req.json();
-        const {
-            topic,
-            date,
-            location,
-            supervisorName,
-            audience,
-            hazards,
-            keyMessages,
-            ppe,
-            emergencyArrangements,
-            attendanceConfig
-        } = body;
+  try {
+    const body = await req.json();
+    const {
+      topic,
+      date,
+      location,
+      supervisorName,
+      audience,
+      hazards,
+      keyMessages,
+      ppe,
+      emergencyArrangements,
+      attendanceConfig
+    } = body;
 
-        const systemPrompt = `
+    const systemPrompt = `
       You are an expert Health & Safety Consultant.
       Create a professional "Toolbox Talk" (safety briefing) based on the user's inputs.
 
@@ -56,32 +56,34 @@ export async function POST(req: Request) {
       - Emergency Info: ${emergencyArrangements}
 
       GUIDELINES:
-      - Tone: Professional, clear, and authoritative but accessible.
-      - Focus on practical safety instructions.
-      - Ensure the "controlsSection" provides specific mitigations for the listed hazards.
-      - If "hazards" list is empty, infer standard hazards for the topic.
-      - "keyMessagesSection" should reinforce the user's key messages plus standard best practices.
+      - Tone: Highly professional, authoritative, and detailed (suitable for legal compliance).
+      - Content Depth: Provide comprehensive and specific details for every section. Avoid generic advice.
+      - Hazards: List at least 3-5 specific hazards with detailed risk descriptions.
+      - Controls: Provide specific, actionable, and technical control measures (hierarchy of controls).
+      - Key Messages: Reinforce critical safety behaviors and site rules.
+      - Emergency: detailed emergency procedures specific to the topic (e.g., rescue plan for height, spill kit for COSHH).
+      - Ensure the output is substantial and demonstrates a high standard of safety management.
     `;
 
-        const completion = await openai.chat.completions.create({
-            model: "gpt-4o",
-            messages: [
-                { role: "system", content: systemPrompt },
-                { role: "user", content: "Generate the toolbox talk." },
-            ],
-            response_format: { type: "json_object" },
-        });
+    const completion = await openai.chat.completions.create({
+      model: "gpt-4o",
+      messages: [
+        { role: "system", content: systemPrompt },
+        { role: "user", content: "Generate the toolbox talk." },
+      ],
+      response_format: { type: "json_object" },
+    });
 
-        const content = completion.choices[0].message.content;
-        if (!content) throw new Error("No content generated");
+    const content = completion.choices[0].message.content;
+    if (!content) throw new Error("No content generated");
 
-        return NextResponse.json(JSON.parse(content));
+    return NextResponse.json(JSON.parse(content));
 
-    } catch (error) {
-        console.error("Error generating toolbox talk:", error);
-        return NextResponse.json(
-            { error: "Failed to generate toolbox talk" },
-            { status: 500 }
-        );
-    }
+  } catch (error) {
+    console.error("Error generating toolbox talk:", error);
+    return NextResponse.json(
+      { error: "Failed to generate toolbox talk" },
+      { status: 500 }
+    );
+  }
 }

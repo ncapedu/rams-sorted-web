@@ -89,6 +89,7 @@ export default function ToolboxWizard({ onBack, onComplete }: ToolboxWizardProps
         date: new Date().toISOString().split("T")[0],
         location: "",
         supervisorName: "",
+        companyName: "",
         audience: "",
         hazards: [],
         keyMessages: "",
@@ -129,6 +130,32 @@ export default function ToolboxWizard({ onBack, onComplete }: ToolboxWizardProps
             }
             if (!formData.supervisorName) {
                 setToast({ message: "Please enter who is delivering the talk.", type: "error" });
+                return;
+            }
+            if (!formData.companyName) {
+                setToast({ message: "Please enter the company name.", type: "error" });
+                return;
+            }
+        }
+
+        if (step === 2) {
+            if (formData.hazards.length === 0) {
+                setToast({ message: "Please select at least one hazard.", type: "error" });
+                return;
+            }
+            // Key messages might be optional, but user said "hazards and key points... it doesn't give warnings".
+            // Let's make key messages mandatory too if that's the implication, or at least hazards.
+            // User said: "required things that we have to fill in... for the hazards and key points, it doesn't."
+            // I'll make key messages mandatory as well to be safe and "advanced".
+            if (!formData.keyMessages.trim()) {
+                setToast({ message: "Please enter at least one key message.", type: "error" });
+                return;
+            }
+        }
+
+        if (step === 3) {
+            if (formData.attendanceConfig.include && !formData.attendanceConfig.notes?.trim()) {
+                setToast({ message: "Please enter notes for attendees.", type: "error" });
                 return;
             }
         }
@@ -360,6 +387,19 @@ export default function ToolboxWizard({ onBack, onComplete }: ToolboxWizardProps
                                             placeholder="Name of presenter"
                                             value={formData.supervisorName}
                                             onChange={(e) => updateForm("supervisorName", e.target.value)}
+                                        />
+                                    </div>
+
+                                    {/* Company Name */}
+                                    <div>
+                                        <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
+                                            Company Name <span className="text-red-600">*</span>
+                                        </label>
+                                        <input
+                                            className="w-full border border-slate-300 rounded-lg p-3 text-sm focus:ring-2 focus:ring-emerald-500 outline-none"
+                                            placeholder="e.g. Acme Construction Ltd"
+                                            value={formData.companyName}
+                                            onChange={(e) => updateForm("companyName", e.target.value)}
                                         />
                                     </div>
 

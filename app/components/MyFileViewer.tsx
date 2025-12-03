@@ -40,6 +40,7 @@ export interface ToolboxTalkData {
   date: string;
   location: string;
   supervisorName: string;
+  companyName: string;
   audience: string;
   hazards: string[];
   keyMessages: string;

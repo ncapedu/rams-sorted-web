@@ -682,16 +682,16 @@ function Page() {
         >
           <div className="flex h-full flex-col bg-[#FAF9F6] text-slate-900">
             {/* Top brand + toggle */}
-            <div className="relative flex items-center justify-center px-3 pt-3 pb-2">
+            <div className="relative flex items-center justify-start px-3 pt-3 pb-2">
               <div
                 className={`flex items-center gap-2 transition-all ${sidebarOpen
                   ? "opacity-100 w-auto"
                   : "opacity-0 w-0 overflow-hidden"
                   }`}
               >
-                <div className="relative h-[60px] w-[90px] transform origin-left mr-9">
+                <div className="relative h-[40px] w-[60px] transform origin-left mr-9">
                   <Image
-                    src="/rams-logo4.png"
+                    src="/rams-logo6.png"
                     alt="RAMS Sorted logo"
                     fill
                     className="object-contain"
@@ -710,8 +710,8 @@ function Page() {
               </button>
             </div>
 
-            {/* MAIN SIDEBAR CONTENT */}
-            <div className="flex-1 overflow-y-auto px-2 pb-2 flex flex-col">
+            {/* RS HUB BUTTON (FIXED) */}
+            <div className="px-2 pb-2">
               <div className="mt-0">
                 {sidebarOpen ? (
                   <button
@@ -740,6 +740,10 @@ function Page() {
                   </div>
                 )}
               </div>
+            </div>
+
+            {/* MAIN SIDEBAR CONTENT (SCROLLABLE) */}
+            <div className="flex-1 overflow-y-auto px-2 pb-2 flex flex-col">
 
               {/* My files – only when open */}
               {sidebarOpen && (
@@ -960,8 +964,8 @@ function Page() {
               }}
             />
           ) : mode === "landing" ? (
-            <div className="flex-1 overflow-y-auto bg-white">
-              <div className="min-h-full flex flex-col items-center justify-center py-12 px-6 rs-fade-slide-in">
+            <div className="flex-1 overflow-y-auto bg-white flex flex-col">
+              <div className="flex-grow flex flex-col items-center justify-center py-12 px-6 rs-fade-slide-in">
                 <div className="max-w-7xl w-full text-center">
                   <h1 className="text-4xl md:text-5xl font-semibold text-slate-900 mb-3">
                     <TypewriterText

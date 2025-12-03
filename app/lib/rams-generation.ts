@@ -760,28 +760,28 @@ export async function generateToolboxHTML(data: ToolboxTalkData): Promise<string
   };
 
   const header = `
-    <div class="header-line" style="border-bottom: 3px solid #059669;">
-      <h1 style="color: #059669; border-bottom: none;">Toolbox Talk Record</h1>
+    <div class="header-line" style="border-bottom: 3px solid #000;">
+      <h1 style="color: #000; border-bottom: none;">Toolbox Talk Record</h1>
     </div>
   `;
 
   const infoTable = `
     <div class="section-block">
-      <table style="border: 1px solid #059669;">
+      <table style="border: 1px solid #000;">
         <tr>
-          <th width="20%" style="background-color: #ecfdf5; color: #065f46;">Topic</th>
+          <th width="20%" style="background-color: #f8fafc; color: #000;">Topic</th>
           <td width="30%">${content.headerInfo.topic}</td>
-          <th width="20%" style="background-color: #ecfdf5; color: #065f46;">Date</th>
+          <th width="20%" style="background-color: #f8fafc; color: #000;">Date</th>
           <td width="30%">${content.headerInfo.date}</td>
         </tr>
         <tr>
-          <th style="background-color: #ecfdf5; color: #065f46;">Location</th>
+          <th style="background-color: #f8fafc; color: #000;">Location</th>
           <td>${content.headerInfo.location}</td>
-          <th style="background-color: #ecfdf5; color: #065f46;">Presenter</th>
+          <th style="background-color: #f8fafc; color: #000;">Presenter</th>
           <td>${content.headerInfo.presenter}</td>
         </tr>
         <tr>
-          <th style="background-color: #ecfdf5; color: #065f46;">Audience</th>
+          <th style="background-color: #f8fafc; color: #000;">Audience</th>
           <td colspan="3">${audience || "General Site Personnel"}</td>
         </tr>
       </table>
