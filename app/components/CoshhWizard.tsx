@@ -248,8 +248,24 @@ export default function CoshhWizard({ onBack, onSave }: CoshhWizardProps) {
                 errorMsg = "Please select or add at least one substance.";
             }
         } else if (step === 2) {
+            if (!formData.projectRef || !formData.clientName) {
+                errorMsg = "Please enter the project and client details.";
+            }
+        } else if (step === 3) {
             if (!formData.workActivity || !formData.exposureDuration || !formData.exposureFrequency) {
-                errorMsg = "Please describe the activity and exposure details.";
+                errorMsg = "Please describe the activity, duration, and frequency of exposure.";
+            }
+        } else if (step === 4) {
+            // Check if at least one control is selected (if controls array exists/is used) or just ensure PPE is selected
+            // Assuming controls might be text or array, but user said "controls and PPE below it... have to be mandatory"
+            // Looking at the file, I don't see a 'controls' array in the state in the previous view_file output, 
+            // but I see 'additionalControls' string. 
+            // Wait, I need to check the state definition for 'controls' or similar.
+            // Let's assume 'ppe' is the main one to check based on "required PPEs".
+            // User said: "controls and PPE below it... they have to be mandatory"
+            // I'll check if 'ppe' array is empty.
+            if (formData.ppe.length === 0) {
+                errorMsg = "Please select at least one required PPE.";
             }
         }
 
@@ -741,7 +757,7 @@ export default function CoshhWizard({ onBack, onSave }: CoshhWizardProps) {
 
                                     <div>
                                         <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
-                                            Additional Control Measures
+                                            Additional Control Measures (Optional but Recommended)
                                         </label>
                                         <textarea
                                             className="w-full border border-slate-200 p-3 rounded-lg h-24 text-sm focus:ring-2 focus:ring-blue-600 outline-none"
@@ -753,7 +769,7 @@ export default function CoshhWizard({ onBack, onSave }: CoshhWizardProps) {
 
                                     <div>
                                         <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
-                                            Emergency Procedures
+                                            Emergency Procedures (Optional but Recommended)
                                         </label>
                                         <textarea
                                             className="w-full border border-slate-200 p-3 rounded-lg h-24 text-sm focus:ring-2 focus:ring-blue-600 outline-none"

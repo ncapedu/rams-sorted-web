@@ -2060,335 +2060,202 @@ function Page() {
                   </div>
                 )}
 
-                {/* STEP 4: EMERGENCY */}
-                {step === 4 && (
-                  <div className="space-y-6">
-                    <div className="flex items-center gap-3 mb-6">
-                      <div className="h-10 w-10 rounded-full bg-red-50 flex items-center justify-center">
-                        <Shield className="w-5 h-5 text-red-600" />
-                      </div>
-                      <h2 className="text-2xl font-semibold text-slate-900">
-                        <TypewriterText messages={["Emergency & Welfare"]} loop={false} />
-                      </h2>
-                    </div>
-                    <p className="text-[11px] text-slate-500">
-                      Fields marked <span className="text-red-600">*</span>{" "}
-                      are required. Use{" "}
-                      <span className="font-semibold">N/A</span> where details
-                      are genuinely not available.
-                    </p>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-slate-50 p-4 rounded-xl border border-slate-200">
-                      <div>
-                        <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
-                          Supervisor Name
-                          <span className="text-red-600 ml-0.5">*</span>
-                        </label>
-                        <input
-                          className="border border-slate-300 p-2.5 rounded-lg w-full text-sm focus:ring-2 focus:ring-[#0b2040] focus:border-transparent outline-none bg-white"
-                          placeholder="Site supervisor or lead"
-                          value={formData.supervisorName}
-                          onChange={(e) =>
-                            handleInput(
-                              "supervisorName",
-                              e.target.value
-                            )
-                          }
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
-                          First Aider
-                          <span className="text-red-600 ml-0.5">*</span>
-                        </label>
-                        <input
-                          className="border border-slate-300 p-2.5 rounded-lg w-full text-sm focus:ring-2 focus:ring-[#0b2040] focus:border-transparent outline-none bg-white"
-                          placeholder="Appointed person"
-                          value={formData.firstAider}
-                          onChange={(e) =>
-                            handleInput("firstAider", e.target.value)
-                          }
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
-                          Nearest Hospital
-                          <span className="text-red-600 ml-0.5">*</span>
-                        </label>
-                        <input
-                          className="border border-slate-300 p-2.5 rounded-lg w-full text-sm focus:ring-2 focus:ring-[#0b2040] focus:border-transparent outline-none bg-white"
-                          placeholder="e.g. Nearest A&E (N/A if unknown)"
-                          value={formData.hospital}
-                          onChange={(e) =>
-                            handleInput("hospital", e.target.value)
-                          }
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
-                          Fire Assembly Point
-                          <span className="text-red-600 ml-0.5">*</span>
-                        </label>
-                        <input
-                          className="border border-slate-300 p-2.5 rounded-lg w-full text-sm focus:ring-2 focus:ring-[#0b2040] focus:border-transparent outline-none bg-white"
-                          placeholder="As briefed in induction (or N/A)"
-                          value={formData.fireAssembly}
-                          onChange={(e) =>
-                            handleInput("fireAssembly", e.target.value)
-                          }
-                        />
-                      </div>
 
-                      <div>
-                        <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
-                          First aid kit location (optional)
-                        </label>
-                        <input
-                          className="border border-slate-300 p-2.5 rounded-lg w-full text-sm focus:ring-2 focus:ring-[#0b2040] focus:border-transparent outline-none bg-white"
-                          placeholder="e.g. Site vehicle, reception, welfare cabin"
-                          value={formData.firstAidLoc}
-                          onChange={(e) =>
-                            handleInput("firstAidLoc", e.target.value)
-                          }
-                        />
-                      </div>
-
-                      <div>
-                        <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
-                          Welfare / facilities (optional)
-                        </label>
-                        <input
-                          className="border border-slate-300 p-2.5 rounded-lg w-full text-sm focus:ring-2 focus:ring-[#0b2040] focus:border-transparent outline-none bg-white"
-                          placeholder="Toilets, wash stations, canteen, etc."
-                          value={formData.welfare}
-                          onChange={(e) =>
-                            handleInput("welfare", e.target.value)
-                          }
-                        />
-                      </div>
-                    </div>
-
-                    <div className="flex justify-between gap-3 pt-2">
-                      <div className="flex gap-2">
-                        <button
-                          onClick={prevStep}
-                          className="inline-flex items-center justify-center rounded-lg border border-slate-300 px-4 py-2.5 text-sm font-semibold text-slate-800 hover:bg-slate-50"
-                        >
-                          Back
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setMode("landing");
-                            setStep(1);
-                            setActiveFile(null);
-                          }}
-                          className="inline-flex items-center justify-center rounded-lg border border-slate-300 px-3 py-2 text-[11px] font-semibold text-slate-700 hover:bg-slate-50"
-                        >
-                          ← Back to RS Hub
-                        </button>
-                      </div>
-                      <button
-                        onClick={nextStep}
-                        className="inline-flex items-center justify-center rounded-lg bg-[#0b2040] px-5 py-2.5 text-sm font-semibold text-white hover:bg-black transition-colors"
-                      >
-                        Next Step
-                      </button>
-                    </div>
-                  </div>
-                )}
 
                 {/* STEP 5: REVIEW & GENERATE */}
-                {step === 5 && (
-                  <div className="space-y-6">
-                    <div className="flex items-center gap-3 mb-6">
-                      <div className="h-10 w-10 rounded-full bg-blue-50 flex items-center justify-center">
-                        <CheckSquare className="w-5 h-5 text-[#0b2040]" />
+                {
+                  step === 5 && (
+                    <div className="space-y-6">
+                      <div className="flex items-center gap-3 mb-6">
+                        <div className="h-10 w-10 rounded-full bg-blue-50 flex items-center justify-center">
+                          <CheckSquare className="w-5 h-5 text-[#0b2040]" />
+                        </div>
+                        <h2 className="text-2xl font-semibold text-slate-900">
+                          <TypewriterText messages={["Review & Generate"]} loop={false} />
+                        </h2>
                       </div>
-                      <h2 className="text-2xl font-semibold text-slate-900">
-                        <TypewriterText messages={["Review & Generate"]} loop={false} />
-                      </h2>
-                    </div>
-                    <p className="text-sm text-slate-600">
-                      Final sense-check before you generate. If anything looks
-                      off, go back and adjust the relevant step.
-                    </p>
+                      <p className="text-sm text-slate-600">
+                        Final sense-check before you generate. If anything looks
+                        off, go back and adjust the relevant step.
+                      </p>
 
-                    {/* Single review panel */}
-                    <div className="bg-slate-50 border border-slate-200 rounded-xl p-4 text-xs space-y-3">
-                      <h3 className="text-sm font-semibold text-slate-900 mb-1">
-                        Summary
-                      </h3>
+                      {/* Single review panel */}
+                      <div className="bg-slate-50 border border-slate-200 rounded-xl p-4 text-xs space-y-3">
+                        <h3 className="text-sm font-semibold text-slate-900 mb-1">
+                          Summary
+                        </h3>
 
-                      <div className="grid md:grid-cols-2 gap-3">
-                        <div className="space-y-1.5">
-                          <div>
-                            <span className="font-semibold">Document:</span>{" "}
-                            {documentName || "Untitled RAMS"}
+                        <div className="grid md:grid-cols-2 gap-3">
+                          <div className="space-y-1.5">
+                            <div>
+                              <span className="font-semibold">Document:</span>{" "}
+                              {documentName || "Untitled RAMS"}
+                            </div>
+                            <div>
+                              <span className="font-semibold">Company:</span>{" "}
+                              {formData.companyName || "Not set"}
+                            </div>
+                            <div>
+                              <span className="font-semibold">Client:</span>{" "}
+                              {formData.clientName || "Not set"}
+                            </div>
+                            <div>
+                              <span className="font-semibold">Site:</span>{" "}
+                              {formData.siteAddress || "Not set"}
+                            </div>
+                            <div>
+                              <span className="font-semibold">Job Ref:</span>{" "}
+                              {formData.projectRef || "—"}
+                            </div>
+                            <div>
+                              <span className="font-semibold">
+                                Prepared by:
+                              </span>{" "}
+                              {formData.contactName || "Not set"}
+                            </div>
+                            <div>
+                              <span className="font-semibold">Email:</span>{" "}
+                              {formData.contactEmail || "—"}
+                            </div>
+                            <div>
+                              <span className="font-semibold">Phone:</span>{" "}
+                              {formData.contactPhone || "—"}
+                            </div>
                           </div>
-                          <div>
-                            <span className="font-semibold">Company:</span>{" "}
-                            {formData.companyName || "Not set"}
-                          </div>
-                          <div>
-                            <span className="font-semibold">Client:</span>{" "}
-                            {formData.clientName || "Not set"}
-                          </div>
-                          <div>
-                            <span className="font-semibold">Site:</span>{" "}
-                            {formData.siteAddress || "Not set"}
-                          </div>
-                          <div>
-                            <span className="font-semibold">Job Ref:</span>{" "}
-                            {formData.projectRef || "—"}
-                          </div>
-                          <div>
-                            <span className="font-semibold">
-                              Prepared by:
-                            </span>{" "}
-                            {formData.contactName || "Not set"}
-                          </div>
-                          <div>
-                            <span className="font-semibold">Email:</span>{" "}
-                            {formData.contactEmail || "—"}
-                          </div>
-                          <div>
-                            <span className="font-semibold">Phone:</span>{" "}
-                            {formData.contactPhone || "—"}
+
+                          <div className="space-y-1.5">
+                            <div>
+                              <span className="font-semibold">Trade:</span>{" "}
+                              {formData.trade}
+                            </div>
+                            <div>
+                              <span className="font-semibold">Job type:</span>{" "}
+                              {formData.jobType || "Not selected"}
+                            </div>
+                            <div>
+                              <span className="font-semibold">Start:</span>{" "}
+                              {formData.startDate || "—"}
+                            </div>
+                            <div>
+                              <span className="font-semibold">End:</span>{" "}
+                              {formData.endDate || "—"}
+                            </div>
+                            <div>
+                              <span className="font-semibold">
+                                Expected end:
+                              </span>{" "}
+                              {formData.expectedEndDate || "—"}
+                            </div>
+                            <div>
+                              <span className="font-semibold">
+                                Operatives:
+                              </span>{" "}
+                              {formData.operatives || "1 (assumed)"}
+                            </div>
+                            <div>
+                              <span className="font-semibold">
+                                Supervisor:
+                              </span>{" "}
+                              {formData.supervisorName || "Not set"}
+                            </div>
+                            <div>
+                              <span className="font-semibold">
+                                First aider:
+                              </span>{" "}
+                              {formData.firstAider || "Not set"}
+                            </div>
+                            <div>
+                              <span className="font-semibold">Hospital:</span>{" "}
+                              {formData.hospital || "Not set"}
+                            </div>
+                            <div>
+                              <span className="font-semibold">
+                                Fire assembly:
+                              </span>{" "}
+                              {formData.fireAssembly || "Not set"}
+                            </div>
                           </div>
                         </div>
 
-                        <div className="space-y-1.5">
-                          <div>
-                            <span className="font-semibold">Trade:</span>{" "}
-                            {formData.trade}
-                          </div>
-                          <div>
-                            <span className="font-semibold">Job type:</span>{" "}
-                            {formData.jobType || "Not selected"}
-                          </div>
-                          <div>
-                            <span className="font-semibold">Start:</span>{" "}
-                            {formData.startDate || "—"}
-                          </div>
-                          <div>
-                            <span className="font-semibold">End:</span>{" "}
-                            {formData.endDate || "—"}
-                          </div>
+                        <div className="pt-2 border-t border-slate-200 space-y-2">
                           <div>
                             <span className="font-semibold">
-                              Expected end:
-                            </span>{" "}
-                            {formData.expectedEndDate || "—"}
-                          </div>
-                          <div>
-                            <span className="font-semibold">
-                              Operatives:
-                            </span>{" "}
-                            {formData.operatives || "1 (assumed)"}
-                          </div>
-                          <div>
-                            <span className="font-semibold">
-                              Supervisor:
-                            </span>{" "}
-                            {formData.supervisorName || "Not set"}
-                          </div>
-                          <div>
-                            <span className="font-semibold">
-                              First aider:
-                            </span>{" "}
-                            {formData.firstAider || "Not set"}
-                          </div>
-                          <div>
-                            <span className="font-semibold">Hospital:</span>{" "}
-                            {formData.hospital || "Not set"}
-                          </div>
-                          <div>
-                            <span className="font-semibold">
-                              Fire assembly:
-                            </span>{" "}
-                            {formData.fireAssembly || "Not set"}
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="pt-2 border-t border-slate-200 space-y-2">
-                        <div>
-                          <span className="font-semibold">
-                            Job description:
-                          </span>
-                        </div>
-                        <div className="text-[11px] text-slate-700 whitespace-pre-wrap">
-                          {buildScopeFromForm() || "—"}
-                        </div>
-                      </div>
-
-                      <div className="pt-2 border-t border-slate-200 space-y-1">
-                        <div>
-                          <span className="font-semibold">
-                            Hazards selected:
-                          </span>{" "}
-                          {hazards.length}
-                        </div>
-                        <div>
-                          {hazards.length === 0 ? (
-                            <span className="text-[11px] text-red-700">
-                              No hazards selected – you should add some
-                              before generating.
+                              Job description:
                             </span>
-                          ) : (
-                            <ul className="list-disc list-inside text-[11px] text-slate-700 space-y-0.5">
-                              {hazardPreviewLabels.slice(0, 12).map((h) => (
-                                <li key={h}>{h}</li>
-                              ))}
-                              {hazards.length > 12 && <li>…and more</li>}
-                            </ul>
-                          )}
+                          </div>
+                          <div className="text-[11px] text-slate-700 whitespace-pre-wrap">
+                            {buildScopeFromForm() || "—"}
+                          </div>
+                        </div>
+
+                        <div className="pt-2 border-t border-slate-200 space-y-1">
+                          <div>
+                            <span className="font-semibold">
+                              Hazards selected:
+                            </span>{" "}
+                            {hazards.length}
+                          </div>
+                          <div>
+                            {hazards.length === 0 ? (
+                              <span className="text-[11px] text-red-700">
+                                No hazards selected – you should add some
+                                before generating.
+                              </span>
+                            ) : (
+                              <ul className="list-disc list-inside text-[11px] text-slate-700 space-y-0.5">
+                                {hazardPreviewLabels.slice(0, 12).map((h) => (
+                                  <li key={h}>{h}</li>
+                                ))}
+                                {hazards.length > 12 && <li>…and more</li>}
+                              </ul>
+                            )}
+                          </div>
                         </div>
                       </div>
-                    </div>
 
-                    <div className="flex justify-between gap-3 pt-4 border-t border-slate-200">
-                      <div className="flex gap-2 pt-2">
+                      <div className="flex justify-between gap-3 pt-4 border-t border-slate-200">
+                        <div className="flex gap-2 pt-2">
+                          <button
+                            onClick={prevStep}
+                            className="inline-flex items-center justify-center rounded-lg border border-slate-300 px-4 py-2.5 text-sm font-semibold text-slate-800 hover:bg-slate-50"
+                          >
+                            Back
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setMode("landing");
+                              setStep(1);
+                              setActiveFile(null);
+                            }}
+                            className="inline-flex items-center justify-center rounded-lg border border-slate-300 px-3 py-2 text-[11px] font-semibold text-slate-700 hover:bg-slate-50"
+                          >
+                            ← Back to RS Hub
+                          </button>
+                        </div>
                         <button
-                          onClick={prevStep}
-                          className="inline-flex items-center justify-center rounded-lg border border-slate-300 px-4 py-2.5 text-sm font-semibold text-slate-800 hover:bg-slate-50"
+                          onClick={generateRAMS}
+                          disabled={isGenerating}
+                          className="inline-flex items-center justify-center gap-2 rounded-lg bg-red-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-red-700 disabled:opacity-60 disabled:cursor-not-allowed transition-colors"
                         >
-                          Back
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setMode("landing");
-                            setStep(1);
-                            setActiveFile(null);
-                          }}
-                          className="inline-flex items-center justify-center rounded-lg border border-slate-300 px-3 py-2 text-[11px] font-semibold text-slate-700 hover:bg-slate-50"
-                        >
-                          ← Back to RS Hub
+                          {isGenerating ? (
+                            <Loader2 className="w-4 h-4 animate-spin" />
+                          ) : (
+                            <FileText className="w-4 h-4" />
+                          )}
+                          {isGenerating
+                            ? "Generating..."
+                            : "Generate & Open in Editor"}
                         </button>
                       </div>
-                      <button
-                        onClick={generateRAMS}
-                        disabled={isGenerating}
-                        className="inline-flex items-center justify-center gap-2 rounded-lg bg-red-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-red-700 disabled:opacity-60 disabled:cursor-not-allowed transition-colors"
-                      >
-                        {isGenerating ? (
-                          <Loader2 className="w-4 h-4 animate-spin" />
-                        ) : (
-                          <FileText className="w-4 h-4" />
-                        )}
-                        {isGenerating
-                          ? "Generating..."
-                          : "Generate & Open in Editor"}
-                      </button>
                     </div>
-                  </div>
-                )}
-              </div>
-            </section>
+                  )
+                }
+              </div >
+            </section >
           )}
-        </main>
+        </main >
       </div >
 
       {/* global animation for swipe/fade transitions */}

@@ -790,14 +790,14 @@ export async function generateToolboxHTML(data: ToolboxTalkData): Promise<string
 
   const introSection = `
     <div class="section-block">
-      <h2 style="color: #059669; border-bottom-color: #059669;">1. Introduction</h2>
+      <h2 style="color: #000; border-bottom-color: #000;">1. Introduction</h2>
       <p>${content.introduction}</p>
     </div>
   `;
 
   const hazardsSection = `
     <div class="section-block">
-      <h2 style="color: #059669; border-bottom-color: #059669;">2. Key Hazards</h2>
+      <h2 style="color: #000; border-bottom-color: #000;">2. Key Hazards</h2>
       <ul>
         ${content.hazardsSection.map((h: any) => `
           <li style="margin-bottom: 8px;">
@@ -810,7 +810,7 @@ export async function generateToolboxHTML(data: ToolboxTalkData): Promise<string
 
   const controlsSection = `
     <div class="section-block">
-      <h2 style="color: #059669; border-bottom-color: #059669;">3. Control Measures</h2>
+      <h2 style="color: #000; border-bottom-color: #000;">3. Control Measures</h2>
       <ul>
         ${content.controlsSection.map((c: any) => `
           <li style="margin-bottom: 8px;">
@@ -823,7 +823,7 @@ export async function generateToolboxHTML(data: ToolboxTalkData): Promise<string
 
   const keyMessagesSection = `
     <div class="section-block">
-      <h2 style="color: #059669; border-bottom-color: #059669;">4. Key Messages</h2>
+      <h2 style="color: #000; border-bottom-color: #000;">4. Key Messages</h2>
       <ul>
         ${content.keyMessagesSection.map((m: string) => `<li>${m}</li>`).join("")}
       </ul>
@@ -832,7 +832,7 @@ export async function generateToolboxHTML(data: ToolboxTalkData): Promise<string
 
   const ppeSection = `
     <div class="section-block">
-      <h2 style="color: #059669; border-bottom-color: #059669;">5. PPE Required</h2>
+      <h2 style="color: #000; border-bottom-color: #000;">5. PPE Required</h2>
       <p>The following PPE is mandatory for this task:</p>
       <p><strong>${ppe.join(", ") || "Standard Site PPE"}</strong></p>
     </div>
@@ -840,7 +840,7 @@ export async function generateToolboxHTML(data: ToolboxTalkData): Promise<string
 
   const emergencySection = `
     <div class="section-block">
-      <h2 style="color: #059669; border-bottom-color: #059669;">6. Emergency Procedures</h2>
+      <h2 style="color: #000; border-bottom-color: #000;">6. Emergency Procedures</h2>
       <p>${content.emergencySection}</p>
     </div>
   `;
@@ -851,17 +851,17 @@ export async function generateToolboxHTML(data: ToolboxTalkData): Promise<string
 
     attendanceHTML = `
       <div class="section-block keep-together" style="margin-top: 20px;">
-        <h2 style="color: #059669; border-bottom-color: #059669;">7. Attendee Acknowledgement</h2>
+        <h2 style="color: #000; border-bottom-color: #000;">7. Attendee Acknowledgement</h2>
         <p><em>"${content.attendeeNote}"</em></p>
         ${attendanceConfig.notes ? `<p><strong>Note:</strong> ${attendanceConfig.notes}</p>` : ""}
         
-        <table style="margin-top: 10px; border: 1px solid #059669;">
+        <table style="margin-top: 10px; border: 1px solid #000;">
           <thead>
             <tr>
-              <th width="30%" style="background-color: #ecfdf5; color: #065f46;">Name (Print)</th>
-              <th width="25%" style="background-color: #ecfdf5; color: #065f46;">Company</th>
-              <th width="25%" style="background-color: #ecfdf5; color: #065f46;">Signature</th>
-              <th width="20%" style="background-color: #ecfdf5; color: #065f46;">Date</th>
+              <th width="30%" style="background-color: #f8fafc; color: #000;">Name (Print)</th>
+              <th width="25%" style="background-color: #f8fafc; color: #000;">Company</th>
+              <th width="25%" style="background-color: #f8fafc; color: #000;">Signature</th>
+              <th width="20%" style="background-color: #f8fafc; color: #000;">Date</th>
             </tr>
           </thead>
           <tbody>
