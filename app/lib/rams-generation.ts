@@ -764,7 +764,8 @@ export async function generateToolboxHTML(data: ToolboxTalkData): Promise<string
     controlsSection: [{ title: "General Controls", description: "Follow standard site safety rules." }],
     emergencySection: emergencyArrangements || "Follow site emergency procedures.",
     keyMessagesSection: keyMessages ? keyMessages.split("\n") : ["Work safely."],
-    attendeeNote: "I confirm that I have attended this briefing and understand the points discussed."
+    attendeeNote: "I confirm that I have attended this briefing and understand the points discussed.",
+    ppeSection: [] // Fallback for type inference
   };
 
   const header = `
@@ -842,7 +843,16 @@ export async function generateToolboxHTML(data: ToolboxTalkData): Promise<string
     <div class="section-block">
       <h2 style="color: #000; border-bottom-color: #000;">5. PPE Required</h2>
       <p>The following PPE is mandatory for this task:</p>
-      <p><strong>${ppe.join(", ")}</strong></p>
+      ${(content as any).ppeSection && Array.isArray((content as any).ppeSection)
+      ? `<ul>
+            ${(content as any).ppeSection.map((p: any) => `
+              <li style="margin-bottom: 8px;">
+                <strong>${p.item}:</strong> ${p.description}
+              </li>
+            `).join("")}
+           </ul>`
+      : `<p><strong>${ppe.join(", ")}</strong></p>`
+    }
     </div>
   `;
 

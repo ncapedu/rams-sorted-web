@@ -44,6 +44,9 @@ export async function POST(req: Request) {
         ],
         "emergencySection": "String (Clear instructions for emergencies, incorporating user input)",
         "keyMessagesSection": ["String", "String", "String"],
+        "ppeSection": [
+          { "item": "String (PPE Item)", "description": "String (Why it is needed)" }
+        ],
         "attendeeNote": "String (A declaration statement for attendees to sign)"
       }
 
@@ -60,7 +63,8 @@ export async function POST(req: Request) {
       - Content Depth: Provide comprehensive and specific details for every section. Avoid generic advice.
       - Hazards: List at least 3-5 specific hazards with detailed risk descriptions.
       - Controls: Provide specific, actionable, and technical control measures (hierarchy of controls).
-      - Key Messages: Reinforce critical safety behaviors and site rules.
+      - Key Messages: **REFINE and ENHANCE** the user's key messages. Make them punchy, memorable, and safety-critical. Add important ones if missing.
+      - PPE: **REFINE and ENHANCE** the user's PPE choices. List the specific PPE required and explain WHY (e.g., "Safety Glasses - to protect against flying debris"). Add mandatory PPE if missing for this task.
       - Emergency: detailed emergency procedures specific to the topic (e.g., rescue plan for height, spill kit for COSHH).
       - Ensure the output is substantial and demonstrates a high standard of safety management.
     `;
