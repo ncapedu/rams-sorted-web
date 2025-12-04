@@ -44,95 +44,8 @@ const Tooltip = ({ text }: { text: string }) => (
     </div>
 );
 
-function AddressSearch({
-    label,
-    value,
-    onChange,
-    tooltip,
-    required,
-}: any) {
-    const [query, setQuery] = useState(value);
-    const [results, setResults] = useState<any[]>([]);
-    const [showDropdown, setShowDropdown] = useState(false);
-
-    useEffect(() => {
-        setQuery(value);
-    }, [value]);
-
-    const timeoutRef = useRef<NodeJS.Timeout | null>(null);
-
-    const searchAddress = (text: string) => {
-        setQuery(text);
-        onChange(text);
-
-        if (timeoutRef.current) {
-            clearTimeout(timeoutRef.current);
-        }
-
-        if (text.length > 4) {
-            timeoutRef.current = setTimeout(async () => {
-                try {
-                    const res = await fetch(
-                        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(
-                            text
-                        )}&countrycodes=gb&limit=5`,
-                        {
-                            headers: {
-                                "User-Agent": "RAMS-Sorted-Web/1.0",
-                            },
-                        }
-                    );
-                    if (!res.ok) throw new Error("Network response was not ok");
-                    const data = await res.json();
-                    setResults(data);
-                    setShowDropdown(true);
-                } catch (e) {
-                    console.warn("Address search failed:", e);
-                    setResults([]);
-                }
-            }, 500);
-        } else {
-            setResults([]);
-            setShowDropdown(false);
-        }
-    };
-
-    return (
-        <div className="relative group">
-            <label className="flex items-center text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
-                {label}
-                {required && <span className="text-red-600 ml-1">*</span>}
-                {tooltip && <Tooltip text={tooltip} />}
-            </label>
-            <div className="relative">
-                <input
-                    className="w-full border border-slate-300 rounded-lg p-3 text-sm focus:ring-2 focus:ring-[#0b2040] focus:border-transparent outline-none transition-all shadow-sm bg-white"
-                    placeholder="Start typing address..."
-                    value={query}
-                    onChange={(e) => searchAddress(e.target.value)}
-                />
-                <MapPin className="w-4 h-4 absolute right-3 top-3.5 text-gray-400" />
-            </div>
-            {showDropdown && results.length > 0 && (
-                <ul className="absolute z-50 w-full bg-white border border-gray-200 rounded-lg shadow-2xl mt-1 max-h-60 overflow-auto">
-                    {results.map((r: any, i: number) => (
-                        <li
-                            key={i}
-                            onClick={() => {
-                                setQuery(r.display_name);
-                                onChange(r.display_name);
-                                setShowDropdown(false);
-                            }}
-                            className="p-3 hover:bg-gray-50 cursor-pointer text-xs border-b last:border-0 text-gray-700 leading-tight"
-                        >
-                            {r.display_name}
-                        </li>
-                    ))}
-                </ul>
-            )}
-        </div>
-    );
-}
+// AddressSearch component removed
+// function AddressSearch({ ... }) { ... }
 
 interface CoshhWizardProps {
     onBack: () => void;
@@ -610,10 +523,14 @@ export default function CoshhWizard({ onBack, onSave }: CoshhWizardProps) {
                                     </div>
 
                                     <div className="col-span-2">
-                                        <AddressSearch
-                                            label="Site Address"
+                                        <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
+                                            Site Address
+                                        </label>
+                                        <input
+                                            className="w-full border border-slate-200 p-3 rounded-lg text-sm focus:ring-2 focus:ring-blue-600 outline-none"
+                                            placeholder="Site Address"
                                             value={formData.siteAddress}
-                                            onChange={(val: string) => handleInput("siteAddress", val)}
+                                            onChange={(e) => handleInput("siteAddress", e.target.value)}
                                         />
                                     </div>
 

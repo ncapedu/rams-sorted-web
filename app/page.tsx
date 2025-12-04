@@ -82,98 +82,8 @@ const Tooltip = ({ text }: { text: string }) => (
   </div>
 );
 
-function AddressSearch({
-  label,
-  value,
-  onChange,
-  tooltip,
-  required,
-}: any) {
-  const [query, setQuery] = useState(value);
-  const [results, setResults] = useState<any[]>([]);
-  const [showDropdown, setShowDropdown] = useState(false);
-
-  // Keep query in sync if value changes externally (e.g. navigation)
-  useEffect(() => {
-    setQuery(value);
-  }, [value]);
-
-  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
-
-  const searchAddress = (text: string) => {
-    setQuery(text);
-    onChange(text);
-
-    if (timeoutRef.current) {
-      clearTimeout(timeoutRef.current);
-    }
-
-    if (text.length > 4) {
-      timeoutRef.current = setTimeout(async () => {
-        try {
-          const res = await fetch(
-            `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(
-              text
-            )}&countrycodes=gb&limit=5`,
-            {
-              headers: {
-                "User-Agent": "RAMS-Sorted-Web/1.0",
-              },
-            }
-          );
-          if (!res.ok) throw new Error("Network response was not ok");
-          const data = await res.json();
-          setResults(data);
-          setShowDropdown(true);
-        } catch (e) {
-          console.warn("Address search failed:", e);
-          setResults([]);
-        }
-      }, 500); // 500ms debounce
-    } else {
-      setResults([]);
-      setShowDropdown(false);
-    }
-  };
-
-  return (
-    <div className="relative group">
-      <label className="flex items-center text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
-        {label}
-        {required && <span className="text-red-600 ml-1">*</span>}
-        {tooltip && <Tooltip text={tooltip} />}
-      </label>
-      <div className="relative">
-        <input
-          className="w-full border border-slate-300 rounded-lg p-3 text-sm focus:ring-2 focus:ring-[#0b2040] focus:border-transparent outline-none transition-all shadow-sm bg-white"
-          placeholder="Start typing address..."
-          value={query}
-          onChange={(e) => searchAddress(e.target.value)}
-        />
-        <MapPin className="w-4 h-4 absolute right-3 top-3.5 text-gray-400" />
-      </div>
-      {showDropdown && results.length > 0 && (
-        <ul className="absolute z-50 w-full bg-white border border-gray-200 rounded-lg shadow-2xl mt-1 max-h-60 overflow-auto">
-          {results.map((r: any, i: number) => (
-            <li
-              key={i}
-              onClick={() => {
-                setQuery(r.display_name);
-                onChange(r.display_name);
-                setShowDropdown(false);
-              }}
-              className="p-3 hover:bg-gray-50 cursor-pointer text-xs border-b last:border-0 text-gray-700 leading-tight"
-            >
-              {r.display_name}
-            </li>
-          ))}
-        </ul>
-      )}
-
-
-    </div>
-  );
-}
+// AddressSearch component removed as per user request to disable autocomplete
+// function AddressSearch({ ... }) { ... }
 
 // --- MAIN APPLICATION ---
 import CoshhWizard from "./components/CoshhWizard";
@@ -967,11 +877,7 @@ function Page() {
                 <div className="max-w-7xl w-full text-center">
                   <h1 className="text-4xl md:text-5xl font-semibold text-slate-900 mb-2">
                     <TypewriterText
-                      messages={[
-                        formData.contactName
-                          ? `Welcome back, ${formData.contactName}`
-                          : "Welcome back"
-                      ]}
+                      messages={["Welcome back"]}
                       loop={false}
                       className="border-b-0"
                     />
@@ -1266,15 +1172,21 @@ function Page() {
                         />
                       </div>
 
-                      <AddressSearch
-                        label={formData.userType === "company" ? "Office Address" : "Business / Home Address"}
-                        required
-                        value={formData.officeAddress}
-                        onChange={(val: string) =>
-                          handleInput("officeAddress", val)
-                        }
-                        tooltip="Registered or main business address."
-                      />
+                      <div>
+                        <label className="flex items-center text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
+                          {formData.userType === "company" ? "Office Address" : "Business / Home Address"}
+                          <span className="text-red-600 ml-1">*</span>
+                          <Tooltip text="Registered or main business address." />
+                        </label>
+                        <input
+                          className="border border-slate-200 p-3 rounded-lg w-full text-sm focus:ring-2 focus:ring-[#0b2040] focus:border-transparent outline-none bg-white shadow-sm hover:border-slate-300 transition-all duration-200"
+                          placeholder="Registered or main business address"
+                          value={formData.officeAddress}
+                          onChange={(e) =>
+                            handleInput("officeAddress", e.target.value)
+                          }
+                        />
+                      </div>
 
                       <div>
                         <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
@@ -1355,15 +1267,21 @@ function Page() {
                           />
                         </div>
                       </div>
-                      <AddressSearch
-                        label="Site Address"
-                        required
-                        value={formData.siteAddress}
-                        onChange={(val: string) =>
-                          handleInput("siteAddress", val)
-                        }
-                        tooltip="Location where the works are being carried out."
-                      />
+                      <div>
+                        <label className="flex items-center text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
+                          Site Address
+                          <span className="text-red-600 ml-1">*</span>
+                          <Tooltip text="Location where the works are being carried out." />
+                        </label>
+                        <input
+                          className="border border-slate-200 p-3 rounded-lg w-full text-sm focus:ring-2 focus:ring-[#0b2040] focus:border-transparent outline-none bg-white shadow-sm hover:border-slate-300 transition-all duration-200"
+                          placeholder="Location of works"
+                          value={formData.siteAddress}
+                          onChange={(e) =>
+                            handleInput("siteAddress", e.target.value)
+                          }
+                        />
+                      </div>
                     </div>
 
                     <div className="flex justify-between gap-3 pt-2">
