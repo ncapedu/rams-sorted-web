@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowRight, CheckCircle2, Shield, FileText, Zap } from "lucide-react";
+import { ArrowRight, CheckCircle2, Shield, FileText, Zap, Beaker, Users } from "lucide-react";
 import AnimatedTitle from "./components/AnimatedTitle";
 
 export default function LandingPage() {
