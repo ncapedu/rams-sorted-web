@@ -24,28 +24,48 @@ export async function POST(req: Request) {
         const body = await req.json();
 
         // We will use AI to enhance the descriptions to make them more professional
+        const allSubstances = [
+            ...(body.selectedSubstances || []),
+            ...(body.customSubstances || [])
+        ];
+
         const completion = await openai.chat.completions.create({
             model: "gpt-4o",
             messages: [
                 {
                     role: "system",
                     content: `You are a Health & Safety Consultant. Review the provided COSHH assessment details.
-          Your task is to REWRITE the "additionalControls", "emergencyProcedures", "exposureRoutes", "storageDisposal", and "controlMeasures" to be DETAILED, PROFESSIONAL, and COMPREHENSIVE.
+          Your task is to enhance the assessment by providing specific details FOR EACH SUBSTANCE, as well as general controls.
 
           GUIDELINES:
-          1. **Exposure Routes**: List ALL relevant routes (Inhalation, Skin, Eye, Ingestion) and explain briefly for each (3-5 sentences total).
-          2. **Control Measures**: Provide a robust mix of Engineering, Administrative, and PPE controls. Reference the hierarchy of control. (Approx 100-150 words).
-          3. **Storage & Disposal**: Specify storage conditions (temp, ventilation, segregation) and disposal (hazardous waste, no drains). (Approx 50-80 words).
-          4. **Additional Controls**: Suggest supplementary controls like training, supervision, monitoring, signage. (Approx 50-80 words).
-          5. **Emergency Procedures**: Actionable steps for Spills, Fire, and Exposure (First Aid). Bullet points are good.
+          1. **Per Substance Details**: For each substance provided, generate:
+             - **Exposure Routes**: Specific routes (Inhalation, Skin, etc.) and brief explanation (e.g. "Inhalation of vapors may cause dizziness").
+             - **Control Measures**: Specific controls for that substance (PPE, Engineering, Handling).
+             - **Storage & Disposal**: Specific storage (temp, container, ventilation) and disposal methods.
+             - **Risk Level**: "High", "Medium", or "Low" based on the hazard.
+             - **Hazard**: A concise description of the hazard (e.g. "Flammable liquid", "Irritant to eyes").
+             
+             *CRITICAL*: Ensure these details are UNIQUE and SPECIFIC for each substance. Avoid generic templates.
 
-          OUTPUT JSON: { 
-            "workActivity": "...", 
-            "exposureRoutes": "...", 
-            "controlMeasures": "...", 
-            "storageDisposal": "...", 
-            "additionalControls": "...", 
-            "emergencyProcedures": "..." 
+          2. **General Sections**:
+             - **Additional Controls**: Supplementary controls for the whole task (training, supervision).
+             - **Emergency Procedures**: Actionable steps for Spills, Fire, and Exposure.
+             - **Work Activity**: A professional description of the work activity.
+
+          OUTPUT JSON: {
+            "substances": [
+              {
+                "name": "Substance Name (must match input)",
+                "hazard": "...",
+                "exposureRoutes": "...",
+                "controlMeasures": "...",
+                "storageDisposal": "...",
+                "riskLevel": "..."
+              }
+            ],
+            "workActivity": "...",
+            "additionalControls": "...",
+            "emergencyProcedures": "..."
           }
           
           Return PLAIN TEXT strings for the values. Do not use markdown formatting inside the JSON strings.`
@@ -56,7 +76,7 @@ export async function POST(req: Request) {
             Activity: ${body.workActivity}
             Controls: ${body.additionalControls}
             Emergency: ${body.emergencyProcedures}
-            Substances: ${body.selectedSubstances.map((s: any) => s.name).join(", ")}
+            Substances: ${allSubstances.map((s: any) => s.name).join(", ")}
             Duration: ${body.exposureDuration}
             Frequency: ${body.exposureFrequency}
           `
@@ -68,12 +88,34 @@ export async function POST(req: Request) {
 
         const enhanced = JSON.parse(completion.choices[0].message.content || "{}");
 
+        // Map enhanced substances back to the original list or use them directly
+        // We'll try to match by name to preserve any other data, but here we mainly want the enhanced fields.
+        const enhancedSubstancesMap = new Map(enhanced.substances?.map((s: any) => [s.name.toLowerCase(), s]));
+
+        const enhanceSubstanceList = (list: any[]) => {
+            return list.map((s: any) => {
+                const enhancedSub = enhancedSubstancesMap.get(s.name.toLowerCase());
+                if (enhancedSub) {
+                    return {
+                        ...s,
+                        hazard: (enhancedSub as any).hazard || s.hazard,
+                        control: (enhancedSub as any).controlMeasures || s.control, // Map controlMeasures to control
+                        exposureRoutes: (enhancedSub as any).exposureRoutes,
+                        storage: (enhancedSub as any).storageDisposal, // Map storageDisposal to storage
+                        riskLevel: (enhancedSub as any).riskLevel
+                    };
+                }
+                return s;
+            });
+        };
+
         const coshhData: COSHHData = {
             ...body,
+            selectedSubstances: enhanceSubstanceList(body.selectedSubstances || []),
+            customSubstances: enhanceSubstanceList(body.customSubstances || []),
             workActivity: enhanced.workActivity || body.workActivity,
-            exposureRoutes: enhanced.exposureRoutes || "Inhalation, Skin Contact, Eye Contact. Ensure good ventilation and use PPE.",
-            controlMeasures: enhanced.controlMeasures || "Use appropriate PPE and ensure ventilation.",
-            storageDisposal: enhanced.storageDisposal || "Store in cool, dry place. Dispose of as hazardous waste.",
+            // These global fields might still be used if we want to show a summary, but the table now uses per-substance data.
+            // We can keep them as fallbacks or general sections.
             additionalControls: enhanced.additionalControls || body.additionalControls,
             emergencyProcedures: enhanced.emergencyProcedures || body.emergencyProcedures,
         };

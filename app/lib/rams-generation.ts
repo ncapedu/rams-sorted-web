@@ -924,8 +924,8 @@ export interface COSHHData {
   assessmentDate: string;
   reviewDate?: string;
 
-  selectedSubstances: { name: string; hazard: string; control: string }[];
-  customSubstances: { name: string; hazard: string; control: string }[];
+  selectedSubstances: { name: string; hazard: string; control: string; exposureRoutes?: string; storage?: string; riskLevel?: string }[];
+  customSubstances: { name: string; hazard: string; control: string; exposureRoutes?: string; storage?: string; riskLevel?: string }[];
 
   workActivity: string;
   exposureDuration: string;
@@ -1026,7 +1026,7 @@ export async function generateCOSHHHTML(data: COSHHData): Promise<string> {
     const libEntry = COSHH_LIBRARY[s.name];
     const substanceData = (libEntry && libEntry[0]) ? { ...s, ...libEntry[0] } : s;
 
-    const risk = getRiskLevel(substanceData.hazard);
+    const risk = substanceData.riskLevel || getRiskLevel(substanceData.hazard);
     const riskClass = risk === "High" ? "risk-high" : risk === "Medium" ? "risk-med" : "risk-low";
     const ghsType = mapStringToHazardClass(substanceData.hazard);
     const ghsIconSvg = ghsType ? GHS_ICON_MAP[ghsType] : null;
@@ -1041,9 +1041,9 @@ export async function generateCOSHHHTML(data: COSHHData): Promise<string> {
           ${ghsIcon ? `<img src="${ghsIcon}" width="24" height="24" class="pdf-sign" style="width: 24px; height: 24px; margin-right: 5px;" />` : ""}
           ${sanitizeText(substanceData.hazard)}
         </td>
-        <td width="15%" class="small">${getExposureRoutes(substanceData.hazard)}</td>
+        <td width="15%" class="small">${substanceData.exposureRoutes || getExposureRoutes(substanceData.hazard)}</td>
         <td width="25%">${sanitizeText(substanceData.control)}</td>
-        <td width="15%" class="small">${getStorage(substanceData.name)}</td>
+        <td width="15%" class="small">${substanceData.storage || getStorage(substanceData.name)}</td>
         <td width="5%" class="risk-score ${riskClass}">${risk}</td>
       </tr>
     `;
