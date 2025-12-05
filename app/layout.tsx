@@ -21,7 +21,7 @@ const archivoBlack = Archivo_Black({
 export const metadata: Metadata = {
   title: "RAMS Sorted | RAMS, COSHH & Toolbox Talks in Minutes",
   description:
-    "RAMS Sorted lets UK trades and contractors create compliant RAMS packs, COSHH assessments and toolbox talks in minutes. Generate polished PDF and Word documents without paying a safety consultant.",
+    "RAMS Sorted helps UK trades and contractors generate structured RAMS packs, COSHH assessments and toolbox talks in minutes. Export professional Word and PDF documents without wrestling with templates.",
   keywords: ["RAMS", "Risk Assessment", "Method Statement", "COSHH", "Toolbox Talks", "Construction Safety", "Health and Safety Software", "UK Trades"],
   authors: [{ name: "RAMS Sorted" }],
   creator: "RAMS Sorted",
@@ -30,7 +30,7 @@ export const metadata: Metadata = {
     locale: "en_GB",
     url: "https://www.ramssorted.co.uk",
     title: "RAMS Sorted | RAMS, COSHH & Toolbox Talks in Minutes",
-    description: "Create compliant health & safety documents in minutes. Stop overpaying consultants.",
+    description: "RAMS Sorted helps UK trades and contractors generate structured RAMS packs, COSHH assessments and toolbox talks in minutes.",
     siteName: "RAMS Sorted",
     images: [
       {
@@ -44,7 +44,7 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: "RAMS Sorted | RAMS, COSHH & Toolbox Talks in Minutes",
-    description: "Create compliant health & safety documents in minutes. Stop overpaying consultants.",
+    description: "RAMS Sorted helps UK trades and contractors generate structured RAMS packs, COSHH assessments and toolbox talks in minutes.",
     images: ["/rams-logo6.png"],
   },
   icons: {
