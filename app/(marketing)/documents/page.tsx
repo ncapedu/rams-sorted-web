@@ -1,15 +1,19 @@
+"use client";
+
 import Image from "next/image";
 import { FileText, Beaker, Users, CheckCircle2 } from "lucide-react";
+import TypewriterText from "@/app/components/marketing/TypewriterText";
 
 export default function DocumentsPage() {
     return (
         <div className="py-24 px-6">
             <div className="max-w-7xl mx-auto">
                 <div className="text-center max-w-3xl mx-auto mb-20">
-                    <h1 className="text-4xl font-bold text-slate-900 mb-6">Professional documents, sorted.</h1>
-                    <p className="text-lg text-slate-600">
-                        Create compliant, industry-standard health and safety documents in minutes.
-                        Our templates and AI assistance do the heavy lifting, so you can focus on the job.
+                    <h1 className="text-4xl md:text-5xl font-bold text-slate-900 mb-6 min-h-[60px]">
+                        <TypewriterText text="Professional documents, sorted." speed={30} cursor />
+                    </h1>
+                    <p className="text-lg text-slate-600 min-h-[60px]">
+                        <TypewriterText text="Create compliant, industry-standard health and safety documents in minutes. Our templates and AI assistance do the heavy lifting, so you can focus on the job." speed={5} delay={1000} />
                     </p>
                 </div>
 

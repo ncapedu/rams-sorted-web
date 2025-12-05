@@ -12,7 +12,11 @@ export default function Navbar() {
         <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-slate-200">
             <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
                 {/* Logo + Wordmark */}
-                <Link href="/" className="flex items-center gap-3 group">
+                <Link
+                    href="/"
+                    className="flex items-center gap-3 group"
+                    onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+                >
                     <div className="relative w-10 h-10 transition-transform duration-300 group-hover:scale-105">
                         <Image
                             src="/rams-logo6.png"

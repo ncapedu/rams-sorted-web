@@ -1,21 +1,32 @@
+"use client";
+
 import Link from "next/link";
 import { ArrowRight, Download, Edit3, Cloud, ShieldCheck } from "lucide-react";
+import TypewriterText from "@/app/components/marketing/TypewriterText";
+import ProductCarousel from "@/app/components/marketing/ProductCarousel";
+
 
 export default function ProductPage() {
     return (
         <div className="py-24 px-6">
             <div className="max-w-7xl mx-auto">
-                <div className="text-center max-w-3xl mx-auto mb-20">
-                    <h1 className="text-4xl font-bold text-slate-900 mb-6">Built for the way you work.</h1>
-                    <p className="text-lg text-slate-600">
-                        RAMS Sorted combines the speed of AI with the control you need.
-                        It's not just a template library—it's a complete document creation suite.
+                <div className="text-center max-w-3xl mx-auto mb-12">
+                    <h1 className="text-4xl md:text-5xl font-bold text-slate-900 mb-6 min-h-[60px]">
+                        <TypewriterText text="Built for the way you work." speed={30} cursor />
+                    </h1>
+                    <p className="text-lg text-slate-600 mb-8 min-h-[60px]">
+                        <TypewriterText text="RAMS Sorted combines the speed of AI with the control you need. It's not just a template library—it's a complete document creation suite." speed={5} delay={1000} />
                     </p>
                 </div>
 
+                {/* Product Showcase */}
+                <div className="mb-24">
+                    <ProductCarousel />
+                </div>
+
                 <div className="grid md:grid-cols-2 gap-8 mb-20">
-                    <div className="bg-white p-8 rounded-2xl border border-slate-200 shadow-sm">
-                        <div className="w-12 h-12 bg-purple-50 rounded-xl flex items-center justify-center mb-6">
+                    <div className="bg-white p-8 rounded-2xl border border-slate-200 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-500 group">
+                        <div className="w-12 h-12 bg-purple-50 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
                             <Edit3 className="w-6 h-6 text-purple-600" />
                         </div>
                         <h3 className="text-xl font-bold text-slate-900 mb-4">Full Control Editor</h3>
@@ -25,8 +36,8 @@ export default function ProductPage() {
                             to match your specific site conditions.
                         </p>
                     </div>
-                    <div className="bg-white p-8 rounded-2xl border border-slate-200 shadow-sm">
-                        <div className="w-12 h-12 bg-blue-50 rounded-xl flex items-center justify-center mb-6">
+                    <div className="bg-white p-8 rounded-2xl border border-slate-200 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-500 group">
+                        <div className="w-12 h-12 bg-blue-50 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
                             <Download className="w-6 h-6 text-blue-600" />
                         </div>
                         <h3 className="text-xl font-bold text-slate-900 mb-4">Word & PDF Export</h3>
@@ -36,8 +47,8 @@ export default function ProductPage() {
                             file for further customization.
                         </p>
                     </div>
-                    <div className="bg-white p-8 rounded-2xl border border-slate-200 shadow-sm">
-                        <div className="w-12 h-12 bg-amber-50 rounded-xl flex items-center justify-center mb-6">
+                    <div className="bg-white p-8 rounded-2xl border border-slate-200 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-500 group">
+                        <div className="w-12 h-12 bg-amber-50 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
                             <Cloud className="w-6 h-6 text-amber-600" />
                         </div>
                         <h3 className="text-xl font-bold text-slate-900 mb-4">Cloud Storage</h3>
@@ -46,8 +57,8 @@ export default function ProductPage() {
                             toolbox talks are saved securely in the cloud, accessible from any device, anywhere.
                         </p>
                     </div>
-                    <div className="bg-white p-8 rounded-2xl border border-slate-200 shadow-sm">
-                        <div className="w-12 h-12 bg-green-50 rounded-xl flex items-center justify-center mb-6">
+                    <div className="bg-white p-8 rounded-2xl border border-slate-200 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-500 group">
+                        <div className="w-12 h-12 bg-green-50 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
                             <ShieldCheck className="w-6 h-6 text-green-600" />
                         </div>
                         <h3 className="text-xl font-bold text-slate-900 mb-4">Compliance First</h3>
@@ -58,7 +69,8 @@ export default function ProductPage() {
                     </div>
                 </div>
 
-                <div className="bg-slate-900 rounded-3xl p-12 text-center text-white relative overflow-hidden">
+                <div className="bg-slate-900 rounded-3xl p-12 text-center text-white relative overflow-hidden group">
+                    <div className="absolute top-0 right-0 bg-gradient-to-l from-blue-500 to-transparent w-64 h-64 opacity-10 rounded-bl-full group-hover:opacity-20 transition-opacity"></div>
                     <div className="relative z-10 max-w-2xl mx-auto">
                         <h2 className="text-3xl font-bold mb-6">Ready to get sorted?</h2>
                         <p className="text-slate-300 mb-8 text-lg">
