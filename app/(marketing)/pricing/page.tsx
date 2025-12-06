@@ -19,7 +19,7 @@ export default function PricingPage() {
 
                 <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
                     {/* Monthly Plan */}
-                    <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-lg hover:shadow-xl transition-all duration-500 flex flex-col group relative overflow-hidden">
+                    <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-lg hover:shadow-xl transition-all duration-500 flex flex-col group relative overflow-hidden animate-in fade-in slide-in-from-bottom-8 duration-700 delay-100 fill-mode-backwards">
                         {/* Logo Blend Effect */}
                         <div className="absolute -bottom-12 -right-12 opacity-5 translate-y-8 translate-x-8 transition-transform duration-700 group-hover:translate-y-0 group-hover:translate-x-0 group-hover:scale-110 pointer-events-none">
                             <Image
@@ -72,7 +72,7 @@ export default function PricingPage() {
                     </div>
 
                     {/* Yearly Plan */}
-                    <div className="bg-slate-900 rounded-2xl p-6 border border-slate-900 shadow-xl hover:shadow-2xl hover:-translate-y-1 transition-all duration-500 flex flex-col relative overflow-hidden group">
+                    <div className="bg-slate-900 rounded-2xl p-6 border border-slate-900 shadow-xl hover:shadow-2xl hover:-translate-y-1 transition-all duration-500 flex flex-col relative overflow-hidden group animate-in fade-in slide-in-from-bottom-8 duration-700 delay-300 fill-mode-backwards">
                         {/* Sun Accent */}
                         <div className="absolute -top-20 -right-20 w-64 h-64 bg-emerald-500/20 rounded-full blur-3xl pointer-events-none"></div>
 

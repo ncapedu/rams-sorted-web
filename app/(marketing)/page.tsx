@@ -13,9 +13,9 @@ import {
 export default function MarketingHome() {
 
     return (
-        <div className="flex flex-col gap-20 pb-20">
+        <div className="flex flex-col pb-0 bg-swirl">
             {/* DARK HERO SECTION */}
-            <section className="min-h-[100dvh] w-full bg-slate-900 flex items-center justify-center relative px-6 py-20 lg:py-4">
+            <section className="min-h-[100dvh] w-full bg-transparent flex items-center justify-center relative px-6 py-20 lg:py-4">
                 <div className="max-w-[1600px] mx-auto w-full grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center">
 
                     {/* Right Column: Browser Window Showcase (Top on Mobile) */}
@@ -45,7 +45,7 @@ export default function MarketingHome() {
                                 href="/documents"
                                 className="inline-flex items-center justify-center gap-2 bg-transparent text-white border border-slate-700 px-8 py-4 rounded-xl text-lg font-semibold hover:bg-white/10 hover:border-slate-500 transition-all"
                             >
-                                See examples
+                                View Samples
                             </Link>
                         </div>
                     </div>
@@ -53,35 +53,24 @@ export default function MarketingHome() {
             </section>
 
             {/* FEATURE CARDS */}
-            <section className="px-6 py-24 relative bg-slate-50">
-                {/* Background Image with Overlay */}
-                <div className="absolute inset-0 z-0">
-                    <Image
-                        src="/hero-background.jpg"
-                        alt="Background"
-                        fill
-                        className="object-cover opacity-50"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-b from-slate-50/0 via-slate-50/60 to-slate-50"></div>
-                </div>
-
+            <section className="px-6 py-24 relative bg-swirl">
                 <div className="max-w-7xl mx-auto relative z-10">
                     <div className="text-center max-w-2xl mx-auto mb-12">
-                        <h2 className="text-3xl font-semibold text-slate-900 mb-4">Everything you need to get on site</h2>
-                        <p className="text-slate-600">
+                        <h2 className="text-3xl font-semibold text-white mb-4">Everything you need to get on site</h2>
+                        <p className="text-slate-300">
                             Three core tools designed specifically for UK trades. Create compliant documents in minutes.
                         </p>
                     </div>
 
                     <div className="grid md:grid-cols-3 gap-8">
                         {/* RAMS Card */}
-                        <div className="bg-white p-8 rounded-2xl border border-slate-200 hover:border-red-400 hover:shadow-2xl hover:-translate-y-2 hover:scale-[1.02] transition-all duration-300 group cursor-default relative overflow-hidden">
-                            <div className="absolute top-0 right-0 w-32 h-32 bg-red-50 rounded-bl-full -mr-16 -mt-16 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-                            <div className="w-12 h-12 bg-red-50 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300 relative z-10">
-                                <FileText className="w-6 h-6 text-red-600" />
+                        <div className="bg-white/5 backdrop-blur-sm p-8 rounded-2xl border border-white/10 hover:border-red-400/50 hover:bg-white/10 hover:shadow-2xl hover:-translate-y-2 hover:scale-[1.02] transition-all duration-300 group cursor-default relative overflow-hidden">
+                            <div className="absolute top-0 right-0 w-32 h-32 bg-red-500/20 rounded-bl-full -mr-16 -mt-16 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                            <div className="w-12 h-12 bg-red-500/20 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300 relative z-10">
+                                <FileText className="w-6 h-6 text-red-400" />
                             </div>
-                            <h3 className="text-xl font-semibold text-slate-900 mb-4 relative z-10">RAMS Packs</h3>
-                            <ul className="space-y-3 text-sm text-slate-600 relative z-10">
+                            <h3 className="text-xl font-semibold text-white mb-4 relative z-10">RAMS Packs</h3>
+                            <ul className="space-y-3 text-sm text-slate-300 relative z-10">
                                 <li className="flex items-center gap-3">
                                     <div className="w-1.5 h-1.5 rounded-full bg-red-500" />
                                     Job scope & project details
@@ -102,13 +91,13 @@ export default function MarketingHome() {
                         </div>
 
                         {/* COSHH Card */}
-                        <div className="bg-white p-8 rounded-2xl border border-slate-200 hover:border-blue-400 hover:shadow-2xl hover:-translate-y-2 hover:scale-[1.02] transition-all duration-300 group cursor-default relative overflow-hidden">
-                            <div className="absolute top-0 right-0 w-32 h-32 bg-blue-50 rounded-bl-full -mr-16 -mt-16 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-                            <div className="w-12 h-12 bg-blue-50 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300 relative z-10">
-                                <Beaker className="w-6 h-6 text-blue-600" />
+                        <div className="bg-white/5 backdrop-blur-sm p-8 rounded-2xl border border-white/10 hover:border-blue-400/50 hover:bg-white/10 hover:shadow-2xl hover:-translate-y-2 hover:scale-[1.02] transition-all duration-300 group cursor-default relative overflow-hidden">
+                            <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/20 rounded-bl-full -mr-16 -mt-16 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                            <div className="w-12 h-12 bg-blue-500/20 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300 relative z-10">
+                                <Beaker className="w-6 h-6 text-blue-400" />
                             </div>
-                            <h3 className="text-xl font-semibold text-slate-900 mb-4 relative z-10">COSHH Assessments</h3>
-                            <ul className="space-y-3 text-sm text-slate-600 relative z-10">
+                            <h3 className="text-xl font-semibold text-white mb-4 relative z-10">COSHH Assessments</h3>
+                            <ul className="space-y-3 text-sm text-slate-300 relative z-10">
                                 <li className="flex items-center gap-3">
                                     <div className="w-1.5 h-1.5 rounded-full bg-blue-500" />
                                     Substance hazards & exposure limits
@@ -129,13 +118,13 @@ export default function MarketingHome() {
                         </div>
 
                         {/* Toolbox Talks Card */}
-                        <div className="bg-white p-8 rounded-2xl border border-slate-200 hover:border-green-400 hover:shadow-2xl hover:-translate-y-2 hover:scale-[1.02] transition-all duration-300 group cursor-default relative overflow-hidden">
-                            <div className="absolute top-0 right-0 w-32 h-32 bg-green-50 rounded-bl-full -mr-16 -mt-16 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-                            <div className="w-12 h-12 bg-green-50 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300 relative z-10">
-                                <Users className="w-6 h-6 text-green-600" />
+                        <div className="bg-white/5 backdrop-blur-sm p-8 rounded-2xl border border-white/10 hover:border-green-400/50 hover:bg-white/10 hover:shadow-2xl hover:-translate-y-2 hover:scale-[1.02] transition-all duration-300 group cursor-default relative overflow-hidden">
+                            <div className="absolute top-0 right-0 w-32 h-32 bg-green-500/20 rounded-bl-full -mr-16 -mt-16 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                            <div className="w-12 h-12 bg-green-500/20 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300 relative z-10">
+                                <Users className="w-6 h-6 text-green-400" />
                             </div>
-                            <h3 className="text-xl font-semibold text-slate-900 mb-4 relative z-10">Toolbox Talks</h3>
-                            <ul className="space-y-3 text-sm text-slate-600 relative z-10">
+                            <h3 className="text-xl font-semibold text-white mb-4 relative z-10">Toolbox Talks</h3>
+                            <ul className="space-y-3 text-sm text-slate-300 relative z-10">
                                 <li className="flex items-center gap-3">
                                     <div className="w-1.5 h-1.5 rounded-full bg-green-500" />
                                     Topic overview & key points
