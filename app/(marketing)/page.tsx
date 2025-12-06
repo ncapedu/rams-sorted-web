@@ -14,53 +14,58 @@ export default function MarketingHome() {
 
     return (
         <div className="flex flex-col gap-20 pb-20">
-            {/* HERO SECTION */}
-            <section className="pt-4 md:pt-8 px-6 min-h-[calc(100vh-80px)] flex flex-col justify-center">
-                <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
-                    {/* Left Column: Text */}
-                    <div className="flex flex-col gap-3 lg:col-span-4">
-                        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 border border-blue-100 text-blue-800 text-xs font-semibold w-fit h-7">
-                            <TypewriterText text="For UK trades & contractors · RAMS · COSHH · Toolbox Talks" speed={10} />
+            {/* DARK HERO SECTION */}
+            <section className="min-h-[100dvh] w-full bg-slate-900 flex items-center justify-center relative px-6 py-20 lg:py-4">
+                <div className="max-w-[1600px] mx-auto w-full grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center">
+
+                    {/* Right Column: Browser Window Showcase (Top on Mobile) */}
+                    <div className="order-1 lg:order-2 lg:col-span-7 w-full flex items-center justify-center lg:justify-end">
+                        <ProductCarousel />
+                    </div>
+
+                    {/* Left Column: Text & CTA (Bottom on Mobile) */}
+                    <div className="order-2 lg:order-1 lg:col-span-5 flex flex-col justify-center gap-8 z-10 text-center lg:text-left">
+                        <div className="flex flex-col gap-4">
+                            <h1 className="text-5xl md:text-6xl xl:text-8xl font-bold text-white tracking-tighter leading-[1]">
+                                <TypewriterText text="Brief it. Draft it. Sorted." speed={40} cursor />
+                            </h1>
+                            <p className="text-lg xl:text-xl text-slate-400 leading-relaxed max-w-xl mx-auto lg:mx-0 font-medium">
+                                <TypewriterText text="Generate professional RAMS, COSHH assessments, and Toolbox Talks in minutes." speed={20} delay={1500} />
+                            </p>
                         </div>
 
-                        <h1 className="text-3xl md:text-4xl font-semibold text-slate-900 tracking-tight leading-[1.1] min-h-[90px]">
-                            <TypewriterText text="Generate RAMS, COSHH assessments and toolbox talks in minutes, not hours." speed={30} cursor />
-                        </h1>
-
-                        <p className="text-base text-slate-600 leading-relaxed min-h-[72px]">
-                            <TypewriterText text="RAMS Sorted helps UK trades and small contractors produce structured, professional documents without wrestling with Word templates or paying a safety consultant for every job. AI-assisted drafting makes it fast and easy." speed={5} />
-                        </p>
-
-                        <div className="flex flex-col sm:flex-row gap-4 mt-2 animate-in fade-in slide-in-from-bottom-4 duration-1000 delay-1000 fill-mode-backwards">
+                        <div className="flex flex-wrap justify-center lg:justify-start gap-4 animate-in fade-in slide-in-from-bottom-4 duration-1000 delay-[2500ms] fill-mode-backwards">
                             <Link
                                 href="/pricing"
-                                className="inline-flex items-center justify-center gap-2 bg-slate-900 text-white px-6 py-3.5 rounded-xl text-base font-semibold hover:bg-slate-800 transition-all hover:shadow-lg active:scale-95"
+                                className="inline-flex items-center justify-center gap-2 bg-white text-slate-900 px-8 py-4 rounded-xl text-lg font-semibold hover:bg-slate-100 transition-all hover:shadow-xl active:scale-95"
                             >
-                                View our pricing
+                                View pricing
                             </Link>
                             <Link
                                 href="/documents"
-                                className="inline-flex items-center justify-center gap-2 bg-white text-slate-700 border border-slate-200 px-6 py-3.5 rounded-xl text-base font-semibold hover:bg-slate-50 transition-colors"
+                                className="inline-flex items-center justify-center gap-2 bg-transparent text-white border border-slate-700 px-8 py-4 rounded-xl text-lg font-semibold hover:bg-white/10 hover:border-slate-500 transition-all"
                             >
-                                View sample documents
+                                See examples
                             </Link>
                         </div>
-
-                        <p className="text-xs text-slate-500 font-medium h-4">
-                            <TypewriterText text="Card required · then £20/month or £149/year" speed={10} />
-                        </p>
-                    </div>
-
-                    {/* Right Column: Carousel */}
-                    <div className="lg:col-span-8">
-                        <ProductCarousel />
                     </div>
                 </div>
             </section>
 
             {/* FEATURE CARDS */}
-            <section className="px-6">
-                <div className="max-w-7xl mx-auto">
+            <section className="px-6 py-24 relative bg-slate-50">
+                {/* Background Image with Overlay */}
+                <div className="absolute inset-0 z-0">
+                    <Image
+                        src="/hero-background.jpg"
+                        alt="Background"
+                        fill
+                        className="object-cover opacity-50"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-b from-slate-50/0 via-slate-50/60 to-slate-50"></div>
+                </div>
+
+                <div className="max-w-7xl mx-auto relative z-10">
                     <div className="text-center max-w-2xl mx-auto mb-12">
                         <h2 className="text-3xl font-semibold text-slate-900 mb-4">Everything you need to get on site</h2>
                         <p className="text-slate-600">
