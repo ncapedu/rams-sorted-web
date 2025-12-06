@@ -53,7 +53,7 @@ export default function MarketingHome() {
             </section>
 
             {/* FEATURE CARDS */}
-            <section className="px-6 py-24 relative bg-swirl">
+            <section className="px-6 py-24 relative bg-transparent">
                 <div className="max-w-7xl mx-auto relative z-10">
                     <div className="text-center max-w-2xl mx-auto mb-12">
                         <h2 className="text-3xl font-semibold text-white mb-4">Everything you need to get on site</h2>

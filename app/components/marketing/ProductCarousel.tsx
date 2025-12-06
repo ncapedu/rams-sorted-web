@@ -55,7 +55,7 @@ export default function ProductCarousel() {
     }, [isPaused]);
 
     return (
-        <div className="flex flex-col gap-6 w-full max-w-4xl mx-auto">
+        <div className="flex flex-col gap-6 w-full max-w-5xl mx-auto">
             {/* BROWSER WINDOW (Visuals) */}
             <div
                 className="relative w-full aspect-[16/10] bg-slate-800 rounded-xl overflow-hidden shadow-2xl border border-slate-700/50 flex flex-col group ring-1 ring-white/5"
