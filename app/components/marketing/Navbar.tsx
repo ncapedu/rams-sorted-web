@@ -27,7 +27,7 @@ export default function Navbar() {
                         />
                     </div>
                     <span className="font-bold text-2xl tracking-tight text-slate-900">
-                        <span className="bg-clip-text text-transparent bg-gradient-to-r from-[#b91c1c] via-[#0f172a] to-[#b91c1c] bg-[length:200%_auto] animate-wave">
+                        <span className="bg-clip-text text-transparent bg-[linear-gradient(90deg,#0f172a,#0f172a,#450a0a,#0f172a,#0f172a)] bg-[length:200%_auto] animate-wave">
                             RAMS Sorted
                         </span>
                     </span>
@@ -44,7 +44,7 @@ export default function Navbar() {
 
                 {/* Desktop Nav */}
                 <nav className="hidden md:flex items-center gap-8 text-[15px] font-medium text-slate-600">
-                    <Link href="/product" className="hover:text-slate-900 transition-colors">
+                    <Link href="/" className="hover:text-slate-900 transition-colors">
                         Product
                     </Link>
                     <Link href="/documents" className="hover:text-slate-900 transition-colors">
@@ -87,7 +87,7 @@ export default function Navbar() {
             {mobileMenuOpen && (
                 <div className="md:hidden absolute top-20 left-0 w-full bg-white border-b border-slate-200 shadow-xl p-6 flex flex-col gap-4 animate-in slide-in-from-top-2 duration-200">
                     <Link
-                        href="/product"
+                        href="/"
                         className="text-lg font-medium text-slate-700 py-3 border-b border-slate-100"
                         onClick={() => setMobileMenuOpen(false)}
                     >
