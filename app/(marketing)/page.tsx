@@ -19,7 +19,7 @@ export default function MarketingHome() {
                 <div className="max-w-[1600px] mx-auto w-full grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center">
 
                     {/* Right Column: Browser Window Showcase (Top on Mobile) */}
-                    <div className="order-1 lg:order-2 lg:col-span-7 w-full flex items-center justify-center lg:justify-end animate-in fade-in slide-in-from-bottom-24 duration-[1500ms] ease-out">
+                    <div className="order-1 lg:order-2 lg:col-span-7 w-full flex items-center justify-center lg:justify-end animate-slide-up opacity-0" style={{ animationDelay: '0.2s' }}>
                         <ProductCarousel />
                     </div>
 
