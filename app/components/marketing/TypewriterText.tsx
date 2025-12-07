@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 
 interface TypewriterTextProps {
     text: string;
@@ -8,6 +8,8 @@ interface TypewriterTextProps {
     delay?: number;
     className?: string;
     cursor?: boolean;
+    startWhenVisible?: boolean;
+    onComplete?: () => void;
 }
 
 export default function TypewriterText({
@@ -15,23 +17,50 @@ export default function TypewriterText({
     speed = 30,
     delay = 0,
     className = "",
-    cursor = false
+    cursor = false,
+    startWhenVisible = false,
+    onComplete
 }: TypewriterTextProps) {
     const [displayedText, setDisplayedText] = useState("");
     const [started, setStarted] = useState(false);
     const [isFinished, setIsFinished] = useState(false);
+    const elementRef = useRef<HTMLSpanElement>(null);
+    const hasStartedRef = useRef(false);
+    const onCompleteRef = useRef(onComplete);
+
+    // Keep onComplete ref up to date
+    useEffect(() => {
+        onCompleteRef.current = onComplete;
+    }, [onComplete]);
 
     useEffect(() => {
-        setDisplayedText("");
-        setStarted(false);
-        setIsFinished(false);
+        if (!startWhenVisible) {
+            const startTimeout = setTimeout(() => {
+                setStarted(true);
+            }, delay);
+            return () => clearTimeout(startTimeout);
+        }
 
-        const startTimeout = setTimeout(() => {
-            setStarted(true);
-        }, delay);
+        const observer = new IntersectionObserver(
+            ([entry]) => {
+                if (entry.isIntersecting && !hasStartedRef.current) {
+                    hasStartedRef.current = true;
+                    // Apply delay even when triggered by visibility
+                    setTimeout(() => {
+                        setStarted(true);
+                    }, delay);
+                    observer.disconnect();
+                }
+            },
+            { threshold: 0.1 }
+        );
 
-        return () => clearTimeout(startTimeout);
-    }, [delay, text]);
+        if (elementRef.current) {
+            observer.observe(elementRef.current);
+        }
+
+        return () => observer.disconnect();
+    }, [delay, startWhenVisible]);
 
     useEffect(() => {
         if (!started) return;
@@ -39,21 +68,20 @@ export default function TypewriterText({
         let currentIndex = 0;
         const interval = setInterval(() => {
             if (currentIndex < text.length) {
-                // Use slice to ensure we always render the correct substring
-                // This avoids issues with double-rendering or state desync
                 setDisplayedText(text.slice(0, currentIndex + 1));
                 currentIndex++;
             } else {
                 setIsFinished(true);
                 clearInterval(interval);
+                if (onCompleteRef.current) onCompleteRef.current();
             }
         }, speed);
 
         return () => clearInterval(interval);
-    }, [started, text, speed]);
+    }, [started, text, speed]); // Removed onComplete from dependencies
 
     return (
-        <span className={className}>
+        <span ref={elementRef} className={className}>
             {displayedText}
             {cursor && !isFinished && (
                 <span className="animate-pulse text-red-500">|</span>

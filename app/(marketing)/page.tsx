@@ -2,8 +2,10 @@
 
 import Link from "next/link";
 import Image from "next/image";
+import { useState } from "react";
 import TypewriterText from "@/app/components/marketing/TypewriterText";
 import ProductCarousel from "@/app/components/marketing/ProductCarousel";
+import ScrollReveal from "@/app/components/ui/ScrollReveal";
 import {
     FileText,
     Beaker,
@@ -11,6 +13,8 @@ import {
 } from "lucide-react";
 
 export default function MarketingHome() {
+    const [showFeatures, setShowFeatures] = useState(false);
+    const [showVersionContent, setShowVersionContent] = useState(false);
 
     return (
         <div className="flex flex-col pb-0 bg-swirl">
@@ -55,90 +59,106 @@ export default function MarketingHome() {
             {/* FEATURE CARDS */}
             <section className="px-6 py-24 relative bg-transparent">
                 <div className="max-w-7xl mx-auto relative z-10">
-                    <div className="text-center max-w-2xl mx-auto mb-12">
-                        <h2 className="text-3xl font-semibold text-white mb-4">Everything you need to get on site</h2>
-                        <p className="text-slate-300">
-                            Three core tools designed specifically for UK trades. Create compliant documents in minutes.
-                        </p>
-                    </div>
+                    <ScrollReveal>
+                        <div className="text-center max-w-5xl mx-auto mb-16 min-h-[160px]">
+                            <h2 className="text-5xl md:text-6xl lg:text-7xl font-bold text-white mb-6">
+                                <TypewriterText
+                                    text="Everything you need to get on site"
+                                    speed={15}
+                                    startWhenVisible
+                                    cursor={false}
+                                />
+                            </h2>
+                            <p className="text-slate-200 text-xl md:text-2xl leading-relaxed">
+                                <TypewriterText
+                                    text="Three core tools designed specifically for UK trades. Create compliant documents in minutes."
+                                    speed={10}
+                                    delay={1000}
+                                    startWhenVisible
+                                    cursor={false}
+                                    onComplete={() => setShowFeatures(true)}
+                                />
+                            </p>
+                        </div>
+                    </ScrollReveal>
 
-                    <div className="grid md:grid-cols-3 gap-8">
+                    <div className={`grid md:grid-cols-3 gap-8 transition-all duration-1000 ${showFeatures ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
                         {/* RAMS Card */}
-                        <div className="bg-[#0f172a] p-8 rounded-2xl border-2 border-slate-800 hover:border-red-400/50 hover:shadow-2xl hover:-translate-y-2 hover:scale-[1.02] transition-all duration-300 group cursor-default relative overflow-hidden shadow-xl">
-                            <div className="absolute top-0 right-0 w-32 h-32 bg-red-500/10 rounded-bl-full -mr-16 -mt-16 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-                            <div className="w-12 h-12 bg-red-500/10 rounded-xl border border-red-500/20 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300 relative z-10">
-                                <FileText className="w-6 h-6 text-red-400" />
+                        <div className="bg-white/80 backdrop-blur-2xl p-8 rounded-3xl border border-white/50 shadow-[inset_0_0_20px_rgba(255,255,255,0.5)] hover:border-white/80 hover:shadow-2xl hover:-translate-y-2 hover:scale-[1.02] transition-all duration-300 group cursor-default relative overflow-hidden">
+                            <div className="absolute top-0 right-0 w-40 h-40 bg-gradient-to-br from-red-500/10 to-transparent rounded-bl-full -mr-10 -mt-10 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                            <div className="w-14 h-14 bg-white rounded-2xl border border-red-100 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300 shadow-sm relative z-10">
+                                <FileText className="w-7 h-7 text-red-500" />
                             </div>
-                            <h3 className="text-xl font-semibold text-white mb-4 relative z-10">RAMS Packs</h3>
-                            <ul className="space-y-3 text-sm text-slate-400 font-medium relative z-10">
+                            <h3 className="text-2xl font-bold text-slate-900 mb-4 relative z-10">RAMS Packs</h3>
+                            <ul className="space-y-4 text-slate-700 font-medium relative z-10 text-base">
                                 <li className="flex items-center gap-3">
-                                    <div className="w-1.5 h-1.5 rounded-full bg-red-500" />
+                                    <div className="w-2 h-2 rounded-full bg-red-500 shadow-sm" />
                                     Job scope & project details
                                 </li>
                                 <li className="flex items-center gap-3">
-                                    <div className="w-1.5 h-1.5 rounded-full bg-red-500" />
+                                    <div className="w-2 h-2 rounded-full bg-red-500 shadow-sm" />
                                     Risk assessment with hazard matrix
                                 </li>
                                 <li className="flex items-center gap-3">
-                                    <div className="w-1.5 h-1.5 rounded-full bg-red-500" />
+                                    <div className="w-2 h-2 rounded-full bg-red-500 shadow-sm" />
                                     Step-by-step method statement
                                 </li>
                                 <li className="flex items-center gap-3">
-                                    <div className="w-1.5 h-1.5 rounded-full bg-red-500" />
+                                    <div className="w-2 h-2 rounded-full bg-red-500 shadow-sm" />
                                     Sign-off sheets included
                                 </li>
                             </ul>
                         </div>
 
                         {/* COSHH Card */}
-                        <div className="bg-[#0f172a] p-8 rounded-2xl border-2 border-slate-800 hover:border-blue-400/50 hover:shadow-2xl hover:-translate-y-2 hover:scale-[1.02] transition-all duration-300 group cursor-default relative overflow-hidden shadow-xl">
-                            <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/10 rounded-bl-full -mr-16 -mt-16 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-                            <div className="w-12 h-12 bg-blue-500/10 rounded-xl border border-blue-500/20 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300 relative z-10">
-                                <Beaker className="w-6 h-6 text-blue-400" />
+                        <div className="bg-white/80 backdrop-blur-2xl p-8 rounded-3xl border border-white/50 shadow-[inset_0_0_20px_rgba(255,255,255,0.5)] hover:border-white/80 hover:shadow-2xl hover:-translate-y-2 hover:scale-[1.02] transition-all duration-300 group cursor-default relative overflow-hidden">
+                            <div className="absolute top-0 right-0 w-40 h-40 bg-gradient-to-br from-blue-500/10 to-transparent rounded-bl-full -mr-10 -mt-10 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                            <div className="w-14 h-14 bg-white rounded-2xl border border-blue-100 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300 shadow-sm relative z-10">
+                                <Beaker className="w-7 h-7 text-blue-500" />
                             </div>
-                            <h3 className="text-xl font-semibold text-white mb-4 relative z-10">COSHH Assessments</h3>
-                            <ul className="space-y-3 text-sm text-slate-400 font-medium relative z-10">
+                            <h3 className="text-2xl font-bold text-slate-900 mb-4 relative z-10">COSHH Assessments</h3>
+                            <ul className="space-y-4 text-slate-700 font-medium relative z-10 text-base">
                                 <li className="flex items-center gap-3">
-                                    <div className="w-1.5 h-1.5 rounded-full bg-blue-500" />
+                                    <div className="w-2 h-2 rounded-full bg-blue-500 shadow-sm" />
                                     Substance hazards & exposure limits
                                 </li>
                                 <li className="flex items-center gap-3">
-                                    <div className="w-1.5 h-1.5 rounded-full bg-blue-500" />
+                                    <div className="w-2 h-2 rounded-full bg-blue-500 shadow-sm" />
                                     First aid & fire fighting measures
                                 </li>
                                 <li className="flex items-center gap-3">
-                                    <div className="w-1.5 h-1.5 rounded-full bg-blue-500" />
+                                    <div className="w-2 h-2 rounded-full bg-blue-500 shadow-sm" />
                                     Handling, storage & disposal
                                 </li>
                                 <li className="flex items-center gap-3">
-                                    <div className="w-1.5 h-1.5 rounded-full bg-blue-500" />
+                                    <div className="w-2 h-2 rounded-full bg-blue-500 shadow-sm" />
                                     PPE requirements
                                 </li>
                             </ul>
                         </div>
 
                         {/* Toolbox Talks Card */}
-                        <div className="bg-[#0f172a] p-8 rounded-2xl border-2 border-slate-800 hover:border-green-400/50 hover:shadow-2xl hover:-translate-y-2 hover:scale-[1.02] transition-all duration-300 group cursor-default relative overflow-hidden shadow-xl">
-                            <div className="absolute top-0 right-0 w-32 h-32 bg-green-500/10 rounded-bl-full -mr-16 -mt-16 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-                            <div className="w-12 h-12 bg-green-500/10 rounded-xl border border-green-500/20 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300 relative z-10">
-                                <Users className="w-6 h-6 text-green-400" />
+                        <div className="bg-white/80 backdrop-blur-2xl p-8 rounded-3xl border border-white/50 shadow-[inset_0_0_20px_rgba(255,255,255,0.5)] hover:border-white/80 hover:shadow-2xl hover:-translate-y-2 hover:scale-[1.02] transition-all duration-300 group cursor-default relative overflow-hidden">
+                            <div className="absolute top-0 right-0 w-40 h-40 bg-gradient-to-br from-green-500/10 to-transparent rounded-bl-full -mr-10 -mt-10 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                            <div className="w-14 h-14 bg-white rounded-2xl border border-green-100 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300 shadow-sm relative z-10">
+                                <Users className="w-7 h-7 text-green-500" />
                             </div>
-                            <h3 className="text-xl font-semibold text-white mb-4 relative z-10">Toolbox Talks</h3>
-                            <ul className="space-y-3 text-sm text-slate-400 font-medium relative z-10">
+                            <h3 className="text-2xl font-bold text-slate-900 mb-4 relative z-10">Toolbox Talks</h3>
+                            <ul className="space-y-4 text-slate-700 font-medium relative z-10 text-base">
                                 <li className="flex items-center gap-3">
-                                    <div className="w-1.5 h-1.5 rounded-full bg-green-500" />
+                                    <div className="w-2 h-2 rounded-full bg-green-500 shadow-sm" />
                                     Topic overview & key points
                                 </li>
                                 <li className="flex items-center gap-3">
-                                    <div className="w-1.5 h-1.5 rounded-full bg-green-500" />
+                                    <div className="w-2 h-2 rounded-full bg-green-500 shadow-sm" />
                                     Specific hazards & controls
                                 </li>
                                 <li className="flex items-center gap-3">
-                                    <div className="w-1.5 h-1.5 rounded-full bg-green-500" />
+                                    <div className="w-2 h-2 rounded-full bg-green-500 shadow-sm" />
                                     Discussion questions
                                 </li>
                                 <li className="flex items-center gap-3">
-                                    <div className="w-1.5 h-1.5 rounded-full bg-green-500" />
+                                    <div className="w-2 h-2 rounded-full bg-green-500 shadow-sm" />
                                     Attendance register
                                 </li>
                             </ul>
@@ -149,54 +169,69 @@ export default function MarketingHome() {
 
             {/* VERSION & VISION SECTION */}
             <section className="px-6 pb-24 relative bg-transparent">
-                <div className="max-w-4xl mx-auto">
-                    <div className="bg-[#0f172a] border-2 border-slate-800 rounded-3xl p-8 md:p-12 relative overflow-hidden group shadow-2xl">
-                        {/* Matte Design - No ambient glow */}
+                <ScrollReveal>
+                    <div className="max-w-4xl mx-auto">
+                        <div className="bg-white/80 backdrop-blur-2xl border border-white/50 rounded-3xl p-8 md:p-12 relative overflow-hidden group shadow-[inset_0_0_20px_rgba(255,255,255,0.5)]">
 
-                        <div className="relative z-10 flex flex-col items-center text-center">
+                            <div className="relative z-10 flex flex-col items-center text-center">
 
-                            {/* Version Badge - Clean Matte Design */}
-                            <div className="inline-flex items-center gap-3 bg-slate-900 border border-slate-700 rounded-full py-2 px-5 mb-8 animate-slide-up opacity-0 hover:border-slate-500 transition-colors duration-300" style={{ animationDelay: '0.1s' }}>
-                                <div className="relative w-6 h-6">
-                                    <Image
-                                        src="/rams-logo6.png"
-                                        alt="RAMS Sorted Logo"
-                                        fill
-                                        className="object-contain opacity-90"
-                                    />
+                                {/* Version Badge - Slides down first */}
+                                <div className="animate-in fade-in slide-in-from-top-4 duration-1000 delay-300 fill-mode-backwards inline-flex items-center gap-3 bg-slate-100/80 backdrop-blur-sm border border-slate-200/50 rounded-full py-2 px-5 mb-8 hover:border-slate-300 transition-all">
+                                    <div className="relative w-6 h-6">
+                                        <Image
+                                            src="/rams-logo6.png"
+                                            alt="RAMS Sorted Logo"
+                                            fill
+                                            className="object-contain"
+                                        />
+                                    </div>
+                                    <span className="text-sm font-bold text-slate-600 tracking-wide">
+                                        Current Version <span className="text-blue-600 font-mono">v1.0</span>
+                                    </span>
                                 </div>
-                                <span className="text-sm font-bold text-slate-200 tracking-wide">
-                                    Current Version <span className="text-blue-500 font-mono">v1.0</span>
-                                </span>
+
+                                {/* Headline - Types after badge appears */}
+                                <h2 className="text-4xl md:text-6xl lg:text-7xl font-bold text-slate-900 mb-6 tracking-tight">
+                                    <TypewriterText
+                                        text="This is just the beginning."
+                                        speed={20}
+                                        delay={800} // Start after badge
+                                        startWhenVisible
+                                        cursor={false}
+                                    />
+                                </h2>
+
+                                {/* Mission Text - Types after headline */}
+                                <div className="space-y-6 max-w-2xl text-lg md:text-xl text-slate-600 leading-relaxed font-medium">
+                                    <p>
+                                        <TypewriterText
+                                            text="RAMS Sorted is on a mission to unify compliance for every trade in the UK. We believe paperwork shouldn't be a barrier to get on site."
+                                            speed={15}
+                                            delay={2500} // Start after headline roughly finishes
+                                            startWhenVisible
+                                            cursor={false}
+                                            onComplete={() => setShowVersionContent(true)}
+                                        />
+                                    </p>
+
+                                    {/* Secondary Text - Fades in after mission text */}
+                                    <p className={`text-slate-500 text-base transition-all duration-1000 transform ${showVersionContent ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
+                                        Over the coming months, we're rolling out powerful new features, expanded document types, and smarter tools
+                                        designed to save you even more time. We're building the future of trade administration, one update at a time.
+                                    </p>
+                                </div>
+
+                                {/* Decorative Elements - Fade in last */}
+                                <div className={`grid grid-cols-3 gap-8 mt-12 w-full max-w-lg opacity-30 transition-all duration-1000 delay-300 ${showVersionContent ? 'opacity-30 translate-y-0' : 'opacity-0 translate-y-4'}`}>
+                                    <div className="h-1 w-full bg-gradient-to-r from-transparent via-blue-500 to-transparent rounded-full animate-pulse"></div>
+                                    <div className="h-1 w-full bg-gradient-to-r from-transparent via-purple-500 to-transparent rounded-full animate-pulse delay-300"></div>
+                                    <div className="h-1 w-full bg-gradient-to-r from-transparent via-red-500 to-transparent rounded-full animate-pulse delay-700"></div>
+                                </div>
+
                             </div>
-
-                            {/* Headline */}
-                            <h2 className="text-3xl md:text-5xl font-bold text-white mb-6 tracking-tight animate-in fade-in slide-in-from-bottom-4 duration-700 delay-200 fill-mode-backwards">
-                                This is just the beginning.
-                            </h2>
-
-                            {/* Mission Text */}
-                            <div className="space-y-6 max-w-2xl text-lg text-slate-300 leading-relaxed font-medium animate-in fade-in slide-in-from-bottom-4 duration-700 delay-300 fill-mode-backwards">
-                                <p>
-                                    RAMS Sorted is on a mission to unify compliance for every trade in the UK.
-                                    We believe paperwork shouldn't be a barrier to getting on site—it should be a seamless part of your workflow.
-                                </p>
-                                <p className="text-slate-400 text-base">
-                                    Over the coming months, we're rolling out powerful new features, expanded document types, and smarter tools
-                                    designed to save you even more time. We're building the future of trade administration, one update at a time.
-                                </p>
-                            </div>
-
-                            {/* Decorative Elements */}
-                            <div className="grid grid-cols-3 gap-8 mt-12 w-full max-w-lg opacity-50">
-                                <div className="h-1 w-full bg-gradient-to-r from-transparent via-blue-500 to-transparent rounded-full animate-pulse"></div>
-                                <div className="h-1 w-full bg-gradient-to-r from-transparent via-purple-500 to-transparent rounded-full animate-pulse delay-300"></div>
-                                <div className="h-1 w-full bg-gradient-to-r from-transparent via-red-500 to-transparent rounded-full animate-pulse delay-700"></div>
-                            </div>
-
                         </div>
                     </div>
-                </div>
+                </ScrollReveal>
             </section>
         </div>
     );
