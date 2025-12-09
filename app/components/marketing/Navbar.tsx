@@ -67,10 +67,10 @@ export default function Navbar() {
                         Sign in
                     </Link>
                     <Link
-                        href="/app"
+                        href="/signup"
                         className="inline-flex items-center gap-2 bg-slate-900 text-white px-5 py-2.5 rounded-lg text-[15px] font-medium hover:bg-slate-800 transition-all hover:shadow-lg active:scale-95"
                     >
-                        Start trial
+                        Sign up
                     </Link>
                 </div>
 
@@ -123,11 +123,11 @@ export default function Navbar() {
                             Sign in
                         </Link>
                         <Link
-                            href="/app"
+                            href="/signup"
                             className="w-full text-center py-3.5 bg-slate-900 text-white font-medium rounded-lg hover:bg-slate-800 transition-colors shadow-md"
                             onClick={() => setMobileMenuOpen(false)}
                         >
-                            Start trial
+                            Get started
                         </Link>
                     </div>
                 </div>

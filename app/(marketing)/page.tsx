@@ -171,12 +171,15 @@ export default function MarketingHome() {
             <section className="px-6 pb-24 relative bg-transparent">
                 <ScrollReveal>
                     <div className="max-w-4xl mx-auto">
-                        <div className="bg-white/80 backdrop-blur-2xl border border-white/50 rounded-3xl p-8 md:p-12 relative overflow-hidden group shadow-[inset_0_0_20px_rgba(255,255,255,0.5)]">
+                        <div className="backdrop-blur-3xl border border-white/50 rounded-3xl p-8 md:p-12 relative overflow-hidden group shadow-[inset_0_0_40px_rgba(255,255,255,0.7)] bg-liquid-glass">
+
+                            {/* Inner Glass Highlight Overlay */}
+                            <div className="absolute inset-0 bg-gradient-to-t from-white/40 to-transparent opacity-80 pointer-events-none"></div>
 
                             <div className="relative z-10 flex flex-col items-center text-center">
 
                                 {/* Version Badge - Slides down first */}
-                                <div className="animate-in fade-in slide-in-from-top-4 duration-1000 delay-300 fill-mode-backwards inline-flex items-center gap-3 bg-slate-100/80 backdrop-blur-sm border border-slate-200/50 rounded-full py-2 px-5 mb-8 hover:border-slate-300 transition-all">
+                                <div className="animate-in fade-in slide-in-from-top-4 duration-1000 delay-300 fill-mode-backwards inline-flex items-center gap-3 bg-white/50 backdrop-blur-md border border-white/60 rounded-full py-2 px-5 mb-8 hover:border-white/80 transition-all shadow-sm">
                                     <div className="relative w-6 h-6">
                                         <Image
                                             src="/rams-logo6.png"
@@ -185,15 +188,15 @@ export default function MarketingHome() {
                                             className="object-contain"
                                         />
                                     </div>
-                                    <span className="text-sm font-bold text-slate-600 tracking-wide">
-                                        Current Version <span className="text-blue-600 font-mono">v1.0</span>
+                                    <span className="text-sm font-bold text-black tracking-wide">
+                                        Current Version <span className="text-blue-700 font-mono">v1.0</span>
                                     </span>
                                 </div>
 
                                 {/* Headline - Types after badge appears */}
-                                <h2 className="text-4xl md:text-6xl lg:text-7xl font-bold text-slate-900 mb-6 tracking-tight">
+                                <h2 className="text-4xl md:text-6xl lg:text-7xl font-bold text-black mb-6 tracking-tight drop-shadow-sm">
                                     <TypewriterText
-                                        text="This is just the beginning."
+                                        text="This Is Just The Beginning."
                                         speed={20}
                                         delay={800} // Start after badge
                                         startWhenVisible
@@ -202,7 +205,7 @@ export default function MarketingHome() {
                                 </h2>
 
                                 {/* Mission Text - Types after headline */}
-                                <div className="space-y-6 max-w-2xl text-lg md:text-xl text-slate-600 leading-relaxed font-medium">
+                                <div className="space-y-6 max-w-2xl text-lg md:text-xl text-black leading-relaxed font-medium">
                                     <p>
                                         <TypewriterText
                                             text="RAMS Sorted is on a mission to unify compliance for every trade in the UK. We believe paperwork shouldn't be a barrier to get on site."
@@ -215,7 +218,7 @@ export default function MarketingHome() {
                                     </p>
 
                                     {/* Secondary Text - Fades in after mission text */}
-                                    <p className={`text-slate-500 text-base transition-all duration-1000 transform ${showVersionContent ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
+                                    <p className={`text-slate-900 text-base transition-all duration-1000 transform ${showVersionContent ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
                                         Over the coming months, we're rolling out powerful new features, expanded document types, and smarter tools
                                         designed to save you even more time. We're building the future of trade administration, one update at a time.
                                     </p>

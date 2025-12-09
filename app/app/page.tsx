@@ -189,39 +189,31 @@ function Page() {
         )
         .slice(0, 8);
 
-  // Load files from localStorage
+  // Load files from API
   useEffect(() => {
-    try {
-      const raw = typeof window !== "undefined"
-        ? window.localStorage.getItem("rams-files-v1")
-        : null;
-      if (raw) {
-        const parsed = JSON.parse(raw) as RAMSFile[];
-        if (Array.isArray(parsed)) {
-          setRecentFiles(parsed);
+    async function fetchFiles() {
+      try {
+        const res = await fetch("/api/documents");
+        if (res.ok) {
+          const data = await res.json();
+          if (Array.isArray(data)) {
+            // Map API data to RAMSFile structure if needed, or use as is if compatible
+            // API returns { id, name, createdAt, content } which matches RAMSFile
+            setRecentFiles(data);
+          }
         }
+      } catch (err) {
+        console.error("Failed to load files from API", err);
+      } finally {
+        setIsLoaded(true);
       }
-    } catch (err) {
-      console.error("Failed to load RAMS files from localStorage", err);
-    } finally {
-      setIsLoaded(true);
     }
+    fetchFiles();
   }, []);
 
-  // Persist files to localStorage
-  useEffect(() => {
-    if (!isLoaded) return;
-    try {
-      if (typeof window !== "undefined") {
-        window.localStorage.setItem(
-          "rams-files-v1",
-          JSON.stringify(recentFiles)
-        );
-      }
-    } catch (err) {
-      console.error("Failed to save RAMS files to localStorage", err);
-    }
-  }, [recentFiles, isLoaded]);
+  // No auto-save to LocalStorage anymore. 
+  // We save explicitly on Create/Delete/Update.
+
 
   // Close file context menu on outside click
   useEffect(() => {
@@ -320,8 +312,18 @@ function Page() {
       prev.includes(h) ? prev.filter((i) => i !== h) : [...prev, h]
     );
 
-  const confirmDelete = () => {
+  const confirmDelete = async () => {
     if (!deleteModal?.fileId) return;
+
+    // Call API to delete
+    try {
+      await fetch(`/api/documents?id=${deleteModal.fileId}`, { method: "DELETE" });
+    } catch (e) {
+      console.error("Delete failed", e);
+      setToast({ msg: "Failed to delete file from account.", type: "error" });
+      return;
+    }
+
     setRecentFiles((prev) => prev.filter((f) => f.id !== deleteModal.fileId));
     if (activeFile?.id === deleteModal.fileId) {
       setActiveFile(null);
@@ -537,12 +539,38 @@ function Page() {
       const htmlContent = await generateRAMSHTML(ramsData);
 
       const now = new Date();
+      // Initialize with temp ID
       const newFile: RAMSFile = {
         id: now.getTime().toString(),
         name: safeDocName,
         createdAt: now.toLocaleString(),
         content: htmlContent,
       };
+
+      // Save to API
+      try {
+        const saveRes = await fetch("/api/documents", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            name: safeDocName,
+            content: htmlContent,
+            payload: ramsData
+          }),
+        });
+
+        if (saveRes.ok) {
+          const savedDoc = await saveRes.json();
+          // Use the DB returned ID to update our local object before adding to state
+          newFile.id = savedDoc.id;
+          newFile.createdAt = savedDoc.createdAt;
+        } else {
+          console.error("Failed to save to DB");
+          setToast({ msg: "Document generated but failed to save to account.", type: "error" });
+        }
+      } catch (e) {
+        console.error("Save error", e);
+      }
 
       setRecentFiles((prev) => [newFile, ...prev].slice(0, 20));
       setActiveFile(newFile);

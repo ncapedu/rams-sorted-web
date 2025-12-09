@@ -34,24 +34,24 @@ export default function PricingPage() {
                         <div className="text-left mb-6 relative z-10">
                             <h3 className="text-lg font-bold text-white mb-1">Monthly</h3>
                             <div className="flex items-baseline gap-1">
-                                <span className="text-3xl font-bold text-white">£19.99</span>
+                                <span className="text-3xl font-bold text-white">£19</span>
                                 <span className="text-slate-400 text-sm">/month</span>
                             </div>
-                            <p className="text-xs text-slate-500 mt-1 font-medium">Flexible, pay as you go.</p>
+                            <p className="text-xs text-slate-500 mt-1 font-medium">Flexible, cancel anytime.</p>
                         </div>
 
                         <ul className="space-y-3 mb-6 text-left flex-1 relative z-10">
-                            <li className="flex items-center gap-2 text-slate-300 text-sm font-medium">
-                                <CheckCircle2 className="w-4 h-4 text-slate-500 shrink-0" />
-                                <span>Unlimited RAMS documents</span>
+                            <li className="flex items-start gap-2 text-slate-300 text-sm font-medium">
+                                <CheckCircle2 className="w-4 h-4 text-slate-500 shrink-0 mt-0.5" />
+                                <span>High-volume RAMS documents <span className="text-slate-500 text-xs block font-normal">(fair-use limits, no per-document fees)</span></span>
                             </li>
                             <li className="flex items-center gap-2 text-slate-300 text-sm font-medium">
                                 <CheckCircle2 className="w-4 h-4 text-slate-500 shrink-0" />
-                                <span>Unlimited COSHH assessments</span>
+                                <span>High-volume COSHH assessments</span>
                             </li>
                             <li className="flex items-center gap-2 text-slate-300 text-sm font-medium">
                                 <CheckCircle2 className="w-4 h-4 text-slate-500 shrink-0" />
-                                <span>Unlimited Toolbox Talks</span>
+                                <span>High-volume Toolbox Talks</span>
                             </li>
                             <li className="flex items-center gap-2 text-slate-300 text-sm font-medium">
                                 <CheckCircle2 className="w-4 h-4 text-slate-500 shrink-0" />
@@ -59,12 +59,12 @@ export default function PricingPage() {
                             </li>
                             <li className="flex items-center gap-2 text-slate-300 text-sm font-medium">
                                 <CheckCircle2 className="w-4 h-4 text-slate-500 shrink-0" />
-                                <span>Access from any device</span>
+                                <span>Secure access from any device</span>
                             </li>
                         </ul>
 
                         <Link
-                            href="/app"
+                            href="/signup?plan=monthly"
                             className="block w-full py-3 bg-slate-800 text-white border-2 border-slate-700 rounded-xl font-bold hover:bg-slate-700 hover:border-slate-600 hover:scale-105 hover:shadow-xl transition-all duration-300 active:scale-95 text-center relative z-10 text-sm"
                         >
                             Start 14-day free trial
@@ -97,10 +97,10 @@ export default function PricingPage() {
                         <div className="text-left mb-6 relative z-10">
                             <h3 className="text-lg font-bold text-white mb-1">Yearly</h3>
                             <div className="flex items-baseline gap-1 text-white">
-                                <span className="text-3xl font-bold">£149</span>
+                                <span className="text-3xl font-bold">£169</span>
                                 <span className="text-slate-400 text-sm">/year</span>
                             </div>
-                            <p className="text-xs text-blue-400 mt-1 font-bold">Save over £90 per year</p>
+                            <p className="text-xs text-blue-400 mt-1 font-bold">Save over £55 per year (3 months free vs monthly)</p>
                         </div>
 
                         <ul className="space-y-3 mb-6 text-left flex-1 relative z-10">
@@ -110,11 +110,11 @@ export default function PricingPage() {
                             </li>
                             <li className="flex items-center gap-2 text-slate-300 text-sm font-medium">
                                 <CheckCircle2 className="w-4 h-4 text-blue-400 shrink-0" />
-                                <span>4 months free vs monthly</span>
+                                <span>3 months free vs paying monthly</span>
                             </li>
                             <li className="flex items-center gap-2 text-slate-300 text-sm font-medium">
                                 <CheckCircle2 className="w-4 h-4 text-blue-400 shrink-0" />
-                                <span>Unlimited access</span>
+                                <span>Higher fair-use limits for heavy users</span>
                             </li>
                             <li className="flex items-center gap-2 text-slate-300 text-sm font-medium">
                                 <CheckCircle2 className="w-4 h-4 text-blue-400 shrink-0" />
@@ -123,7 +123,7 @@ export default function PricingPage() {
                         </ul>
 
                         <Link
-                            href="/app"
+                            href="/signup?plan=yearly"
                             className="block w-full py-3 bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-500 hover:scale-105 hover:shadow-xl hover:shadow-blue-500/20 transition-all duration-300 active:scale-95 text-center relative z-10 text-sm"
                         >
                             Start 14-day free trial
@@ -134,8 +134,6 @@ export default function PricingPage() {
                 <p className="text-xs text-slate-400 mt-8 opacity-0 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-300 fill-mode-forwards">
                     Prices exclude VAT. 14-day free trial requires card details. Cancel anytime.
                 </p>
-
-
             </div>
         </div>
     );

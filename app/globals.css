@@ -192,3 +192,28 @@ body {
   background-size: 400% 400%;
   animation: swirl 8s ease infinite;
 }
+
+@keyframes liquid {
+  0% {
+    background-position: 0% 50%
+  }
+
+  50% {
+    background-position: 100% 50%
+  }
+
+  100% {
+    background-position: 0% 50%
+  }
+}
+
+.bg-liquid-glass {
+  background: linear-gradient(60deg,
+      rgba(255, 255, 255, 0.8),
+      rgba(230, 240, 255, 0.5),
+      rgba(255, 255, 255, 0.9),
+      rgba(240, 230, 255, 0.5),
+      rgba(255, 255, 255, 0.8));
+  background-size: 300% 300%;
+  animation: liquid 8s ease infinite;
+}
