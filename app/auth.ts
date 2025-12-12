@@ -24,12 +24,17 @@ export async function getOrSetDeviceId() {
     let id = store.get("rs_device_id")?.value;
     if (!id) {
         id = randomUUID();
-        store.set("rs_device_id", id, {
-            httpOnly: true,
-            maxAge: 60 * 60 * 24 * 365, // 1 year
-            sameSite: "lax",
-            path: '/', // Ensure cookie is set for whole site
-        });
+        try {
+            store.set("rs_device_id", id, {
+                httpOnly: true,
+                maxAge: 60 * 60 * 24 * 365, // 1 year
+                sameSite: "lax",
+                path: '/', // Ensure cookie is set for whole site
+            });
+        } catch (err) {
+            console.error("Failed to set device cookie:", err);
+            // Non-blocking, proceed with generated ID
+        }
     }
     return id;
 }
@@ -83,11 +88,15 @@ export const { auth, signIn, signOut, handlers } = NextAuth({
                         const expires = new Date();
                         expires.setDate(expires.getDate() + 30); // 30 day expiration
 
-                        await sql`
-                            INSERT INTO sessions (user_id, session_token, device_id, expires)
-                            VALUES (${user.id}, ${sessionToken}, ${deviceId}, ${expires.toISOString()})
-                            ON CONFLICT (session_token) DO NOTHING
-                        `;
+                        try {
+                            await sql`
+                                INSERT INTO sessions (user_id, session_token, device_id, expires)
+                                VALUES (${user.id}, ${sessionToken}, ${deviceId}, ${expires.toISOString()})
+                                ON CONFLICT (session_token) DO NOTHING
+                            `;
+                        } catch (err) {
+                            console.error("Failed to insert session:", err);
+                        }
 
                         // Return user object to complete sign-in
                         // We attach deviceId to the user object so it can be passed to the token

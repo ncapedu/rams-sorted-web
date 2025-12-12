@@ -28,6 +28,13 @@ export async function GET() {
         created_at TIMESTAMPTZ DEFAULT NOW(),
         expires TIMESTAMPTZ NOT NULL
       );
+
+      -- Ensure columns exist if table was already created without them
+      ALTER TABLE sessions ADD COLUMN IF NOT EXISTS device_id TEXT;
+      ALTER TABLE sessions ADD COLUMN IF NOT EXISTS user_agent TEXT;
+      ALTER TABLE sessions ADD COLUMN IF NOT EXISTS ip_address TEXT;
+      -- Make device_id NOT NULL if it was just added (optional safety, might fail if nulls exist but it's new logic so likely okay or empty)
+      -- For now, just adding columns is enough to fix the "column does not exist" error.
     `;
 
         // 3. Document Tables - Access & Isolation
