@@ -237,8 +237,8 @@ body {
 }
 
 .bg-auth-swirl {
-  /* Slate-50, Blue-200, Slate-200, Sky-200 for visible movement */
-  background: linear-gradient(-45deg, #f8fafc, #bfdbfe, #cbd5e1, #bae6fd);
+  /* Dark Blue -> Light Blue Wave Effect */
+  background: linear-gradient(-45deg, #020617, #1e3a8a, #bfdbfe, #e0f2fe);
   background-size: 400% 400%;
-  animation: swirl 10s ease infinite;
+  animation: swirl 12s ease infinite;
 }

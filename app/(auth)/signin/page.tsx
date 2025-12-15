@@ -64,32 +64,32 @@ function SignInContent() {
 
     return (
         <div className="min-h-screen bg-auth-swirl flex flex-col justify-center items-center px-4 sm:px-6 lg:px-8">
-            {/* Card Container - Single entry animation */}
-            <div className="w-full max-w-md bg-white/90 backdrop-blur-xl p-8 sm:p-10 rounded-3xl shadow-2xl border border-white/50 space-y-8 animate-in fade-in zoom-in-95 duration-500 relative z-10">
+            {/* Card Container - Premium Glass Effect */}
+            <div className="w-full max-w-md bg-white/95 backdrop-blur-2xl p-8 sm:p-12 rounded-[2rem] shadow-2xl shadow-blue-900/20 border border-white/60 space-y-8 animate-in fade-in zoom-in-95 duration-700 relative z-10">
 
-                <div className="text-center space-y-4">
+                <div className="text-center space-y-6">
                     <Link href="/" className="inline-block hover:scale-105 transition-transform duration-300">
                         <Image
                             src="/rams-logo6.png"
                             alt="RAMS Sorted"
-                            width={100}
-                            height={100}
-                            className="w-24 h-24 mx-auto drop-shadow-md"
+                            width={110}
+                            height={110}
+                            className="w-28 h-28 mx-auto drop-shadow-xl"
                         />
                     </Link>
-                    <div className="min-h-[40px] flex items-end justify-center">
-                        <h1 className="text-3xl font-bold tracking-tight text-slate-900">
+                    <div className="min-h-[48px] flex items-end justify-center">
+                        <h1 className="text-4xl font-extrabold tracking-tight text-slate-900">
                             {greeting && <TypewriterText text={greeting} speed={30} cursor />}
                         </h1>
                     </div>
-                    <p className="text-slate-600 font-medium">
+                    <p className="text-slate-500 font-medium tracking-wide">
                         Enter your details to access your workspace.
                     </p>
                 </div>
 
-                <form onSubmit={handleSubmit} className="space-y-5">
+                <form onSubmit={handleSubmit} className="space-y-6">
                     <div className="space-y-2">
-                        <label className="text-sm font-bold text-slate-700 ml-1" htmlFor="email">
+                        <label className="text-xs font-bold text-slate-500 uppercase tracking-widest ml-1" htmlFor="email">
                             Email
                         </label>
                         <input
@@ -97,14 +97,14 @@ function SignInContent() {
                             name="email"
                             type="email"
                             required
-                            className="w-full h-12 px-4 rounded-xl border border-slate-200 focus:border-slate-900 focus:ring-2 focus:ring-slate-900/10 outline-none transition-all placeholder:text-slate-400 bg-white/80 shadow-sm hover:border-slate-300 font-medium"
+                            className="w-full h-14 px-5 rounded-2xl border border-slate-200 focus:border-blue-600 focus:ring-4 focus:ring-blue-600/10 outline-none transition-all duration-300 placeholder:text-slate-300 bg-slate-50/50 focus:bg-white shadow-sm hover:border-slate-300 font-medium text-lg"
                             placeholder="name@company.com"
                         />
                     </div>
 
                     <div className="space-y-2">
                         <div className="flex items-center justify-between">
-                            <label className="text-sm font-bold text-slate-700 ml-1" htmlFor="password">
+                            <label className="text-xs font-bold text-slate-500 uppercase tracking-widest ml-1" htmlFor="password">
                                 Password
                             </label>
                         </div>
@@ -113,12 +113,12 @@ function SignInContent() {
                             name="password"
                             type="password"
                             required
-                            className="w-full h-12 px-4 rounded-xl border border-slate-200 focus:border-slate-900 focus:ring-2 focus:ring-slate-900/10 outline-none transition-all bg-white/80 shadow-sm hover:border-slate-300 font-medium"
+                            className="w-full h-14 px-5 rounded-2xl border border-slate-200 focus:border-blue-600 focus:ring-4 focus:ring-blue-600/10 outline-none transition-all duration-300 bg-slate-50/50 focus:bg-white shadow-sm hover:border-slate-300 font-bold text-lg tracking-widest"
                         />
                     </div>
 
                     {error && (
-                        <div className="p-4 text-sm font-medium text-red-600 bg-red-50 rounded-xl border border-red-100 animate-in fade-in slide-in-from-top-2">
+                        <div className="p-4 text-sm font-medium text-red-600 bg-red-50 rounded-xl border border-red-100 animate-in fade-in slide-in-from-top-2 flex items-center justify-center">
                             {error}
                         </div>
                     )}
@@ -126,27 +126,29 @@ function SignInContent() {
                     <button
                         type="submit"
                         disabled={loading}
-                        className="w-full h-12 bg-slate-900 text-white font-bold rounded-xl hover:bg-slate-800 transition-all hover:shadow-lg disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2 active:scale-[0.98] mt-2"
+                        className="w-full h-14 bg-slate-900 text-white font-bold text-lg rounded-2xl hover:bg-slate-800 transition-all duration-300 hover:shadow-xl hover:shadow-slate-900/20 hover:-translate-y-0.5 disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2 active:scale-[0.98] mt-4"
                     >
                         {loading ? (
-                            <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                            <div className="w-6 h-6 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                         ) : (
                             "Sign In"
                         )}
                     </button>
                 </form>
 
-                <div className="pt-2 border-t border-slate-100 flex flex-col gap-4 text-center">
+                <div className="pt-4 border-t border-slate-100 flex flex-col gap-4 text-center">
                     <Link
                         href="/pricing"
-                        className="w-full py-3 px-4 bg-white border border-slate-200 rounded-xl font-bold text-slate-600 hover:text-slate-900 hover:border-slate-300 hover:bg-slate-50 transition-all shadow-sm hover:shadow-md active:scale-[0.98] text-sm"
+                        className="w-full py-4 px-6 bg-white border-2 border-slate-100 rounded-2xl font-bold text-slate-500 hover:text-slate-900 hover:border-slate-900 hover:bg-white transition-all duration-300 active:scale-[0.98] text-sm group"
                     >
-                        View Pricing to create an account
+                        <span className="group-hover:translate-x-1 inline-block transition-transform duration-300">
+                            View Pricing to create an account →
+                        </span>
                     </Link>
                 </div>
             </div>
 
-            <div className="mt-8 text-slate-400 text-xs text-center font-medium animate-in fade-in delay-300 duration-700">
+            <div className="mt-8 text-white/60 text-xs text-center font-medium animate-in fade-in delay-300 duration-700 tracking-wider">
                 © {new Date().getFullYear()} RAMS Sorted. All rights reserved.
             </div>
         </div>
