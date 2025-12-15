@@ -242,3 +242,39 @@ body {
   background-size: 400% 400%;
   animation: swirl 7s ease infinite;
 }
+/* Liquid Glass Animation */
+@keyframes liquid-shimmer {
+  0% {
+    transform: translateX(-150%) skewX(-15deg);
+  }
+  50% {
+    transform: translateX(150%) skewX(-15deg);
+  }
+  100% {
+    transform: translateX(150%) skewX(-15deg);
+  }
+}
+
+.glass-card-animated {
+  @apply relative overflow-hidden backdrop-blur-xl bg-white/90 border border-white/60 shadow-2xl;
+}
+
+.glass-card-animated::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 200%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.4),
+    rgba(255, 255, 255, 0.6),
+    rgba(255, 255, 255, 0.4),
+    transparent
+  );
+  transform: skewX(-15deg);
+  animation: liquid-shimmer 8s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  pointer-events: none;
+}
