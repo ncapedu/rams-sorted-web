@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import Image from "next/image";
 import {
   Loader2,
@@ -90,6 +90,27 @@ const Tooltip = ({ text }: { text: string }) => (
 import CoshhWizard from "../components/CoshhWizard";
 import ToolboxWizard from "../components/ToolboxWizard";
 
+// --- HOOKS ---
+function useDebounce<T extends (...args: any[]) => void>(callback: T, delay: number) {
+  const callbackRef = useRef(callback);
+
+  useEffect(() => {
+    callbackRef.current = callback;
+  }, [callback]);
+
+  // We need to keep a ref to the timer
+  const timer = useRef<NodeJS.Timeout>(null as any);
+
+  const debounced = useCallback((...args: Parameters<T>) => {
+    if (timer.current) clearTimeout(timer.current);
+    timer.current = setTimeout(() => {
+      callbackRef.current(...args);
+    }, delay);
+  }, [delay]);
+
+  return debounced;
+}
+
 interface DashboardProps {
   initialFiles: RAMSFile[];
 }
@@ -147,7 +168,6 @@ export default function Dashboard({ initialFiles }: DashboardProps) {
   const [questions, setQuestions] = useState<any[]>([]);
   const [answers, setAnswers] = useState<Record<string, string>>({});
 
-  // Job omni-search
   const [jobSearch, setJobSearch] = useState("");
   const [jobSearchOpen, setJobSearchOpen] = useState(false);
 
@@ -165,7 +185,33 @@ export default function Dashboard({ initialFiles }: DashboardProps) {
   const [activeFile, setActiveFile] = useState<RAMSFile | null>(null);
   const [fileMenuOpenId, setFileMenuOpenId] = useState<string | null>(null);
   const [renamingFileId, setRenamingFileId] = useState<string | null>(null);
-  // Removed isLoaded state as we use server-side initial data
+
+  // --- SUBTLE AUTO-SAVE LOGIC ---
+  const saveDocument = async (file: RAMSFile) => {
+    try {
+      await fetch("/api/documents", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          id: file.id,
+          name: file.name,
+          content: file.content,
+          type: file.type,
+          payload: {
+            ...file, // Spread all extra fields like toolboxData, coshhData etc.
+            htmlContent: undefined // Avoid duplicating bulky html content in payload if not needed, but safe to keep
+          }
+        }),
+      });
+      // Optional: show a tiny "Saved" indicator or just keep it silent
+    } catch (e) {
+      console.error("Auto-save failed", e);
+    }
+  };
+
+  const debouncedSave = useDebounce((file: RAMSFile) => {
+    saveDocument(file);
+  }, 1000);
 
   // Close menu on outside click
   useEffect(() => {
@@ -843,11 +889,16 @@ export default function Dashboard({ initialFiles }: DashboardProps) {
               <MyFileViewer
                 file={activeFile}
                 onBack={() => setMode("landing")}
-                onUpdateFile={(f) => {
-                  setActiveFile(f);
+                onUpdateFile={(file) => {
+                  // 1. Immediate local update for UI responsiveness
+                  const updated = { ...file };
+                  setActiveFile(updated);
                   setRecentFiles((prev) =>
-                    prev.map((pf) => (pf.id === f.id ? f : pf))
+                    prev.map((pf) => (pf.id === updated.id ? updated : pf))
                   );
+
+                  // 2. Debounced save to server
+                  debouncedSave(updated);
                 }}
               />
             </div>

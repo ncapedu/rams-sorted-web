@@ -14,7 +14,7 @@ interface TypewriterTextProps {
 
 export default function TypewriterText({
     text,
-    speed = 30,
+    speed = 20,
     delay = 0,
     className = "",
     cursor = false,

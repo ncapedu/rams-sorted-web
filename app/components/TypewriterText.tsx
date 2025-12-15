@@ -14,8 +14,8 @@ interface TypewriterTextProps {
 
 const TypewriterText: React.FC<TypewriterTextProps> = ({
     messages,
-    typingSpeed = 50,
-    deletingSpeed = 30,
+    typingSpeed = 20,
+    deletingSpeed = 10,
     pauseDuration = 2000,
     loop = true,
     className = "",

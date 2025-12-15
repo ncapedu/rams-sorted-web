@@ -113,6 +113,75 @@ export async function POST(req: Request) {
     }
 }
 
+export async function PUT(req: Request) {
+    const session = await auth();
+    if (!session?.user?.id) {
+        return new Response("Unauthorized", { status: 401 });
+    }
+
+    try {
+        const { id, name, content, payload, type } = await req.json();
+
+        if (!id) return Response.json({ error: "Missing ID" }, { status: 400 });
+
+        const client = await db.connect();
+        const dbPayload = {
+            htmlContent: content,
+            ...payload
+        };
+
+        // Determine table based on type
+        let table = 'rams_documents';
+        if (type === 'COSHH') table = 'coshh_assessments';
+        if (type === 'TOOLBOX' || type === "TOOLBOX_TALK") table = 'toolbox_talks';
+
+        // Update the record safely
+        // Note: Dynamic table name in SQL literal requires safe handling. 
+        // Providing specific queries per type is safer against SQL injection if table variable isn't trusted, 
+        // but here it's strictly controlled by our logic.
+
+        let result;
+        if (type === 'COSHH') {
+            result = await client.sql`
+                UPDATE coshh_assessments 
+                SET title = ${name}, payload = ${JSON.stringify(dbPayload)}
+                WHERE id = ${id} AND user_id = ${session.user.id}
+                RETURNING id, title, created_at
+            `;
+        } else if (type === 'TOOLBOX' || type === "TOOLBOX_TALK") {
+            result = await client.sql`
+                UPDATE toolbox_talks 
+                SET title = ${name}, payload = ${JSON.stringify(dbPayload)}
+                WHERE id = ${id} AND user_id = ${session.user.id}
+                RETURNING id, title, created_at
+            `;
+        } else {
+            result = await client.sql`
+                UPDATE rams_documents 
+                SET title = ${name}, payload = ${JSON.stringify(dbPayload)}
+                WHERE id = ${id} AND user_id = ${session.user.id}
+                RETURNING id, title, created_at
+            `;
+        }
+
+        if (result.rowCount === 0) {
+            return Response.json({ error: "Document not found or unauthorized" }, { status: 404 });
+        }
+
+        const row = result.rows[0];
+        return Response.json({
+            id: row.id,
+            name: row.title,
+            createdAt: new Date(row.created_at).toLocaleString(),
+            content: content,
+            type: type
+        });
+
+    } catch (err: any) {
+        return Response.json({ error: err.message }, { status: 500 });
+    }
+}
+
 export async function DELETE(req: Request) {
     const session = await auth();
     if (!session?.user?.id) {
