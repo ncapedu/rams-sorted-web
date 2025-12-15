@@ -208,6 +208,28 @@ export default function CoshhWizard({ onBack, onSave }: CoshhWizardProps) {
                 content: htmlContent,
             };
 
+            // Save to API
+            try {
+                const saveRes = await fetch("/api/documents", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        name: newFile.name,
+                        content: htmlContent,
+                        payload: { coshhData: apiRes.data },
+                        type: 'COSHH'
+                    })
+                });
+
+                if (saveRes.ok) {
+                    const savedDoc = await saveRes.json();
+                    newFile.id = savedDoc.id;
+                    newFile.createdAt = savedDoc.createdAt;
+                }
+            } catch (saveErr) {
+                console.error("Failed to save COSHH to DB", saveErr);
+            }
+
             onSave(newFile);
         } catch (e: any) {
             console.error("COSHH Generation Error:", e);

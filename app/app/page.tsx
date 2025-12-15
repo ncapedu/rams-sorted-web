@@ -894,6 +894,30 @@ function Page() {
                   toolboxData: data
                 };
 
+                // Save to API
+                try {
+                  const saveRes = await fetch("/api/documents", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                      name: data.documentName,
+                      content: htmlContent,
+                      payload: { toolboxData: data },
+                      type: 'TOOLBOX'
+                    }),
+                  });
+
+                  if (saveRes.ok) {
+                    const savedDoc = await saveRes.json();
+                    newFile.id = savedDoc.id;
+                    newFile.createdAt = savedDoc.createdAt;
+                  } else {
+                    console.error("Failed to save toolbox talk");
+                  }
+                } catch (e) {
+                  console.error("Failed to save toolbox talk", e);
+                }
+
                 setRecentFiles(prev => [newFile, ...prev].slice(0, 20));
                 setActiveFile(newFile);
                 setMode("viewer");

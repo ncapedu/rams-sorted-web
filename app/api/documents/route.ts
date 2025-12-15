@@ -11,30 +11,41 @@ export async function GET() {
 
     try {
         const client = await db.connect();
-        // Fetch all doc types. For now, let's assume we store them all or just RAMS.
-        // The prompt says "RAMS / COSHH / Toolbox document is stored".
-        // The current Wizard creates RAMS files. 
-        // We'll return a unified list or just RAMS for the "My Files" list.
-        // The current frontend `RAMSFile` type expects simple ID/Name/Date/Content (HTML).
-        // Our DB schema `rams_documents` has `title`, `payload` (JSON), `pdf_url?`.
-        // We should map DB rows to frontend expectations.
 
-        const rams = await client.sql`
-            SELECT id, title as name, created_at, payload 
-            FROM rams_documents 
-            WHERE user_id = ${session.user.id} 
-            ORDER BY created_at DESC
-        `;
+        // Fetch from all 3 tables
+        const [rams, coshh, toolbox] = await Promise.all([
+            client.sql`
+                SELECT id, title as name, created_at, payload, 'RAMS' as type
+                FROM rams_documents 
+                WHERE user_id = ${session.user.id} 
+            `,
+            client.sql`
+                SELECT id, title as name, created_at, payload, 'COSHH' as type
+                FROM coshh_assessments 
+                WHERE user_id = ${session.user.id} 
+            `,
+            client.sql`
+                SELECT id, title as name, created_at, payload, 'TOOLBOX' as type
+                FROM toolbox_talks 
+                WHERE user_id = ${session.user.id} 
+            `
+        ]);
+
+        const allDocs = [
+            ...rams.rows,
+            ...coshh.rows,
+            ...toolbox.rows
+        ].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
 
         // Map to frontend format
-        const files = rams.rows.map(row => ({
+        const files = allDocs.map(row => ({
             id: row.id,
             name: row.name,
             createdAt: new Date(row.created_at).toLocaleString(),
-            content: row.payload.htmlContent || "", // Assuming we store htmlContent in payload
-            // If payload structure differs, we need to adapt.
-            // Current `generateRAMS` produces `RAMSFile` with `content` string (HTML).
-            // We should store that in the DB.
+            content: row.payload.htmlContent || "",
+            type: row.type,
+            // Include extra data if needed
+            ...row.payload
         }));
 
         return Response.json(files);
@@ -50,33 +61,43 @@ export async function POST(req: Request) {
     }
 
     try {
-        const { id, name, content, payload } = await req.json();
-        // Frontend sends: id (optional logic), name, content (HTML).
-        // We should store:
-        // user_id
-        // title (name)
-        // payload (JSON with HTML content and other data if available)
+        const { id, name, content, payload, type } = await req.json();
+        // Frontend sends: name, content (HTML), payload (data), type (RAMS/COSHH/TOOLBOX)
 
         const client = await db.connect();
 
-        // Check if updating or creating?
-        // If ID is valid UUID, we might be updating. But frontend uses TS timestamps as IDs currently.
-        // We might need to handle this.
-        // Strategy: always create new if ID looks like timestamp? Or rely on returned UUID?
-        // Prompt says "Every RAMS ... is stored".
-        // Let's Insert.
-
-        // We'll store the HTML content in the payload for now to match current simple frontend model.
         const dbPayload = {
             htmlContent: content,
-            ...payload // any extra data
+            ...payload
         };
 
-        const result = await client.sql`
-            INSERT INTO rams_documents (user_id, title, payload)
-            VALUES (${session.user.id}, ${name}, ${JSON.stringify(dbPayload)})
-            RETURNING id, title, created_at
-        `;
+        let result;
+        // Default to RAMS for backward compatibility if type is missing or generic
+        let finalType = type;
+        if (!finalType || (finalType !== 'COSHH' && finalType !== 'TOOLBOX')) {
+            finalType = 'RAMS';
+        }
+
+        if (finalType === 'COSHH') {
+            result = await client.sql`
+                INSERT INTO coshh_assessments (user_id, title, payload)
+                VALUES (${session.user.id}, ${name}, ${JSON.stringify(dbPayload)})
+                RETURNING id, title, created_at
+            `;
+        } else if (finalType === 'TOOLBOX') {
+            result = await client.sql`
+                INSERT INTO toolbox_talks (user_id, title, payload)
+                VALUES (${session.user.id}, ${name}, ${JSON.stringify(dbPayload)})
+                RETURNING id, title, created_at
+            `;
+        } else {
+            // RAMS
+            result = await client.sql`
+                INSERT INTO rams_documents (user_id, title, payload)
+                VALUES (${session.user.id}, ${name}, ${JSON.stringify(dbPayload)})
+                RETURNING id, title, created_at
+            `;
+        }
 
         const row = result.rows[0];
 
@@ -84,7 +105,8 @@ export async function POST(req: Request) {
             id: row.id,
             name: row.title,
             createdAt: new Date(row.created_at).toLocaleString(),
-            content: content
+            content: content,
+            type: finalType
         });
     } catch (err: any) {
         return Response.json({ error: err.message }, { status: 500 });
@@ -103,7 +125,13 @@ export async function DELETE(req: Request) {
         if (!id) return Response.json({ error: "Missing ID" }, { status: 400 });
 
         const client = await db.connect();
-        await client.sql`DELETE FROM rams_documents WHERE id=${id} AND user_id=${session.user.id}`;
+
+        // Try deleting from all tables
+        await Promise.all([
+            client.sql`DELETE FROM rams_documents WHERE id=${id} AND user_id=${session.user.id}`,
+            client.sql`DELETE FROM coshh_assessments WHERE id=${id} AND user_id=${session.user.id}`,
+            client.sql`DELETE FROM toolbox_talks WHERE id=${id} AND user_id=${session.user.id}`
+        ]);
 
         return Response.json({ success: true });
     } catch (err: any) {
