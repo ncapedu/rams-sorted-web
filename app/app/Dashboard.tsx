@@ -50,8 +50,20 @@ function sanitizeText(input: any): string {
     .trim();
 }
 
-// Single greeting – no rotation
-const BASE_GREETING = "Welcome back";
+// Random greetings list
+const GREETINGS = [
+  "Welcome Back",
+  "Hello There",
+  "Glad To See You",
+  "Good To Have You Here",
+  "Nice To See You Again",
+  "Let’s Get Things Moving",
+  "Ready To Get Started?",
+  "We’re Glad You’re Here",
+  "Hope You’re Doing Well",
+  "Let’s Get To Work",
+  "Pick Up Where You Left Off"
+];
 
 
 
@@ -260,10 +272,14 @@ export default function Dashboard({ initialFiles }: DashboardProps) {
     }
   }, [step, mode]);
 
-  // Type-out effect for greeting once whenever we return to landing
+  // Type-out effect: pick a random greeting when entering "landing" mode
   useEffect(() => {
     if (mode !== "landing") return;
-    const full = BASE_GREETING;
+
+    // Pick random
+    const randomGreeting = GREETINGS[Math.floor(Math.random() * GREETINGS.length)];
+    const full = randomGreeting;
+
     setTypedGreeting("");
     let i = 0;
     const id = setInterval(() => {
