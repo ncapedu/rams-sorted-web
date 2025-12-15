@@ -565,6 +565,11 @@ export default function Dashboard({ initialFiles }: DashboardProps) {
         userType: formData.userType as "company" | "sole_trader",
         methodSteps: apiData.method_steps,
         extraData: { ...formData.extraData, ...(apiData.extraData || {}) },
+        // New fields
+        officeAddress: formData.officeAddress,
+        contactPhone: formData.contactPhone,
+        contactEmail: formData.contactEmail,
+        projectSupervisor: formData.projectSupervisor,
       };
 
       const htmlContent = await generateRAMSHTML(ramsData);
@@ -1279,34 +1284,6 @@ export default function Dashboard({ initialFiles }: DashboardProps) {
 
                       <div>
                         <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
-                          Phone Number (optional)
-                        </label>
-                        <input
-                          className="border border-slate-200 p-3 rounded-lg w-full text-sm focus:ring-2 focus:ring-[#0b2040] focus:border-transparent outline-none bg-white shadow-sm hover:border-slate-300 transition-all duration-200"
-                          placeholder="Contact number for queries"
-                          value={formData.contactPhone}
-                          onChange={(e) =>
-                            handleInput("contactPhone", e.target.value)
-                          }
-                        />
-                      </div>
-
-                      <div>
-                        <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
-                          Contact Email (optional)
-                        </label>
-                        <input
-                          className="border border-slate-200 p-3 rounded-lg w-full text-sm focus:ring-2 focus:ring-[#0b2040] focus:border-transparent outline-none bg-white shadow-sm hover:border-slate-300 transition-all duration-200"
-                          placeholder="RAMS contact email"
-                          value={formData.contactEmail}
-                          onChange={(e) =>
-                            handleInput("contactEmail", e.target.value)
-                          }
-                        />
-                      </div>
-
-                      <div>
-                        <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
                           Project Supervisor (optional)
                         </label>
                         <input
@@ -1320,6 +1297,38 @@ export default function Dashboard({ initialFiles }: DashboardProps) {
                             )
                           }
                         />
+                      </div>
+
+                      <div className="col-span-1 md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-4 bg-slate-50 p-4 rounded-lg border border-slate-100">
+                        <div className="md:col-span-2 text-xs font-bold text-slate-400 uppercase tracking-wider mb-[-8px]">
+                          Contact Pack (Optional)
+                        </div>
+                        <div>
+                          <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
+                            Phone Number
+                          </label>
+                          <input
+                            className="border border-slate-200 p-3 rounded-lg w-full text-sm focus:ring-2 focus:ring-[#0b2040] focus:border-transparent outline-none bg-white shadow-sm hover:border-slate-300 transition-all duration-200"
+                            placeholder="Contact number for queries"
+                            value={formData.contactPhone}
+                            onChange={(e) =>
+                              handleInput("contactPhone", e.target.value)
+                            }
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
+                            Contact Email
+                          </label>
+                          <input
+                            className="border border-slate-200 p-3 rounded-lg w-full text-sm focus:ring-2 focus:ring-[#0b2040] focus:border-transparent outline-none bg-white shadow-sm hover:border-slate-300 transition-all duration-200"
+                            placeholder="RAMS contact email"
+                            value={formData.contactEmail}
+                            onChange={(e) =>
+                              handleInput("contactEmail", e.target.value)
+                            }
+                          />
+                        </div>
                       </div>
                     </div>
 

@@ -29,6 +29,11 @@ export interface RAMSData {
   extraData?: Record<string, string>;
   answers?: Record<string, string>;
   methodSteps?: string[];
+  // New fields
+  officeAddress?: string;
+  contactPhone?: string;
+  contactEmail?: string;
+  projectSupervisor?: string;
 }
 
 function sanitizeText(input: any): string {
@@ -143,19 +148,17 @@ export async function generateRAMSHTML(data: RAMSData): Promise<string> {
     welfare,
     customDescription,
     scopeText,
-    checklist, // This comes as array from page.tsx? No, page.tsx sends "answers".
-    // I need to map "answers" to checklist format if needed.
-    // page.tsx sends "answers": { q1: "Yes", q2: "No" ... }
-    // The previous code expected "checklist": { label, answer }[]
-    // I should handle both or check API route.
-    // Let's assume the API route does the mapping.
-    // If not, I'll need to do it here.
-    // I'll assume data passed to this function is already formatted by the API route.
+    checklist,
     hazards,
     documentName,
     operatives,
     extraData,
-    answers
+    answers,
+    // New fields destructuring
+    officeAddress,
+    contactPhone,
+    contactEmail,
+    projectSupervisor
   } = data;
 
   const terms = getTerminology(userType);
@@ -201,13 +204,17 @@ export async function generateRAMSHTML(data: RAMSData): Promise<string> {
   `;
 
   // 2. Project Details
+  // 2. Project Details
   const projectDetails = `
     <div class="section-block keep-together">
       <h2>1. Project & Job Scope Details</h2>
       <table>
         <tr>
           <th width="20%">${userType === "company" ? "Company" : "Contractor"}</th>
-          <td width="30%">${sanitizeText(companyName)}</td>
+          <td width="30%">
+            <strong>${sanitizeText(companyName)}</strong><br/>
+            ${isFilled(officeAddress) ? `<span class="small">${sanitizeText(officeAddress)}</span>` : ""}
+          </td>
           <th width="20%">Client</th>
           <td width="30%">${sanitizeText(clientName)}</td>
         </tr>
@@ -222,10 +229,19 @@ export async function generateRAMSHTML(data: RAMSData): Promise<string> {
         </tr>
         <tr>
           <th>Prepared By</th>
-          <td>${sanitizeText(contactName)}</td>
+          <td>
+            ${sanitizeText(contactName)}
+            ${(isFilled(contactPhone) || isFilled(contactEmail)) ? `<br/><span class="small">${[contactPhone, contactEmail].filter(isFilled).join(" | ")}</span>` : ""}
+          </td>
           <th>Date</th>
           <td>${startDate}</td>
         </tr>
+        ${isFilled(projectSupervisor) ? `
+          <tr>
+            <th>Project Supervisor</th>
+            <td colspan="3">${sanitizeText(projectSupervisor)}</td>
+          </tr>
+        ` : ""}
       </table>
     </div>
   `;
