@@ -66,7 +66,7 @@ function SignInContent() {
     return (
         <div className="min-h-screen bg-auth-swirl flex flex-col justify-center items-center px-4">
             {/* Card Container - Professional & Sharp & Liquid & Floating Entry */}
-            <div className="w-full max-w-[400px] glass-card-animated backdrop-blur-xl bg-white/90 border border-white/60 shadow-2xl shadow-blue-900/10 p-8 rounded-2xl space-y-6 animate-in fade-in slide-in-from-bottom-10 duration-700 ease-out relative z-10">
+            <div className="w-full max-w-[400px] glass-card-animated backdrop-blur-xl bg-white/90 border border-white/60 shadow-2xl shadow-blue-900/10 p-8 rounded-2xl space-y-6 animate-float-up relative z-10">
 
                 <div className="text-center space-y-4">
                     <Link href="/" className="inline-block hover:scale-105 transition-transform duration-300">
