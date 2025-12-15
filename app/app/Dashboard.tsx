@@ -183,8 +183,7 @@ export default function Dashboard({ initialFiles }: DashboardProps) {
   const [jobSearch, setJobSearch] = useState("");
   const [jobSearchOpen, setJobSearchOpen] = useState(false);
 
-  // Greeting typing (no rotation)
-  const [typedGreeting, setTypedGreeting] = useState("");
+  const [greetingMessage, setGreetingMessage] = useState("Welcome Back");
 
   // Title color rotation
   const [titleColorIndex, setTitleColorIndex] = useState(0);
@@ -272,24 +271,11 @@ export default function Dashboard({ initialFiles }: DashboardProps) {
     }
   }, [step, mode]);
 
-  // Type-out effect: pick a random greeting when entering "landing" mode
+  // Pick a random greeting when entering "landing" mode
   useEffect(() => {
-    if (mode !== "landing") return;
-
-    // Pick random
-    const randomGreeting = GREETINGS[Math.floor(Math.random() * GREETINGS.length)];
-    const full = randomGreeting;
-
-    setTypedGreeting("");
-    let i = 0;
-    const id = setInterval(() => {
-      i += 1;
-      setTypedGreeting(full.slice(0, i));
-      if (i >= full.length) {
-        clearInterval(id);
-      }
-    }, 45);
-    return () => clearInterval(id);
+    if (mode === "landing") {
+      setGreetingMessage(GREETINGS[Math.floor(Math.random() * GREETINGS.length)]);
+    }
   }, [mode]);
 
 
@@ -979,7 +965,8 @@ export default function Dashboard({ initialFiles }: DashboardProps) {
                 <div className="max-w-7xl w-full text-center">
                   <h1 className="text-4xl md:text-5xl font-semibold text-slate-900 mb-2">
                     <TypewriterText
-                      messages={["Welcome back"]}
+                      key={greetingMessage}
+                      messages={[greetingMessage]}
                       loop={false}
                       className="border-b-0"
                     />
