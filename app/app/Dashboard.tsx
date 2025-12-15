@@ -2213,23 +2213,6 @@ export default function Dashboard({ initialFiles }: DashboardProps) {
         </main >
       </div >
 
-      {/* global animation for swipe/fade transitions */}
-      < style jsx global > {`
-        @keyframes rsFadeSlideIn {
-          from {
-            opacity: 0;
-            transform: translateY(10px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-        .rs-fade-slide-in {
-          animation: rsFadeSlideIn 0.35s ease-out;
-        }
-      `}</style >
-
     </>
   );
 }
