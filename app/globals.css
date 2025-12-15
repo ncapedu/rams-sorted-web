@@ -11,7 +11,7 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
-  scrollbar-gutter: stable;
+  overflow-y: scroll;
 }
 
 /* Animations */
@@ -280,9 +280,17 @@ body {
   animation: liquid-shimmer 8s cubic-bezier(0.4, 0, 0.2, 1) infinite;
   pointer-events: none;
 }
+
 @keyframes float-up {
-  0% { opacity: 0; transform: translateY(60px) scale(0.95); }
-  100% { opacity: 1; transform: translateY(0) scale(1); }
+  0% {
+    opacity: 0;
+    transform: translateY(60px) scale(0.95);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
 
 .animate-float-up {
