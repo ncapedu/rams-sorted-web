@@ -17,7 +17,7 @@ export default function Navbar() {
                     className="flex items-center gap-3 group"
                     onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
                 >
-                    <div className="relative w-14 h-14 transition-transform duration-300 group-hover:scale-105">
+                    <div className="relative w-10 h-10 transition-transform duration-300 group-hover:scale-105">
                         <Image
                             src="/rams-logo6.png"
                             alt="RAMS Sorted Logo"
@@ -26,8 +26,8 @@ export default function Navbar() {
                             priority
                         />
                     </div>
-                    <span className="font-archivo font-bold text-2xl tracking-tight text-slate-900 italic">
-                        <span className="bg-clip-text text-transparent bg-[linear-gradient(90deg,#020617,#450a0a,#000000,#020617)] bg-[length:200%_auto] animate-wave pr-2 pb-1">
+                    <span className="font-bold text-2xl tracking-tight text-slate-900">
+                        <span className="bg-clip-text text-transparent bg-[linear-gradient(90deg,#0f172a,#0f172a,#450a0a,#0f172a,#0f172a)] bg-[length:200%_auto] animate-wave">
                             RAMS Sorted
                         </span>
                     </span>
@@ -37,7 +37,7 @@ export default function Navbar() {
                             100% { background-position: 0% 50%; }
                         }
                         .animate-wave {
-                            animation: wave 6s linear infinite;
+                            animation: wave 4s linear infinite;
                         }
                     `}</style>
                 </Link>
