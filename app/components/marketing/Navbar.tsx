@@ -58,12 +58,19 @@ export default function Navbar() {
 
                 {/* Desktop Actions */}
                 <div className="hidden md:flex items-center gap-4">
-                    <Link
-                        href="/signin"
-                        className="text-[15px] font-medium text-slate-600 hover:text-slate-900 transition-colors px-2"
+                    <button
+                        onClick={async () => {
+                            const btn = document.getElementById('signin-btn');
+                            if (btn) btn.style.transform = 'scale(0.95)';
+                            await new Promise(resolve => setTimeout(resolve, 150));
+                            if (btn) btn.style.transform = 'scale(1)';
+                            window.location.href = '/signin';
+                        }}
+                        id="signin-btn"
+                        className="bg-slate-900 text-white px-5 py-2.5 rounded-full font-medium text-[15px] hover:bg-slate-800 transition-all duration-200 hover:shadow-lg active:scale-95"
                     >
                         Sign in
-                    </Link>
+                    </button>
                 </div>
 
                 {/* Mobile Menu Button */}
