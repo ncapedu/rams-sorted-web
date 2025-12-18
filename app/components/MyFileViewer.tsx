@@ -120,9 +120,9 @@ const MyFileViewer = ({ file, onBack, onUpdateFile }: MyFileViewerProps) => {
   const [isExportingPdf, setIsExportingPdf] = useState(false);
   const [viewMode, setViewMode] = useState<"web" | "print">(() => {
     if (typeof window !== "undefined") {
-      return (window.localStorage.getItem("rams-view-mode") as "web" | "print") || "web";
+      return (window.localStorage.getItem("rams-view-mode") as "web" | "print") || "print";
     }
-    return "web";
+    return "print";
   });
 
   useEffect(() => {

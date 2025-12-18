@@ -895,16 +895,15 @@ export default function Dashboard({ initialFiles }: DashboardProps) {
             <div className="h-full bg-white">
               <MyFileViewer
                 file={activeFile}
-                onBack={() => setMode("landing")}
-                onUpdateFile={(file) => {
-                  // 1. Immediate local update for UI responsiveness
-                  const updated = { ...file };
-                  setActiveFile(updated);
+                onBack={() => {
+                  setMode("landing");
+                  setActiveFile(null);
+                }}
+                onUpdateFile={(updated) => {
                   setRecentFiles((prev) =>
-                    prev.map((pf) => (pf.id === updated.id ? updated : pf))
+                    prev.map((f) => (f.id === updated.id ? updated : f))
                   );
-
-                  // 2. Debounced save to server
+                  setActiveFile(updated);
                   debouncedSave(updated);
                 }}
               />
