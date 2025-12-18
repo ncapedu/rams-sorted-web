@@ -26,15 +26,15 @@ export default function Navbar() {
                             priority
                         />
                     </div>
-                    <span className="font-archivo font-bold text-3xl tracking-tight text-slate-900 italic">
-                        <span className="bg-clip-text text-transparent bg-[linear-gradient(90deg,#020617,#450a0a,#000000,#020617)] bg-[length:200%_auto] animate-wave pr-2 pb-1 block">
+                    <span className="font-archivo font-bold text-4xl tracking-tight text-slate-900 italic">
+                        <span className="bg-clip-text text-transparent bg-[linear-gradient(90deg,#020617,#450a0a,#000000,#020617,#450a0a,#000000,#020617)] bg-[length:200%_auto] animate-wave pr-2 pb-1 block">
                             RAMS Sorted
                         </span>
                     </span>
                     <style jsx global>{`
                         @keyframes wave {
                             0% { background-position: 0% 50%; }
-                            100% { background-position: 200% 50%; }
+                            100% { background-position: 100% 50%; }
                         }
                         .animate-wave {
                             animation: wave 4s linear infinite;
