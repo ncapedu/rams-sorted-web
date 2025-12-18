@@ -161,7 +161,7 @@ export default function ProductCarousel() {
                                             <div className="w-16 h-16 rounded-full bg-red-50 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
                                                 <FileText className="w-8 h-8 text-red-500" />
                                             </div>
-                                            <h3 className="font-bold text-slate-900 text-lg mb-3">New RAMS Document</h3>
+                                            <h3 className="font-bold text-slate-900 text-lg mb-3">New RAMS Pack</h3>
                                             <p className="text-slate-500 text-sm leading-relaxed">Start a full RAMS pack in guided steps.</p>
                                         </div>
 
@@ -342,7 +342,7 @@ export default function ProductCarousel() {
                                                     This Site-Specific Risk Assessment & Method Statement (RAMS) pertains to the full house rewire project at 80 High Street, North West London, NW08 5QK, commissioned by NEO LTD. The scope involves the comprehensive replacement of existing electrical wiring to meet current standards. This task requires the removal of obsolete cables, installation of new wiring routes through structural elements, and fitting of new electrical accessories. The project will be executed in phases to minimize disruption to occupants and ensure seamless coordination with concurrent trades.
                                                 </p>
                                                 <p>
-                                                    Key hazards identified include exposure to live electricity, manual handling risks, dust and fumes, potential slips and trips, asbestos presence, demolition works, and tasks conducted near water sources. Mitigation measures will include isolating electrical circuits, employing safe manual handling techniques, utilizing dust control systems, and ensuring clear site pathways. Asbestos surveys will be conducted prior to any disturbance, and appropriate PPE will be used based on specific task requirements. Comprehensive testing will be conducted post-installation to verify the safety, continuity, and performance of protective devices. This RAMS document outlines the procedural controls and safety measures necessary to manage these risks effectively, ensuring compliance with health and safety regulations.
+                                                    Key hazards identified include exposure to live electricity, manual handling risks, dust and fumes, potential slips and trips, asbestos presence, demolition works, and tasks conducted near water sources. Mitigation measures will include isolating electrical circuits, employing safe manual handling techniques, utilizing dust control systems, and ensuring clear site pathways. Asbestos surveys will be conducted prior to any disturbance, and appropriate PPE will be used based on specific task requirements. Comprehensive testing will be conducted post-installation to verify the safety, continuity, and performance of protective devices. This RAMS pack outlines the procedural controls and safety measures necessary to manage these risks effectively, ensuring compliance with health and safety regulations.
                                                 </p>
                                                 <h3 className="font-bold text-slate-900 uppercase pt-2">ACCESS EGRESS</h3>
                                                 <p>

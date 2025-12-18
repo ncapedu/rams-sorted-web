@@ -43,7 +43,7 @@ export default function PricingPage() {
                         <ul className="space-y-3 mb-6 text-left flex-1 relative z-10">
                             <li className="flex items-start gap-2 text-slate-300 text-sm font-medium">
                                 <CheckCircle2 className="w-4 h-4 text-slate-500 shrink-0 mt-0.5" />
-                                <span>High-volume RAMS documents <span className="text-slate-500 text-xs block font-normal">(fair-use limits, no per-document fees)</span></span>
+                                <span>High-volume RAMS packs <span className="text-slate-500 text-xs block font-normal">(fair-use limits, no per-pack fees)</span></span>
                             </li>
                             <li className="flex items-center gap-2 text-slate-300 text-sm font-medium">
                                 <CheckCircle2 className="w-4 h-4 text-slate-500 shrink-0" />

@@ -1029,7 +1029,7 @@ export default function Dashboard({ initialFiles }: DashboardProps) {
                       </div>
                       <div>
                         <span className="font-semibold text-lg text-slate-900 block">
-                          New RAMS Document
+                          New RAMS Pack
                         </span>
                         <p className="mt-1 text-sm text-slate-500 leading-relaxed">
                           Start a full RAMS pack in guided steps.
@@ -1122,7 +1122,7 @@ export default function Dashboard({ initialFiles }: DashboardProps) {
                         <FileText className="w-5 h-5 text-red-600" />
                       </div>
                       <h2 className="text-2xl font-semibold text-slate-900">
-                        <TypewriterText messages={["Set Up Your RAMS File"]} loop={false} />
+                        <TypewriterText messages={["Set Up Your RAMS Pack"]} loop={false} />
                       </h2>
                     </div>
 

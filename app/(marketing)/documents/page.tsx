@@ -67,7 +67,7 @@ export default function DocumentsPage() {
                                         <div className="w-full h-1.5 bg-slate-700"></div>
                                     </div>
                                 </div>
-                                <p className="text-sm text-slate-500 font-medium group-hover:text-slate-400 transition-colors">RAMS Document Preview</p>
+                                <p className="text-sm text-slate-500 font-medium group-hover:text-slate-400 transition-colors">RAMS Pack Preview</p>
                             </div>
                         </div>
                     </div>

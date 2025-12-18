@@ -38,7 +38,7 @@ export async function GET() {
     `;
 
         // 3. Document Tables - Access & Isolation
-        // RAMS Documents
+        // RAMS Packs
         await client.sql`
         CREATE TABLE IF NOT EXISTS rams_documents (
             id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
