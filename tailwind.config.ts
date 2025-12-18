@@ -15,7 +15,7 @@ const config: Config = {
             fontFamily: {
                 sans: "var(--font-geist-sans)",
                 mono: "var(--font-geist-mono)",
-                archivo: "var(--font-archivo-black)",
+                racing: "var(--font-racing-sans)",
             },
         },
     },

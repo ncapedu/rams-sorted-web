@@ -16,7 +16,7 @@ export default function Footer() {
                                     className="object-contain"
                                 />
                             </div>
-                            <span className="font-archivo font-bold text-xl text-slate-900 italic">RAMS Sorted</span>
+                            <span className="font-racing font-bold text-xl text-slate-900 italic">RAMS Sorted</span>
                         </Link>
                         <p className="text-slate-500 text-sm leading-relaxed max-w-xs">
                             Professional health & safety documents for UK trades. Built to save you time and keep you compliant.

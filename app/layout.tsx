@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono, Archivo_Black } from "next/font/google";
+import { Geist, Geist_Mono, Archivo_Black, Racing_Sans_One } from "next/font/google";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -15,6 +15,12 @@ const geistMono = Geist_Mono({
 const archivoBlack = Archivo_Black({
   weight: "400",
   variable: "--font-archivo-black",
+  subsets: ["latin"],
+});
+
+const racingSansOne = Racing_Sans_One({
+  weight: "400",
+  variable: "--font-racing-sans",
   subsets: ["latin"],
 });
 
@@ -63,7 +69,7 @@ export default function RootLayout({
   return (
     <html lang="en" className="scroll-smooth">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} ${archivoBlack.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} ${archivoBlack.variable} ${racingSansOne.variable} antialiased`}
       >
         {children}
       </body>
