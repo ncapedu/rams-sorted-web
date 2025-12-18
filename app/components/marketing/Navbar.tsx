@@ -27,7 +27,7 @@ export default function Navbar() {
                         />
                     </div>
                     <span className="font-archivo font-bold text-2xl tracking-tight text-slate-900 italic">
-                        <span className="bg-clip-text text-transparent bg-[linear-gradient(90deg,#0f172a,#2563eb,#dc2626,#0f172a)] bg-[length:200%_auto] animate-wave">
+                        <span className="bg-clip-text text-transparent bg-[linear-gradient(90deg,#020617,#450a0a,#000000,#020617)] bg-[length:200%_auto] animate-wave pr-2 pb-1">
                             RAMS Sorted
                         </span>
                     </span>
@@ -37,7 +37,7 @@ export default function Navbar() {
                             100% { background-position: 0% 50%; }
                         }
                         .animate-wave {
-                            animation: wave 3s linear infinite;
+                            animation: wave 6s linear infinite;
                         }
                     `}</style>
                 </Link>
