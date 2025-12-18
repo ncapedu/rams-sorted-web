@@ -21,8 +21,8 @@ export default function FaqPage() {
             answer: "Yes, always. RAMS Sorted speeds things up significantly but doesn't replace a competent review. You must ensure the content matches the specific reality and hazards of your work."
         },
         {
-            question: "Do I get a free plan?",
-            answer: "We don't offer a permanent free plan. Instead, we offer a 14-day free trial so you can test everything out. A card is required to start the trial, but you won't be charged until the trial ends. It's then £20/month or £149/year unless you cancel."
+            question: "How much does it cost?",
+            answer: "We offer a 14-day free trial so you can test everything out. A card is required to start the trial, but you won't be charged until the trial ends. It's then £19/month or £169/year unless you cancel."
         },
         {
             question: "Can I cancel my subscription?",
