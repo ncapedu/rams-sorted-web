@@ -372,7 +372,7 @@ export default function CoshhWizard({ onBack, onSave }: CoshhWizardProps) {
                                         <Beaker className="w-5 h-5 text-blue-600" />
                                     </div>
                                     <h2 className="text-2xl font-semibold text-slate-900">
-                                        Identify Substances
+                                        <TypewriterText messages={["Identify Substances"]} loop={false} />
                                     </h2>
                                 </div>
 
