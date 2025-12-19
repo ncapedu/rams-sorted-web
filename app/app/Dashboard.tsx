@@ -37,7 +37,9 @@ import { SignStrip } from "../components/SignStrip";
 import { PPE_ICON_MAP, mapStringToPpeType } from "../lib/safety-icons";
 import Toast, { ToastType } from "../components/Toast";
 import ConfirmationModal from "../components/ConfirmationModal";
+
 import AnimatedTitle from "../components/AnimatedTitle";
+import SettingsModal from "../components/SettingsModal";
 
 // --- SMALL TEXT SANITISER ---
 function sanitizeText(input: any): string {
@@ -140,8 +142,11 @@ export default function Dashboard({ initialFiles, user }: DashboardProps) {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [isGenerating, setIsGenerating] = useState(false);
   const [toast, setToast] = useState<{ msg: string; type: ToastType } | null>(null);
+
+
   const [deleteModal, setDeleteModal] = useState<{ isOpen: boolean; fileId: string | null; fileName: string } | null>(null);
   const [warningsShown, setWarningsShown] = useState<number[]>([]);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
   const [documentName, setDocumentName] = useState("");
 
@@ -852,31 +857,46 @@ export default function Dashboard({ initialFiles, user }: DashboardProps) {
             </div>
 
             {/* Bottom: profile / settings (fixed) */}
-            <div className="mt-auto border-t border-black/5 px-2 py-3">
-              <div className="flex items-center justify-between gap-2 text-xs text-slate-800">
-                <div className="flex items-center gap-2">
-                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-slate-900 text-white overflow-hidden uppercase">
+            {/* Bottom: profile / settings (fixed) */}
+            <div className={`mt-auto border-t border-black/5 p-2 transition-all duration-300 ${sidebarOpen ? "px-2" : "px-2"}`}>
+              {sidebarOpen ? (
+                <div
+                  className="group relative flex items-center gap-3 p-2 rounded-xl cursor-pointer hover:shadow-md transition-all duration-300 overflow-hidden"
+                  onClick={() => setIsSettingsOpen(true)}
+                >
+                  {/* Wave Background Effect */}
+                  <div className="absolute inset-0 bg-auth-swirl opacity-0 group-hover:opacity-10 transition-opacity duration-300" />
+
+                  <div className="relative h-9 w-9 rounded-full bg-slate-900 ring-2 ring-white shadow-sm flex items-center justify-center overflow-hidden shrink-0">
+                    {user?.image ? (
+                      <Image src={user.image} alt={user.name || "User"} width={36} height={36} className="object-cover h-full w-full" />
+                    ) : (
+                      <span className="text-xs font-bold text-white">{user?.username?.[0] || user?.email?.[0] || "U"}</span>
+                    )}
+                  </div>
+
+                  <div className="flex-1 min-w-0 flex flex-col items-start text-left">
+                    <span className="text-xs font-bold text-slate-900 truncate w-full">{user?.username || user?.name || "Account"}</span>
+                    <span className="text-[10px] text-slate-500 truncate w-full">{user?.email || "Manage Settings"}</span>
+                  </div>
+
+                  <Settings className="w-4 h-4 text-slate-400 group-hover:text-slate-900 group-hover:rotate-90 transition-all duration-300" />
+                </div>
+              ) : (
+                <button
+                  onClick={() => setIsSettingsOpen(true)}
+                  className="flex h-10 w-10 items-center justify-center rounded-xl hover:bg-slate-200/80 text-slate-500 hover:text-slate-900 transition-colors mx-auto"
+                  title="Settings"
+                >
+                  <div className="h-8 w-8 rounded-full bg-slate-900 flex items-center justify-center overflow-hidden text-white text-[10px]">
                     {user?.image ? (
                       <Image src={user.image} alt={user.name || "User"} width={32} height={32} />
                     ) : (
-                      <span className="text-xs font-bold">{user?.username?.[0] || user?.email?.[0] || "U"}</span>
+                      <span>{user?.username?.[0] || user?.email?.[0] || "U"}</span>
                     )}
                   </div>
-                  {sidebarOpen && (
-                    <div className="flex flex-col leading-tight max-w-[100px]">
-                      <span className="text-xs font-semibold truncate" title={user?.username || user?.name || "Account"}>{user?.username || user?.name || "Account"}</span>
-                      <span className="text-[10px] text-slate-500 truncate" title={user?.email || ""}>
-                        {user?.email || "Signed In"}
-                      </span>
-                    </div>
-                  )}
-                </div>
-                {sidebarOpen && (
-                  <button onClick={() => window.location.href = '/api/auth/signout'} className="rounded-md p-1.5 hover:bg-slate-200/80 text-slate-500 hover:text-slate-900 transition-colors" title="Sign out">
-                    <Settings className="w-4 h-4" />
-                  </button>
-                )}
-              </div>
+                </button>
+              )}
             </div>
           </div>
         </aside>
