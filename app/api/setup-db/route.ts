@@ -10,9 +10,14 @@ export async function GET() {
       CREATE TABLE IF NOT EXISTS users (
         id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
         email TEXT NOT NULL UNIQUE,
+        username TEXT,
         hashed_password TEXT NOT NULL,
         created_at TIMESTAMPTZ DEFAULT NOW()
       );
+      
+      ALTER TABLE users ADD COLUMN IF NOT EXISTS username TEXT;
+      ALTER TABLE users ADD COLUMN IF NOT EXISTS two_factor_secret TEXT;
+      ALTER TABLE users ADD COLUMN IF NOT EXISTS two_factor_enabled BOOLEAN DEFAULT FALSE;
     `;
 
         // 2. Sessions Table (for device tracking & NextAuth)

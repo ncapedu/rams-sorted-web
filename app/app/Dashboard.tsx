@@ -125,9 +125,15 @@ function useDebounce<T extends (...args: any[]) => void>(callback: T, delay: num
 
 interface DashboardProps {
   initialFiles: RAMSFile[];
+  user?: {
+    name?: string | null;
+    email?: string | null;
+    image?: string | null;
+    username?: string | null;
+  };
 }
 
-export default function Dashboard({ initialFiles }: DashboardProps) {
+export default function Dashboard({ initialFiles, user }: DashboardProps) {
   const [mode, setMode] = useState<"landing" | "wizard" | "viewer" | "coshh" | "toolbox">("landing");
   // 0 = pre-step (name doc), 1–5 = wizard steps
   const [step, setStep] = useState(1);
@@ -849,21 +855,25 @@ export default function Dashboard({ initialFiles }: DashboardProps) {
             <div className="mt-auto border-t border-black/5 px-2 py-3">
               <div className="flex items-center justify-between gap-2 text-xs text-slate-800">
                 <div className="flex items-center gap-2">
-                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-slate-900 text-white">
-                    <User className="w-4 h-4" />
+                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-slate-900 text-white overflow-hidden uppercase">
+                    {user?.image ? (
+                      <Image src={user.image} alt={user.name || "User"} width={32} height={32} />
+                    ) : (
+                      <span className="text-xs font-bold">{user?.username?.[0] || user?.email?.[0] || "U"}</span>
+                    )}
                   </div>
                   {sidebarOpen && (
-                    <div className="flex flex-col leading-tight">
-                      <span className="text-xs font-semibold">Account</span>
-                      <span className="text-[11px] text-slate-600">
-                        Not signed in
+                    <div className="flex flex-col leading-tight max-w-[100px]">
+                      <span className="text-xs font-semibold truncate" title={user?.username || user?.name || "Account"}>{user?.username || user?.name || "Account"}</span>
+                      <span className="text-[10px] text-slate-500 truncate" title={user?.email || ""}>
+                        {user?.email || "Signed In"}
                       </span>
                     </div>
                   )}
                 </div>
                 {sidebarOpen && (
-                  <button className="rounded-md p-1.5 hover:bg-slate-200/80">
-                    <Settings className="w-4 h-4 text-slate-700" />
+                  <button onClick={() => window.location.href = '/api/auth/signout'} className="rounded-md p-1.5 hover:bg-slate-200/80 text-slate-500 hover:text-slate-900 transition-colors" title="Sign out">
+                    <Settings className="w-4 h-4" />
                   </button>
                 )}
               </div>

@@ -1,15 +1,33 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { signIn } from "next-auth/react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
+import TypewriterText from "../../components/marketing/TypewriterText";
+import { ArrowRight, Check, X } from "lucide-react";
 
-export default function SignUpPage() {
+// Password strength utils
+const requirements = [
+    { re: /.{8,}/, label: "Min 8 characters" },
+    { re: /[0-9]/, label: "Includes number" },
+    { re: /[a-z]/, label: "Lowercase letter" },
+    { re: /[A-Z]/, label: "Uppercase letter" },
+];
+
+function SignUpContent() {
     const router = useRouter();
+    const searchParams = useSearchParams();
+    const plan = searchParams.get("plan");
     const [error, setError] = useState("");
     const [loading, setLoading] = useState(false);
+
+    // Form state
+    const [password, setPassword] = useState("");
+
+    const strength = requirements.map(r => r.re.test(password));
+    const isStrong = strength.every(Boolean);
 
     async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
         e.preventDefault();
@@ -18,9 +36,8 @@ export default function SignUpPage() {
 
         const formData = new FormData(e.currentTarget);
         const email = formData.get("email") as string;
-        const password = formData.get("password") as string;
+        const username = formData.get("username") as string;
         const confirmPassword = formData.get("confirmPassword") as string;
-
 
         if (password !== confirmPassword) {
             setError("Passwords do not match.");
@@ -28,19 +45,18 @@ export default function SignUpPage() {
             return;
         }
 
-        if (password.length < 8) {
-            setError("Password must be at least 8 characters.");
+        if (!isStrong) {
+            setError("Please meet all password requirements.");
             setLoading(false);
             return;
         }
 
         try {
             // 1. Create User
-            // We need an API route to create the user since NextAuth doesn't do sign-up automatically with credentials
             const res = await fetch("/api/auth/register", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ email, password }),
+                body: JSON.stringify({ email, username, password }),
             });
 
             if (!res.ok) {
@@ -56,7 +72,6 @@ export default function SignUpPage() {
             });
 
             if (loginRes?.error) {
-                // Should not happen if registration worked, but handle it
                 router.push("/signin");
             } else {
                 router.push("/app");
@@ -69,31 +84,49 @@ export default function SignUpPage() {
     }
 
     return (
-        <div className="min-h-screen bg-[#f5f4f0] grid lg:grid-cols-2">
-            {/* Left: Form */}
-            <div className="flex flex-col justify-center px-8 sm:px-12 lg:px-20 xl:px-24 py-12 bg-white">
-                <div className="w-full max-w-sm mx-auto space-y-8">
-                    <div className="space-y-2">
-                        <Link href="/" className="inline-block mb-4">
-                            <Image
-                                src="/rams-logo6.png"
-                                alt="RAMS Sorted"
-                                width={48}
-                                height={48}
-                                className="w-12 h-12"
-                            />
-                        </Link>
-                        <h1 className="text-3xl font-bold tracking-tight text-slate-900">
-                            Create account
-                        </h1>
-                        <p className="text-slate-600">
-                            Start creating RAMS in minutes. No credit card required.
-                        </p>
-                    </div>
+        <div className="min-h-screen bg-auth-swirl flex flex-col justify-center items-center px-4 py-8">
+            {/* Card Container */}
+            <div className="w-full max-w-[450px] glass-card-animated backdrop-blur-xl bg-white/90 border border-white/60 shadow-2xl shadow-blue-900/10 p-8 rounded-2xl space-y-6 animate-float-up relative z-10">
 
-                    <form onSubmit={handleSubmit} className="space-y-4">
-                        <div className="space-y-2">
-                            <label className="text-sm font-medium text-slate-900" htmlFor="email">
+                <div className="text-center space-y-4">
+                    <Link href="/" className="inline-block hover:scale-105 transition-transform duration-300">
+                        <Image
+                            src="/rams-logo6.png"
+                            alt="RAMS Sorted"
+                            width={80}
+                            height={80}
+                            className="w-20 h-20 mx-auto drop-shadow-md"
+                        />
+                    </Link>
+                    <div className="min-h-[36px] flex items-end justify-center">
+                        <h1 className="text-2xl font-bold tracking-tight text-slate-900">
+                            <TypewriterText text="Create Your Account" speed={30} cursor />
+                        </h1>
+                    </div>
+                    <p className="text-slate-500 text-sm">
+                        {plan === 'yearly' ? 'Start your 14-day free trial on the Yearly plan.' : 'Start creating RAMS in minutes. No credit card required.'}
+                    </p>
+                </div>
+
+                <form onSubmit={handleSubmit} className="space-y-4">
+                    <div className="grid grid-cols-1 gap-4">
+                        <div className="space-y-1.5">
+                            <label className="text-sm font-semibold text-slate-700" htmlFor="username">
+                                Username
+                            </label>
+                            <input
+                                id="username"
+                                name="username"
+                                type="text"
+                                required
+                                minLength={3}
+                                className="w-full h-11 px-3.5 rounded-lg border border-slate-200 focus:border-blue-600 focus:ring-1 focus:ring-blue-600 outline-none transition-all placeholder:text-slate-400 bg-white shadow-sm hover:border-slate-300 text-sm"
+                                placeholder="johndoe"
+                            />
+                        </div>
+
+                        <div className="space-y-1.5">
+                            <label className="text-sm font-semibold text-slate-700" htmlFor="email">
                                 Email
                             </label>
                             <input
@@ -101,13 +134,13 @@ export default function SignUpPage() {
                                 name="email"
                                 type="email"
                                 required
-                                className="w-full h-11 px-4 rounded-lg border border-slate-200 focus:border-slate-900 focus:ring-1 focus:ring-slate-900 outline-none transition-all placeholder:text-slate-400 bg-white shadow-sm hover:border-slate-300"
+                                className="w-full h-11 px-3.5 rounded-lg border border-slate-200 focus:border-blue-600 focus:ring-1 focus:ring-blue-600 outline-none transition-all placeholder:text-slate-400 bg-white shadow-sm hover:border-slate-300 text-sm"
                                 placeholder="name@company.com"
                             />
                         </div>
 
-                        <div className="space-y-2">
-                            <label className="text-sm font-medium text-slate-900" htmlFor="password">
+                        <div className="space-y-1.5">
+                            <label className="text-sm font-semibold text-slate-700" htmlFor="password">
                                 Password
                             </label>
                             <input
@@ -115,14 +148,23 @@ export default function SignUpPage() {
                                 name="password"
                                 type="password"
                                 required
-                                minLength={8}
-                                className="w-full h-11 px-4 rounded-lg border border-slate-200 focus:border-slate-900 focus:ring-1 focus:ring-slate-900 outline-none transition-all bg-white shadow-sm hover:border-slate-300"
-                                placeholder="Min 8 characters"
+                                value={password}
+                                onChange={(e) => setPassword(e.target.value)}
+                                className="w-full h-11 px-3.5 rounded-lg border border-slate-200 focus:border-blue-600 focus:ring-1 focus:ring-blue-600 outline-none transition-all bg-white shadow-sm hover:border-slate-300 text-sm"
                             />
+                            {/* Password Strength Meter */}
+                            <div className="grid grid-cols-2 gap-2 mt-2">
+                                {requirements.map((req, i) => (
+                                    <div key={i} className={`flex items-center gap-1.5 text-[10px] sm:text-xs font-medium transition-colors ${strength[i] ? 'text-green-600' : 'text-slate-400'}`}>
+                                        {strength[i] ? <Check className="w-3 h-3" /> : <div className="w-3 h-3 rounded-full border border-slate-300" />}
+                                        {req.label}
+                                    </div>
+                                ))}
+                            </div>
                         </div>
 
-                        <div className="space-y-2">
-                            <label className="text-sm font-medium text-slate-900" htmlFor="confirmPassword">
+                        <div className="space-y-1.5">
+                            <label className="text-sm font-semibold text-slate-700" htmlFor="confirmPassword">
                                 Confirm Password
                             </label>
                             <input
@@ -130,76 +172,52 @@ export default function SignUpPage() {
                                 name="confirmPassword"
                                 type="password"
                                 required
-                                minLength={8}
-                                className="w-full h-11 px-4 rounded-lg border border-slate-200 focus:border-slate-900 focus:ring-1 focus:ring-slate-900 outline-none transition-all bg-white shadow-sm hover:border-slate-300"
+                                className="w-full h-11 px-3.5 rounded-lg border border-slate-200 focus:border-blue-600 focus:ring-1 focus:ring-blue-600 outline-none transition-all bg-white shadow-sm hover:border-slate-300 text-sm"
                             />
                         </div>
+                    </div>
 
-                        {error && (
-                            <div className="p-3 text-sm text-red-600 bg-red-50 rounded-lg border border-red-100">
-                                {error}
-                            </div>
+                    {error && (
+                        <div className="p-3 text-sm font-medium text-red-600 bg-red-50 rounded-lg border border-red-100 flex items-center justify-center">
+                            {error}
+                        </div>
+                    )}
+
+                    <button
+                        type="submit"
+                        disabled={loading}
+                        className="w-full h-11 bg-slate-900 text-white font-semibold text-sm rounded-lg hover:bg-slate-800 transition-all hover:shadow-lg disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2 active:scale-[0.98] mt-2"
+                    >
+                        {loading ? (
+                            <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                        ) : (
+                            "Start Free Trial"
                         )}
+                    </button>
+                </form>
 
-                        <button
-                            type="submit"
-                            disabled={loading}
-                            className="w-full h-11 bg-slate-900 text-white font-medium rounded-lg hover:bg-slate-800 transition-all hover:shadow-lg disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2 mt-2"
-                        >
-                            {loading ? (
-                                <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                            ) : (
-                                "Get started free"
-                            )}
-                        </button>
-                    </form>
-
-                    <p className="text-center text-sm text-slate-600">
-                        Already have an account?{" "}
-                        <Link href="/signin" className="font-medium text-slate-900 hover:underline">
-                            Sign in
-                        </Link>
-                    </p>
+                <div className="pt-4 border-t border-slate-100 flex justify-center">
+                    <Link
+                        href="/signin"
+                        className="inline-flex items-center gap-1.5 text-sm font-medium text-slate-500 hover:text-blue-600 transition-colors group"
+                    >
+                        Already have an account? Sign in
+                        <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
+                    </Link>
                 </div>
             </div>
 
-            {/* Right: Visual */}
-            <div className="hidden lg:flex bg-[#f5f4f0] relative flex-col justify-center items-center p-12 overflow-hidden">
-                <div className="flex flex-col gap-6 max-w-lg">
-                    <div className="bg-white p-6 rounded-2xl shadow-xl border border-slate-100">
-                        <div className="flex items-center gap-4 mb-4">
-                            <div className="w-10 h-10 rounded-full bg-teal-50 flex items-center justify-center text-teal-600">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z" /><polyline points="14 2 14 8 20 8" /></svg>
-                            </div>
-                            <div>
-                                <h3 className="font-semibold text-slate-900">Professional RAMS</h3>
-                                <p className="text-sm text-slate-500">Generated in seconds</p>
-                            </div>
-                        </div>
-                        <div className="space-y-2">
-                            <div className="h-2 w-full bg-slate-100 rounded" />
-                            <div className="h-2 w-full bg-slate-100 rounded" />
-                            <div className="h-2 w-2/3 bg-slate-100 rounded" />
-                        </div>
-                    </div>
-
-                    <div className="bg-white p-6 rounded-2xl shadow-xl border border-slate-100 translate-x-12">
-                        <div className="flex items-center gap-4 mb-4">
-                            <div className="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center text-blue-600">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" /></svg>
-                            </div>
-                            <div>
-                                <h3 className="font-semibold text-slate-900">COSHH Included</h3>
-                                <p className="text-sm text-slate-500">Compliant & Safe</p>
-                            </div>
-                        </div>
-                        <div className="space-y-2">
-                            <div className="h-2 w-full bg-slate-100 rounded" />
-                            <div className="h-2 w-5/6 bg-slate-100 rounded" />
-                        </div>
-                    </div>
-                </div>
+            <div className="mt-8 text-white/50 text-[10px] text-center font-medium animate-in fade-in delay-300 duration-700 tracking-wide uppercase">
+                © {new Date().getFullYear()} RAMS Sorted. All rights reserved.
             </div>
         </div>
+    );
+}
+
+export default function SignUpPage() {
+    return (
+        <Suspense fallback={<div />}>
+            <SignUpContent />
+        </Suspense>
     );
 }

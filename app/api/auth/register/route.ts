@@ -4,40 +4,41 @@ import { z } from 'zod';
 
 export async function POST(req: Request) {
     try {
-        const { email, password, companyName } = await req.json();
+        const { email, password, username, companyName } = await req.json();
 
         // Basic validation
         const parsed = z
             .object({
                 email: z.string().email(),
-                password: z.string().min(8),
+                password: z.string().min(8).regex(/[0-9]/, "Password must contain a number").regex(/[a-z]/, "Password must contain a lowercase letter").regex(/[A-Z]/, "Password must contain an uppercase letter"),
+                username: z.string().min(3).regex(/^[a-zA-Z0-9_]+$/, "Username must be alphanumeric"),
                 companyName: z.string().optional(),
             })
-            .safeParse({ email, password, companyName });
+            .safeParse({ email, password, username, companyName });
 
         if (!parsed.success) {
-            return Response.json({ error: 'Invalid input' }, { status: 400 });
+            return Response.json({ error: parsed.error.issues[0].message }, { status: 400 });
         }
 
         const client = await db.connect();
 
-        // Check if user exists
+        // Check if user exists (email or username)
         const existingUser = await client.sql`
-      SELECT id FROM users WHERE email=${email}
-    `;
+          SELECT id FROM users WHERE email=${email} OR username=${username}
+        `;
 
         if (existingUser.rows.length > 0) {
-            return Response.json({ error: 'User already exists' }, { status: 400 });
+            return Response.json({ error: 'User with this email or username already exists' }, { status: 400 });
         }
 
         const hashedPassword = await bcrypt.hash(password, 10);
 
         // Insert user
         const result = await client.sql`
-      INSERT INTO users (email, hashed_password)
-      VALUES (${email}, ${hashedPassword})
-      RETURNING id, email
-    `;
+          INSERT INTO users (email, username, hashed_password)
+          VALUES (${email}, ${username}, ${hashedPassword})
+          RETURNING id, email, username
+        `;
 
         // (Optional) If we had a profiles table, we'd insert companyName there.
         // For now, ignoring companyName as per strict schema instructions unless we add a profile table.

@@ -51,5 +51,5 @@ export default async function Page() {
         }
     }
 
-    return <Dashboard initialFiles={initialFiles} />;
+    return <Dashboard initialFiles={initialFiles} user={session?.user} />;
 }
