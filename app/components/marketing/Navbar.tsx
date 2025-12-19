@@ -26,18 +26,15 @@ export default function Navbar() {
                             priority
                         />
                     </div>
-                    <span className="font-racing font-bold text-3xl tracking-tight italic inline-block bg-clip-text text-transparent bg-[linear-gradient(90deg,#000000,#0f172a,#450a0a,#000000,#0f172a,#450a0a,#000000)] bg-[length:200%_auto] animate-wave pr-2 pb-1">
-                        RAMS Sorted
-                    </span>
-                    <style jsx global>{`
-                        @keyframes wave {
-                            0% { background-position: 200% 50%; }
-                            100% { background-position: 0% 50%; }
-                        }
-                        .animate-wave {
-                            animation: wave 4s linear infinite;
-                        }
-                    `}</style>
+                    <div className="relative h-12 w-48 ml-2">
+                        <Image
+                            src="/rams-sorted-text.png"
+                            alt="RAMS Sorted"
+                            fill
+                            className="object-contain"
+                            priority
+                        />
+                    </div>
                 </Link>
 
                 {/* Desktop Nav */}
