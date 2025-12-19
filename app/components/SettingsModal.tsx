@@ -15,7 +15,7 @@ import {
     ChevronRight
 } from "lucide-react";
 import Image from "next/image";
-import TypewriterText from "./TypewriterText";
+// import TypewriterText from "./TypewriterText"; // Temporarily removed to debug
 
 interface SettingsModalProps {
     isOpen: boolean;
@@ -45,6 +45,8 @@ export default function SettingsModal({ isOpen, onClose, user }: SettingsModalPr
         }
     }, [isOpen]);
 
+
+
     const handleClose = () => {
         setIsClosing(true);
         setTimeout(() => {
@@ -56,7 +58,7 @@ export default function SettingsModal({ isOpen, onClose, user }: SettingsModalPr
     if (!mounted) return null;
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
             {/* Backdrop */}
             <div
                 className={`absolute inset-0 bg-black/40 backdrop-blur-sm transition-opacity duration-300 ${isOpen && !isClosing ? "opacity-100" : "opacity-0"
@@ -75,7 +77,8 @@ export default function SettingsModal({ isOpen, onClose, user }: SettingsModalPr
                 <div className="w-64 bg-slate-50 border-r border-slate-200 flex flex-col">
                     <div className="p-6 border-b border-slate-100">
                         <h2 className="text-xl font-bold text-slate-900">
-                            <TypewriterText messages={["Settings"]} loop={false} />
+                            Settings
+                            {/* <TypewriterText messages={["Settings"]} loop={false} /> */}
                         </h2>
                     </div>
 
