@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import {
     X,
     User,
@@ -57,8 +58,8 @@ export default function SettingsModal({ isOpen, onClose, user }: SettingsModalPr
 
     if (!mounted) return null;
 
-    return (
-        <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
+    return createPortal(
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 font-sans text-slate-900">
             {/* Backdrop */}
             <div
                 className={`absolute inset-0 bg-black/40 backdrop-blur-sm transition-opacity duration-300 ${isOpen && !isClosing ? "opacity-100" : "opacity-0"
@@ -277,6 +278,7 @@ export default function SettingsModal({ isOpen, onClose, user }: SettingsModalPr
                     <div className="h-2 w-full bg-auth-swirl opacity-80" />
                 </div>
             </div>
-        </div>
+        </div>,
+        document.body
     );
 }
