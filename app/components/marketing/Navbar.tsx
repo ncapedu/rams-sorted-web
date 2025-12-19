@@ -26,7 +26,7 @@ export default function Navbar() {
                             priority
                         />
                     </div>
-                    <div className="relative h-14 w-56 -ml-3">
+                    <div className="relative h-20 w-80 -ml-4">
                         <Image
                             src="/rams-sorted-text.png"
                             alt="RAMS Sorted"
