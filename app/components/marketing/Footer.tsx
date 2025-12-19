@@ -16,7 +16,7 @@ export default function Footer() {
                                     className="object-contain"
                                 />
                             </div>
-                            <div className="relative h-28 w-[28rem] -ml-[3.5rem] mt-1">
+                            <div className="relative h-28 w-[28rem] -ml-[12rem] mt-1">
                                 <Image
                                     src="/rams-sorted-text.png"
                                     alt="RAMS Sorted"
