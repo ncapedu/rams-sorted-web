@@ -53,11 +53,6 @@ export const metadata: Metadata = {
     description: "RAMS Sorted helps UK trades and contractors generate structured RAMS packs, COSHH assessments and toolbox talks in minutes.",
     images: ["/rams-logo6.png"],
   },
-  icons: {
-    icon: "/favicon.ico",
-    shortcut: "/favicon.ico",
-    apple: "/rams-logo6.png",
-  },
   metadataBase: new URL("https://www.ramssorted.co.uk"),
 };
 
