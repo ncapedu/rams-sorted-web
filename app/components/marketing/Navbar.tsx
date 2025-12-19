@@ -14,7 +14,7 @@ export default function Navbar() {
                 {/* Logo + Wordmark */}
                 <Link
                     href="/"
-                    className="flex items-center gap-3 group"
+                    className="flex items-center gap-0.5 group"
                     onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
                 >
                     <div className="relative w-16 h-16 transition-transform duration-300 group-hover:scale-105">
@@ -26,7 +26,7 @@ export default function Navbar() {
                             priority
                         />
                     </div>
-                    <div className="relative h-12 w-48 ml-2">
+                    <div className="relative h-14 w-56">
                         <Image
                             src="/rams-sorted-text.png"
                             alt="RAMS Sorted"
