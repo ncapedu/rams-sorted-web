@@ -67,8 +67,8 @@ export default function SettingsModal({ isOpen, onClose, user }: SettingsModalPr
             {/* Modal Container */}
             <div
                 className={`relative w-full max-w-4xl h-[600px] bg-white rounded-2xl shadow-2xl overflow-hidden flex transform transition-all duration-300 ${isOpen && !isClosing
-                        ? "opacity-100 scale-100 translate-y-0"
-                        : "opacity-0 scale-95 translate-y-4"
+                    ? "opacity-100 scale-100 translate-y-0"
+                    : "opacity-0 scale-95 translate-y-4"
                     }`}
             >
                 {/* Sidebar - Left Column */}
@@ -83,8 +83,8 @@ export default function SettingsModal({ isOpen, onClose, user }: SettingsModalPr
                         <button
                             onClick={() => setActiveTab("general")}
                             className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${activeTab === "general"
-                                    ? "bg-white text-slate-900 shadow-sm ring-1 ring-slate-200"
-                                    : "text-slate-500 hover:text-slate-900 hover:bg-white/50"
+                                ? "bg-white text-slate-900 shadow-sm ring-1 ring-slate-200"
+                                : "text-slate-500 hover:text-slate-900 hover:bg-white/50"
                                 }`}
                         >
                             <Settings className="w-4 h-4" />
@@ -94,8 +94,8 @@ export default function SettingsModal({ isOpen, onClose, user }: SettingsModalPr
                         <button
                             onClick={() => setActiveTab("account")}
                             className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${activeTab === "account"
-                                    ? "bg-white text-slate-900 shadow-sm ring-1 ring-slate-200"
-                                    : "text-slate-500 hover:text-slate-900 hover:bg-white/50"
+                                ? "bg-white text-slate-900 shadow-sm ring-1 ring-slate-200"
+                                : "text-slate-500 hover:text-slate-900 hover:bg-white/50"
                                 }`}
                         >
                             <User className="w-4 h-4" />
@@ -105,8 +105,8 @@ export default function SettingsModal({ isOpen, onClose, user }: SettingsModalPr
                         <button
                             onClick={() => setActiveTab("contact")}
                             className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${activeTab === "contact"
-                                    ? "bg-white text-slate-900 shadow-sm ring-1 ring-slate-200"
-                                    : "text-slate-500 hover:text-slate-900 hover:bg-white/50"
+                                ? "bg-white text-slate-900 shadow-sm ring-1 ring-slate-200"
+                                : "text-slate-500 hover:text-slate-900 hover:bg-white/50"
                                 }`}
                         >
                             <HelpCircle className="w-4 h-4" />
@@ -183,7 +183,7 @@ export default function SettingsModal({ isOpen, onClose, user }: SettingsModalPr
                                         {user?.image ? (
                                             <Image src={user.image} alt={user.name || "User"} width={96} height={96} className="object-cover h-full w-full" />
                                         ) : (
-                                            <span className="text-3xl font-bold text-slate-400">{user?.name?.[0] || "U"}</span>
+                                            <span className="text-3xl font-bold text-slate-400">{(user?.name?.[0] || user?.email?.[0] || "U").toUpperCase()}</span>
                                         )}
                                     </div>
                                     <div>

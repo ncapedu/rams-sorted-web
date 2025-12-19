@@ -860,8 +860,8 @@ export default function Dashboard({ initialFiles, user }: DashboardProps) {
             {/* Bottom: profile / settings (fixed) */}
             <div className={`mt-auto border-t border-black/5 p-2 transition-all duration-300 ${sidebarOpen ? "px-2" : "px-2"}`}>
               {sidebarOpen ? (
-                <div
-                  className="group relative flex items-center gap-3 p-2 rounded-xl cursor-pointer hover:shadow-md transition-all duration-300 overflow-hidden"
+                <button
+                  className="group relative flex w-full items-center gap-3 p-2 rounded-xl cursor-pointer hover:shadow-md transition-all duration-300 overflow-hidden text-left"
                   onClick={() => setIsSettingsOpen(true)}
                 >
                   {/* Wave Background Effect */}
@@ -871,7 +871,7 @@ export default function Dashboard({ initialFiles, user }: DashboardProps) {
                     {user?.image ? (
                       <Image src={user.image} alt={user.name || "User"} width={36} height={36} className="object-cover h-full w-full" />
                     ) : (
-                      <span className="text-xs font-bold text-white">{user?.username?.[0] || user?.email?.[0] || "U"}</span>
+                      <span className="text-xs font-bold text-white">{(user?.username?.[0] || user?.email?.[0] || "U").toUpperCase()}</span>
                     )}
                   </div>
 
@@ -881,7 +881,7 @@ export default function Dashboard({ initialFiles, user }: DashboardProps) {
                   </div>
 
                   <Settings className="w-4 h-4 text-slate-400 group-hover:text-slate-900 group-hover:rotate-90 transition-all duration-300" />
-                </div>
+                </button>
               ) : (
                 <button
                   onClick={() => setIsSettingsOpen(true)}
@@ -892,7 +892,7 @@ export default function Dashboard({ initialFiles, user }: DashboardProps) {
                     {user?.image ? (
                       <Image src={user.image} alt={user.name || "User"} width={32} height={32} />
                     ) : (
-                      <span>{user?.username?.[0] || user?.email?.[0] || "U"}</span>
+                      <span className="text-xs font-bold font-sans">{(user?.username?.[0] || user?.email?.[0] || "U").toUpperCase()}</span>
                     )}
                   </div>
                 </button>
