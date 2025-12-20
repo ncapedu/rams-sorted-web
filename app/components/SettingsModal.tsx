@@ -16,6 +16,7 @@ import {
     Smartphone,
     CheckCircle2
 } from "lucide-react";
+import { signOut } from "next-auth/react";
 import Image from "next/image";
 
 interface SettingsModalProps {
@@ -35,6 +36,47 @@ export default function SettingsModal({ isOpen, onClose, user }: SettingsModalPr
     const [activeTab, setActiveTab] = useState<Tab>("general");
     const [isClosing, setIsClosing] = useState(false);
     const [mounted, setMounted] = useState(false);
+
+    // Password Update State
+    const [isPasswordEditing, setIsPasswordEditing] = useState(false);
+    const [passwordForm, setPasswordForm] = useState({ current: "", new: "" });
+    const [passwordMessage, setPasswordMessage] = useState({ type: "", text: "" });
+    const [isPasswordLoading, setIsPasswordLoading] = useState(false);
+    const [passwordLastUpdated, setPasswordLastUpdated] = useState<string | null>(null);
+
+    const handlePasswordUpdate = async () => {
+        if (!passwordForm.new || passwordForm.new.length < 6) {
+            setPasswordMessage({ type: "error", text: "Password must be at least 6 characters" });
+            return;
+        }
+
+        setIsPasswordLoading(true);
+        setPasswordMessage({ type: "", text: "" });
+
+        try {
+            const res = await fetch("/api/user/password", {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    currentPassword: passwordForm.current,
+                    newPassword: passwordForm.new,
+                }),
+            });
+
+            const data = await res.json();
+
+            if (!res.ok) throw new Error(data.error || "Failed to update");
+
+            setPasswordMessage({ type: "success", text: "Password updated successfully" });
+            setPasswordForm({ current: "", new: "" });
+            setIsPasswordEditing(false);
+            setPasswordLastUpdated(new Date().toISOString());
+        } catch (err: any) {
+            setPasswordMessage({ type: "error", text: err.message });
+        } finally {
+            setIsPasswordLoading(false);
+        }
+    };
 
     // Handle mounting animation
     useEffect(() => {
@@ -155,19 +197,68 @@ export default function SettingsModal({ isOpen, onClose, user }: SettingsModalPr
 
                                     <div className="space-y-4">
                                         {/* Password Row */}
-                                        <div className="group flex items-center justify-between p-4 rounded-xl border border-slate-200 hover:border-slate-300 hover:shadow-sm transition-all duration-200 bg-white">
-                                            <div className="flex items-center gap-4">
-                                                <div className="p-2.5 rounded-full bg-slate-50 text-slate-600 group-hover:scale-105 transition-transform">
-                                                    <Shield className="w-5 h-5" />
+                                        <div className="p-4 rounded-xl border border-slate-200 bg-white hover:border-slate-300 transition-colors">
+                                            <div className="flex items-start justify-between">
+                                                <div className="flex items-center gap-3">
+                                                    <div className="p-2 rounded-lg bg-orange-50 text-orange-600">
+                                                        <Shield className="w-5 h-5" />
+                                                    </div>
+                                                    <div>
+                                                        <p className="text-sm font-medium text-slate-900">Password</p>
+                                                        <p className="text-xs text-slate-500">
+                                                            {passwordLastUpdated
+                                                                ? `Last updated ${new Date(passwordLastUpdated).toLocaleDateString()}`
+                                                                : "Password set since account creation"}
+                                                        </p>
+                                                    </div>
                                                 </div>
-                                                <div>
-                                                    <p className="text-sm font-semibold text-slate-900">Password</p>
-                                                    <p className="text-xs text-slate-500 mt-0.5">Last changed 30 days ago</p>
-                                                </div>
+                                                <button
+                                                    onClick={() => setIsPasswordEditing(!isPasswordEditing)}
+                                                    className="text-xs font-semibold text-slate-900 border border-slate-200 px-3 py-1.5 rounded-lg hover:bg-slate-50 transition-colors"
+                                                >
+                                                    {isPasswordEditing ? "Cancel" : "Update"}
+                                                </button>
                                             </div>
-                                            <button className="text-xs font-medium text-slate-900 bg-white border border-slate-200 px-3 py-1.5 rounded-lg hover:bg-slate-50 transition-colors shadow-sm">
-                                                Update
-                                            </button>
+
+                                            {/* Password Edit Form */}
+                                            {isPasswordEditing && (
+                                                <div className="mt-4 pt-4 border-t border-slate-100 space-y-3 animate-in fade-in slide-in-from-top-2 duration-200">
+                                                    <div>
+                                                        <label className="block text-xs font-semibold text-slate-700 mb-1">Current Password</label>
+                                                        <input
+                                                            type="password"
+                                                            value={passwordForm.current}
+                                                            onChange={(e) => setPasswordForm({ ...passwordForm, current: e.target.value })}
+                                                            className="w-full text-sm px-3 py-2 rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-900 transition-all"
+                                                            placeholder="Enter current password"
+                                                        />
+                                                    </div>
+                                                    <div>
+                                                        <label className="block text-xs font-semibold text-slate-700 mb-1">New Password</label>
+                                                        <input
+                                                            type="password"
+                                                            value={passwordForm.new}
+                                                            onChange={(e) => setPasswordForm({ ...passwordForm, new: e.target.value })}
+                                                            className="w-full text-sm px-3 py-2 rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-900 transition-all"
+                                                            placeholder="Enter new password (min 6 chars)"
+                                                        />
+                                                    </div>
+                                                    {passwordMessage.text && (
+                                                        <p className={`text-xs font-medium ${passwordMessage.type === 'error' ? 'text-red-500' : 'text-green-600'}`}>
+                                                            {passwordMessage.text}
+                                                        </p>
+                                                    )}
+                                                    <div className="flex justify-end pt-1">
+                                                        <button
+                                                            onClick={handlePasswordUpdate}
+                                                            disabled={isPasswordLoading}
+                                                            className="bg-slate-900 text-white text-xs font-bold px-4 py-2 rounded-lg hover:bg-slate-800 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                                                        >
+                                                            {isPasswordLoading ? "Updating..." : "Save New Password"}
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            )}
                                         </div>
 
                                         {/* 2FA Row */}
@@ -261,7 +352,7 @@ export default function SettingsModal({ isOpen, onClose, user }: SettingsModalPr
 
                                 <div className="pt-6">
                                     <button
-                                        onClick={() => window.location.href = '/api/auth/signout'}
+                                        onClick={() => signOut({ callbackUrl: '/' })}
                                         className="w-full flex items-center justify-center gap-2.5 text-red-600 hover:text-red-700 hover:bg-red-50 text-sm font-semibold px-4 py-3.5 rounded-xl transition-all border border-slate-100 hover:border-red-100 bg-white shadow-sm"
                                     >
                                         <LogOut className="w-4 h-4" />

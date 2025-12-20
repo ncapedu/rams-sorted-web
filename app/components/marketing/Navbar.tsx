@@ -51,6 +51,9 @@ export default function Navbar() {
                     <Link href="/faq" className="hover:text-slate-900 transition-colors">
                         FAQ
                     </Link>
+                    <Link href="/contact" className="hover:text-slate-900 transition-colors">
+                        Contact
+                    </Link>
                 </nav>
 
                 {/* Desktop Actions */}
