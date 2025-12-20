@@ -119,16 +119,7 @@ function SignInContent() {
                         />
                     </div>
 
-                    <div className="flex items-center justify-between">
-                        <label className="flex items-center gap-2 cursor-pointer group">
-                            <input
-                                type="checkbox"
-                                name="remember"
-                                className="w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-600 transition-colors cursor-pointer"
-                            />
-                            <span className="text-sm text-slate-600 group-hover:text-slate-900 transition-colors">Remember me</span>
-                        </label>
-                    </div>
+
 
                     {error && (
                         <div className="p-3 text-sm font-medium text-red-600 bg-red-50 rounded-lg border border-red-100 flex items-center justify-center">

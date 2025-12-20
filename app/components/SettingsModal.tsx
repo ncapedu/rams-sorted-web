@@ -14,7 +14,8 @@ import {
     ChevronRight,
     Shield,
     Smartphone,
-    CheckCircle2
+    CheckCircle2,
+    AlertTriangle
 } from "lucide-react";
 import { signOut } from "next-auth/react";
 import Image from "next/image";
@@ -34,7 +35,7 @@ interface SettingsModalProps {
 type Tab = "general" | "account" | "contact";
 
 export default function SettingsModal({ isOpen, onClose, user }: SettingsModalProps) {
-    const [activeTab, setActiveTab] = useState<Tab>("general");
+    const [activeTab, setActiveTab] = useState<Tab>("account");
     const [isClosing, setIsClosing] = useState(false);
     const [mounted, setMounted] = useState(false);
 
@@ -46,6 +47,36 @@ export default function SettingsModal({ isOpen, onClose, user }: SettingsModalPr
 
     // Initialize with prop value
     const [passwordLastUpdated, setPasswordLastUpdated] = useState<string | null>(user?.passwordLastUpdated || null);
+
+    // Close Account State
+    const [isCloseAccountConfirmOpen, setIsCloseAccountConfirmOpen] = useState(false);
+    const [shutdownPassword, setShutdownPassword] = useState("");
+    const [closeAccountError, setCloseAccountError] = useState("");
+    const [isClosingAccount, setIsClosingAccount] = useState(false);
+
+    const handleCloseAccount = async () => {
+        if (!shutdownPassword) {
+            setCloseAccountError("Password is required");
+            return;
+        }
+        setIsClosingAccount(true);
+        setCloseAccountError("");
+        try {
+            const res = await fetch("/api/user/close", {
+                method: "DELETE",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ password: shutdownPassword }),
+            });
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.error || "Failed to close account");
+
+            // Sign out and redirect
+            await signOut({ callbackUrl: '/' });
+        } catch (err: any) {
+            setCloseAccountError(err.message);
+            setIsClosingAccount(false);
+        }
+    };
 
     const handlePasswordUpdate = async () => {
         if (!passwordForm.new || passwordForm.new.length < 6) {
@@ -133,7 +164,7 @@ export default function SettingsModal({ isOpen, onClose, user }: SettingsModalPr
 
             {/* Slide-over Panel */}
             <div
-                className={`absolute inset-y-0 right-0 w-full max-w-[500px] bg-white shadow-2xl transform transition-transform duration-400 cubic-bezier(0.16, 1, 0.3, 1) pointer-events-auto flex flex-col ${isOpen && !isClosing
+                className={`absolute inset-y-0 right-0 w-full max-w-2xl bg-white shadow-2xl transform transition-transform duration-400 cubic-bezier(0.16, 1, 0.3, 1) pointer-events-auto flex flex-col ${isOpen && !isClosing
                     ? "translate-x-0"
                     : "translate-x-full"
                     }`}
@@ -162,16 +193,16 @@ export default function SettingsModal({ isOpen, onClose, user }: SettingsModalPr
                     {/* Navigation Sidebar */}
                     <div className="w-[160px] bg-slate-50/50 border-r border-slate-100 flex-shrink-0 py-6 px-3 space-y-1 hidden sm:block">
                         <NavButton
-                            active={activeTab === "general"}
-                            onClick={() => setActiveTab("general")}
-                            icon={<Settings className="w-4 h-4" />}
-                            label="General"
-                        />
-                        <NavButton
                             active={activeTab === "account"}
                             onClick={() => setActiveTab("account")}
                             icon={<User className="w-4 h-4" />}
                             label="Account"
+                        />
+                        <NavButton
+                            active={activeTab === "general"}
+                            onClick={() => setActiveTab("general")}
+                            icon={<Settings className="w-4 h-4" />}
+                            label="General"
                         />
                         <NavButton
                             active={activeTab === "contact"}
@@ -290,28 +321,44 @@ export default function SettingsModal({ isOpen, onClose, user }: SettingsModalPr
                         {/* Account Tab */}
                         {activeTab === "account" && (
                             <div className="space-y-10 animate-fade-in-up">
-                                {/* Profile Card */}
-                                <div className="flex items-center gap-5 p-1">
-                                    <div className="relative h-20 w-20 rounded-full bg-slate-100 ring-4 ring-white shadow-lg flex items-center justify-center overflow-hidden shrink-0">
-                                        {user?.image ? (
-                                            <Image src={user.image} alt={user.name || "User"} width={80} height={80} className="object-cover h-full w-full" />
-                                        ) : (
-                                            <span className="text-2xl font-bold text-slate-400">{(user?.name?.[0] || user?.email?.[0] || "U").toUpperCase()}</span>
-                                        )}
-                                    </div>
-                                    <div className="min-w-0 flex-1 overflow-hidden">
-                                        <h4 className="text-xl font-bold text-slate-900 tracking-tight truncate" title={user?.name || ""}>
-                                            {user?.name || "User Name"}
-                                        </h4>
-                                        <p className="text-sm text-slate-500 font-medium truncate" title={user?.email || ""}>
-                                            {user?.email || "user@example.com"}
-                                        </p>
-                                        <div className="mt-3 flex gap-2">
-                                            <Badge color="blue" label="Pro User" />
-                                            <Badge color="green" label="Active" />
+                                {/* Profile Details */}
+                                <section className="space-y-6">
+                                    <h3 className="text-lg font-bold text-slate-900 tracking-tight">Profile Details</h3>
+
+                                    <div className="bg-slate-50 rounded-2xl p-6 border border-slate-100 space-y-6">
+                                        <div className="flex items-center gap-6">
+                                            <div className="relative h-24 w-24 rounded-full bg-white ring-4 ring-white shadow-sm flex items-center justify-center overflow-hidden shrink-0">
+                                                {user?.image ? (
+                                                    <Image src={user.image} alt={user.name || "User"} width={96} height={96} className="object-cover h-full w-full" />
+                                                ) : (
+                                                    <span className="text-3xl font-bold text-slate-300">{(user?.name?.[0] || user?.email?.[0] || "U").toUpperCase()}</span>
+                                                )}
+                                            </div>
+                                            <div className="space-y-1">
+                                                <h4 className="text-xl font-bold text-slate-900 tracking-tight">{user?.name || "User Name"}</h4>
+                                                <div className="flex gap-2">
+                                                    <Badge color="blue" label="Pro User" />
+                                                    <Badge color="green" label="Active" />
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div className="grid gap-4">
+                                            <div className="p-3 bg-white rounded-xl border border-slate-200">
+                                                <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Display Name</label>
+                                                <p className="font-medium text-slate-900 mt-1">{user?.name || "Not set"}</p>
+                                            </div>
+                                            <div className="p-3 bg-white rounded-xl border border-slate-200">
+                                                <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Email Address</label>
+                                                <p className="font-medium text-slate-900 mt-1">{user?.email || "Not set"}</p>
+                                            </div>
+                                            <div className="p-3 bg-white rounded-xl border border-slate-200">
+                                                <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Username</label>
+                                                <p className="font-medium text-slate-900 mt-1">{user?.username || "Not set"}</p>
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
+                                </section>
 
                                 <hr className="border-slate-100" />
 
@@ -325,7 +372,7 @@ export default function SettingsModal({ isOpen, onClose, user }: SettingsModalPr
                                     </div>
 
                                     {/* Premium Card UI */}
-                                    <div className="relative overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm hover:shadow-md transition-shadow duration-300">
+                                    <div className="relative overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
                                         {/* Decorative gradient top */}
                                         <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500" />
 
@@ -358,15 +405,36 @@ export default function SettingsModal({ isOpen, onClose, user }: SettingsModalPr
                                     </div>
                                 </section>
 
-                                <div className="pt-6">
+                                <hr className="border-slate-100" />
+
+                                <div className="pt-2">
                                     <button
                                         onClick={() => signOut({ callbackUrl: '/' })}
-                                        className="w-full flex items-center justify-center gap-2.5 text-red-600 hover:text-red-700 hover:bg-red-50 text-sm font-semibold px-4 py-3.5 rounded-xl transition-all border border-slate-100 hover:border-red-100 bg-white shadow-sm"
+                                        className="w-full flex items-center justify-center gap-2.5 text-slate-600 hover:text-slate-900 hover:bg-slate-50 text-sm font-semibold px-4 py-3.5 rounded-xl transition-all border border-slate-200 bg-white shadow-sm"
                                     >
                                         <LogOut className="w-4 h-4" />
                                         Sign out of account
                                     </button>
                                 </div>
+
+                                {/* Danger Zone */}
+                                <section className="pt-6 border-t border-slate-100">
+                                    <h3 className="text-sm font-bold text-red-600 uppercase tracking-widest mb-4">Danger Zone</h3>
+                                    <div className="rounded-xl border border-red-100 bg-red-50/50 p-4 flex items-center justify-between">
+                                        <div className="max-w-[70%]">
+                                            <h4 className="text-sm font-bold text-slate-900">Close Account</h4>
+                                            <p className="text-xs text-slate-500 mt-1">
+                                                Permanently delete your account and all associated data. This action cannot be undone.
+                                            </p>
+                                        </div>
+                                        <button
+                                            onClick={() => setIsCloseAccountConfirmOpen(true)}
+                                            className="px-4 py-2 bg-white border border-red-200 text-red-600 text-xs font-bold rounded-lg hover:bg-red-50 transition-colors shadow-sm"
+                                        >
+                                            Close Account
+                                        </button>
+                                    </div>
+                                </section>
                             </div>
                         )}
 
@@ -434,7 +502,74 @@ export default function SettingsModal({ isOpen, onClose, user }: SettingsModalPr
                     </div>
                 </div>
             </div>
-        </div>,
+
+            {/* Close Account Confirmation Modal */}
+            {isCloseAccountConfirmOpen && (
+                <div className="fixed inset-0 z-[10000] flex items-center justify-center p-4">
+                    <div
+                        className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm transition-opacity"
+                        onClick={() => setIsCloseAccountConfirmOpen(false)}
+                    />
+                    <div className="relative w-full max-w-md bg-white rounded-2xl shadow-2xl p-6 overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+                        <div className="flex items-center gap-4 mb-4 text-red-600">
+                            <div className="p-3 bg-red-50 rounded-full">
+                                <AlertTriangle className="w-6 h-6" />
+                            </div>
+                            <h3 className="text-lg font-bold text-slate-900">Close Account?</h3>
+                        </div>
+
+                        <div className="space-y-4">
+                            <p className="text-sm text-slate-600 leading-relaxed">
+                                Are you sure you want to permanently close your account?
+                            </p>
+                            <div className="bg-red-50 p-4 rounded-xl border border-red-100 text-sm text-red-800 space-y-2">
+                                <p className="font-semibold flex items-center gap-2">
+                                    <AlertTriangle className="w-4 h-4" /> This action cannot be undone.
+                                </p>
+                                <ul className="list-disc list-inside space-y-1 opacity-90 pl-1">
+                                    <li>Your profile and data will be deleted.</li>
+                                    <li>Active subscriptions will be cancelled.</li>
+                                    <li>You will lose access to all generated documents.</li>
+                                </ul>
+                            </div>
+
+                            <div>
+                                <label className="block text-xs font-semibold text-slate-700 mb-1.5">
+                                    Enter password to confirm
+                                </label>
+                                <input
+                                    type="password"
+                                    value={shutdownPassword}
+                                    onChange={(e) => setShutdownPassword(e.target.value)}
+                                    placeholder="Your password"
+                                    className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500 transition-all text-sm"
+                                />
+                                {closeAccountError && (
+                                    <p className="text-xs text-red-600 font-medium mt-2">{closeAccountError}</p>
+                                )}
+                            </div>
+
+                            <div className="flex gap-3 pt-2">
+                                <button
+                                    onClick={() => setIsCloseAccountConfirmOpen(false)}
+                                    disabled={isClosingAccount}
+                                    className="flex-1 px-4 py-2.5 bg-white border border-slate-200 text-slate-700 font-semibold rounded-xl hover:bg-slate-50 transition-colors disabled:opacity-50"
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    onClick={handleCloseAccount}
+                                    disabled={isClosingAccount || !shutdownPassword}
+                                    className="flex-1 px-4 py-2.5 bg-red-600 text-white font-semibold rounded-xl hover:bg-red-700 transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                                >
+                                    {isClosingAccount ? "Closing..." : "Close Account"}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+        </div >,
         document.body
     );
 }
