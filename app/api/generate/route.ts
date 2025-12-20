@@ -13,7 +13,7 @@ if (!apiKey) {
 }
 
 const openai = new OpenAI({
-  apiKey: apiKey ?? "",
+  apiKey: process.env.OPENAI_API_KEY || "dummy-key",
 });
 
 export async function POST(req: Request) {
