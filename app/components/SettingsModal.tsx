@@ -231,7 +231,7 @@ export default function SettingsModal({ isOpen, onClose, user }: SettingsModalPr
 
                                     <div className="space-y-4">
                                         {/* Password Row */}
-                                        <div className="p-4 rounded-xl border border-slate-200 bg-white hover:border-slate-300 transition-colors">
+                                        <div className="p-4 rounded-lg border border-slate-200 bg-white hover:border-slate-300 transition-colors">
                                             <div className="flex items-start justify-between">
                                                 <div className="flex items-center gap-3">
                                                     <div className="p-2 rounded-lg bg-orange-50 text-orange-600">
@@ -248,7 +248,7 @@ export default function SettingsModal({ isOpen, onClose, user }: SettingsModalPr
                                                 </div>
                                                 <button
                                                     onClick={() => setIsPasswordEditing(!isPasswordEditing)}
-                                                    className="text-xs font-semibold text-slate-900 border border-slate-200 px-3 py-1.5 rounded-lg hover:bg-slate-50 transition-colors"
+                                                    className="text-xs font-semibold text-slate-900 border border-slate-200 px-3 py-1.5 rounded bg-white hover:bg-slate-50 transition-colors"
                                                 >
                                                     {isPasswordEditing ? "Cancel" : "Update"}
                                                 </button>
@@ -263,7 +263,7 @@ export default function SettingsModal({ isOpen, onClose, user }: SettingsModalPr
                                                             type="password"
                                                             value={passwordForm.current}
                                                             onChange={(e) => setPasswordForm({ ...passwordForm, current: e.target.value })}
-                                                            className="w-full text-sm px-3 py-2 rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-900 transition-all"
+                                                            className="w-full text-sm px-3 py-2 rounded-md border border-slate-200 focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-900 transition-all"
                                                             placeholder="Enter current password"
                                                         />
                                                     </div>
@@ -273,7 +273,7 @@ export default function SettingsModal({ isOpen, onClose, user }: SettingsModalPr
                                                             type="password"
                                                             value={passwordForm.new}
                                                             onChange={(e) => setPasswordForm({ ...passwordForm, new: e.target.value })}
-                                                            className="w-full text-sm px-3 py-2 rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-900 transition-all"
+                                                            className="w-full text-sm px-3 py-2 rounded-md border border-slate-200 focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-900 transition-all"
                                                             placeholder="Enter new password"
                                                         />
                                                         <p className="text-[10px] text-slate-400 mt-1">Must be at least 6 characters long.</p>
@@ -287,7 +287,7 @@ export default function SettingsModal({ isOpen, onClose, user }: SettingsModalPr
                                                         <button
                                                             onClick={handlePasswordUpdate}
                                                             disabled={isPasswordLoading}
-                                                            className="bg-slate-900 text-white text-xs font-bold px-4 py-2 rounded-lg hover:bg-slate-800 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                                                            className="bg-slate-900 text-white text-xs font-bold px-4 py-2 rounded-md hover:bg-slate-800 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
                                                         >
                                                             {isPasswordLoading ? "Updating..." : "Save New Password"}
                                                         </button>
@@ -297,7 +297,7 @@ export default function SettingsModal({ isOpen, onClose, user }: SettingsModalPr
                                         </div>
 
                                         {/* 2FA Row */}
-                                        <div className="group flex items-center justify-between p-4 rounded-xl border border-slate-200 hover:border-slate-300 hover:shadow-sm transition-all duration-200 bg-white">
+                                        <div className="group flex items-center justify-between p-4 rounded-lg border border-slate-200 hover:border-slate-300 hover:shadow-sm transition-all duration-200 bg-white">
                                             <div className="flex items-center gap-4">
                                                 <div className="p-2.5 rounded-full bg-slate-50 text-slate-600 group-hover:scale-105 transition-transform">
                                                     <Smartphone className="w-5 h-5" />
@@ -325,36 +325,20 @@ export default function SettingsModal({ isOpen, onClose, user }: SettingsModalPr
                                 <section className="space-y-6">
                                     <h3 className="text-lg font-bold text-slate-900 tracking-tight">Profile Details</h3>
 
-                                    <div className="bg-slate-50 rounded-2xl p-6 border border-slate-100 space-y-6">
-                                        <div className="flex items-center gap-6">
-                                            <div className="relative h-24 w-24 rounded-full bg-white ring-4 ring-white shadow-sm flex items-center justify-center overflow-hidden shrink-0">
-                                                {user?.image ? (
-                                                    <Image src={user.image} alt={user.name || "User"} width={96} height={96} className="object-cover h-full w-full" />
-                                                ) : (
-                                                    <span className="text-3xl font-bold text-slate-300">{(user?.name?.[0] || user?.email?.[0] || "U").toUpperCase()}</span>
-                                                )}
-                                            </div>
-                                            <div className="space-y-1">
-                                                <h4 className="text-xl font-bold text-slate-900 tracking-tight">{user?.name || "User Name"}</h4>
-                                                <div className="flex gap-2">
-                                                    <Badge color="blue" label="Pro User" />
-                                                    <Badge color="green" label="Active" />
-                                                </div>
-                                            </div>
+                                    <div className="flex items-start gap-5 p-4 border border-slate-200 rounded-lg bg-white">
+                                        <div className="relative h-16 w-16 rounded-full bg-slate-100 flex items-center justify-center overflow-hidden shrink-0 border border-slate-200">
+                                            {user?.image ? (
+                                                <Image src={user.image} alt={user.name || "User"} width={64} height={64} className="object-cover h-full w-full" />
+                                            ) : (
+                                                <span className="text-xl font-bold text-slate-400">{(user?.name?.[0] || user?.email?.[0] || "U").toUpperCase()}</span>
+                                            )}
                                         </div>
-
-                                        <div className="grid gap-4">
-                                            <div className="p-3 bg-white rounded-xl border border-slate-200">
-                                                <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Display Name</label>
-                                                <p className="font-medium text-slate-900 mt-1">{user?.name || "Not set"}</p>
-                                            </div>
-                                            <div className="p-3 bg-white rounded-xl border border-slate-200">
-                                                <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Email Address</label>
-                                                <p className="font-medium text-slate-900 mt-1">{user?.email || "Not set"}</p>
-                                            </div>
-                                            <div className="p-3 bg-white rounded-xl border border-slate-200">
-                                                <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Username</label>
-                                                <p className="font-medium text-slate-900 mt-1">{user?.username || "Not set"}</p>
+                                        <div className="space-y-1 pt-1">
+                                            <h4 className="text-lg font-bold text-slate-900 leading-none">{user?.name || "User Name"}</h4>
+                                            <p className="text-sm text-slate-500 font-medium">{user?.email || "user@example.com"}</p>
+                                            <div className="flex gap-2 mt-2">
+                                                <Badge color="blue" label="Pro User" />
+                                                <Badge color="green" label="Active" />
                                             </div>
                                         </div>
                                     </div>
@@ -372,7 +356,7 @@ export default function SettingsModal({ isOpen, onClose, user }: SettingsModalPr
                                     </div>
 
                                     {/* Premium Card UI */}
-                                    <div className="relative overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+                                    <div className="relative overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm">
                                         {/* Decorative gradient top */}
                                         <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500" />
 
@@ -394,10 +378,10 @@ export default function SettingsModal({ isOpen, onClose, user }: SettingsModalPr
                                             </div>
 
                                             <div className="flex gap-3">
-                                                <button className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-slate-900 hover:bg-slate-800 text-white text-sm font-semibold rounded-xl transition-all shadow-sm active:scale-[0.98]">
+                                                <button className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white text-sm font-semibold rounded-md transition-all shadow-sm active:scale-[0.98]">
                                                     Manage Billing
                                                 </button>
-                                                <button className="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 text-sm font-semibold rounded-xl transition-all shadow-sm active:scale-[0.98]">
+                                                <button className="inline-flex items-center justify-center gap-2 px-4 py-2 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 text-sm font-semibold rounded-md transition-all shadow-sm active:scale-[0.98]">
                                                     Invoices
                                                 </button>
                                             </div>
@@ -410,7 +394,7 @@ export default function SettingsModal({ isOpen, onClose, user }: SettingsModalPr
                                 <div className="pt-2">
                                     <button
                                         onClick={() => signOut({ callbackUrl: '/' })}
-                                        className="w-full flex items-center justify-center gap-2.5 text-slate-600 hover:text-slate-900 hover:bg-slate-50 text-sm font-semibold px-4 py-3.5 rounded-xl transition-all border border-slate-200 bg-white shadow-sm"
+                                        className="w-full flex items-center justify-center gap-2.5 text-slate-600 hover:text-slate-900 hover:bg-slate-50 text-sm font-semibold px-4 py-3 rounded-md transition-all border border-slate-200 bg-white shadow-sm"
                                     >
                                         <LogOut className="w-4 h-4" />
                                         Sign out of account
@@ -420,7 +404,7 @@ export default function SettingsModal({ isOpen, onClose, user }: SettingsModalPr
                                 {/* Danger Zone */}
                                 <section className="pt-6 border-t border-slate-100">
                                     <h3 className="text-sm font-bold text-red-600 uppercase tracking-widest mb-4">Danger Zone</h3>
-                                    <div className="rounded-xl border border-red-100 bg-red-50/50 p-4 flex items-center justify-between">
+                                    <div className="rounded-lg border border-red-100 bg-red-50/50 p-4 flex items-center justify-between">
                                         <div className="max-w-[70%]">
                                             <h4 className="text-sm font-bold text-slate-900">Close Account</h4>
                                             <p className="text-xs text-slate-500 mt-1">
@@ -429,7 +413,7 @@ export default function SettingsModal({ isOpen, onClose, user }: SettingsModalPr
                                         </div>
                                         <button
                                             onClick={() => setIsCloseAccountConfirmOpen(true)}
-                                            className="px-4 py-2 bg-white border border-red-200 text-red-600 text-xs font-bold rounded-lg hover:bg-red-50 transition-colors shadow-sm"
+                                            className="px-4 py-2 bg-white border border-red-200 text-red-600 text-xs font-bold rounded-md hover:bg-red-50 transition-colors shadow-sm"
                                         >
                                             Close Account
                                         </button>
@@ -450,10 +434,10 @@ export default function SettingsModal({ isOpen, onClose, user }: SettingsModalPr
                                     <a
                                         href="/faq"
                                         target="_blank"
-                                        className="group block p-5 rounded-2xl border border-slate-200 bg-white hover:border-blue-300 hover:shadow-md transition-all duration-300 relative overflow-hidden"
+                                        className="group block p-5 rounded-lg border border-slate-200 bg-white hover:border-blue-300 hover:shadow-md transition-all duration-300 relative overflow-hidden"
                                     >
                                         <div className="relative z-10 flex items-start gap-4">
-                                            <div className="p-3 bg-blue-50 rounded-xl text-blue-600 group-hover:scale-110 transition-transform duration-300">
+                                            <div className="p-3 bg-blue-50 rounded-lg text-blue-600 group-hover:scale-110 transition-transform duration-300">
                                                 <HelpCircle className="w-6 h-6" />
                                             </div>
                                             <div className="flex-1">
@@ -470,10 +454,10 @@ export default function SettingsModal({ isOpen, onClose, user }: SettingsModalPr
 
                                     <a
                                         href="mailto:support@ramssorted.com"
-                                        className="group block p-5 rounded-2xl border border-slate-200 bg-white hover:border-slate-300 hover:shadow-md transition-all duration-300"
+                                        className="group block p-5 rounded-lg border border-slate-200 bg-white hover:border-slate-300 hover:shadow-md transition-all duration-300"
                                     >
                                         <div className="flex items-start gap-4">
-                                            <div className="p-3 bg-slate-50 rounded-xl text-slate-600 group-hover:scale-110 transition-transform duration-300">
+                                            <div className="p-3 bg-slate-50 rounded-lg text-slate-600 group-hover:scale-110 transition-transform duration-300">
                                                 <Mail className="w-6 h-6" />
                                             </div>
                                             <div className="flex-1">
@@ -489,7 +473,7 @@ export default function SettingsModal({ isOpen, onClose, user }: SettingsModalPr
                                     </a>
                                 </div>
 
-                                <div className="p-6 mt-8 rounded-2xl bg-slate-50 border border-slate-100 text-center">
+                                <div className="p-6 mt-8 rounded-lg bg-slate-50 border border-slate-100 text-center">
                                     <p className="text-xs font-semibold text-slate-400 uppercase tracking-widest">
                                         Version 1.0.0
                                     </p>
@@ -510,7 +494,7 @@ export default function SettingsModal({ isOpen, onClose, user }: SettingsModalPr
                         className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm transition-opacity"
                         onClick={() => setIsCloseAccountConfirmOpen(false)}
                     />
-                    <div className="relative w-full max-w-md bg-white rounded-2xl shadow-2xl p-6 overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+                    <div className="relative w-full max-w-md bg-white rounded-lg shadow-2xl p-6 overflow-hidden animate-in fade-in zoom-in-95 duration-200">
                         <div className="flex items-center gap-4 mb-4 text-red-600">
                             <div className="p-3 bg-red-50 rounded-full">
                                 <AlertTriangle className="w-6 h-6" />
@@ -522,7 +506,7 @@ export default function SettingsModal({ isOpen, onClose, user }: SettingsModalPr
                             <p className="text-sm text-slate-600 leading-relaxed">
                                 Are you sure you want to permanently close your account?
                             </p>
-                            <div className="bg-red-50 p-4 rounded-xl border border-red-100 text-sm text-red-800 space-y-2">
+                            <div className="bg-red-50 p-4 rounded-lg border border-red-100 text-sm text-red-800 space-y-2">
                                 <p className="font-semibold flex items-center gap-2">
                                     <AlertTriangle className="w-4 h-4" /> This action cannot be undone.
                                 </p>
@@ -542,7 +526,7 @@ export default function SettingsModal({ isOpen, onClose, user }: SettingsModalPr
                                     value={shutdownPassword}
                                     onChange={(e) => setShutdownPassword(e.target.value)}
                                     placeholder="Your password"
-                                    className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500 transition-all text-sm"
+                                    className="w-full px-4 py-2.5 rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500 transition-all text-sm"
                                 />
                                 {closeAccountError && (
                                     <p className="text-xs text-red-600 font-medium mt-2">{closeAccountError}</p>
@@ -551,16 +535,21 @@ export default function SettingsModal({ isOpen, onClose, user }: SettingsModalPr
 
                             <div className="flex gap-3 pt-2">
                                 <button
-                                    onClick={() => setIsCloseAccountConfirmOpen(false)}
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        setIsCloseAccountConfirmOpen(false);
+                                    }}
                                     disabled={isClosingAccount}
-                                    className="flex-1 px-4 py-2.5 bg-white border border-slate-200 text-slate-700 font-semibold rounded-xl hover:bg-slate-50 transition-colors disabled:opacity-50"
+                                    type="button"
+                                    className="flex-1 px-4 py-2.5 bg-white border border-slate-200 text-slate-700 font-semibold rounded-lg hover:bg-slate-50 transition-colors disabled:opacity-50"
                                 >
                                     Cancel
                                 </button>
                                 <button
                                     onClick={handleCloseAccount}
                                     disabled={isClosingAccount || !shutdownPassword}
-                                    className="flex-1 px-4 py-2.5 bg-red-600 text-white font-semibold rounded-xl hover:bg-red-700 transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                                    type="button"
+                                    className="flex-1 px-4 py-2.5 bg-red-600 text-white font-semibold rounded-lg hover:bg-red-700 transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                                 >
                                     {isClosingAccount ? "Closing..." : "Close Account"}
                                 </button>
@@ -580,7 +569,7 @@ function NavButton({ active, onClick, icon, label }: { active: boolean; onClick:
     return (
         <button
             onClick={onClick}
-            className={`w-full flex items-center gap-3.5 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 group ${active
+            className={`w-full flex items-center gap-3.5 px-3.5 py-2.5 rounded-md text-sm font-medium transition-all duration-200 group ${active
                 ? "bg-white text-slate-900 shadow-sm ring-1 ring-black/5"
                 : "text-slate-500 hover:text-slate-900 hover:bg-white/60"
                 }`}
