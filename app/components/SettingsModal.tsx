@@ -13,10 +13,11 @@ import {
     Sun,
     CreditCard,
     Mail,
-    ChevronRight
+    ChevronRight,
+    Shield,
+    Smartphone
 } from "lucide-react";
 import Image from "next/image";
-// import TypewriterText from "./TypewriterText"; // Temporarily removed to debug
 
 interface SettingsModalProps {
     isOpen: boolean;
@@ -40,13 +41,27 @@ export default function SettingsModal({ isOpen, onClose, user }: SettingsModalPr
     useEffect(() => {
         if (isOpen) {
             setMounted(true);
+            document.body.style.overflow = "hidden"; // Prevent background scrolling
         } else {
-            const timer = setTimeout(() => setMounted(false), 300);
-            return () => clearTimeout(timer);
+            const timer = setTimeout(() => {
+                setMounted(false);
+                document.body.style.overflow = ""; // Restore scrolling
+            }, 300);
+            return () => {
+                clearTimeout(timer);
+                document.body.style.overflow = "";
+            };
         }
     }, [isOpen]);
 
-
+    // Handle ESC key
+    useEffect(() => {
+        const handleEsc = (e: KeyboardEvent) => {
+            if (e.key === "Escape") handleClose();
+        };
+        window.addEventListener("keydown", handleEsc);
+        return () => window.removeEventListener("keydown", handleEsc);
+    }, []);
 
     const handleClose = () => {
         setIsClosing(true);
@@ -58,224 +73,249 @@ export default function SettingsModal({ isOpen, onClose, user }: SettingsModalPr
 
     if (!mounted) return null;
 
+    // Safety check for development
+    if (process.env.NODE_ENV === 'development') {
+        console.log("Settings panel rendering. isOpen:", isOpen);
+    }
+
     return createPortal(
-        <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 font-sans text-slate-900">
+        <div className="fixed inset-0 z-[9999] font-sans text-slate-900 pointer-events-none">
             {/* Backdrop */}
             <div
-                className={`absolute inset-0 bg-black/40 backdrop-blur-sm transition-opacity duration-300 ${isOpen && !isClosing ? "opacity-100" : "opacity-0"
+                className={`absolute inset-0 bg-black/40 backdrop-blur-sm transition-opacity duration-300 pointer-events-auto ${isOpen && !isClosing ? "opacity-100" : "opacity-0"
                     }`}
                 onClick={handleClose}
             />
 
-            {/* Modal Container */}
+            {/* Slide-over Panel */}
             <div
-                className={`relative w-full max-w-4xl h-[600px] bg-white rounded-2xl shadow-2xl overflow-hidden flex transform transition-all duration-300 ${isOpen && !isClosing
-                    ? "opacity-100 scale-100 translate-y-0"
-                    : "opacity-0 scale-95 translate-y-4"
+                className={`absolute inset-y-0 right-0 w-full max-w-[480px] bg-white shadow-2xl transform transition-transform duration-300 ease-out pointer-events-auto flex flex-col ${isOpen && !isClosing
+                    ? "translate-x-0"
+                    : "translate-x-full"
                     }`}
+                role="dialog"
+                aria-modal="true"
+                aria-label="Settings"
+                tabIndex={-1}
             >
-                {/* Sidebar - Left Column */}
-                <div className="w-64 bg-slate-50 border-r border-slate-200 flex flex-col">
-                    <div className="p-6 border-b border-slate-100">
-                        <h2 className="text-xl font-bold text-slate-900">
-                            Settings
-                            {/* <TypewriterText messages={["Settings"]} loop={false} /> */}
-                        </h2>
-                    </div>
+                {/* Header */}
+                <div className="flex items-center justify-between px-6 py-5 border-b border-slate-100 bg-white/80 backdrop-blur-md sticky top-0 z-10">
+                    <h2 className="text-xl font-bold text-slate-900 flex items-center gap-2">
+                        Settings
+                    </h2>
+                    <button
+                        onClick={handleClose}
+                        className="p-2 -mr-2 rounded-full hover:bg-slate-100 text-slate-400 hover:text-slate-900 transition-colors"
+                        aria-label="Close settings"
+                    >
+                        <X className="w-5 h-5" />
+                    </button>
+                </div>
 
-                    <nav className="flex-1 p-3 space-y-1">
+                {/* Tabs */}
+                <div className="px-6 pt-4 pb-2 border-b border-slate-100 overflow-x-auto scrollbar-hide">
+                    <div className="flex space-x-2">
                         <button
                             onClick={() => setActiveTab("general")}
-                            className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${activeTab === "general"
-                                ? "bg-white text-slate-900 shadow-sm ring-1 ring-slate-200"
-                                : "text-slate-500 hover:text-slate-900 hover:bg-white/50"
+                            className={`px-4 py-2 rounded-full text-sm font-medium transition-colors whitespace-nowrap ${activeTab === "general"
+                                ? "bg-slate-900 text-white"
+                                : "bg-slate-100 text-slate-600 hover:bg-slate-200"
                                 }`}
                         >
-                            <Settings className="w-4 h-4" />
                             General
                         </button>
-
                         <button
                             onClick={() => setActiveTab("account")}
-                            className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${activeTab === "account"
-                                ? "bg-white text-slate-900 shadow-sm ring-1 ring-slate-200"
-                                : "text-slate-500 hover:text-slate-900 hover:bg-white/50"
+                            className={`px-4 py-2 rounded-full text-sm font-medium transition-colors whitespace-nowrap ${activeTab === "account"
+                                ? "bg-slate-900 text-white"
+                                : "bg-slate-100 text-slate-600 hover:bg-slate-200"
                                 }`}
                         >
-                            <User className="w-4 h-4" />
-                            My Account
+                            Account & Billing
                         </button>
-
                         <button
                             onClick={() => setActiveTab("contact")}
-                            className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${activeTab === "contact"
-                                ? "bg-white text-slate-900 shadow-sm ring-1 ring-slate-200"
-                                : "text-slate-500 hover:text-slate-900 hover:bg-white/50"
+                            className={`px-4 py-2 rounded-full text-sm font-medium transition-colors whitespace-nowrap ${activeTab === "contact"
+                                ? "bg-slate-900 text-white"
+                                : "bg-slate-100 text-slate-600 hover:bg-slate-200"
                                 }`}
                         >
-                            <HelpCircle className="w-4 h-4" />
-                            Contact & Help
+                            Support
                         </button>
-                    </nav>
-
-                    <div className="p-4 border-t border-slate-200">
-                        <div className="flex items-center gap-3 px-2 py-2">
-                            <div className="h-8 w-8 rounded-full bg-slate-200 flex items-center justify-center overflow-hidden">
-                                {user?.image ? (
-                                    <Image src={user.image} alt={user.name || "User"} width={32} height={32} />
-                                ) : (
-                                    <span className="text-xs font-bold text-slate-500">{user?.name?.[0] || "U"}</span>
-                                )}
-                            </div>
-                            <div className="flex-1 min-w-0">
-                                <p className="text-xs font-semibold text-slate-900 truncate">{user?.name || "User"}</p>
-                                <p className="text-[10px] text-slate-500 truncate">{user?.email}</p>
-                            </div>
-                        </div>
                     </div>
                 </div>
 
-                {/* Content - Right Column */}
-                <div className="flex-1 flex flex-col h-full overflow-hidden bg-white">
-                    <div className="relative flex-1 overflow-y-auto p-8">
-                        <button
-                            onClick={handleClose}
-                            className="absolute top-4 right-4 p-2 rounded-full hover:bg-slate-100 text-slate-400 hover:text-slate-900 transition-colors"
-                        >
-                            <X className="w-5 h-5" />
-                        </button>
+                {/* Scrollable Content */}
+                <div className="flex-1 overflow-y-auto p-6 scroll-smooth">
 
-                        {/* General Tab */}
-                        {activeTab === "general" && (
-                            <div className="space-y-8 animate-slide-up">
-                                <div>
-                                    <h3 className="text-lg font-semibold text-slate-900 mb-1">General Settings</h3>
-                                    <p className="text-sm text-slate-500">Customize your application experience.</p>
-                                </div>
-
-                                <div className="space-y-4">
-                                    <div className="flex items-center justify-between p-4 rounded-xl border border-slate-200 bg-slate-50">
-                                        <div className="flex items-center gap-3">
-                                            <div className="p-2 rounded-lg bg-white border border-slate-200 shadow-sm">
-                                                <Sun className="w-5 h-5 text-orange-500" />
-                                            </div>
-                                            <div>
-                                                <p className="text-sm font-medium text-slate-900">Appearance</p>
-                                                <p className="text-xs text-slate-500">Currently set to Light Mode</p>
-                                            </div>
-                                        </div>
-                                        {/* Placeholder toggle - functionality to be added later if needed */}
-                                        <div className="flex gap-1 bg-slate-200 p-1 rounded-lg">
-                                            <button className="p-1 px-3 rounded-md bg-white text-slate-900 shadow-sm text-xs font-medium">Light</button>
-                                            <button className="p-1 px-3 rounded-md text-slate-500 hover:text-slate-900 text-xs font-medium">Dark</button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        )}
-
-                        {/* Account Tab */}
-                        {activeTab === "account" && (
-                            <div className="space-y-8 animate-slide-up">
-                                <div>
-                                    <h3 className="text-lg font-semibold text-slate-900 mb-1">My Account</h3>
-                                    <p className="text-sm text-slate-500">Manage your profile and subscription.</p>
-                                </div>
-
-                                <div className="flex items-center gap-6 pb-6 border-b border-slate-100">
-                                    <div className="h-24 w-24 rounded-full bg-slate-100 ring-4 ring-white shadow-lg flex items-center justify-center overflow-hidden">
-                                        {user?.image ? (
-                                            <Image src={user.image} alt={user.name || "User"} width={96} height={96} className="object-cover h-full w-full" />
-                                        ) : (
-                                            <span className="text-3xl font-bold text-slate-400">{(user?.name?.[0] || user?.email?.[0] || "U").toUpperCase()}</span>
-                                        )}
-                                    </div>
-                                    <div>
-                                        <h4 className="text-xl font-bold text-slate-900">{user?.name || "User Name"}</h4>
-                                        <p className="text-slate-500">{user?.email || "user@example.com"}</p>
-                                        <div className="mt-3 flex gap-2">
-                                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 border border-green-200">
-                                                Active Plan
-                                            </span>
-                                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 border border-blue-200">
-                                                Pro User
-                                            </span>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div className="space-y-4">
-                                    <div className="p-4 rounded-xl border border-slate-200 hover:border-blue-300 transition-colors group cursor-pointer">
+                    {/* General Tab */}
+                    {activeTab === "general" && (
+                        <div className="space-y-8 animate-fade-in-up">
+                            {/* Security Section (Moved to General/Main for visibility) */}
+                            <section>
+                                <h3 className="text-sm font-bold uppercase tracking-wider text-slate-400 mb-4">Security</h3>
+                                <div className="space-y-3">
+                                    <div className="p-4 rounded-xl border border-slate-200 bg-white hover:border-slate-300 transition-colors">
                                         <div className="flex items-center justify-between">
                                             <div className="flex items-center gap-3">
-                                                <div className="p-2 rounded-lg bg-blue-50 text-blue-600 group-hover:bg-blue-600 group-hover:text-white transition-colors">
-                                                    <CreditCard className="w-5 h-5" />
+                                                <div className="p-2 rounded-lg bg-orange-50 text-orange-600">
+                                                    <Shield className="w-5 h-5" />
                                                 </div>
                                                 <div>
-                                                    <p className="text-sm font-medium text-slate-900">Manage Subscription</p>
-                                                    <p className="text-xs text-slate-500">Update billing or change plan</p>
+                                                    <p className="text-sm font-medium text-slate-900">Password</p>
+                                                    <p className="text-xs text-slate-500">Last changed 30 days ago</p>
                                                 </div>
                                             </div>
-                                            <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-slate-600" />
+                                            <button className="text-xs font-semibold text-slate-900 border border-slate-200 px-3 py-1.5 rounded-lg hover:bg-slate-50 transition-colors">
+                                                Update
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <div className="p-4 rounded-xl border border-slate-200 bg-white hover:border-slate-300 transition-colors">
+                                        <div className="flex items-center justify-between">
+                                            <div className="flex items-center gap-3">
+                                                <div className="p-2 rounded-lg bg-emerald-50 text-emerald-600">
+                                                    <Smartphone className="w-5 h-5" />
+                                                </div>
+                                                <div>
+                                                    <p className="text-sm font-medium text-slate-900">Two-Factor Auth</p>
+                                                    <p className="text-xs text-slate-500">Not enabled</p>
+                                                </div>
+                                            </div>
+                                            <button className="relative inline-flex h-5 w-9 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-slate-600 focus:ring-offset-2 bg-slate-200">
+                                                <span className="sr-only">Use setting</span>
+                                                <span className="pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out translate-x-0" />
+                                            </button>
                                         </div>
                                     </div>
                                 </div>
+                            </section>
 
-                                <div className="pt-6 border-t border-slate-100">
-                                    <button
-                                        onClick={() => window.location.href = '/api/auth/signout'}
-                                        className="flex items-center gap-2 text-red-600 hover:text-red-700 text-sm font-medium px-4 py-2 hover:bg-red-50 rounded-lg transition-colors"
-                                    >
-                                        <LogOut className="w-4 h-4" />
-                                        Sign out of account
-                                    </button>
+                            <section>
+                                <h3 className="text-sm font-bold uppercase tracking-wider text-slate-400 mb-4">Appearance</h3>
+                                <div className="p-4 rounded-xl border border-slate-200 bg-white">
+                                    <div className="flex items-center justify-between">
+                                        <div className="flex items-center gap-3">
+                                            <div className="p-2 rounded-lg bg-slate-100 text-slate-600">
+                                                <Sun className="w-5 h-5" />
+                                            </div>
+                                            <div>
+                                                <p className="text-sm font-medium text-slate-900">Theme</p>
+                                                <p className="text-xs text-slate-500">Light mode is active</p>
+                                            </div>
+                                        </div>
+                                        <div className="flex gap-1 bg-slate-100 p-1 rounded-lg">
+                                            <button className="px-3 py-1 rounded-md bg-white text-slate-900 shadow-sm text-xs font-semibold">Light</button>
+                                            <button className="px-3 py-1 rounded-md text-slate-500 hover:text-slate-900 text-xs font-medium">Dark</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </section>
+                        </div>
+                    )}
+
+                    {/* Account Tab */}
+                    {activeTab === "account" && (
+                        <div className="space-y-8 animate-fade-in-up">
+                            {/* Profile Header */}
+                            <div className="flex items-center gap-4 bg-slate-50 p-4 rounded-2xl border border-slate-100">
+                                <div className="h-16 w-16 rounded-full bg-white ring-2 ring-slate-100 flex items-center justify-center overflow-hidden shrink-0">
+                                    {user?.image ? (
+                                        <Image src={user.image} alt={user.name || "User"} width={64} height={64} className="object-cover h-full w-full" />
+                                    ) : (
+                                        <span className="text-2xl font-bold text-slate-400">{(user?.name?.[0] || user?.email?.[0] || "U").toUpperCase()}</span>
+                                    )}
+                                </div>
+                                <div className="min-w-0 flex-1">
+                                    <h4 className="text-lg font-bold text-slate-900 truncate">{user?.name || "User Name"}</h4>
+                                    <p className="text-sm text-slate-500 truncate">{user?.email || "user@example.com"}</p>
+                                    <div className="mt-2 flex gap-2">
+                                        <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-blue-100 text-blue-800 tracking-wide">
+                                            Pro Plan
+                                        </span>
+                                    </div>
                                 </div>
                             </div>
-                        )}
 
-                        {/* Contact Tab */}
-                        {activeTab === "contact" && (
-                            <div className="space-y-8 animate-slide-up">
-                                <div>
-                                    <h3 className="text-lg font-semibold text-slate-900 mb-1">Contact & Support</h3>
-                                    <p className="text-sm text-slate-500">Get help or get in touch with our team.</p>
+                            {/* Subscription Section */}
+                            <section>
+                                <h3 className="text-sm font-bold uppercase tracking-wider text-slate-400 mb-4">Subscription</h3>
+                                <div className="p-5 rounded-xl border border-blue-100 bg-blue-50/50">
+                                    <div className="flex items-start justify-between">
+                                        <div>
+                                            <p className="text-sm font-bold text-slate-900">RAMS Sorted Pro</p>
+                                            <p className="text-xs text-slate-500 mt-1">Renews on Jan 12, 2026</p>
+                                        </div>
+                                        <div className="text-right">
+                                            <p className="text-sm font-bold text-slate-900">£15.00</p>
+                                            <p className="text-xs text-slate-500">/ month</p>
+                                        </div>
+                                    </div>
+                                    <div className="mt-4 pt-4 border-t border-blue-100/50 flex gap-3">
+                                        <button className="flex-1 text-xs font-semibold text-slate-900 bg-white border border-slate-200 py-2 rounded-lg hover:bg-slate-50 transition-colors shadow-sm">
+                                            Manage Billing
+                                        </button>
+                                        <button className="text-xs font-semibold text-blue-700 hover:text-blue-800 px-3 py-2 transition-colors">
+                                            View Invoices
+                                        </button>
+                                    </div>
                                 </div>
+                            </section>
 
-                                <div className="bg-blue-50 border border-blue-100 rounded-xl p-5">
-                                    <div className="flex gap-3">
-                                        <div className="flex-shrink-0">
-                                            <HelpCircle className="w-5 h-5 text-blue-600" />
+                            <div className="pt-6 border-t border-slate-100">
+                                <button
+                                    onClick={() => window.location.href = '/api/auth/signout'}
+                                    className="w-full flex items-center justify-center gap-2 text-red-600 hover:text-red-700 hover:bg-red-50 text-sm font-semibold px-4 py-3 rounded-xl transition-all border border-transparent hover:border-red-100"
+                                >
+                                    <LogOut className="w-4 h-4" />
+                                    Sign out of account
+                                </button>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Contact Tab */}
+                    {activeTab === "contact" && (
+                        <div className="space-y-6 animate-fade-in-up">
+                            <section>
+                                <h3 className="text-sm font-bold uppercase tracking-wider text-slate-400 mb-4">Success Center</h3>
+
+                                <a href="/faq" target="_blank" className="block p-4 mb-3 rounded-xl border border-slate-200 hover:border-blue-300 hover:shadow-sm transition-all group">
+                                    <div className="flex items-center gap-4">
+                                        <div className="p-3 bg-blue-50 rounded-lg text-blue-600 group-hover:bg-blue-600 group-hover:text-white transition-colors">
+                                            <HelpCircle className="w-6 h-6" />
                                         </div>
                                         <div>
-                                            <h4 className="text-sm font-bold text-blue-900">Have a question?</h4>
-                                            <p className="text-sm text-blue-700 mt-1 leading-relaxed">
-                                                Please check our <a href="/faq" target="_blank" className="underline font-semibold hover:text-blue-800">Frequently Asked Questions (FAQ)</a> page first. most questions about billing, account limits, and features are answered there.
-                                            </p>
+                                            <h4 className="text-sm font-bold text-slate-900">Help & FAQ</h4>
+                                            <p className="text-xs text-slate-500 mt-1">Guides, tutorials, and common questions.</p>
+                                        </div>
+                                        <ExternalLink className="w-4 h-4 text-slate-300 ml-auto group-hover:text-slate-900" />
+                                    </div>
+                                </a>
+
+                                <a href="mailto:support@ramssorted.com" className="block p-4 rounded-xl border border-slate-200 hover:border-blue-300 hover:shadow-sm transition-all group">
+                                    <div className="flex items-center gap-4">
+                                        <div className="p-3 bg-slate-50 rounded-lg text-slate-600 group-hover:bg-slate-800 group-hover:text-white transition-colors">
+                                            <Mail className="w-6 h-6" />
+                                        </div>
+                                        <div>
+                                            <h4 className="text-sm font-bold text-slate-900">Email Support</h4>
+                                            <p className="text-xs text-slate-500 mt-1">Get in touch with our team.</p>
                                         </div>
                                     </div>
-                                </div>
+                                </a>
+                            </section>
 
-                                <div className="space-y-4">
-                                    <div className="p-4 rounded-xl border border-slate-200">
-                                        <h4 className="text-sm font-medium text-slate-900 mb-3">Still need help?</h4>
-                                        <a href="mailto:support@ramssorted.com" className="flex items-center gap-3 p-3 rounded-lg bg-slate-50 hover:bg-slate-100 transition-colors border border-transparent hover:border-slate-200">
-                                            <div className="p-2 bg-white rounded-full shadow-sm">
-                                                <Mail className="w-4 h-4 text-slate-600" />
-                                            </div>
-                                            <div className="flex-1">
-                                                <span className="block text-sm font-medium text-slate-900">Email Support</span>
-                                                <span className="block text-xs text-slate-500">support@ramssorted.com</span>
-                                            </div>
-                                            <ExternalLink className="w-4 h-4 text-slate-400" />
-                                        </a>
-                                    </div>
-                                </div>
+                            <div className="p-4 bg-slate-50 rounded-lg border border-slate-100">
+                                <p className="text-xs text-center text-slate-400">
+                                    RAMS Sorted v1.0.0
+                                    <br />
+                                    &copy; {new Date().getFullYear()}
+                                </p>
                             </div>
-                        )}
-                    </div>
-
-                    {/* Wave Footer (Decorative) */}
-                    <div className="h-2 w-full bg-auth-swirl opacity-80" />
+                        </div>
+                    )}
                 </div>
             </div>
         </div>,

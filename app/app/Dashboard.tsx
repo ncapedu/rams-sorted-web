@@ -648,6 +648,11 @@ export default function Dashboard({ initialFiles, user }: DashboardProps) {
           duration={4000}
         />
       )}
+      <SettingsModal
+        isOpen={isSettingsOpen}
+        onClose={() => setIsSettingsOpen(false)}
+        user={user}
+      />
       {deleteModal && (
         <ConfirmationModal
           isOpen={deleteModal.isOpen}
@@ -865,7 +870,7 @@ export default function Dashboard({ initialFiles, user }: DashboardProps) {
                   onClick={() => setIsSettingsOpen(true)}
                 >
                   {/* Wave Background Effect */}
-                  <div className="absolute inset-0 bg-auth-swirl opacity-0 group-hover:opacity-10 transition-opacity duration-300" />
+                  <div className="absolute inset-0 bg-auth-swirl opacity-0 group-hover:opacity-10 transition-opacity duration-300 pointer-events-none" />
 
                   <div className="relative h-9 w-9 rounded-full bg-slate-900 ring-2 ring-white shadow-sm flex items-center justify-center overflow-hidden shrink-0">
                     {user?.image ? (
