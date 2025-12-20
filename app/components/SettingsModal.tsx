@@ -117,10 +117,15 @@ export default function SettingsModal({ isOpen, onClose, user }: SettingsModalPr
         if (isOpen) {
             setMounted(true);
             document.body.style.overflow = "hidden"; // Prevent background scrolling
+            // Reset sub-modals when opening (just in case)
+            setIsCloseAccountConfirmOpen(false);
         } else {
             const timer = setTimeout(() => {
                 setMounted(false);
                 document.body.style.overflow = ""; // Restore scrolling
+                // Reset sub-modals when closing
+                setIsCloseAccountConfirmOpen(false);
+                setActiveTab("account"); // Optional: reset tab to default? User might prefer persistence. Keeping logic for sub-modal only.
             }, 400); // Slightly longer for smooth exit
             return () => {
                 clearTimeout(timer);
@@ -142,6 +147,7 @@ export default function SettingsModal({ isOpen, onClose, user }: SettingsModalPr
         setIsClosing(true);
         setTimeout(() => {
             setIsClosing(false);
+            setIsCloseAccountConfirmOpen(false); // Ensure it's closed
             onClose();
         }, 400);
     };
@@ -489,10 +495,13 @@ export default function SettingsModal({ isOpen, onClose, user }: SettingsModalPr
 
             {/* Close Account Confirmation Modal */}
             {isCloseAccountConfirmOpen && (
-                <div className="fixed inset-0 z-[10000] flex items-center justify-center p-4">
+                <div className="fixed inset-0 z-[10000] flex items-center justify-center p-4 pointer-events-auto">
                     <div
                         className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm transition-opacity"
-                        onClick={() => setIsCloseAccountConfirmOpen(false)}
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            setIsCloseAccountConfirmOpen(false);
+                        }}
                     />
                     <div className="relative w-full max-w-md bg-white rounded-lg shadow-2xl p-6 overflow-hidden animate-in fade-in zoom-in-95 duration-200">
                         <div className="flex items-center gap-4 mb-4 text-red-600">
