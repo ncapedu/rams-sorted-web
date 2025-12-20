@@ -120,6 +120,8 @@ export const { auth, signIn, signOut, handlers } = NextAuth({
                 token.id = user.id;
                 // @ts-ignore
                 token.deviceId = user.deviceIdFromAuth;
+                // @ts-ignore
+                token.passwordLastUpdated = user.password_updated_at;
             }
             return token;
         },
@@ -128,6 +130,8 @@ export const { auth, signIn, signOut, handlers } = NextAuth({
                 session.user.id = token.id as string;
                 // @ts-ignore
                 session.user.deviceId = token.deviceId as string;
+                // @ts-ignore
+                session.user.passwordLastUpdated = token.passwordLastUpdated as string | null;
             }
             return session;
         },

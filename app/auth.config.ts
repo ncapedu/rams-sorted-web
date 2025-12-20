@@ -4,6 +4,10 @@ export const authConfig = {
     pages: {
         signIn: '/signin',
     },
+    session: {
+        maxAge: 30 * 24 * 60 * 60, // 30 days
+        strategy: "jwt",
+    },
     providers: [], // Added later in auth.ts
     callbacks: {
         authorized({ auth, request: { nextUrl } }) {

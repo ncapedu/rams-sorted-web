@@ -27,6 +27,7 @@ interface SettingsModalProps {
         email?: string | null;
         image?: string | null;
         username?: string | null;
+        passwordLastUpdated?: string | null;
     };
 }
 
@@ -42,7 +43,9 @@ export default function SettingsModal({ isOpen, onClose, user }: SettingsModalPr
     const [passwordForm, setPasswordForm] = useState({ current: "", new: "" });
     const [passwordMessage, setPasswordMessage] = useState({ type: "", text: "" });
     const [isPasswordLoading, setIsPasswordLoading] = useState(false);
-    const [passwordLastUpdated, setPasswordLastUpdated] = useState<string | null>(null);
+
+    // Initialize with prop value
+    const [passwordLastUpdated, setPasswordLastUpdated] = useState<string | null>(user?.passwordLastUpdated || null);
 
     const handlePasswordUpdate = async () => {
         if (!passwordForm.new || passwordForm.new.length < 6) {
@@ -240,8 +243,9 @@ export default function SettingsModal({ isOpen, onClose, user }: SettingsModalPr
                                                             value={passwordForm.new}
                                                             onChange={(e) => setPasswordForm({ ...passwordForm, new: e.target.value })}
                                                             className="w-full text-sm px-3 py-2 rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-900 transition-all"
-                                                            placeholder="Enter new password (min 6 chars)"
+                                                            placeholder="Enter new password"
                                                         />
+                                                        <p className="text-[10px] text-slate-400 mt-1">Must be at least 6 characters long.</p>
                                                     </div>
                                                     {passwordMessage.text && (
                                                         <p className={`text-xs font-medium ${passwordMessage.type === 'error' ? 'text-red-500' : 'text-green-600'}`}>
@@ -295,9 +299,13 @@ export default function SettingsModal({ isOpen, onClose, user }: SettingsModalPr
                                             <span className="text-2xl font-bold text-slate-400">{(user?.name?.[0] || user?.email?.[0] || "U").toUpperCase()}</span>
                                         )}
                                     </div>
-                                    <div className="min-w-0 flex-1">
-                                        <h4 className="text-xl font-bold text-slate-900 tracking-tight truncate">{user?.name || "User Name"}</h4>
-                                        <p className="text-sm text-slate-500 truncate font-medium">{user?.email || "user@example.com"}</p>
+                                    <div className="min-w-0 flex-1 overflow-hidden">
+                                        <h4 className="text-xl font-bold text-slate-900 tracking-tight truncate" title={user?.name || ""}>
+                                            {user?.name || "User Name"}
+                                        </h4>
+                                        <p className="text-sm text-slate-500 font-medium truncate" title={user?.email || ""}>
+                                            {user?.email || "user@example.com"}
+                                        </p>
                                         <div className="mt-3 flex gap-2">
                                             <Badge color="blue" label="Pro User" />
                                             <Badge color="green" label="Active" />
