@@ -26,9 +26,9 @@ export default function SettingsLayout({
                     <p className="text-slate-500 mt-2">Manage your account preferences and security.</p>
                 </div>
 
-                <div className="flex flex-col md:flex-row gap-8">
+                <div className="flex flex-col md:flex-row gap-8 items-start">
                     {/* Settings Sidebar */}
-                    <aside className="w-full md:w-64 flex-shrink-0 space-y-2">
+                    <aside className="w-full md:w-56 flex-shrink-0 flex flex-col gap-1">
                         {tabs.map((tab) => {
                             const Icon = tab.icon;
                             const isActive = pathname.startsWith(tab.href);
@@ -36,12 +36,12 @@ export default function SettingsLayout({
                                 <Link
                                     key={tab.name}
                                     href={tab.href}
-                                    className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all ${isActive
-                                            ? "bg-white text-slate-900 shadow-sm ring-1 ring-slate-200"
-                                            : "text-slate-500 hover:text-slate-900 hover:bg-white/50"
+                                    className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-all ${isActive
+                                        ? "bg-slate-200/60 text-slate-900"
+                                        : "text-slate-500 hover:text-slate-900 hover:bg-slate-100"
                                         }`}
                                 >
-                                    <Icon className={`w-4 h-4 ${isActive ? "text-blue-600" : "text-slate-400"}`} />
+                                    <Icon className={`w-4 h-4 ${isActive ? "text-slate-900" : "text-slate-400"}`} />
                                     {tab.name}
                                 </Link>
                             );
@@ -49,7 +49,7 @@ export default function SettingsLayout({
                     </aside>
 
                     {/* Main Content Area */}
-                    <div className="flex-1 bg-white rounded-2xl border border-slate-200 shadow-sm p-6 md:p-8 min-h-[500px]">
+                    <div className="flex-1 w-full max-w-3xl bg-white rounded-lg border border-slate-200 p-6 md:p-8 min-h-[500px]">
                         {children}
                     </div>
                 </div>

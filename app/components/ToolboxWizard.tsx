@@ -287,9 +287,11 @@ export default function ToolboxWizard({ onBack, onComplete }: ToolboxWizardProps
             {/* HEADER */}
             <div className="sticky top-0 z-20 bg-white/80 backdrop-blur-md border-b border-slate-200 px-8 py-4 flex items-center justify-between">
                 <div>
-                    <h2 className="text-xl font-bold text-slate-900 flex items-center gap-2">
-                        <img src="/favicon.ico" alt="RS" className="w-5 h-5 opacity-80" />
-                        <AnimatedTitle text="Toolbox Talk" />
+                    <h2 className="text-sm font-bold text-slate-500 flex items-center gap-2 uppercase tracking-wider">
+                        <div className="w-6 h-6 rounded bg-emerald-100 flex items-center justify-center border border-emerald-200">
+                            <Users className="w-3.5 h-3.5 text-emerald-700" />
+                        </div>
+                        Toolbox Talk
                     </h2>
                     <p className="text-xs font-semibold text-slate-500 mt-0.5">
                         Step {step} of 4
@@ -300,7 +302,7 @@ export default function ToolboxWizard({ onBack, onComplete }: ToolboxWizardProps
             {/* PROGRESS BAR */}
             <div className="h-1 w-full bg-slate-100">
                 <div
-                    className="h-full bg-slate-900 shadow-[0_0_10px_rgba(0,0,0,0.1)] rounded-r-full transition-all duration-500 ease-out"
+                    className="h-full bg-emerald-600 shadow-sm transition-all duration-500 ease-in-out"
                     style={{ width: `${step === 0 ? 5 : (step / 4) * 100}%` }}
                 />
             </div>
@@ -313,8 +315,8 @@ export default function ToolboxWizard({ onBack, onComplete }: ToolboxWizardProps
                     {step === 0 && (
                         <div className="space-y-6">
                             <div className="flex items-center gap-3 mb-6">
-                                <div className="h-10 w-10 rounded-full bg-slate-100 flex items-center justify-center">
-                                    <Clipboard className="w-5 h-5 text-slate-900" />
+                                <div className="h-10 w-10 rounded-full bg-emerald-50 flex items-center justify-center">
+                                    <Clipboard className="w-5 h-5 text-emerald-600" />
                                 </div>
                                 <h2 className="text-2xl font-semibold text-slate-900">
                                     <TypewriterText messages={["Set Up Your Toolbox Talk File"]} loop={false} />
@@ -327,7 +329,7 @@ export default function ToolboxWizard({ onBack, onComplete }: ToolboxWizardProps
                                         Toolbox Talk Name <span className="text-red-600">*</span>
                                     </label>
                                     <input
-                                        className="border border-slate-200 px-4 py-3 rounded-xl w-full text-base focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400 outline-none bg-white shadow-sm hover:border-slate-300 transition-all duration-200"
+                                        className="border border-slate-200 px-4 py-3 rounded-lg w-full text-sm focus:ring-2 focus:ring-emerald-500/10 focus:border-emerald-500 outline-none bg-white shadow-sm hover:border-slate-300 transition-all duration-200"
                                         placeholder="e.g. Working at Height - March 2024"
                                         value={documentName}
                                         onChange={(e) => setDocumentName(e.target.value)}
@@ -342,15 +344,15 @@ export default function ToolboxWizard({ onBack, onComplete }: ToolboxWizardProps
                     {step === 1 && (
                         <div className="space-y-6">
                             <div className="flex items-center gap-3 mb-6">
-                                <div className="h-10 w-10 rounded-full bg-slate-100 flex items-center justify-center">
-                                    <Mic className="w-5 h-5 text-slate-900" />
+                                <div className="h-10 w-10 rounded-full bg-emerald-50 flex items-center justify-center">
+                                    <Mic className="w-5 h-5 text-emerald-600" />
                                 </div>
                                 <h2 className="text-2xl font-semibold text-slate-900">
                                     <TypewriterText messages={["Topic & Session Details"]} loop={false} />
                                 </h2>
                             </div>
 
-                            <div className="bg-slate-50 p-6 rounded-2xl border border-slate-200 space-y-6">
+                            <div className="bg-slate-50 p-6 rounded-lg border border-slate-200 space-y-6">
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     {/* Topic */}
                                     <div className="col-span-2">
@@ -374,7 +376,7 @@ export default function ToolboxWizard({ onBack, onComplete }: ToolboxWizardProps
                                         </div>
                                         {formData.topic === "Other (Custom)" && (
                                             <input
-                                                className="mt-3 w-full border border-slate-200 px-4 py-3 rounded-xl text-base focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400 outline-none bg-white shadow-sm hover:border-slate-300 transition-all"
+                                                className="mt-3 w-full border border-slate-200 px-4 py-3 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500/10 focus:border-emerald-500 outline-none bg-white shadow-sm hover:border-slate-300 transition-all"
                                                 placeholder="Enter custom topic..."
                                                 value={customTopic}
                                                 onChange={(e) => setCustomTopic(e.target.value)}
@@ -389,7 +391,7 @@ export default function ToolboxWizard({ onBack, onComplete }: ToolboxWizardProps
                                         </label>
                                         <input
                                             type="date"
-                                            className="w-full border border-slate-200 px-4 py-3 rounded-xl text-base focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400 outline-none bg-white shadow-sm hover:border-slate-300 transition-all"
+                                            className="w-full border border-slate-200 px-4 py-3 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500/10 focus:border-emerald-500 outline-none bg-white shadow-sm hover:border-slate-300 transition-all"
                                             value={formData.date}
                                             onChange={(e) => updateForm("date", e.target.value)}
                                         />
@@ -401,7 +403,7 @@ export default function ToolboxWizard({ onBack, onComplete }: ToolboxWizardProps
                                             Location <span className="text-red-600">*</span>
                                         </label>
                                         <input
-                                            className="w-full border border-slate-200 px-4 py-3 rounded-xl text-base focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400 outline-none bg-white shadow-sm hover:border-slate-300 transition-all"
+                                            className="w-full border border-slate-200 px-4 py-3 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500/10 focus:border-emerald-500 outline-none bg-white shadow-sm hover:border-slate-300 transition-all"
                                             placeholder="e.g. Site Office / Zone A"
                                             value={formData.location}
                                             onChange={(e) => updateForm("location", e.target.value)}
@@ -414,7 +416,7 @@ export default function ToolboxWizard({ onBack, onComplete }: ToolboxWizardProps
                                             Delivered By <span className="text-red-600">*</span>
                                         </label>
                                         <input
-                                            className="w-full border border-slate-200 px-4 py-3 rounded-xl text-base focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400 outline-none bg-white shadow-sm hover:border-slate-300 transition-all"
+                                            className="w-full border border-slate-200 px-4 py-3 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500/10 focus:border-emerald-500 outline-none bg-white shadow-sm hover:border-slate-300 transition-all"
                                             placeholder="Name of presenter"
                                             value={formData.supervisorName}
                                             onChange={(e) => updateForm("supervisorName", e.target.value)}
@@ -427,7 +429,7 @@ export default function ToolboxWizard({ onBack, onComplete }: ToolboxWizardProps
                                             Company Name <span className="text-red-600">*</span>
                                         </label>
                                         <input
-                                            className="w-full border border-slate-200 px-4 py-3 rounded-xl text-base focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400 outline-none bg-white shadow-sm hover:border-slate-300 transition-all"
+                                            className="w-full border border-slate-200 px-4 py-3 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500/10 focus:border-emerald-500 outline-none bg-white shadow-sm hover:border-slate-300 transition-all"
                                             placeholder="e.g. Acme Construction Ltd"
                                             value={formData.companyName}
                                             onChange={(e) => updateForm("companyName", e.target.value)}
@@ -441,7 +443,7 @@ export default function ToolboxWizard({ onBack, onComplete }: ToolboxWizardProps
                                         </label>
                                         <div className="relative">
                                             <select
-                                                className="w-full border border-slate-200 px-4 py-3 rounded-xl text-base focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400 outline-none bg-white shadow-sm hover:border-slate-300 transition-all appearance-none"
+                                                className="w-full border border-slate-200 px-4 py-3 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500/10 focus:border-emerald-500 outline-none bg-white shadow-sm hover:border-slate-300 transition-all appearance-none"
                                                 value={formData.audience}
                                                 onChange={(e) => updateForm("audience", e.target.value)}
                                             >
