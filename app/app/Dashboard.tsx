@@ -1118,7 +1118,7 @@ export default function Dashboard({ initialFiles, user }: DashboardProps) {
                 className="flex-1 overflow-y-auto bg-white"
               >
                 {/* Wizard Header */}
-                <div className="sticky top-0 z-20 bg-white/80 backdrop-blur-md border-b border-slate-200 px-8 py-4 flex items-center justify-between">
+                <div className="sticky top-0 z-20 bg-white/95 backdrop-blur-sm border-b border-slate-200 px-6 py-4 flex items-center justify-between">
                   <div>
                     <h2 className="text-sm font-bold text-slate-500 flex items-center gap-2 uppercase tracking-wider">
                       <div className="w-6 h-6 rounded bg-red-100 flex items-center justify-center border border-red-200">
@@ -1170,7 +1170,7 @@ export default function Dashboard({ initialFiles, user }: DashboardProps) {
                             <span className="text-red-600 ml-0.5">*</span>
                           </label>
                           <input
-                            className="border border-slate-200 px-4 py-3 rounded-xl w-full text-base focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400 outline-none bg-white shadow-sm hover:border-slate-300 transition-all duration-200 placeholder:text-slate-400"
+                            className="border border-slate-200 px-4 py-3 rounded-lg w-full text-sm focus:ring-2 focus:ring-red-500/10 focus:border-red-500 outline-none bg-white shadow-sm hover:border-slate-300 transition-all duration-200 placeholder:text-slate-400"
                             placeholder="e.g. ACME – Boiler replacement RAMS"
                             value={documentName}
                             onChange={(e) =>
@@ -1188,9 +1188,9 @@ export default function Dashboard({ initialFiles, user }: DashboardProps) {
                           <div className="grid grid-cols-2 gap-4">
                             <button
                               onClick={() => handleInput("userType", "company")}
-                              className={`p-5 rounded-2xl border-2 text-left transition-all duration-200 ${formData.userType === "company"
-                                ? "border-slate-900 bg-slate-50 ring-1 ring-slate-900"
-                                : "border-slate-200 hover:border-slate-300 hover:bg-slate-50"
+                              className={`p-5 rounded-lg border text-left transition-all duration-200 ${formData.userType === "company"
+                                ? "border-red-600 bg-red-50/50 ring-1 ring-red-600"
+                                : "border-slate-200 hover:border-red-300 hover:bg-slate-50"
                                 }`}
                             >
                               <div className={`font-bold text-sm mb-1 ${formData.userType === "company" ? "text-slate-900" : "text-slate-700"}`}>Business</div>
@@ -1201,9 +1201,9 @@ export default function Dashboard({ initialFiles, user }: DashboardProps) {
 
                             <button
                               onClick={() => handleInput("userType", "sole_trader")}
-                              className={`p-5 rounded-2xl border-2 text-left transition-all duration-200 ${formData.userType === "sole_trader"
-                                ? "border-slate-900 bg-slate-50 ring-1 ring-slate-900"
-                                : "border-slate-200 hover:border-slate-300 hover:bg-slate-50"
+                              className={`p-5 rounded-lg border text-left transition-all duration-200 ${formData.userType === "sole_trader"
+                                ? "border-red-600 bg-red-50/50 ring-1 ring-red-600"
+                                : "border-slate-200 hover:border-red-300 hover:bg-slate-50"
                                 }`}
                             >
                               <div className={`font-bold text-sm mb-1 ${formData.userType === "sole_trader" ? "text-slate-900" : "text-slate-700"}`}>Sole Trader</div>
@@ -1217,14 +1217,14 @@ export default function Dashboard({ initialFiles, user }: DashboardProps) {
 
                       </div>
 
-                      <div className="flex justify-between gap-3 pt-4">
+                      <div className="flex justify-between items-center pt-8 border-t border-slate-100 mt-8">
                         <button
                           onClick={() => {
                             setMode("landing");
                             setStep(1);
                             setActiveFile(null);
                           }}
-                          className="inline-flex items-center justify-center rounded-lg border border-slate-300 px-4 py-2.5 text-sm font-semibold text-slate-800 hover:bg-slate-50"
+                          className="text-slate-500 hover:text-slate-700 text-sm font-medium px-4 py-2 hover:bg-slate-50 rounded-lg transition-colors"
                         >
                           Back to RS Hub
                         </button>
@@ -1247,7 +1247,7 @@ export default function Dashboard({ initialFiles, user }: DashboardProps) {
                             setMode("wizard");
                             setStep(1);
                           }}
-                          className="inline-flex items-center justify-center rounded-lg bg-[#0b2040] px-5 py-2.5 text-sm font-semibold text-white hover:bg-black transition-colors"
+                          className="bg-red-600 hover:bg-red-700 text-white text-sm font-bold px-6 py-2.5 rounded-lg shadow-sm hover:shadow transition-all"
                         >
                           Next Step
                         </button>
@@ -1279,7 +1279,7 @@ export default function Dashboard({ initialFiles, user }: DashboardProps) {
                             <span className="text-red-600 ml-0.5">*</span>
                           </label>
                           <input
-                            className="border border-slate-200 p-3 rounded-lg w-full text-sm focus:ring-2 focus:ring-[#0b2040] focus:border-transparent outline-none bg-white shadow-sm hover:border-slate-300 transition-all duration-200"
+                            className="border border-slate-200 px-4 py-3 rounded-lg w-full text-sm focus:ring-2 focus:ring-red-500/10 focus:border-red-500 outline-none bg-white shadow-sm hover:border-slate-300 transition-all duration-200"
                             placeholder={formData.userType === "company" ? "e.g. ACME Electrical Ltd" : "e.g. John Smith Electrical"}
                             value={formData.companyName}
                             onChange={(e) =>
@@ -1293,7 +1293,7 @@ export default function Dashboard({ initialFiles, user }: DashboardProps) {
                             <span className="text-red-600 ml-0.5">*</span>
                           </label>
                           <input
-                            className="border border-slate-200 p-3 rounded-lg w-full text-sm focus:ring-2 focus:ring-[#0b2040] focus:border-transparent outline-none bg-white shadow-sm hover:border-slate-300 transition-all duration-200"
+                            className="border border-slate-200 px-4 py-3 rounded-lg w-full text-sm focus:ring-2 focus:ring-red-500/10 focus:border-red-500 outline-none bg-white shadow-sm hover:border-slate-300 transition-all duration-200"
                             placeholder="Person preparing RAMS"
                             value={formData.contactName}
                             onChange={(e) =>
@@ -1309,7 +1309,7 @@ export default function Dashboard({ initialFiles, user }: DashboardProps) {
                             <Tooltip text="Registered or main business address." />
                           </label>
                           <input
-                            className="border border-slate-200 p-3 rounded-lg w-full text-sm focus:ring-2 focus:ring-[#0b2040] focus:border-transparent outline-none bg-white shadow-sm hover:border-slate-300 transition-all duration-200"
+                            className="border border-slate-200 px-4 py-3 rounded-lg w-full text-sm focus:ring-2 focus:ring-red-500/10 focus:border-red-500 outline-none bg-white shadow-sm hover:border-slate-300 transition-all duration-200"
                             placeholder="Registered or main business address"
                             value={formData.officeAddress}
                             onChange={(e) =>
@@ -1323,7 +1323,7 @@ export default function Dashboard({ initialFiles, user }: DashboardProps) {
                             Project Supervisor (optional)
                           </label>
                           <input
-                            className="border border-slate-200 p-3 rounded-lg w-full text-sm focus:ring-2 focus:ring-[#0b2040] focus:border-transparent outline-none bg-white shadow-sm hover:border-slate-300 transition-all duration-200"
+                            className="border border-slate-200 px-4 py-3 rounded-lg w-full text-sm focus:ring-2 focus:ring-red-500/10 focus:border-red-500 outline-none bg-white shadow-sm hover:border-slate-300 transition-all duration-200"
                             placeholder="Overall project supervisor"
                             value={formData.projectSupervisor}
                             onChange={(e) =>
@@ -1379,7 +1379,7 @@ export default function Dashboard({ initialFiles, user }: DashboardProps) {
                               <span className="text-red-600 ml-0.5">*</span>
                             </label>
                             <input
-                              className="border border-slate-200 px-4 py-3 rounded-xl w-full text-base focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400 outline-none bg-white shadow-sm hover:border-slate-300 transition-all duration-200 placeholder:text-slate-400"
+                              className="border border-slate-200 px-4 py-3 rounded-lg w-full text-sm focus:ring-2 focus:ring-red-500/10 focus:border-red-500 outline-none bg-white shadow-sm hover:border-slate-300 transition-all duration-200 placeholder:text-slate-400"
                               placeholder="Who the RAMS are for"
                               value={formData.clientName}
                               onChange={(e) =>
@@ -1392,7 +1392,7 @@ export default function Dashboard({ initialFiles, user }: DashboardProps) {
                               Job Ref (optional)
                             </label>
                             <input
-                              className="border border-slate-200 px-4 py-3 rounded-xl w-full text-base focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400 outline-none bg-white shadow-sm hover:border-slate-300 transition-all duration-200 placeholder:text-slate-400"
+                              className="border border-slate-200 px-4 py-3 rounded-lg w-full text-sm focus:ring-2 focus:ring-red-500/10 focus:border-red-500 outline-none bg-white shadow-sm hover:border-slate-300 transition-all duration-200 placeholder:text-slate-400"
                               placeholder="Internal or client reference"
                               value={formData.projectRef}
                               onChange={(e) =>
@@ -1408,7 +1408,7 @@ export default function Dashboard({ initialFiles, user }: DashboardProps) {
                             <Tooltip text="Location where the works are being carried out." />
                           </label>
                           <input
-                            className="border border-slate-200 px-4 py-3 rounded-xl w-full text-base focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400 outline-none bg-white shadow-sm hover:border-slate-300 transition-all duration-200 placeholder:text-slate-400"
+                            className="border border-slate-200 px-4 py-3 rounded-lg w-full text-sm focus:ring-2 focus:ring-red-500/10 focus:border-red-500 outline-none bg-white shadow-sm hover:border-slate-300 transition-all duration-200 placeholder:text-slate-400"
                             placeholder="Location of works"
                             value={formData.siteAddress}
                             onChange={(e) =>
