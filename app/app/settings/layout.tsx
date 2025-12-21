@@ -36,7 +36,7 @@ export default function SettingsLayout({
                                 <Link
                                     key={tab.name}
                                     href={tab.href}
-                                    className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-all ${isActive
+                                    className={`flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition-all ${isActive
                                         ? "bg-slate-200/60 text-slate-900"
                                         : "text-slate-500 hover:text-slate-900 hover:bg-slate-100"
                                         }`}

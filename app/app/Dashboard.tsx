@@ -690,12 +690,12 @@ export default function Dashboard({ initialFiles, user }: DashboardProps) {
               </div>
               <button
                 onClick={() => setSidebarOpen((prev) => !prev)}
-                className="absolute right-3 flex h-6 w-6 items-center justify-center rounded-md border border-slate-200 bg-slate-50 hover:bg-slate-100 hover:border-slate-300 transition-all shadow-sm"
+                className="absolute right-3 flex h-6 w-6 items-center justify-center rounded-md border border-gray-200 bg-white hover:bg-gray-50 hover:border-gray-300 transition-all shadow-sm"
               >
                 {sidebarOpen ? (
-                  <ChevronRight className="w-4 h-4 text-slate-700 rotate-180" />
+                  <ChevronRight className="w-3.5 h-3.5 text-slate-600 rotate-180" />
                 ) : (
-                  <ChevronRight className="w-4 h-4 text-slate-700" />
+                  <ChevronRight className="w-3.5 h-3.5 text-slate-600" />
                 )}
               </button>
             </div>
@@ -710,9 +710,9 @@ export default function Dashboard({ initialFiles, user }: DashboardProps) {
                       setStep(1);
                       setActiveFile(null);
                     }}
-                    className="flex w-full items-center justify-center gap-2.5 rounded-lg bg-slate-900 py-2.5 text-sm font-semibold text-white hover:bg-black hover:shadow-md transition-all duration-200"
+                    className="flex w-full items-center justify-start px-3 gap-3 rounded-md bg-slate-900 py-2.5 text-sm font-medium text-white hover:bg-slate-800 transition-all duration-200"
                   >
-                    <LayoutDashboard className="w-4 h-4" />
+                    <LayoutDashboard className="w-4 h-4 text-slate-300" />
                     <span>RS Hub</span>
                   </button>
                 ) : (
@@ -723,7 +723,7 @@ export default function Dashboard({ initialFiles, user }: DashboardProps) {
                         setStep(1);
                         setActiveFile(null);
                       }}
-                      className="flex h-9 w-9 items-center justify-center rounded-lg bg-slate-900 text-white hover:bg-black hover:shadow-md transition-all"
+                      className="flex h-9 w-9 items-center justify-center rounded-md bg-slate-900 text-white hover:bg-slate-800 transition-all"
                     >
                       <LayoutDashboard className="w-4 h-4" />
                     </button>
@@ -749,9 +749,9 @@ export default function Dashboard({ initialFiles, user }: DashboardProps) {
                     recentFiles.map((file) => (
                       <div
                         key={file.id}
-                        className={`w-full px-3 py-2 rounded-lg transition-all duration-200 cursor-pointer border border-transparent text-sm ${activeFile?.id === file.id
-                          ? "bg-slate-100 border-slate-200 shadow-sm text-slate-900 font-medium"
-                          : "hover:bg-slate-50 text-slate-600 hover:text-slate-900"
+                        className={`group w-full px-2 py-1.5 rounded-md transition-all duration-200 cursor-pointer text-sm flex items-center gap-2 ${activeFile?.id === file.id
+                          ? "bg-slate-100 text-slate-900 font-medium"
+                          : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
                           }`}
                         onClick={() => {
                           setActiveFile(file);
@@ -867,14 +867,14 @@ export default function Dashboard({ initialFiles, user }: DashboardProps) {
             <div className={`mt-auto border-t border-slate-200 p-3 transition-all duration-300 ${sidebarOpen ? "px-3" : "px-3"}`}>
               {sidebarOpen ? (
                 <button
-                  className="group relative flex w-full items-center gap-3 p-2 rounded-lg cursor-pointer hover:bg-slate-100/80 border border-transparent transition-all duration-200 text-left"
+                  className="group relative flex w-full items-center gap-3 p-2 rounded-md cursor-pointer hover:bg-slate-100 transition-colors duration-200 text-left"
                   onClick={() => setIsSettingsOpen(true)}
                 >
-                  <div className="relative h-9 w-9 rounded-full bg-slate-900 ring-2 ring-white shadow-sm flex items-center justify-center overflow-hidden shrink-0 group-hover:scale-105 transition-transform">
+                  <div className="relative h-8 w-8 rounded-full bg-slate-100 flex items-center justify-center overflow-hidden shrink-0 border border-slate-200">
                     {user?.image ? (
-                      <Image src={user.image} alt={user.name || "User"} width={36} height={36} className="object-cover h-full w-full" />
+                      <Image src={user.image} alt={user.name || "User"} width={32} height={32} className="object-cover h-full w-full" />
                     ) : (
-                      <span className="text-xs font-bold text-white">{(user?.username?.[0] || user?.email?.[0] || "U").toUpperCase()}</span>
+                      <span className="text-xs font-semibold text-slate-600">{(user?.username?.[0] || user?.email?.[0] || "U").toUpperCase()}</span>
                     )}
                   </div>
 

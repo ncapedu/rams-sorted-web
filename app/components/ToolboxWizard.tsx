@@ -286,14 +286,23 @@ export default function ToolboxWizard({ onBack, onComplete }: ToolboxWizardProps
 
             {/* HEADER */}
             <div className="sticky top-0 z-20 bg-white/80 backdrop-blur-md border-b border-slate-200 px-8 py-4 flex items-center justify-between">
+                <div className="flex items-center gap-4">
+                    <button
+                        onClick={onBack}
+                        className="flex items-center gap-2 px-3 py-2 text-xs font-bold text-slate-500 hover:text-slate-900 hover:bg-slate-100 rounded-lg transition-all"
+                    >
+                        <ArrowLeft className="w-3.5 h-3.5" />
+                        Back to RS Hub
+                    </button>
+                </div>
                 <div>
-                    <h2 className="text-sm font-bold text-slate-500 flex items-center gap-2 uppercase tracking-wider">
+                    <h2 className="text-sm font-bold text-slate-500 flex items-center gap-2 uppercase tracking-wider justify-end">
                         <div className="w-6 h-6 rounded bg-emerald-100 flex items-center justify-center border border-emerald-200">
                             <Users className="w-3.5 h-3.5 text-emerald-700" />
                         </div>
                         Toolbox Talk
                     </h2>
-                    <p className="text-xs font-semibold text-slate-500 mt-0.5">
+                    <p className="text-xs font-semibold text-slate-500 mt-0.5 text-right">
                         Step {step} of 4
                     </p>
                 </div>
@@ -485,7 +494,7 @@ export default function ToolboxWizard({ onBack, onComplete }: ToolboxWizardProps
                                             h === "Other hazard" ? (
                                                 <div key={h} className="col-span-2 flex gap-2 mt-2">
                                                     <input
-                                                        className="flex-1 border border-slate-200 px-4 py-3 rounded-xl text-base focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400 outline-none bg-white shadow-sm hover:border-slate-300 transition-all"
+                                                        className="flex-1 border border-slate-200 px-4 py-3 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500/10 focus:border-emerald-500 outline-none bg-white shadow-sm hover:border-slate-300 transition-all"
                                                         placeholder="Add custom hazard..."
                                                         value={customHazard}
                                                         onChange={(e) => setCustomHazard(e.target.value)}
@@ -493,7 +502,7 @@ export default function ToolboxWizard({ onBack, onComplete }: ToolboxWizardProps
                                                     />
                                                     <button
                                                         onClick={addCustomHazard}
-                                                        className="px-5 py-3 bg-slate-900 text-white rounded-xl text-sm font-bold hover:bg-black shadow-md"
+                                                        className="px-5 py-3 bg-emerald-600 text-white rounded-lg text-sm font-bold hover:bg-emerald-700 shadow-sm transition-all"
                                                     >
                                                         Add
                                                     </button>
@@ -595,7 +604,7 @@ export default function ToolboxWizard({ onBack, onComplete }: ToolboxWizardProps
                                                 Expected Attendees <span className="text-red-600">*</span>
                                             </label>
                                             <input
-                                                className="w-full border border-slate-200 px-4 py-3 rounded-xl text-base focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400 outline-none bg-white shadow-sm hover:border-slate-300 transition-all"
+                                                className="w-full border border-slate-200 px-4 py-3 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500/10 focus:border-emerald-500 outline-none bg-white shadow-sm hover:border-slate-300 transition-all"
                                                 placeholder="e.g. 10"
                                                 value={formData.attendanceConfig.expectedAttendees}
                                                 onChange={(e) => setFormData(prev => ({
@@ -609,7 +618,7 @@ export default function ToolboxWizard({ onBack, onComplete }: ToolboxWizardProps
                                                 Notes for Attendees <span className="text-red-600">*</span>
                                             </label>
                                             <textarea
-                                                className="w-full border border-slate-200 px-4 py-3 rounded-xl text-base focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400 outline-none bg-white shadow-sm hover:border-slate-300 transition-all"
+                                                className="w-full border border-slate-200 px-4 py-3 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500/10 focus:border-emerald-500 outline-none bg-white shadow-sm hover:border-slate-300 transition-all min-h-[80px]"
                                                 placeholder="e.g. Please sign to confirm you have understood the briefing."
                                                 value={formData.attendanceConfig.notes}
                                                 onChange={(e) => setFormData(prev => ({

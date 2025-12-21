@@ -21,6 +21,7 @@ import Toast, { ToastType } from "./Toast";
 import AnimatedTitle from "./AnimatedTitle";
 import { RAMSFile } from "./MyFileViewer";
 import { generateCOSHHHTML } from "../lib/rams-generation";
+import { ArrowLeft } from "lucide-react";
 
 // --- SMALL TEXT SANITISER ---
 function sanitizeText(input: any): string {
@@ -253,14 +254,23 @@ export default function CoshhWizard({ onBack, onSave }: CoshhWizardProps) {
             {/* HEADER */}
             {!isGenerating && (
                 <div className="sticky top-0 z-20 bg-white/80 backdrop-blur-md border-b border-slate-200 px-8 py-4 flex items-center justify-between">
+                    <div className="flex items-center gap-4">
+                        <button
+                            onClick={onBack}
+                            className="flex items-center gap-2 px-3 py-2 text-xs font-bold text-slate-500 hover:text-slate-900 hover:bg-slate-100 rounded-lg transition-all"
+                        >
+                            <ArrowLeft className="w-3.5 h-3.5" />
+                            Back to RS Hub
+                        </button>
+                    </div>
                     <div>
-                        <h2 className="text-sm font-bold text-slate-500 flex items-center gap-2 uppercase tracking-wider">
+                        <h2 className="text-sm font-bold text-slate-500 flex items-center gap-2 uppercase tracking-wider justify-end">
                             <div className="w-6 h-6 rounded bg-blue-100 flex items-center justify-center border border-blue-200">
                                 <Beaker className="w-3.5 h-3.5 text-blue-700" />
                             </div>
                             COSHH Assessment
                         </h2>
-                        <p className="text-xs font-semibold text-slate-500 mt-0.5">
+                        <p className="text-xs font-semibold text-slate-500 mt-0.5 text-right">
                             Step {step} of 5
                         </p>
                     </div>
