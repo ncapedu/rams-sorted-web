@@ -252,27 +252,26 @@ export default function CoshhWizard({ onBack, onSave }: CoshhWizardProps) {
 
             {/* HEADER */}
             {!isGenerating && (
-                <div className="sticky top-0 z-10 bg-white border-b border-slate-200 px-8 py-4 flex items-center justify-between">
+                <div className="sticky top-0 z-20 bg-white/80 backdrop-blur-md border-b border-slate-200 px-8 py-4 flex items-center justify-between">
                     <div>
                         <h2 className="text-xl font-bold text-slate-900 flex items-center gap-2">
-                            <img src="/favicon.ico" alt="RS" className="w-5 h-5" />
-                            <AnimatedTitle text="v1.0" />
+                            <img src="/favicon.ico" alt="RS" className="w-5 h-5 opacity-80" />
+                            <AnimatedTitle text="COSHH Assessment" />
                         </h2>
-                        <p className="text-sm font-bold text-black mt-0.5">
+                        <p className="text-xs font-semibold text-slate-500 mt-0.5">
                             Step {step} of 5
                         </p>
                     </div>
-                    {/* Removed top-left Exit Wizard button as requested */}
                 </div>
             )}
 
             {/* PROGRESS BAR */}
             {/* PROGRESS BAR */}
             {!isGenerating && (
-                <div className="h-1.5 w-full bg-slate-200">
+                <div className="h-1 w-full bg-slate-100">
                     <div
-                        className="h-full bg-blue-700 transition-all duration-500 ease-out"
-                        style={{ width: `${step === 0 ? 0 : (step / 5) * 100}%` }}
+                        className="h-full bg-slate-900 shadow-[0_0_10px_rgba(0,0,0,0.1)] rounded-r-full transition-all duration-500 ease-out"
+                        style={{ width: `${step === 0 ? 5 : (step / 5) * 100}%` }}
                     />
                 </div>
             )}
@@ -320,7 +319,7 @@ export default function CoshhWizard({ onBack, onSave }: CoshhWizardProps) {
                                             Assessment Name <span className="text-red-600">*</span>
                                         </label>
                                         <input
-                                            className="border border-slate-200 p-3 rounded-lg w-full text-sm focus:ring-2 focus:ring-blue-700 focus:border-transparent outline-none bg-white shadow-sm hover:border-slate-300 transition-all duration-200"
+                                            className="border border-slate-200 px-4 py-3 rounded-xl w-full text-base focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400 outline-none bg-white shadow-sm hover:border-slate-300 transition-all duration-200"
                                             placeholder="e.g. Paint Stripping - Block A"
                                             value={formData.documentName}
                                             onChange={(e) => handleInput("documentName", e.target.value)}
@@ -335,26 +334,26 @@ export default function CoshhWizard({ onBack, onSave }: CoshhWizardProps) {
                                         <div className="grid grid-cols-2 gap-4">
                                             <button
                                                 onClick={() => handleInput("userType", "company")}
-                                                className={`p-4 rounded-xl border-2 text-left transition-all ${formData.userType === "company"
-                                                    ? "border-blue-700 bg-blue-50/50 ring-1 ring-blue-700"
-                                                    : "border-slate-200 hover:border-slate-300 hover:bg-slate-50"
+                                                className={`p-5 rounded-2xl border text-left transition-all duration-200 ${formData.userType === "company"
+                                                    ? "border-slate-900 bg-slate-900 text-white shadow-lg transform -translate-y-0.5"
+                                                    : "border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50 text-slate-600"
                                                     }`}
                                             >
-                                                <div className={`font-bold text-sm mb-1 ${formData.userType === "company" ? "text-blue-800" : "text-slate-900"}`}>Business</div>
-                                                <div className="text-[11px] text-slate-500 leading-tight">
+                                                <div className={`font-bold text-base mb-1 ${formData.userType === "company" ? "text-white" : "text-slate-900"}`}>Business</div>
+                                                <div className={`text-xs ${formData.userType === "company" ? "text-slate-300" : "text-slate-500"}`}>
                                                     Company with employees
                                                 </div>
                                             </button>
 
                                             <button
                                                 onClick={() => handleInput("userType", "sole_trader")}
-                                                className={`p-4 rounded-xl border-2 text-left transition-all ${formData.userType === "sole_trader"
-                                                    ? "border-blue-700 bg-blue-50/50 ring-1 ring-blue-700"
-                                                    : "border-slate-200 hover:border-slate-300 hover:bg-slate-50"
+                                                className={`p-5 rounded-2xl border text-left transition-all duration-200 ${formData.userType === "sole_trader"
+                                                    ? "border-slate-900 bg-slate-900 text-white shadow-lg transform -translate-y-0.5"
+                                                    : "border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50 text-slate-600"
                                                     }`}
                                             >
-                                                <div className={`font-bold text-sm mb-1 ${formData.userType === "sole_trader" ? "text-blue-800" : "text-slate-900"}`}>Sole Trader</div>
-                                                <div className="text-[11px] text-slate-500 leading-tight">
+                                                <div className={`font-bold text-base mb-1 ${formData.userType === "sole_trader" ? "text-white" : "text-slate-900"}`}>Sole Trader</div>
+                                                <div className={`text-xs ${formData.userType === "sole_trader" ? "text-slate-300" : "text-slate-500"}`}>
                                                     Independent / Self-employed
                                                 </div>
                                             </button>
@@ -383,7 +382,7 @@ export default function CoshhWizard({ onBack, onSave }: CoshhWizardProps) {
                                     <div className="flex gap-2 relative">
                                         <div className="relative flex-1">
                                             <input
-                                                className="w-full border border-slate-300 p-3 rounded-lg text-sm focus:ring-2 focus:ring-blue-600 outline-none"
+                                                className="w-full border border-slate-200 px-4 py-3 rounded-xl text-base focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400 outline-none bg-white shadow-sm hover:border-slate-300 transition-all"
                                                 placeholder="Search for substances (e.g. dust, cement, adhesive)..."
                                                 value={substanceSearch}
                                                 onChange={(e) => {
@@ -501,7 +500,7 @@ export default function CoshhWizard({ onBack, onSave }: CoshhWizardProps) {
                                             {formData.userType === "company" ? "Company Name" : "Trading Name"} <span className="text-red-600">*</span>
                                         </label>
                                         <input
-                                            className="w-full border border-slate-200 p-3 rounded-lg text-sm focus:ring-2 focus:ring-blue-600 outline-none"
+                                            className="w-full border border-slate-200 px-4 py-3 rounded-xl text-base focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400 outline-none bg-white shadow-sm hover:border-slate-300 transition-all"
                                             placeholder={formData.userType === "company" ? "Your Company Ltd" : "John Smith T/A JS Plumbing"}
                                             value={formData.companyName}
                                             onChange={(e) => handleInput("companyName", e.target.value)}
@@ -513,7 +512,7 @@ export default function CoshhWizard({ onBack, onSave }: CoshhWizardProps) {
                                             Assessor Name <span className="text-red-600">*</span>
                                         </label>
                                         <input
-                                            className="w-full border border-slate-200 p-3 rounded-lg text-sm focus:ring-2 focus:ring-blue-600 outline-none"
+                                            className="w-full border border-slate-200 px-4 py-3 rounded-xl text-base focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400 outline-none bg-white shadow-sm hover:border-slate-300 transition-all"
                                             placeholder="Name of Assessor"
                                             value={formData.assessorName}
                                             onChange={(e) => handleInput("assessorName", e.target.value)}
@@ -525,7 +524,7 @@ export default function CoshhWizard({ onBack, onSave }: CoshhWizardProps) {
                                             Client Name <span className="text-red-600">*</span>
                                         </label>
                                         <input
-                                            className="w-full border border-slate-200 p-3 rounded-lg text-sm focus:ring-2 focus:ring-blue-600 outline-none"
+                                            className="w-full border border-slate-200 px-4 py-3 rounded-xl text-base focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400 outline-none bg-white shadow-sm hover:border-slate-300 transition-all"
                                             placeholder="Client Name"
                                             value={formData.clientName}
                                             onChange={(e) => handleInput("clientName", e.target.value)}
@@ -537,7 +536,7 @@ export default function CoshhWizard({ onBack, onSave }: CoshhWizardProps) {
                                             Project Ref (Optional)
                                         </label>
                                         <input
-                                            className="w-full border border-slate-200 p-3 rounded-lg text-sm focus:ring-2 focus:ring-blue-600 outline-none"
+                                            className="w-full border border-slate-200 px-4 py-3 rounded-xl text-base focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400 outline-none bg-white shadow-sm hover:border-slate-300 transition-all"
                                             placeholder="e.g. PRJ-123"
                                             value={formData.projectRef}
                                             onChange={(e) => handleInput("projectRef", e.target.value)}
@@ -549,7 +548,7 @@ export default function CoshhWizard({ onBack, onSave }: CoshhWizardProps) {
                                             Site Address
                                         </label>
                                         <input
-                                            className="w-full border border-slate-200 p-3 rounded-lg text-sm focus:ring-2 focus:ring-blue-600 outline-none"
+                                            className="w-full border border-slate-200 px-4 py-3 rounded-xl text-base focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400 outline-none bg-white shadow-sm hover:border-slate-300 transition-all"
                                             placeholder="Site Address"
                                             value={formData.siteAddress}
                                             onChange={(e) => handleInput("siteAddress", e.target.value)}
@@ -562,7 +561,7 @@ export default function CoshhWizard({ onBack, onSave }: CoshhWizardProps) {
                                         </label>
                                         <input
                                             type="date"
-                                            className="w-full border border-slate-200 p-3 rounded-lg text-sm focus:ring-2 focus:ring-blue-600 outline-none"
+                                            className="w-full border border-slate-200 px-4 py-3 rounded-xl text-base focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400 outline-none bg-white shadow-sm hover:border-slate-300 transition-all"
                                             value={formData.assessmentDate}
                                             onChange={(e) => handleInput("assessmentDate", e.target.value)}
                                         />
@@ -589,7 +588,7 @@ export default function CoshhWizard({ onBack, onSave }: CoshhWizardProps) {
                                             Work Activity Description <span className="text-red-600">*</span>
                                         </label>
                                         <textarea
-                                            className="w-full border border-slate-200 p-3 rounded-lg h-32 text-sm focus:ring-2 focus:ring-blue-600 outline-none"
+                                            className="w-full border border-slate-200 px-4 py-3 rounded-xl h-32 text-base focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400 outline-none bg-white shadow-sm hover:border-slate-300 transition-all"
                                             placeholder="Describe how the substances are used..."
                                             value={formData.workActivity}
                                             onChange={(e) => handleInput("workActivity", e.target.value)}
@@ -602,7 +601,7 @@ export default function CoshhWizard({ onBack, onSave }: CoshhWizardProps) {
                                                 Duration of Exposure <span className="text-red-600">*</span>
                                             </label>
                                             <input
-                                                className="w-full border border-slate-200 p-3 rounded-lg text-sm focus:ring-2 focus:ring-blue-600 outline-none"
+                                                className="w-full border border-slate-200 px-4 py-3 rounded-xl text-base focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400 outline-none bg-white shadow-sm hover:border-slate-300 transition-all"
                                                 placeholder="e.g. 2 hours"
                                                 value={formData.exposureDuration}
                                                 onChange={(e) => handleInput("exposureDuration", e.target.value)}
@@ -613,7 +612,7 @@ export default function CoshhWizard({ onBack, onSave }: CoshhWizardProps) {
                                                 Frequency of Exposure <span className="text-red-600">*</span>
                                             </label>
                                             <input
-                                                className="w-full border border-slate-200 p-3 rounded-lg text-sm focus:ring-2 focus:ring-blue-600 outline-none"
+                                                className="w-full border border-slate-200 px-4 py-3 rounded-xl text-base focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400 outline-none bg-white shadow-sm hover:border-slate-300 transition-all"
                                                 placeholder="e.g. Daily"
                                                 value={formData.exposureFrequency}
                                                 onChange={(e) => handleInput("exposureFrequency", e.target.value)}
@@ -630,9 +629,9 @@ export default function CoshhWizard({ onBack, onSave }: CoshhWizardProps) {
                                                 <button
                                                     key={p}
                                                     onClick={() => togglePersonExposed(p)}
-                                                    className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-colors ${formData.personsExposed.includes(p)
-                                                        ? "bg-blue-600 text-white border-blue-600"
-                                                        : "bg-white text-slate-600 border-slate-200 hover:border-blue-300"
+                                                    className={`px-4 py-2 rounded-xl text-xs font-medium border transition-colors ${formData.personsExposed.includes(p)
+                                                        ? "bg-slate-900 text-white border-slate-900 shadow-md"
+                                                        : "bg-white text-slate-600 border-slate-200 hover:bg-slate-50 hover:border-slate-300"
                                                         }`}
                                                 >
                                                     {p}
@@ -666,13 +665,13 @@ export default function CoshhWizard({ onBack, onSave }: CoshhWizardProps) {
                                                 <button
                                                     key={key}
                                                     onClick={() => togglePPE(def.item)}
-                                                    className={`p-3 rounded-lg border text-left transition-all ${formData.ppe.includes(def.item)
-                                                        ? "bg-blue-50 border-blue-600 ring-1 ring-blue-600"
-                                                        : "bg-white border-slate-200 hover:border-blue-300"
+                                                    className={`p-4 rounded-xl border text-left transition-all ${formData.ppe.includes(def.item)
+                                                        ? "bg-slate-900 border-slate-900 ring-1 ring-slate-900 text-white shadow-md transform -translate-y-0.5"
+                                                        : "bg-white border-slate-200 hover:border-slate-300 hover:bg-slate-50 text-slate-600"
                                                         }`}
                                                 >
-                                                    <div className="font-semibold text-xs text-slate-900">{def.item}</div>
-                                                    <div className="text-[10px] text-slate-500 mt-0.5">{def.reason}</div>
+                                                    <div className={`font-semibold text-xs ${formData.ppe.includes(def.item) ? "text-white" : "text-slate-900"}`}>{def.item}</div>
+                                                    <div className={`text-[10px] mt-0.5 ${formData.ppe.includes(def.item) ? "text-slate-300" : "text-slate-500"}`}>{def.reason}</div>
                                                 </button>
                                             ))}
                                         </div>
@@ -691,7 +690,7 @@ export default function CoshhWizard({ onBack, onSave }: CoshhWizardProps) {
                                             Additional Control Measures (Optional but Recommended)
                                         </label>
                                         <textarea
-                                            className="w-full border border-slate-200 p-3 rounded-lg h-24 text-sm focus:ring-2 focus:ring-blue-600 outline-none"
+                                            className="w-full border border-slate-200 px-4 py-3 rounded-xl h-24 text-base focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400 outline-none bg-white shadow-sm hover:border-slate-300 transition-all"
                                             placeholder="Any specific engineering controls or safe systems of work..."
                                             value={formData.additionalControls}
                                             onChange={(e) => handleInput("additionalControls", e.target.value)}
@@ -703,7 +702,7 @@ export default function CoshhWizard({ onBack, onSave }: CoshhWizardProps) {
                                             Emergency Procedures (Optional but Recommended)
                                         </label>
                                         <textarea
-                                            className="w-full border border-slate-200 p-3 rounded-lg h-24 text-sm focus:ring-2 focus:ring-blue-600 outline-none"
+                                            className="w-full border border-slate-200 px-4 py-3 rounded-xl h-24 text-base focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400 outline-none bg-white shadow-sm hover:border-slate-300 transition-all"
                                             placeholder="First aid, spillage procedures, fire response..."
                                             value={formData.emergencyProcedures}
                                             onChange={(e) => handleInput("emergencyProcedures", e.target.value)}
@@ -725,7 +724,7 @@ export default function CoshhWizard({ onBack, onSave }: CoshhWizardProps) {
                                     </h2>
                                 </div>
 
-                                <div className="bg-slate-50 rounded-xl p-6 border border-slate-200 space-y-6">
+                                <div className="bg-slate-50 rounded-2xl p-6 border border-slate-200 space-y-6">
                                     {/* Project Details */}
                                     <div className="grid grid-cols-2 gap-4 text-sm border-b border-slate-200 pb-4">
                                         <div>
@@ -819,28 +818,28 @@ export default function CoshhWizard({ onBack, onSave }: CoshhWizardProps) {
                         )}
 
                         {/* NAVIGATION BUTTONS */}
-                        <div className="flex justify-between gap-3 pt-4 mt-8">
-                            <div className="flex gap-2 pt-2">
+                        <div className="flex justify-between gap-3 pt-6 border-t border-slate-200 mt-8">
+                            <div className="flex gap-2">
                                 {step > 0 && (
                                     <button
                                         onClick={prevStep}
-                                        className="inline-flex items-center justify-center rounded-lg border border-slate-300 px-4 py-2.5 text-sm font-semibold text-slate-800 hover:bg-slate-50"
+                                        className="inline-flex items-center justify-center rounded-xl border border-slate-200 bg-white px-5 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-50 hover:border-slate-300 transition-all"
                                     >
                                         Back
                                     </button>
                                 )}
                                 <button
                                     onClick={onBack}
-                                    className="inline-flex items-center justify-center rounded-lg border border-slate-300 px-4 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-50"
+                                    className="inline-flex items-center justify-center rounded-xl border border-transparent px-4 py-3 text-sm font-semibold text-slate-500 hover:text-slate-800 transition-colors"
                                 >
-                                    {step === 0 ? "Back to RS Hub" : "← Back to RS Hub"}
+                                    {step === 0 ? "Cancel" : "Cancel Wizard"}
                                 </button>
                             </div>
 
                             {step < 5 ? (
                                 <button
                                     onClick={nextStep}
-                                    className="inline-flex items-center justify-center rounded-lg bg-[#0b2040] px-5 py-2.5 text-sm font-semibold text-white hover:bg-black transition-colors"
+                                    className="inline-flex items-center justify-center rounded-xl bg-slate-900 px-8 py-3 text-sm font-bold text-white hover:bg-black shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all"
                                 >
                                     Next Step
                                 </button>
@@ -848,7 +847,7 @@ export default function CoshhWizard({ onBack, onSave }: CoshhWizardProps) {
                                 <button
                                     onClick={generateCOSHH}
                                     disabled={isGenerating}
-                                    className="inline-flex items-center justify-center gap-2 rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-blue-700 disabled:opacity-60 disabled:cursor-not-allowed transition-colors"
+                                    className="inline-flex items-center justify-center gap-2 rounded-xl bg-slate-900 px-8 py-3 text-sm font-bold text-white hover:bg-black shadow-lg hover:shadow-xl hover:-translate-y-0.5 disabled:opacity-60 disabled:cursor-not-allowed transition-all"
                                 >
                                     {isGenerating ? (
                                         <Loader2 className="w-4 h-4 animate-spin" />

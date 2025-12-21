@@ -19,7 +19,7 @@ export default function PricingPage() {
 
                 <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto overflow-hidden p-4">
                     {/* Monthly Plan - Slide In From Left */}
-                    <div className="bg-[#0f172a] rounded-2xl p-6 border-2 border-slate-800 shadow-xl hover:border-slate-700 hover:shadow-2xl hover:scale-[1.02] transition-all duration-300 flex flex-col group relative overflow-hidden animate-slide-left opacity-0" style={{ animationDelay: '100ms', animationFillMode: 'forwards' }}>
+                    <div className="bg-white/5 backdrop-blur-md rounded-2xl p-6 border border-white/10 shadow-xl hover:border-white/20 hover:shadow-2xl hover:bg-white/10 hover:scale-[1.02] transition-all duration-300 flex flex-col group relative overflow-hidden animate-slide-left opacity-0" style={{ animationDelay: '100ms', animationFillMode: 'forwards' }}>
                         {/* Logo Blend Effect (Matte Style) - Increased Opacity */}
                         <div className="absolute -bottom-12 -right-12 opacity-10 translate-y-8 translate-x-8 transition-transform duration-700 group-hover:translate-y-0 group-hover:translate-x-0 group-hover:scale-110 pointer-events-none group-hover:opacity-20">
                             <Image
@@ -65,14 +65,14 @@ export default function PricingPage() {
 
                         <Link
                             href="/signup?plan=monthly"
-                            className="block w-full py-3 bg-slate-800 text-white border-2 border-slate-700 rounded-xl font-bold hover:bg-slate-700 hover:border-slate-600 hover:scale-105 hover:shadow-xl transition-all duration-300 active:scale-95 text-center relative z-10 text-sm"
+                            className="block w-full py-3 bg-white/10 text-white border border-white/20 rounded-xl font-bold hover:bg-white/20 hover:border-white/30 hover:scale-105 hover:shadow-xl transition-all duration-300 active:scale-95 text-center relative z-10 text-sm"
                         >
                             Start 14-day free trial
                         </Link>
                     </div>
 
                     {/* Yearly Plan - Slide In From Right */}
-                    <div className="bg-[#0f172a] rounded-2xl p-6 border-2 border-blue-600 shadow-2xl hover:border-blue-500 hover:shadow-blue-900/20 hover:scale-[1.02] transition-all duration-300 flex flex-col relative overflow-hidden group animate-slide-right opacity-0" style={{ animationDelay: '300ms', animationFillMode: 'forwards' }}>
+                    <div className="bg-white/5 backdrop-blur-md rounded-2xl p-6 border border-blue-500/50 shadow-2xl hover:border-blue-400 hover:shadow-blue-900/40 hover:scale-[1.02] transition-all duration-300 flex flex-col relative overflow-hidden group animate-slide-right opacity-0" style={{ animationDelay: '300ms', animationFillMode: 'forwards' }}>
                         {/* Matte Accent */}
                         <div className="absolute top-0 right-0 w-32 h-32 bg-blue-600/10 rounded-bl-full pointer-events-none group-hover:bg-blue-600/20 transition-colors"></div>
 

@@ -53,7 +53,7 @@ export default function DocumentsPage() {
                                 </li>
                             </ul>
                         </div>
-                        <div className="order-1 md:order-2 bg-[#0f172a] border-2 border-slate-800 rounded-2xl p-8 aspect-video flex items-center justify-center shadow-xl relative overflow-hidden group hover:border-slate-700 transition-colors animate-slide-right opacity-0" style={{ animationDelay: '300ms', animationFillMode: 'forwards' }}>
+                        <div className="order-1 md:order-2 bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl p-8 aspect-video flex items-center justify-center shadow-xl relative overflow-hidden group hover:border-white/20 transition-colors animate-slide-right opacity-0" style={{ animationDelay: '300ms', animationFillMode: 'forwards' }}>
                             {/* Decorative Glow (Reduced) */}
                             <div className="absolute top-0 right-0 w-32 h-32 bg-red-500/5 rounded-full blur-3xl pointer-events-none group-hover:bg-red-500/10 transition-all duration-700"></div>
 
@@ -102,7 +102,7 @@ export default function DocumentsPage() {
                                 </li>
                             </ul>
                         </div>
-                        <div className="md:order-1 bg-[#0f172a] border-2 border-slate-800 rounded-2xl p-8 aspect-video flex items-center justify-center shadow-xl relative overflow-hidden group hover:border-slate-700 transition-colors animate-slide-left opacity-0" style={{ animationDelay: '700ms', animationFillMode: 'forwards' }}>
+                        <div className="md:order-1 bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl p-8 aspect-video flex items-center justify-center shadow-xl relative overflow-hidden group hover:border-white/20 transition-colors animate-slide-left opacity-0" style={{ animationDelay: '700ms', animationFillMode: 'forwards' }}>
                             {/* Decorative Glow (Reduced) */}
                             <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/5 rounded-full blur-3xl pointer-events-none group-hover:bg-blue-500/10 transition-all duration-700"></div>
 
@@ -154,7 +154,7 @@ export default function DocumentsPage() {
                                 </li>
                             </ul>
                         </div>
-                        <div className="bg-[#0f172a] border-2 border-slate-800 rounded-2xl p-8 aspect-video flex items-center justify-center shadow-xl relative overflow-hidden group hover:border-slate-700 transition-colors animate-slide-right opacity-0" style={{ animationDelay: '1100ms', animationFillMode: 'forwards' }}>
+                        <div className="bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl p-8 aspect-video flex items-center justify-center shadow-xl relative overflow-hidden group hover:border-white/20 transition-colors animate-slide-right opacity-0" style={{ animationDelay: '1100ms', animationFillMode: 'forwards' }}>
                             {/* Decorative Glow (Reduced) */}
                             <div className="absolute top-0 right-0 w-32 h-32 bg-green-500/5 rounded-full blur-3xl pointer-events-none group-hover:bg-green-500/10 transition-all duration-700"></div>
 

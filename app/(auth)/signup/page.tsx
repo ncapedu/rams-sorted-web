@@ -84,34 +84,34 @@ function SignUpContent() {
     }
 
     return (
-        <div className="min-h-screen bg-auth-swirl flex flex-col justify-center items-center px-4 py-8">
+        <div className="min-h-screen bg-swirl flex flex-col justify-center items-center px-4 py-8">
             {/* Card Container */}
-            <div className="w-full max-w-[450px] glass-card-animated backdrop-blur-xl bg-white/90 border border-white/60 shadow-2xl shadow-blue-900/10 p-8 rounded-2xl space-y-6 animate-float-up relative z-10">
+            <div className="w-full max-w-[480px] bg-[#0f172a] border border-slate-700 shadow-2xl shadow-black/50 p-10 rounded-3xl space-y-8 animate-float-up relative z-10">
 
                 <div className="text-center space-y-4">
                     <Link href="/" className="inline-block hover:scale-105 transition-transform duration-300">
                         <Image
                             src="/rams-logo6.png"
                             alt="RAMS Sorted"
-                            width={80}
-                            height={80}
-                            className="w-20 h-20 mx-auto drop-shadow-md"
+                            width={90}
+                            height={90}
+                            className="w-24 h-24 mx-auto drop-shadow-lg"
                         />
                     </Link>
                     <div className="min-h-[36px] flex items-end justify-center">
-                        <h1 className="text-2xl font-bold tracking-tight text-slate-900">
+                        <h1 className="text-3xl font-bold tracking-tight text-white">
                             <TypewriterText text="Create Your Account" speed={30} cursor />
                         </h1>
                     </div>
-                    <p className="text-slate-500 text-sm">
+                    <p className="text-slate-400 text-base font-medium">
                         {plan === 'yearly' ? 'Start your 14-day free trial on the Yearly plan.' : 'Start creating RAMS in minutes. No credit card required.'}
                     </p>
                 </div>
 
-                <form onSubmit={handleSubmit} className="space-y-4">
-                    <div className="grid grid-cols-1 gap-4">
+                <form onSubmit={handleSubmit} className="space-y-5">
+                    <div className="grid grid-cols-1 gap-5">
                         <div className="space-y-1.5">
-                            <label className="text-sm font-semibold text-slate-700" htmlFor="username">
+                            <label className="text-sm font-semibold text-slate-300 ml-1" htmlFor="username">
                                 Username
                             </label>
                             <input
@@ -120,13 +120,13 @@ function SignUpContent() {
                                 type="text"
                                 required
                                 minLength={3}
-                                className="w-full h-11 px-3.5 rounded-lg border border-slate-200 focus:border-blue-600 focus:ring-1 focus:ring-blue-600 outline-none transition-all placeholder:text-slate-400 bg-white shadow-sm hover:border-slate-300 text-sm"
+                                className="w-full h-12 px-4 rounded-xl bg-slate-900 border border-slate-700 text-white placeholder:text-slate-500 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition-all shadow-sm hover:border-slate-600 text-base"
                                 placeholder="johndoe"
                             />
                         </div>
 
                         <div className="space-y-1.5">
-                            <label className="text-sm font-semibold text-slate-700" htmlFor="email">
+                            <label className="text-sm font-semibold text-slate-300 ml-1" htmlFor="email">
                                 Email
                             </label>
                             <input
@@ -134,13 +134,13 @@ function SignUpContent() {
                                 name="email"
                                 type="email"
                                 required
-                                className="w-full h-11 px-3.5 rounded-lg border border-slate-200 focus:border-blue-600 focus:ring-1 focus:ring-blue-600 outline-none transition-all placeholder:text-slate-400 bg-white shadow-sm hover:border-slate-300 text-sm"
+                                className="w-full h-12 px-4 rounded-xl bg-slate-900 border border-slate-700 text-white placeholder:text-slate-500 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition-all shadow-sm hover:border-slate-600 text-base"
                                 placeholder="name@company.com"
                             />
                         </div>
 
                         <div className="space-y-1.5">
-                            <label className="text-sm font-semibold text-slate-700" htmlFor="password">
+                            <label className="text-sm font-semibold text-slate-300 ml-1" htmlFor="password">
                                 Password
                             </label>
                             <input
@@ -150,13 +150,13 @@ function SignUpContent() {
                                 required
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
-                                className="w-full h-11 px-3.5 rounded-lg border border-slate-200 focus:border-blue-600 focus:ring-1 focus:ring-blue-600 outline-none transition-all bg-white shadow-sm hover:border-slate-300 text-sm"
+                                className="w-full h-12 px-4 rounded-xl bg-slate-900 border border-slate-700 text-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition-all shadow-sm hover:border-slate-600 text-base"
                             />
                             {/* Password Strength Meter */}
                             <div className="grid grid-cols-2 gap-2 mt-2">
                                 {requirements.map((req, i) => (
-                                    <div key={i} className={`flex items-center gap-1.5 text-[10px] sm:text-xs font-medium transition-colors ${strength[i] ? 'text-green-600' : 'text-slate-400'}`}>
-                                        {strength[i] ? <Check className="w-3 h-3" /> : <div className="w-3 h-3 rounded-full border border-slate-300" />}
+                                    <div key={i} className={`flex items-center gap-1.5 text-[10px] sm:text-xs font-medium transition-colors ${strength[i] ? 'text-green-400' : 'text-slate-500'}`}>
+                                        {strength[i] ? <Check className="w-3.5 h-3.5" /> : <div className="w-3.5 h-3.5 rounded-full border border-slate-600" />}
                                         {req.label}
                                     </div>
                                 ))}
@@ -164,7 +164,7 @@ function SignUpContent() {
                         </div>
 
                         <div className="space-y-1.5">
-                            <label className="text-sm font-semibold text-slate-700" htmlFor="confirmPassword">
+                            <label className="text-sm font-semibold text-slate-300 ml-1" htmlFor="confirmPassword">
                                 Confirm Password
                             </label>
                             <input
@@ -172,13 +172,13 @@ function SignUpContent() {
                                 name="confirmPassword"
                                 type="password"
                                 required
-                                className="w-full h-11 px-3.5 rounded-lg border border-slate-200 focus:border-blue-600 focus:ring-1 focus:ring-blue-600 outline-none transition-all bg-white shadow-sm hover:border-slate-300 text-sm"
+                                className="w-full h-12 px-4 rounded-xl bg-slate-900 border border-slate-700 text-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition-all shadow-sm hover:border-slate-600 text-base"
                             />
                         </div>
                     </div>
 
                     {error && (
-                        <div className="p-3 text-sm font-medium text-red-600 bg-red-50 rounded-lg border border-red-100 flex items-center justify-center">
+                        <div className="p-4 text-sm font-medium text-red-400 bg-red-900/20 rounded-xl border border-red-900/30 flex items-center justify-center animate-in fade-in slide-in-from-top-2">
                             {error}
                         </div>
                     )}
@@ -186,20 +186,20 @@ function SignUpContent() {
                     <button
                         type="submit"
                         disabled={loading}
-                        className="w-full h-11 bg-slate-900 text-white font-semibold text-sm rounded-lg hover:bg-slate-800 transition-all hover:shadow-lg disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2 active:scale-[0.98] mt-2"
+                        className="w-full h-12 bg-blue-600 text-white font-bold text-base rounded-xl hover:bg-blue-500 transition-all hover:shadow-lg hover:shadow-blue-500/25 hover:-translate-y-0.5 disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2 active:scale-[0.98] mt-2"
                     >
                         {loading ? (
-                            <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                            <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                         ) : (
                             "Start Free Trial"
                         )}
                     </button>
                 </form>
 
-                <div className="pt-4 border-t border-slate-100 flex justify-center">
+                <div className="pt-4 border-t border-slate-800 flex justify-center">
                     <Link
                         href="/signin"
-                        className="inline-flex items-center gap-1.5 text-sm font-medium text-slate-500 hover:text-blue-600 transition-colors group"
+                        className="inline-flex items-center gap-1.5 text-sm font-medium text-slate-400 hover:text-blue-400 transition-colors group"
                     >
                         Already have an account? Sign in
                         <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />

@@ -664,13 +664,13 @@ export default function Dashboard({ initialFiles, user }: DashboardProps) {
           isDangerous={true}
         />
       )}
-      <div className="h-screen w-full flex overflow-hidden bg-[#f5f4f0] text-slate-900">
+      <div className="h-screen w-full flex overflow-hidden bg-slate-50 text-slate-900">
         {/* SIDEBAR */}
         <aside
-          className={`relative flex flex-col border-r border-black/5 transition-all duration-300 ease-out ${sidebarOpen ? "w-56" : "w-14"
+          className={`relative flex flex-col border-r border-slate-200 bg-white transition-all duration-300 ease-out ${sidebarOpen ? "w-64" : "w-16"
             }`}
         >
-          <div className="flex h-full flex-col bg-[#FAF9F6] text-slate-900">
+          <div className="flex h-full flex-col bg-white text-slate-900">
             {/* Top brand + toggle */}
             <div className="relative flex items-center justify-start px-3 pt-3 pb-2">
               <div
@@ -701,7 +701,7 @@ export default function Dashboard({ initialFiles, user }: DashboardProps) {
             </div>
 
             {/* RS HUB BUTTON (FIXED) */}
-            <div className="px-2 pb-2">
+            <div className="px-3 pb-3">
               <div className="mt-0">
                 {sidebarOpen ? (
                   <button
@@ -710,9 +710,9 @@ export default function Dashboard({ initialFiles, user }: DashboardProps) {
                       setStep(1);
                       setActiveFile(null);
                     }}
-                    className="flex w-full items-center justify-center gap-2 rounded-md bg-[#0b2040] py-2 text-xs font-semibold text-white hover:bg-black transition-colors"
+                    className="flex w-full items-center justify-center gap-2.5 rounded-xl bg-slate-900 py-3 text-sm font-semibold text-white hover:bg-black hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200"
                   >
-                    <LayoutDashboard className="w-3.5 h-3.5" />
+                    <LayoutDashboard className="w-4 h-4" />
                     <span>RS Hub</span>
                   </button>
                 ) : (
@@ -723,9 +723,9 @@ export default function Dashboard({ initialFiles, user }: DashboardProps) {
                         setStep(1);
                         setActiveFile(null);
                       }}
-                      className="flex h-9 w-9 items-center justify-center rounded-md bg-[#0b2040] text-white hover:bg-black transition-colors"
+                      className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-900 text-white hover:bg-black hover:shadow-lg transition-all"
                     >
-                      <LayoutDashboard className="w-4 h-4" />
+                      <LayoutDashboard className="w-5 h-5" />
                     </button>
                   </div>
                 )}
@@ -742,14 +742,16 @@ export default function Dashboard({ initialFiles, user }: DashboardProps) {
                     My files
                   </div>
                   {recentFiles.length === 0 ? (
-                    <div className="px-2 py-2 text-[11px] text-slate-500">
-                      Generated documents will appear here.
+                    <div className="px-3 py-4 text-xs text-slate-400 text-center italic">
+                      No documents yet.
                     </div>
                   ) : (
                     recentFiles.map((file) => (
                       <div
                         key={file.id}
-                        className={`w-full px-2 py-1 rounded-md transition-colors hover:bg-gray-100 ${activeFile?.id === file.id ? "bg-gray-200" : ""
+                        className={`w-full px-3 py-2.5 rounded-xl transition-all duration-200 cursor-pointer border border-transparent ${activeFile?.id === file.id
+                          ? "bg-slate-100 border-slate-200 shadow-sm"
+                          : "hover:bg-slate-50 hover:border-slate-100"
                           }`}
                         onClick={() => {
                           setActiveFile(file);
@@ -862,17 +864,13 @@ export default function Dashboard({ initialFiles, user }: DashboardProps) {
             </div>
 
             {/* Bottom: profile / settings (fixed) */}
-            {/* Bottom: profile / settings (fixed) */}
-            <div className={`mt-auto border-t border-black/5 p-2 transition-all duration-300 ${sidebarOpen ? "px-2" : "px-2"}`}>
+            <div className={`mt-auto border-t border-slate-200 p-3 transition-all duration-300 ${sidebarOpen ? "px-3" : "px-3"}`}>
               {sidebarOpen ? (
                 <button
-                  className="group relative flex w-full items-center gap-3 p-2 rounded-xl cursor-pointer hover:shadow-md transition-all duration-300 overflow-hidden text-left"
+                  className="group relative flex w-full items-center gap-3 p-2.5 rounded-xl cursor-pointer hover:bg-slate-50 border border-transparent hover:border-slate-200 transition-all duration-200 text-left"
                   onClick={() => setIsSettingsOpen(true)}
                 >
-                  {/* Wave Background Effect */}
-                  <div className="absolute inset-0 bg-auth-swirl opacity-0 group-hover:opacity-10 transition-opacity duration-300 pointer-events-none" />
-
-                  <div className="relative h-9 w-9 rounded-full bg-slate-900 ring-2 ring-white shadow-sm flex items-center justify-center overflow-hidden shrink-0">
+                  <div className="relative h-9 w-9 rounded-full bg-slate-900 ring-2 ring-white shadow-sm flex items-center justify-center overflow-hidden shrink-0 group-hover:scale-105 transition-transform">
                     {user?.image ? (
                       <Image src={user.image} alt={user.name || "User"} width={36} height={36} className="object-cover h-full w-full" />
                     ) : (
@@ -881,7 +879,7 @@ export default function Dashboard({ initialFiles, user }: DashboardProps) {
                   </div>
 
                   <div className="flex-1 min-w-0 flex flex-col items-start text-left">
-                    <span className="text-xs font-bold text-slate-900 truncate w-full">{user?.username || user?.name || "Account"}</span>
+                    <span className="text-xs font-bold text-slate-900 truncate w-full group-hover:text-blue-600 transition-colors">{user?.username || user?.name || "Account"}</span>
                     <span className="text-[10px] text-slate-500 truncate w-full">{user?.email || "Manage Settings"}</span>
                   </div>
 
@@ -890,7 +888,7 @@ export default function Dashboard({ initialFiles, user }: DashboardProps) {
               ) : (
                 <button
                   onClick={() => setIsSettingsOpen(true)}
-                  className="flex h-10 w-10 items-center justify-center rounded-xl hover:bg-slate-200/80 text-slate-500 hover:text-slate-900 transition-colors mx-auto"
+                  className="flex h-10 w-10 items-center justify-center rounded-xl hover:bg-slate-100 text-slate-500 hover:text-slate-900 transition-colors mx-auto"
                   title="Settings"
                 >
                   <div className="h-8 w-8 rounded-full bg-slate-900 flex items-center justify-center overflow-hidden text-white text-[10px]">
@@ -907,7 +905,7 @@ export default function Dashboard({ initialFiles, user }: DashboardProps) {
         </aside>
 
         {/* MAIN PANEL */}
-        <main className={`flex-1 flex flex-col h-full overflow-hidden ${mode === "viewer" ? "bg-white" : "bg-[#f5f4f0]"}`}>
+        <main className={`flex-1 flex flex-col h-full overflow-hidden ${mode === "viewer" ? "bg-white" : "bg-slate-50"}`}>
           {isGenerating ? (
             <div className="flex flex-col items-center justify-center h-full">
               <div className="relative mb-8">
@@ -999,10 +997,10 @@ export default function Dashboard({ initialFiles, user }: DashboardProps) {
               }}
             />
           ) : mode === "landing" ? (
-            <div className="flex-1 overflow-y-auto bg-white flex flex-col" style={{ scrollbarGutter: 'stable' }}>
+            <div className="flex-1 overflow-y-auto bg-slate-50 flex flex-col" style={{ scrollbarGutter: 'stable' }}>
               <div className="flex-grow flex flex-col items-center justify-center py-12 px-6 rs-fade-slide-in">
-                <div className="max-w-7xl w-full text-center">
-                  <h1 className="text-4xl md:text-5xl font-semibold text-slate-900 mb-2">
+                <div className="max-w-6xl w-full text-center">
+                  <h1 className="text-4xl md:text-5xl font-bold text-slate-900 mb-3 tracking-tight">
                     <TypewriterText
                       key={greetingMessage}
                       messages={[greetingMessage]}
@@ -1010,11 +1008,11 @@ export default function Dashboard({ initialFiles, user }: DashboardProps) {
                       className="border-b-0"
                     />
                   </h1>
-                  <p className="text-slate-500 text-lg">
-                    How can we help you today?
+                  <p className="text-slate-500 text-lg md:text-xl max-w-2xl mx-auto">
+                    Select a document type to get started.
                   </p>
 
-                  <div className="mt-8 flex flex-col items-center gap-6 md:flex-row md:justify-center md:items-stretch md:gap-8 w-full max-w-5xl mx-auto">
+                  <div className="mt-12 grid grid-cols-1 md:grid-cols-3 gap-6 w-full max-w-5xl mx-auto">
                     <button
                       onClick={() => {
                         setMode("wizard");
@@ -1033,7 +1031,7 @@ export default function Dashboard({ initialFiles, user }: DashboardProps) {
                           startDate: new Date().toISOString().split("T")[0],
                           endDate: "",
                           expectedEndDate: "",
-                          duration: "1 Day",
+                          duration: "Day",
                           operatives: "2",
                           trade: "",
                           jobType: "",
@@ -1056,34 +1054,36 @@ export default function Dashboard({ initialFiles, user }: DashboardProps) {
                         });
                         setHazards([]);
                       }}
-                      className="flex flex-1 flex-col items-center gap-4 rounded-3xl border border-slate-200 bg-white px-8 py-6 text-center shadow-sm transition hover:shadow-md"
+                      className="group flex flex-col items-center gap-5 rounded-3xl border border-white bg-white px-8 py-10 text-center shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 relative overflow-hidden"
                     >
-                      <div className="h-14 w-14 rounded-full bg-red-50 flex items-center justify-center group-hover:scale-110 transition-transform shrink-0">
-                        <FileText className="w-7 h-7 text-red-600" />
+                      <div className="absolute inset-0 bg-gradient-to-b from-red-50/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                      <div className="h-16 w-16 rounded-2xl bg-red-50 flex items-center justify-center group-hover:scale-110 transition-transform duration-300 shrink-0 relative z-10 border border-red-100">
+                        <FileText className="w-8 h-8 text-red-600" />
                       </div>
-                      <div>
-                        <span className="font-semibold text-lg text-slate-900 block">
+                      <div className="relative z-10">
+                        <span className="font-bold text-xl text-slate-900 block mb-2 group-hover:text-red-700 transition-colors">
                           New RAMS Pack
                         </span>
-                        <p className="mt-1 text-sm text-slate-500 leading-relaxed">
-                          Start a full RAMS pack in guided steps.
+                        <p className="text-sm text-slate-500 leading-relaxed max-w-[200px] mx-auto">
+                          Create a full Risk Assessment & Method Statement in guided steps.
                         </p>
                       </div>
                     </button>
 
                     <button
                       onClick={() => setMode("coshh")}
-                      className="flex flex-1 flex-col items-center gap-4 rounded-3xl border border-slate-200 bg-white px-8 py-6 text-center shadow-sm transition hover:shadow-md"
+                      className="group flex flex-col items-center gap-5 rounded-3xl border border-white bg-white px-8 py-10 text-center shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 relative overflow-hidden"
                     >
-                      <div className="h-14 w-14 rounded-full bg-blue-50 flex items-center justify-center group-hover:scale-110 transition-transform shrink-0">
-                        <Beaker className="w-7 h-7 text-blue-600" />
+                      <div className="absolute inset-0 bg-gradient-to-b from-blue-50/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                      <div className="h-16 w-16 rounded-2xl bg-blue-50 flex items-center justify-center group-hover:scale-110 transition-transform duration-300 shrink-0 relative z-10 border border-blue-100">
+                        <Beaker className="w-8 h-8 text-blue-600" />
                       </div>
-                      <div>
-                        <span className="font-semibold text-lg text-slate-900 block">
+                      <div className="relative z-10">
+                        <span className="font-bold text-xl text-slate-900 block mb-2 group-hover:text-blue-700 transition-colors">
                           New COSHH Assessment
                         </span>
-                        <p className="mt-1 text-sm text-slate-500 leading-relaxed">
-                          Create a standalone COSHH assessment.
+                        <p className="text-sm text-slate-500 leading-relaxed max-w-[200px] mx-auto">
+                          Create a standalone COSHH assessment for hazardous substances.
                         </p>
                       </div>
                     </button>
@@ -1093,17 +1093,18 @@ export default function Dashboard({ initialFiles, user }: DashboardProps) {
                         setMode("toolbox");
                         setStep(0);
                       }}
-                      className="flex flex-1 flex-col items-center gap-4 rounded-3xl border border-slate-200 bg-white px-8 py-6 text-center shadow-sm transition hover:shadow-md"
+                      className="group flex flex-col items-center gap-5 rounded-3xl border border-white bg-white px-8 py-10 text-center shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 relative overflow-hidden"
                     >
-                      <div className="h-14 w-14 rounded-full bg-emerald-50 flex items-center justify-center group-hover:scale-110 transition-transform shrink-0">
-                        <Users className="w-7 h-7 text-emerald-600" />
+                      <div className="absolute inset-0 bg-gradient-to-b from-emerald-50/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                      <div className="h-16 w-16 rounded-2xl bg-emerald-50 flex items-center justify-center group-hover:scale-110 transition-transform duration-300 shrink-0 relative z-10 border border-emerald-100">
+                        <Users className="w-8 h-8 text-emerald-600" />
                       </div>
-                      <div>
-                        <span className="font-semibold text-lg text-slate-900 block">
+                      <div className="relative z-10">
+                        <span className="font-bold text-xl text-slate-900 block mb-2 group-hover:text-emerald-700 transition-colors">
                           New Toolbox Talk
                         </span>
-                        <p className="mt-1 text-sm text-slate-500 leading-relaxed">
-                          Build a ready-to-use toolbox talk.
+                        <p className="text-sm text-slate-500 leading-relaxed max-w-[200px] mx-auto">
+                          Generate a quick, ready-to-use toolbox talk on any topic.
                         </p>
                       </div>
                     </button>
@@ -1118,13 +1119,13 @@ export default function Dashboard({ initialFiles, user }: DashboardProps) {
               className="flex-1 overflow-y-auto bg-white"
             >
               {/* Wizard Header */}
-              <div className="sticky top-0 z-10 bg-white border-b border-slate-200 px-8 py-4 flex items-center justify-between">
+              <div className="sticky top-0 z-20 bg-white/80 backdrop-blur-md border-b border-slate-200 px-8 py-4 flex items-center justify-between">
                 <div>
                   <h2 className="text-xl font-bold text-slate-900 flex items-center gap-2">
                     <img src="/favicon.ico" alt="RS" className="w-5 h-5" />
                     <AnimatedTitle text="v1.0" />
                   </h2>
-                  <p className="text-sm font-bold text-black mt-0.5">
+                  <p className="text-sm font-bold text-slate-500 mt-0.5">
                     Step {step} of 5
                   </p>
                 </div>
@@ -1136,9 +1137,9 @@ export default function Dashboard({ initialFiles, user }: DashboardProps) {
               </div>
 
               {/* Progress Bar - Always visible */}
-              <div className="h-1.5 w-full bg-slate-200">
+              <div className="h-1.5 w-full bg-slate-100">
                 <div
-                  className="h-full bg-red-600 transition-all duration-500 ease-out"
+                  className="h-full bg-slate-900 transition-all duration-500 ease-out rounded-r-full shadow-[0_0_10px_rgba(0,0,0,0.1)]"
                   style={{ width: `${step === 0 ? 0 : (step / 5) * 100}%` }}
                 />
               </div>
@@ -1168,7 +1169,7 @@ export default function Dashboard({ initialFiles, user }: DashboardProps) {
                           <span className="text-red-600 ml-0.5">*</span>
                         </label>
                         <input
-                          className="border border-slate-200 p-3 rounded-lg w-full text-sm focus:ring-2 focus:ring-[#0b2040] focus:border-transparent outline-none bg-white shadow-sm hover:border-slate-300 transition-all duration-200"
+                          className="border border-slate-200 px-4 py-3 rounded-xl w-full text-base focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400 outline-none bg-white shadow-sm hover:border-slate-300 transition-all duration-200 placeholder:text-slate-400"
                           placeholder="e.g. ACME – Boiler replacement RAMS"
                           value={documentName}
                           onChange={(e) =>
@@ -1186,12 +1187,12 @@ export default function Dashboard({ initialFiles, user }: DashboardProps) {
                         <div className="grid grid-cols-2 gap-4">
                           <button
                             onClick={() => handleInput("userType", "company")}
-                            className={`p-4 rounded-xl border-2 text-left transition-all duration-200 ${formData.userType === "company"
-                              ? "border-red-600 bg-red-50/50 ring-1 ring-red-600"
+                            className={`p-5 rounded-2xl border-2 text-left transition-all duration-200 ${formData.userType === "company"
+                              ? "border-slate-900 bg-slate-50 ring-1 ring-slate-900"
                               : "border-slate-200 hover:border-slate-300 hover:bg-slate-50"
                               }`}
                           >
-                            <div className={`font-bold text-sm mb-1 ${formData.userType === "company" ? "text-red-700" : "text-slate-900"}`}>Business</div>
+                            <div className={`font-bold text-sm mb-1 ${formData.userType === "company" ? "text-slate-900" : "text-slate-700"}`}>Business</div>
                             <div className="text-[11px] text-slate-500 leading-tight">
                               Company with employees
                             </div>
@@ -1199,12 +1200,12 @@ export default function Dashboard({ initialFiles, user }: DashboardProps) {
 
                           <button
                             onClick={() => handleInput("userType", "sole_trader")}
-                            className={`p-4 rounded-xl border-2 text-left transition-all duration-200 ${formData.userType === "sole_trader"
-                              ? "border-red-600 bg-red-50/50 ring-1 ring-red-600"
+                            className={`p-5 rounded-2xl border-2 text-left transition-all duration-200 ${formData.userType === "sole_trader"
+                              ? "border-slate-900 bg-slate-50 ring-1 ring-slate-900"
                               : "border-slate-200 hover:border-slate-300 hover:bg-slate-50"
                               }`}
                           >
-                            <div className={`font-bold text-sm mb-1 ${formData.userType === "sole_trader" ? "text-red-700" : "text-slate-900"}`}>Sole Trader</div>
+                            <div className={`font-bold text-sm mb-1 ${formData.userType === "sole_trader" ? "text-slate-900" : "text-slate-700"}`}>Sole Trader</div>
                             <div className="text-[11px] text-slate-500 leading-tight">
                               Independent / Self-employed
                             </div>
@@ -1366,18 +1367,18 @@ export default function Dashboard({ initialFiles, user }: DashboardProps) {
                       </div>
                     </div>
 
-                    <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-4">
-                      <h3 className="font-semibold text-sm text-slate-900">
+                    <div className="bg-slate-50 p-6 rounded-2xl border border-slate-200 space-y-6">
+                      <h3 className="font-semibold text-sm text-slate-900 border-b border-slate-200 pb-2">
                         Project Info
                       </h3>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                         <div>
-                          <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
+                          <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5 ml-1">
                             Client Name
                             <span className="text-red-600 ml-0.5">*</span>
                           </label>
                           <input
-                            className="border border-slate-200 p-3 rounded-lg w-full text-sm focus:ring-2 focus:ring-[#0b2040] focus:border-transparent outline-none bg-white shadow-sm hover:border-slate-300 transition-all duration-200"
+                            className="border border-slate-200 px-4 py-3 rounded-xl w-full text-base focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400 outline-none bg-white shadow-sm hover:border-slate-300 transition-all duration-200 placeholder:text-slate-400"
                             placeholder="Who the RAMS are for"
                             value={formData.clientName}
                             onChange={(e) =>
@@ -1386,11 +1387,11 @@ export default function Dashboard({ initialFiles, user }: DashboardProps) {
                           />
                         </div>
                         <div>
-                          <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
+                          <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5 ml-1">
                             Job Ref (optional)
                           </label>
                           <input
-                            className="border border-slate-200 p-3 rounded-lg w-full text-sm focus:ring-2 focus:ring-[#0b2040] focus:border-transparent outline-none bg-white shadow-sm hover:border-slate-300 transition-all duration-200"
+                            className="border border-slate-200 px-4 py-3 rounded-xl w-full text-base focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400 outline-none bg-white shadow-sm hover:border-slate-300 transition-all duration-200 placeholder:text-slate-400"
                             placeholder="Internal or client reference"
                             value={formData.projectRef}
                             onChange={(e) =>
@@ -1400,13 +1401,13 @@ export default function Dashboard({ initialFiles, user }: DashboardProps) {
                         </div>
                       </div>
                       <div>
-                        <label className="flex items-center text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
+                        <label className="flex items-center text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5 ml-1">
                           Site Address
                           <span className="text-red-600 ml-1">*</span>
                           <Tooltip text="Location where the works are being carried out." />
                         </label>
                         <input
-                          className="border border-slate-200 p-3 rounded-lg w-full text-sm focus:ring-2 focus:ring-[#0b2040] focus:border-transparent outline-none bg-white shadow-sm hover:border-slate-300 transition-all duration-200"
+                          className="border border-slate-200 px-4 py-3 rounded-xl w-full text-base focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400 outline-none bg-white shadow-sm hover:border-slate-300 transition-all duration-200 placeholder:text-slate-400"
                           placeholder="Location of works"
                           value={formData.siteAddress}
                           onChange={(e) =>
@@ -1416,11 +1417,11 @@ export default function Dashboard({ initialFiles, user }: DashboardProps) {
                       </div>
                     </div>
 
-                    <div className="flex justify-between gap-3 pt-2">
+                    <div className="flex justify-between gap-3 pt-4 border-t border-slate-100">
                       <div className="flex gap-2">
                         <button
                           onClick={prevStep}
-                          className="inline-flex items-center justify-center rounded-lg border border-slate-300 px-4 py-2.5 text-sm font-semibold text-slate-800 hover:bg-slate-50"
+                          className="inline-flex items-center justify-center rounded-xl border border-slate-200 bg-white px-5 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-50 hover:border-slate-300 transition-all"
                         >
                           Back
                         </button>
@@ -1431,14 +1432,14 @@ export default function Dashboard({ initialFiles, user }: DashboardProps) {
                             setStep(1);
                             setActiveFile(null);
                           }}
-                          className="inline-flex items-center justify-center rounded-lg border border-slate-300 px-3 py-2 text-[11px] font-semibold text-slate-700 hover:bg-slate-50"
+                          className="inline-flex items-center justify-center rounded-xl border border-transparent px-4 py-3 text-sm font-semibold text-slate-500 hover:text-slate-800 transition-colors"
                         >
-                          ← Back to RS Hub
+                          Cancel
                         </button>
                       </div>
                       <button
                         onClick={nextStep}
-                        className="inline-flex items-center justify-center rounded-lg bg-[#0b2040] px-5 py-2.5 text-sm font-semibold text-white hover:bg-black transition-colors"
+                        className="inline-flex items-center justify-center rounded-xl bg-slate-900 px-8 py-3 text-sm font-bold text-white hover:bg-black shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all"
                       >
                         Next Step
                       </button>
@@ -1476,7 +1477,7 @@ export default function Dashboard({ initialFiles, user }: DashboardProps) {
                       </p>
                       <div className="relative">
                         <input
-                          className="w-full border border-slate-300 p-3 rounded-lg text-sm bg-white focus:ring-2 focus:ring-[#0b2040] focus:border-transparent outline-none"
+                          className="w-full border border-slate-300 px-4 py-3 rounded-xl text-base bg-white focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400 outline-none placeholder:text-slate-400 transition-all shadow-sm"
                           placeholder="Search all job types..."
                           value={jobSearch}
                           onChange={(e) => {
@@ -1487,7 +1488,7 @@ export default function Dashboard({ initialFiles, user }: DashboardProps) {
                         />
 
                         {jobSearchOpen && filteredJobs.length > 0 && (
-                          <div className="absolute z-40 mt-1 w-full rounded-lg border border-slate-200 bg-white shadow-lg max-h-64 overflow-auto">
+                          <div className="absolute z-40 mt-2 w-full rounded-xl border border-slate-200 bg-white shadow-xl max-h-64 overflow-auto scrollbar-thin scrollbar-thumb-slate-200 scrollbar-track-transparent p-1">
                             {filteredJobs.map((j, idx) => (
                               <button
                                 key={j.trade + j.name + idx}
@@ -1498,12 +1499,12 @@ export default function Dashboard({ initialFiles, user }: DashboardProps) {
                                   setJobSearch(j.name);
                                   setJobSearchOpen(false);
                                 }}
-                                className="w-full px-3 py-2 text-left text-xs hover:bg-slate-50"
+                                className="w-full px-4 py-2.5 text-left text-sm hover:bg-slate-50 rounded-lg transition-colors group"
                               >
-                                <div className="font-semibold text-slate-900">
+                                <div className="font-semibold text-slate-900 group-hover:text-blue-600 transition-colors">
                                   {j.name}
                                 </div>
-                                <div className="text-[11px] text-slate-500">
+                                <div className="text-xs text-slate-500">
                                   {j.trade}
                                 </div>
                               </button>
@@ -1521,12 +1522,12 @@ export default function Dashboard({ initialFiles, user }: DashboardProps) {
                                 setJobSearch("Other (Custom)");
                                 setJobSearchOpen(false);
                               }}
-                              className="w-full px-3 py-2 text-left text-xs border-t border-slate-100 bg-slate-50 hover:bg-slate-100"
+                              className="w-full px-4 py-3 text-left text-sm border-t border-slate-100 bg-slate-50 hover:bg-slate-100 rounded-b-lg transition-colors"
                             >
                               <div className="font-semibold text-slate-900">
                                 Other (Custom)
                               </div>
-                              <div className="text-[11px] text-slate-500">
+                              <div className="text-xs text-slate-500">
                                 For custom or non-standard tasks.
                               </div>
                             </button>
@@ -1535,13 +1536,13 @@ export default function Dashboard({ initialFiles, user }: DashboardProps) {
                       </div>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                       <div>
-                        <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
+                        <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5 ml-1">
                           Trade
                         </label>
                         <select
-                          className="border border-slate-300 p-3 rounded-lg w-full text-sm bg-white focus:ring-2 focus:ring-[#0b2040] focus:border-transparent outline-none"
+                          className="border border-slate-300 px-4 py-3 rounded-xl w-full text-base bg-white focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400 outline-none shadow-sm transition-all"
                           value={formData.trade}
                           onChange={(e) =>
                             handleInput("trade", e.target.value)
@@ -1555,13 +1556,13 @@ export default function Dashboard({ initialFiles, user }: DashboardProps) {
                       </div>
 
                       <div>
-                        <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
+                        <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5 ml-1">
                           Job Type
                           <span className="text-red-600 ml-0.5">*</span>
                         </label>
                         {/* @ts-ignore */}
                         <select
-                          className="border border-slate-300 p-3 rounded-lg w-full text-sm bg-white focus:ring-2 focus:ring-[#0b2040] focus:border-transparent outline-none"
+                          className="border border-slate-300 px-4 py-3 rounded-xl w-full text-base bg-white focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400 outline-none shadow-sm transition-all"
                           value={formData.jobType}
                           onChange={(e) =>
                             handleInput("jobType", e.target.value)
@@ -1579,18 +1580,18 @@ export default function Dashboard({ initialFiles, user }: DashboardProps) {
                     </div>
 
                     {/* Schedule & workforce */}
-                    <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-4">
-                      <h3 className="font-semibold text-sm text-slate-900">
+                    <div className="bg-slate-50 p-6 rounded-2xl border border-slate-200 space-y-5">
+                      <h3 className="font-semibold text-sm text-slate-900 border-b border-slate-200 pb-2">
                         Schedule &amp; Workforce (optional – but useful)
                       </h3>
-                      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                      <div className="grid grid-cols-1 md:grid-cols-4 gap-5">
                         <div>
-                          <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
+                          <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5 ml-1">
                             Start Date
                           </label>
                           <input
                             type="date"
-                            className="border border-slate-200 p-3 rounded-lg w-full text-sm focus:ring-2 focus:ring-[#0b2040] focus:border-transparent outline-none bg-white shadow-sm hover:border-slate-300 transition-all duration-200"
+                            className="border border-slate-200 px-4 py-3 rounded-xl w-full text-sm focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400 outline-none bg-white shadow-sm hover:border-slate-300 transition-all duration-200"
                             value={formData.startDate}
                             onChange={(e) =>
                               handleInput("startDate", e.target.value)
@@ -1598,12 +1599,12 @@ export default function Dashboard({ initialFiles, user }: DashboardProps) {
                           />
                         </div>
                         <div>
-                          <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
+                          <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5 ml-1">
                             End Date
                           </label>
                           <input
                             type="date"
-                            className="border border-slate-200 p-3 rounded-lg w-full text-sm focus:ring-2 focus:ring-[#0b2040] focus:border-transparent outline-none bg-white shadow-sm hover:border-slate-300 transition-all duration-200"
+                            className="border border-slate-200 px-4 py-3 rounded-xl w-full text-sm focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400 outline-none bg-white shadow-sm hover:border-slate-300 transition-all duration-200"
                             value={formData.endDate}
                             onChange={(e) =>
                               handleInput("endDate", e.target.value)
@@ -1611,12 +1612,12 @@ export default function Dashboard({ initialFiles, user }: DashboardProps) {
                           />
                         </div>
                         <div>
-                          <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
+                          <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5 ml-1">
                             Expected End Date
                           </label>
                           <input
                             type="date"
-                            className="border border-slate-200 p-3 rounded-lg w-full text-sm focus:ring-2 focus:ring-[#0b2040] focus:border-transparent outline-none bg-white shadow-sm hover:border-slate-300 transition-all duration-200"
+                            className="border border-slate-200 px-4 py-3 rounded-xl w-full text-sm focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400 outline-none bg-white shadow-sm hover:border-slate-300 transition-all duration-200"
                             value={formData.expectedEndDate}
                             onChange={(e) =>
                               handleInput(
@@ -1627,42 +1628,41 @@ export default function Dashboard({ initialFiles, user }: DashboardProps) {
                           />
                         </div>
                         <div>
-                          <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
+                          <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5 ml-1">
                             Number of operatives
                           </label>
                           <input
                             type="number"
                             min={1}
-                            className="border border-slate-200 p-3 rounded-lg w-full text-sm focus:ring-2 focus:ring-[#0b2040] focus:border-transparent outline-none bg-white shadow-sm hover:border-slate-300 transition-all duration-200"
+                            className="border border-slate-200 px-4 py-3 rounded-xl w-full text-sm focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400 outline-none bg-white shadow-sm hover:border-slate-300 transition-all duration-200"
                             value={formData.operatives}
                             onChange={(e) =>
                               handleInput("operatives", e.target.value)
                             }
                           />
-                          <p className="text-xs text-slate-500 mt-1">
-                            Optional – if left blank, we&apos;ll assume 1 in
-                            the document.
+                          <p className="text-[10px] text-slate-500 mt-1.5 ml-1">
+                            Default: 1
                           </p>
                         </div>
                       </div>
                     </div>
 
                     {questions.length > 0 && (
-                      <div className="bg-[#e4ecf7] p-4 rounded-xl border border-slate-200">
-                        <h4 className="font-semibold text-sm text-slate-900 mb-3">
+                      <div className="bg-slate-50 p-6 rounded-2xl border border-slate-200">
+                        <h4 className="font-semibold text-sm text-slate-900 mb-3 border-b border-slate-200 pb-2">
                           Pre-Start Safety Checks (optional responses)
                         </h4>
-                        <p className="text-xs text-slate-600 mb-3">
+                        <p className="text-xs text-slate-500 mb-5">
                           Answer each question honestly. Where you leave it
                           blank here, the document will show N/A.
                         </p>
-                        <div className="space-y-2">
+                        <div className="space-y-3">
                           {questions.map((q: any) => (
                             <div
                               key={q.id}
-                              className="flex justify-between items-center gap-4 bg-white p-2.5 rounded-lg border border-slate-200"
+                              className="flex justify-between items-center gap-4 bg-white p-4 rounded-xl border border-slate-100 shadow-sm hover:border-slate-200 transition-all"
                             >
-                              <span className="text-sm text-slate-900">
+                              <span className="text-sm font-medium text-slate-700">
                                 {q.label}
                               </span>
                               <div className="flex gap-2 shrink-0">
@@ -1673,9 +1673,9 @@ export default function Dashboard({ initialFiles, user }: DashboardProps) {
                                       [q.id]: "Yes",
                                     })
                                   }
-                                  className={`px-3 py-1 rounded-md text-[11px] font-semibold ${answers[q.id] === "Yes"
-                                    ? "bg-[#0b2040] text-white"
-                                    : "bg-slate-100 text-slate-800"
+                                  className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all ${answers[q.id] === "Yes"
+                                    ? "bg-slate-900 text-white shadow-md ring-2 ring-slate-900 ring-offset-1"
+                                    : "bg-slate-100 text-slate-600 hover:bg-slate-200"
                                     }`}
                                 >
                                   Yes
@@ -1687,9 +1687,9 @@ export default function Dashboard({ initialFiles, user }: DashboardProps) {
                                       [q.id]: "No",
                                     })
                                   }
-                                  className={`px-3 py-1 rounded-md text-[11px] font-semibold ${answers[q.id] === "No"
-                                    ? "bg-[#0b2040] text-white"
-                                    : "bg-slate-100 text-slate-800"
+                                  className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all ${answers[q.id] === "No"
+                                    ? "bg-slate-900 text-white shadow-md ring-2 ring-slate-900 ring-offset-1"
+                                    : "bg-slate-100 text-slate-600 hover:bg-slate-200"
                                     }`}
                                 >
                                   No
@@ -1705,11 +1705,11 @@ export default function Dashboard({ initialFiles, user }: DashboardProps) {
                     {formData.jobType === "Other (Custom)" ? (
                       <div className="space-y-4">
                         <div>
-                          <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
+                          <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5 ml-1">
                             Custom job title (required)
                           </label>
                           <input
-                            className="w-full border border-slate-300 p-3 rounded-lg text-sm focus:ring-2 focus:ring-[#0b2040] focus:border-transparent outline-none bg-white"
+                            className="w-full border border-slate-300 px-4 py-3 rounded-xl text-base focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400 outline-none bg-white transition-all shadow-sm"
                             value={formData.customJobTitle}
                             onChange={(e) =>
                               handleInput(
@@ -1722,15 +1722,15 @@ export default function Dashboard({ initialFiles, user }: DashboardProps) {
                         </div>
 
                         <div>
-                          <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700">
+                          <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5 ml-1">
                             Job description (required)
                           </label>
-                          <p className="text-xs text-slate-500 mb-1">
+                          <p className="text-xs text-slate-500 mb-2 ml-1">
                             Describe exactly what will be done, where, and in
                             what sequence.
                           </p>
                           <textarea
-                            className="w-full border border-slate-200 p-3 rounded-lg h-32 text-sm focus:ring-2 focus:ring-[#0b2040] focus:border-transparent outline-none bg-white shadow-sm hover:border-slate-300 transition-all duration-200"
+                            className="w-full border border-slate-200 p-4 rounded-xl h-40 text-sm focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400 outline-none bg-white shadow-sm hover:border-slate-300 transition-all duration-200 resize-none leading-relaxed"
                             value={formData.customJobDescription}
                             onChange={(e) =>
                               handleInput(
@@ -1743,15 +1743,15 @@ export default function Dashboard({ initialFiles, user }: DashboardProps) {
                         </div>
 
                         <div>
-                          <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700">
+                          <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5 ml-1">
                             Extra specific notes (optional)
                           </label>
-                          <p className="text-xs text-slate-500 mb-1">
+                          <p className="text-xs text-slate-500 mb-2 ml-1">
                             Anything else the RAMS should capture for this
                             particular job or site.
                           </p>
                           <textarea
-                            className="w-full border border-slate-200 p-3 rounded-lg h-24 text-sm focus:ring-2 focus:ring-[#0b2040] focus:border-transparent outline-none bg-white shadow-sm hover:border-slate-300 transition-all duration-200"
+                            className="w-full border border-slate-200 p-4 rounded-xl h-32 text-sm focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400 outline-none bg-white shadow-sm hover:border-slate-300 transition-all duration-200 resize-none leading-relaxed"
                             value={formData.extraNotes}
                             onChange={(e) =>
                               handleInput("extraNotes", e.target.value)
@@ -1761,18 +1761,18 @@ export default function Dashboard({ initialFiles, user }: DashboardProps) {
                         </div>
                       </div>
                     ) : (
-                      <div className="space-y-4">
+                      <div className="space-y-6">
                         <div>
-                          <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700">
+                          <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5 ml-1">
                             Job description (required)
                           </label>
-                          <p className="text-xs text-slate-500 mb-1">
+                          <p className="text-xs text-slate-500 mb-2 ml-1">
                             This is pre-filled from our library where
                             available. Adjust it if needed to match the actual
                             scope.
                           </p>
                           <textarea
-                            className="w-full border border-slate-200 p-3 rounded-lg h-32 text-sm focus:ring-2 focus:ring-[#0b2040] focus:border-transparent outline-none bg-white shadow-sm hover:border-slate-300 transition-all duration-200"
+                            className="w-full border border-slate-200 p-4 rounded-xl h-40 text-sm focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400 outline-none bg-white shadow-sm hover:border-slate-300 transition-all duration-200 resize-none leading-relaxed"
                             value={formData.customDescription}
                             onChange={(e) =>
                               handleInput(
@@ -1892,14 +1892,14 @@ export default function Dashboard({ initialFiles, user }: DashboardProps) {
                       are genuinely not available.
                     </p>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-slate-50 p-4 rounded-xl border border-slate-200">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-5 bg-slate-50 p-6 rounded-2xl border border-slate-200">
                       <div>
-                        <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
+                        <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5 ml-1">
                           Supervisor Name
                           <span className="text-red-600 ml-0.5">*</span>
                         </label>
                         <input
-                          className="border border-slate-300 p-2.5 rounded-lg w-full text-sm focus:ring-2 focus:ring-[#0b2040] focus:border-transparent outline-none bg-white"
+                          className="border border-slate-200 px-4 py-3 rounded-xl w-full text-base focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400 outline-none bg-white shadow-sm hover:border-slate-300 transition-all duration-200"
                           placeholder="Site supervisor or lead"
                           value={formData.supervisorName}
                           onChange={(e) =>
@@ -1911,12 +1911,12 @@ export default function Dashboard({ initialFiles, user }: DashboardProps) {
                         />
                       </div>
                       <div>
-                        <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
+                        <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5 ml-1">
                           First Aider
                           <span className="text-red-600 ml-0.5">*</span>
                         </label>
                         <input
-                          className="border border-slate-300 p-2.5 rounded-lg w-full text-sm focus:ring-2 focus:ring-[#0b2040] focus:border-transparent outline-none bg-white"
+                          className="border border-slate-200 px-4 py-3 rounded-xl w-full text-base focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400 outline-none bg-white shadow-sm hover:border-slate-300 transition-all duration-200"
                           placeholder="Appointed person"
                           value={formData.firstAider}
                           onChange={(e) =>
@@ -1925,12 +1925,12 @@ export default function Dashboard({ initialFiles, user }: DashboardProps) {
                         />
                       </div>
                       <div>
-                        <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
+                        <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5 ml-1">
                           Nearest Hospital
                           <span className="text-red-600 ml-0.5">*</span>
                         </label>
                         <input
-                          className="border border-slate-300 p-2.5 rounded-lg w-full text-sm focus:ring-2 focus:ring-[#0b2040] focus:border-transparent outline-none bg-white"
+                          className="border border-slate-200 px-4 py-3 rounded-xl w-full text-base focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400 outline-none bg-white shadow-sm hover:border-slate-300 transition-all duration-200"
                           placeholder="e.g. Nearest A&E (N/A if unknown)"
                           value={formData.hospital}
                           onChange={(e) =>
@@ -1939,12 +1939,12 @@ export default function Dashboard({ initialFiles, user }: DashboardProps) {
                         />
                       </div>
                       <div>
-                        <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
+                        <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5 ml-1">
                           Fire Assembly Point
                           <span className="text-red-600 ml-0.5">*</span>
                         </label>
                         <input
-                          className="border border-slate-300 p-2.5 rounded-lg w-full text-sm focus:ring-2 focus:ring-[#0b2040] focus:border-transparent outline-none bg-white"
+                          className="border border-slate-200 px-4 py-3 rounded-xl w-full text-base focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400 outline-none bg-white shadow-sm hover:border-slate-300 transition-all duration-200"
                           placeholder="As briefed in induction (or N/A)"
                           value={formData.fireAssembly}
                           onChange={(e) =>
@@ -1954,11 +1954,11 @@ export default function Dashboard({ initialFiles, user }: DashboardProps) {
                       </div>
 
                       <div>
-                        <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
+                        <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5 ml-1">
                           First aid kit location (optional)
                         </label>
                         <input
-                          className="border border-slate-300 p-2.5 rounded-lg w-full text-sm focus:ring-2 focus:ring-[#0b2040] focus:border-transparent outline-none bg-white"
+                          className="border border-slate-200 px-4 py-3 rounded-xl w-full text-base focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400 outline-none bg-white shadow-sm hover:border-slate-300 transition-all duration-200"
                           placeholder="e.g. Site vehicle, reception, welfare cabin"
                           value={formData.firstAidLoc}
                           onChange={(e) =>
@@ -1968,11 +1968,11 @@ export default function Dashboard({ initialFiles, user }: DashboardProps) {
                       </div>
 
                       <div>
-                        <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
+                        <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5 ml-1">
                           Welfare / facilities (optional)
                         </label>
                         <input
-                          className="border border-slate-300 p-2.5 rounded-lg w-full text-sm focus:ring-2 focus:ring-[#0b2040] focus:border-transparent outline-none bg-white"
+                          className="border border-slate-200 px-4 py-3 rounded-xl w-full text-base focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400 outline-none bg-white shadow-sm hover:border-slate-300 transition-all duration-200"
                           placeholder="Toilets, wash stations, canteen, etc."
                           value={formData.welfare}
                           onChange={(e) =>
@@ -2033,19 +2033,19 @@ export default function Dashboard({ initialFiles, user }: DashboardProps) {
                         ([group, items]: [string, any]) => (
                           <div
                             key={group}
-                            className="border border-slate-200 rounded-xl p-4"
+                            className="bg-slate-50 border border-slate-200 rounded-2xl p-5"
                           >
-                            <h4 className="text-xs font-semibold uppercase text-slate-500 mb-2">
+                            <h4 className="text-xs font-bold uppercase tracking-wider text-slate-500 mb-3 border-b border-slate-200 pb-2">
                               {group}
                             </h4>
-                            <div className="flex flex-wrap gap-2">
+                            <div className="flex flex-wrap gap-2.5">
                               {items.map((h: string) => (
                                 <button
                                   key={h}
                                   onClick={() => toggleHazard(h)}
-                                  className={`text-[11px] py-1.5 px-3 rounded-full border ${hazards.includes(h)
-                                    ? "bg-[#0b2040] text-white border-[#0b2040]"
-                                    : "bg-white text-slate-800 border-slate-300"
+                                  className={`text-xs font-medium py-2 px-4 rounded-xl border transition-all duration-200 ${hazards.includes(h)
+                                    ? "bg-slate-900 text-white border-slate-900 shadow-md ring-2 ring-slate-900 ring-offset-1"
+                                    : "bg-white text-slate-600 border-slate-200 hover:border-slate-300 hover:bg-slate-50"
                                     }`}
                                 >
                                   {(HAZARD_DATA as any)[h]?.label || h}
@@ -2082,11 +2082,11 @@ export default function Dashboard({ initialFiles, user }: DashboardProps) {
                       />
                     </div>
 
-                    <div className="flex justify-between gap-3 pt-4 border-t border-slate-200">
-                      <div className="flex gap-2 pt-2">
+                    <div className="flex justify-between gap-3 pt-4 border-t border-slate-100">
+                      <div className="flex gap-2">
                         <button
                           onClick={prevStep}
-                          className="inline-flex items-center justify-center rounded-lg border border-slate-300 px-4 py-2.5 text-sm font-semibold text-slate-800 hover:bg-slate-50"
+                          className="inline-flex items-center justify-center rounded-xl border border-slate-200 bg-white px-5 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-50 hover:border-slate-300 transition-all"
                         >
                           Back
                         </button>
@@ -2097,14 +2097,14 @@ export default function Dashboard({ initialFiles, user }: DashboardProps) {
                             setStep(1);
                             setActiveFile(null);
                           }}
-                          className="inline-flex items-center justify-center rounded-lg border border-slate-300 px-3 py-2 text-[11px] font-semibold text-slate-700 hover:bg-slate-50"
+                          className="inline-flex items-center justify-center rounded-xl border border-transparent px-4 py-3 text-sm font-semibold text-slate-500 hover:text-slate-800 transition-colors"
                         >
-                          ← Back to RS Hub
+                          Cancel
                         </button>
                       </div>
                       <button
                         onClick={nextStep}
-                        className="inline-flex items-center justify-center rounded-lg bg-[#0b2040] px-5 py-2.5 text-sm font-semibold text-white hover:bg-black transition-colors"
+                        className="inline-flex items-center justify-center rounded-xl bg-slate-900 px-8 py-3 text-sm font-bold text-white hover:bg-black shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all"
                       >
                         Next Step
                       </button>
@@ -2133,144 +2133,114 @@ export default function Dashboard({ initialFiles, user }: DashboardProps) {
                       </p>
 
                       {/* Single review panel */}
-                      <div className="bg-slate-50 border border-slate-200 rounded-xl p-4 text-xs space-y-3">
-                        <h3 className="text-sm font-semibold text-slate-900 mb-1">
+                      <div className="bg-slate-50 border border-slate-200 rounded-2xl p-6 text-sm space-y-4">
+                        <h3 className="text-base font-bold text-slate-900 mb-2 border-b border-slate-200 pb-2">
                           Summary
                         </h3>
 
-                        <div className="grid md:grid-cols-2 gap-3">
-                          <div className="space-y-1.5">
-                            <div>
-                              <span className="font-semibold">Document:</span>{" "}
-                              {documentName || "Untitled RAMS"}
+                        <div className="grid md:grid-cols-2 gap-x-8 gap-y-3">
+                          <div className="space-y-2">
+                            <div className="flex justify-between border-b border-slate-100 pb-1">
+                              <span className="font-semibold text-slate-700">Document:</span>
+                              <span className="text-slate-900">{documentName || "Untitled RAMS"}</span>
                             </div>
-                            <div>
-                              <span className="font-semibold">Company:</span>{" "}
-                              {formData.companyName || "Not set"}
+                            <div className="flex justify-between border-b border-slate-100 pb-1">
+                              <span className="font-semibold text-slate-700">Company:</span>
+                              <span className="text-slate-900">{formData.companyName || "Not set"}</span>
                             </div>
-                            <div>
-                              <span className="font-semibold">Client:</span>{" "}
-                              {formData.clientName || "Not set"}
+                            <div className="flex justify-between border-b border-slate-100 pb-1">
+                              <span className="font-semibold text-slate-700">Client:</span>
+                              <span className="text-slate-900">{formData.clientName || "Not set"}</span>
                             </div>
-                            <div>
-                              <span className="font-semibold">Site:</span>{" "}
-                              {formData.siteAddress || "Not set"}
+                            <div className="flex justify-between border-b border-slate-100 pb-1">
+                              <span className="font-semibold text-slate-700">Site:</span>
+                              <span className="text-slate-900 truncate max-w-[200px]">{formData.siteAddress || "Not set"}</span>
                             </div>
-                            <div>
-                              <span className="font-semibold">Job Ref:</span>{" "}
-                              {formData.projectRef || "—"}
+                            <div className="flex justify-between border-b border-slate-100 pb-1">
+                              <span className="font-semibold text-slate-700">Job Ref:</span>
+                              <span className="text-slate-900">{formData.projectRef || "—"}</span>
                             </div>
-                            <div>
-                              <span className="font-semibold">
-                                Prepared by:
-                              </span>{" "}
-                              {formData.contactName || "Not set"}
+                            <div className="flex justify-between border-b border-slate-100 pb-1">
+                              <span className="font-semibold text-slate-700">Prepared by:</span>
+                              <span className="text-slate-900">{formData.contactName || "Not set"}</span>
                             </div>
-                            <div>
-                              <span className="font-semibold">Email:</span>{" "}
-                              {formData.contactEmail || "—"}
-                            </div>
-                            <div>
-                              <span className="font-semibold">Phone:</span>{" "}
-                              {formData.contactPhone || "—"}
+                            <div className="flex justify-between border-b border-slate-100 pb-1">
+                              <span className="font-semibold text-slate-700">Phone:</span>
+                              <span className="text-slate-900">{formData.contactPhone || "—"}</span>
                             </div>
                           </div>
 
-                          <div className="space-y-1.5">
-                            <div>
-                              <span className="font-semibold">Trade:</span>{" "}
-                              {formData.trade}
+                          <div className="space-y-2">
+                            <div className="flex justify-between border-b border-slate-100 pb-1">
+                              <span className="font-semibold text-slate-700">Trade:</span>
+                              <span className="text-slate-900">{formData.trade}</span>
                             </div>
-                            <div>
-                              <span className="font-semibold">Job type:</span>{" "}
-                              {formData.jobType || "Not selected"}
+                            <div className="flex justify-between border-b border-slate-100 pb-1">
+                              <span className="font-semibold text-slate-700">Job type:</span>
+                              <span className="text-slate-900 truncate max-w-[200px]">{formData.jobType || "Not selected"}</span>
                             </div>
-                            <div>
-                              <span className="font-semibold">Start:</span>{" "}
-                              {formData.startDate || "—"}
+                            <div className="flex justify-between border-b border-slate-100 pb-1">
+                              <span className="font-semibold text-slate-700">Start Date:</span>
+                              <span className="text-slate-900">{formData.startDate || "—"}</span>
                             </div>
-                            <div>
-                              <span className="font-semibold">End:</span>{" "}
-                              {formData.endDate || "—"}
+                            <div className="flex justify-between border-b border-slate-100 pb-1">
+                              <span className="font-semibold text-slate-700">Operatives:</span>
+                              <span className="text-slate-900">{formData.operatives || "1 (assumed)"}</span>
                             </div>
-                            <div>
-                              <span className="font-semibold">
-                                Expected end:
-                              </span>{" "}
-                              {formData.expectedEndDate || "—"}
+                            <div className="flex justify-between border-b border-slate-100 pb-1">
+                              <span className="font-semibold text-slate-700">Supervisor:</span>
+                              <span className="text-slate-900">{formData.supervisorName || "Not set"}</span>
                             </div>
-                            <div>
-                              <span className="font-semibold">
-                                Operatives:
-                              </span>{" "}
-                              {formData.operatives || "1 (assumed)"}
+                            <div className="flex justify-between border-b border-slate-100 pb-1">
+                              <span className="font-semibold text-slate-700">First aider:</span>
+                              <span className="text-slate-900">{formData.firstAider || "Not set"}</span>
                             </div>
-                            <div>
-                              <span className="font-semibold">
-                                Supervisor:
-                              </span>{" "}
-                              {formData.supervisorName || "Not set"}
-                            </div>
-                            <div>
-                              <span className="font-semibold">
-                                First aider:
-                              </span>{" "}
-                              {formData.firstAider || "Not set"}
-                            </div>
-                            <div>
-                              <span className="font-semibold">Hospital:</span>{" "}
-                              {formData.hospital || "Not set"}
-                            </div>
-                            <div>
-                              <span className="font-semibold">
-                                Fire assembly:
-                              </span>{" "}
-                              {formData.fireAssembly || "Not set"}
+                            <div className="flex justify-between border-b border-slate-100 pb-1">
+                              <span className="font-semibold text-slate-700">Nearest Hospital:</span>
+                              <span className="text-slate-900 truncate max-w-[180px]">{formData.hospital || "Not set"}</span>
                             </div>
                           </div>
                         </div>
 
-                        <div className="pt-2 border-t border-slate-200 space-y-2">
-                          <div>
-                            <span className="font-semibold">
-                              Job description:
-                            </span>
-                          </div>
-                          <div className="text-[11px] text-slate-700 whitespace-pre-wrap">
+                        <div className="pt-3 border-t border-slate-200">
+                          <h4 className="font-semibold text-slate-700 mb-1">Job Description:</h4>
+                          <div className="bg-white p-3 rounded-lg border border-slate-100 text-xs text-slate-600 whitespace-pre-wrap max-h-32 overflow-y-auto">
                             {buildScopeFromForm() || "—"}
                           </div>
                         </div>
 
-                        <div className="pt-2 border-t border-slate-200 space-y-1">
-                          <div>
-                            <span className="font-semibold">
-                              Hazards selected:
-                            </span>{" "}
-                            {hazards.length}
+                        <div className="pt-1 border-t border-slate-200">
+                          <div className="flex items-center justify-between mb-2">
+                            <span className="font-semibold text-slate-700">Hazards selected:</span>
+                            <span className="font-bold text-slate-900 bg-slate-100 px-2 py-0.5 rounded-md">{hazards.length}</span>
                           </div>
-                          <div>
-                            {hazards.length === 0 ? (
-                              <span className="text-[11px] text-red-700">
-                                No hazards selected – you should add some
-                                before generating.
-                              </span>
-                            ) : (
-                              <ul className="list-disc list-inside text-[11px] text-slate-700 space-y-0.5">
-                                {hazardPreviewLabels.slice(0, 12).map((h) => (
-                                  <li key={h}>{h}</li>
-                                ))}
-                                {hazards.length > 12 && <li>…and more</li>}
-                              </ul>
-                            )}
-                          </div>
+                          {hazards.length === 0 ? (
+                            <div className="bg-red-50 text-red-700 p-3 rounded-lg border border-red-100 text-xs flex items-center gap-2">
+                              <AlertTriangle className="w-4 h-4 shrink-0" />
+                              <span>No hazards selected – you should add some before generating.</span>
+                            </div>
+                          ) : (
+                            <div className="flex flex-wrap gap-1.5">
+                              {hazards.slice(0, 10).map((h) => (
+                                <span key={h} className="inline-flex items-center px-2 py-1 rounded-md text-[10px] font-medium bg-slate-100 text-slate-600 border border-slate-200">
+                                  {(HAZARD_DATA as any)[h]?.label || h}
+                                </span>
+                              ))}
+                              {hazards.length > 10 && (
+                                <span className="inline-flex items-center px-2 py-1 rounded-md text-[10px] font-medium bg-slate-100 text-slate-500 border border-slate-200">
+                                  +{hazards.length - 10} more
+                                </span>
+                              )}
+                            </div>
+                          )}
                         </div>
                       </div>
 
-                      <div className="flex justify-between gap-3 pt-4 border-t border-slate-200">
-                        <div className="flex gap-2 pt-2">
+                      <div className="flex justify-between gap-3 pt-4 border-t border-slate-100">
+                        <div className="flex gap-2">
                           <button
                             onClick={prevStep}
-                            className="inline-flex items-center justify-center rounded-lg border border-slate-300 px-4 py-2.5 text-sm font-semibold text-slate-800 hover:bg-slate-50"
+                            className="inline-flex items-center justify-center rounded-xl border border-slate-200 bg-white px-5 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-50 hover:border-slate-300 transition-all"
                           >
                             Back
                           </button>
@@ -2281,15 +2251,15 @@ export default function Dashboard({ initialFiles, user }: DashboardProps) {
                               setStep(1);
                               setActiveFile(null);
                             }}
-                            className="inline-flex items-center justify-center rounded-lg border border-slate-300 px-3 py-2 text-[11px] font-semibold text-slate-700 hover:bg-slate-50"
+                            className="inline-flex items-center justify-center rounded-xl border border-transparent px-4 py-3 text-sm font-semibold text-slate-500 hover:text-slate-800 transition-colors"
                           >
-                            ← Back to RS Hub
+                            Cancel
                           </button>
                         </div>
                         <button
                           onClick={generateRAMS}
                           disabled={isGenerating}
-                          className="inline-flex items-center justify-center gap-2 rounded-lg bg-red-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-red-700 disabled:opacity-60 disabled:cursor-not-allowed transition-colors"
+                          className="inline-flex items-center justify-center gap-2 rounded-xl bg-slate-900 px-8 py-3 text-sm font-bold text-white hover:bg-black disabled:opacity-60 disabled:cursor-not-allowed shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all"
                         >
                           {isGenerating ? (
                             <Loader2 className="w-4 h-4 animate-spin" />
@@ -2298,7 +2268,7 @@ export default function Dashboard({ initialFiles, user }: DashboardProps) {
                           )}
                           {isGenerating
                             ? "Generating..."
-                            : "Generate & Open in Editor"}
+                            : "Generate & Open"}
                         </button>
                       </div>
                     </div>

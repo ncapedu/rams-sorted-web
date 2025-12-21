@@ -257,8 +257,8 @@ export default function ToolboxWizard({ onBack, onComplete }: ToolboxWizardProps
         return (
             <div className="flex flex-col items-center justify-center h-full bg-white animate-in fade-in duration-500">
                 <div className="relative mb-8">
-                    <div className="absolute inset-0 bg-emerald-100 rounded-full animate-ping opacity-20"></div>
-                    <Loader2 className="w-16 h-16 animate-spin text-emerald-600 relative z-10" />
+                    <div className="absolute inset-0 bg-slate-200 rounded-full animate-ping opacity-20"></div>
+                    <Loader2 className="w-16 h-16 animate-spin text-slate-900 relative z-10" />
                 </div>
                 <h2 className="text-2xl font-bold tracking-wide text-slate-800 h-8 text-center">
                     <TypewriterText
@@ -285,23 +285,23 @@ export default function ToolboxWizard({ onBack, onComplete }: ToolboxWizardProps
             )}
 
             {/* HEADER */}
-            <div className="sticky top-0 z-10 bg-white border-b border-slate-200 px-8 py-4 flex items-center justify-between">
+            <div className="sticky top-0 z-20 bg-white/80 backdrop-blur-md border-b border-slate-200 px-8 py-4 flex items-center justify-between">
                 <div>
                     <h2 className="text-xl font-bold text-slate-900 flex items-center gap-2">
-                        <img src="/favicon.ico" alt="RS" className="w-5 h-5" />
-                        <AnimatedTitle text="v1.0" />
+                        <img src="/favicon.ico" alt="RS" className="w-5 h-5 opacity-80" />
+                        <AnimatedTitle text="Toolbox Talk" />
                     </h2>
-                    <p className="text-sm font-bold text-black mt-0.5">
+                    <p className="text-xs font-semibold text-slate-500 mt-0.5">
                         Step {step} of 4
                     </p>
                 </div>
             </div>
 
             {/* PROGRESS BAR */}
-            <div className="h-1.5 w-full bg-slate-200">
+            <div className="h-1 w-full bg-slate-100">
                 <div
-                    className="h-full bg-emerald-600 transition-all duration-500 ease-out"
-                    style={{ width: `${step === 0 ? 0 : (step / 4) * 100}%` }}
+                    className="h-full bg-slate-900 shadow-[0_0_10px_rgba(0,0,0,0.1)] rounded-r-full transition-all duration-500 ease-out"
+                    style={{ width: `${step === 0 ? 5 : (step / 4) * 100}%` }}
                 />
             </div>
 
@@ -313,8 +313,8 @@ export default function ToolboxWizard({ onBack, onComplete }: ToolboxWizardProps
                     {step === 0 && (
                         <div className="space-y-6">
                             <div className="flex items-center gap-3 mb-6">
-                                <div className="h-10 w-10 rounded-full bg-emerald-50 flex items-center justify-center">
-                                    <Clipboard className="w-5 h-5 text-emerald-600" />
+                                <div className="h-10 w-10 rounded-full bg-slate-100 flex items-center justify-center">
+                                    <Clipboard className="w-5 h-5 text-slate-900" />
                                 </div>
                                 <h2 className="text-2xl font-semibold text-slate-900">
                                     <TypewriterText messages={["Set Up Your Toolbox Talk File"]} loop={false} />
@@ -327,7 +327,7 @@ export default function ToolboxWizard({ onBack, onComplete }: ToolboxWizardProps
                                         Toolbox Talk Name <span className="text-red-600">*</span>
                                     </label>
                                     <input
-                                        className="border border-slate-200 p-3 rounded-lg w-full text-sm focus:ring-2 focus:ring-emerald-600 focus:border-transparent outline-none bg-white shadow-sm hover:border-slate-300 transition-all duration-200"
+                                        className="border border-slate-200 px-4 py-3 rounded-xl w-full text-base focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400 outline-none bg-white shadow-sm hover:border-slate-300 transition-all duration-200"
                                         placeholder="e.g. Working at Height - March 2024"
                                         value={documentName}
                                         onChange={(e) => setDocumentName(e.target.value)}
@@ -342,34 +342,39 @@ export default function ToolboxWizard({ onBack, onComplete }: ToolboxWizardProps
                     {step === 1 && (
                         <div className="space-y-6">
                             <div className="flex items-center gap-3 mb-6">
-                                <div className="h-10 w-10 rounded-full bg-emerald-50 flex items-center justify-center">
-                                    <Mic className="w-5 h-5 text-emerald-600" />
+                                <div className="h-10 w-10 rounded-full bg-slate-100 flex items-center justify-center">
+                                    <Mic className="w-5 h-5 text-slate-900" />
                                 </div>
                                 <h2 className="text-2xl font-semibold text-slate-900">
                                     <TypewriterText messages={["Topic & Session Details"]} loop={false} />
                                 </h2>
                             </div>
 
-                            <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm space-y-6">
+                            <div className="bg-slate-50 p-6 rounded-2xl border border-slate-200 space-y-6">
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     {/* Topic */}
                                     <div className="col-span-2">
                                         <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
                                             Talk Topic <span className="text-red-600">*</span>
                                         </label>
-                                        <select
-                                            className="w-full border border-slate-300 rounded-lg p-3 text-sm focus:ring-2 focus:ring-emerald-500 outline-none"
-                                            value={formData.topic}
-                                            onChange={(e) => updateForm("topic", e.target.value)}
-                                        >
-                                            <option value="">Select a topic...</option>
-                                            {TOOLBOX_TOPICS.map(t => (
-                                                <option key={t} value={t}>{t}</option>
-                                            ))}
-                                        </select>
+                                        <div className="relative">
+                                            <select
+                                                className="w-full border border-slate-200 px-4 py-3 rounded-xl text-base focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400 outline-none bg-white shadow-sm hover:border-slate-300 transition-all appearance-none"
+                                                value={formData.topic}
+                                                onChange={(e) => updateForm("topic", e.target.value)}
+                                            >
+                                                <option value="">Select a topic...</option>
+                                                {TOOLBOX_TOPICS.map(t => (
+                                                    <option key={t} value={t}>{t}</option>
+                                                ))}
+                                            </select>
+                                            <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
+                                                <ChevronRight className="w-4 h-4 rotate-90" />
+                                            </div>
+                                        </div>
                                         {formData.topic === "Other (Custom)" && (
                                             <input
-                                                className="mt-2 w-full border border-slate-300 rounded-lg p-3 text-sm focus:ring-2 focus:ring-emerald-500 outline-none"
+                                                className="mt-3 w-full border border-slate-200 px-4 py-3 rounded-xl text-base focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400 outline-none bg-white shadow-sm hover:border-slate-300 transition-all"
                                                 placeholder="Enter custom topic..."
                                                 value={customTopic}
                                                 onChange={(e) => setCustomTopic(e.target.value)}
@@ -384,7 +389,7 @@ export default function ToolboxWizard({ onBack, onComplete }: ToolboxWizardProps
                                         </label>
                                         <input
                                             type="date"
-                                            className="w-full border border-slate-300 rounded-lg p-3 text-sm focus:ring-2 focus:ring-emerald-500 outline-none"
+                                            className="w-full border border-slate-200 px-4 py-3 rounded-xl text-base focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400 outline-none bg-white shadow-sm hover:border-slate-300 transition-all"
                                             value={formData.date}
                                             onChange={(e) => updateForm("date", e.target.value)}
                                         />
@@ -396,7 +401,7 @@ export default function ToolboxWizard({ onBack, onComplete }: ToolboxWizardProps
                                             Location <span className="text-red-600">*</span>
                                         </label>
                                         <input
-                                            className="w-full border border-slate-300 rounded-lg p-3 text-sm focus:ring-2 focus:ring-emerald-500 outline-none"
+                                            className="w-full border border-slate-200 px-4 py-3 rounded-xl text-base focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400 outline-none bg-white shadow-sm hover:border-slate-300 transition-all"
                                             placeholder="e.g. Site Office / Zone A"
                                             value={formData.location}
                                             onChange={(e) => updateForm("location", e.target.value)}
@@ -409,7 +414,7 @@ export default function ToolboxWizard({ onBack, onComplete }: ToolboxWizardProps
                                             Delivered By <span className="text-red-600">*</span>
                                         </label>
                                         <input
-                                            className="w-full border border-slate-300 rounded-lg p-3 text-sm focus:ring-2 focus:ring-emerald-500 outline-none"
+                                            className="w-full border border-slate-200 px-4 py-3 rounded-xl text-base focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400 outline-none bg-white shadow-sm hover:border-slate-300 transition-all"
                                             placeholder="Name of presenter"
                                             value={formData.supervisorName}
                                             onChange={(e) => updateForm("supervisorName", e.target.value)}
@@ -422,7 +427,7 @@ export default function ToolboxWizard({ onBack, onComplete }: ToolboxWizardProps
                                             Company Name <span className="text-red-600">*</span>
                                         </label>
                                         <input
-                                            className="w-full border border-slate-300 rounded-lg p-3 text-sm focus:ring-2 focus:ring-emerald-500 outline-none"
+                                            className="w-full border border-slate-200 px-4 py-3 rounded-xl text-base focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400 outline-none bg-white shadow-sm hover:border-slate-300 transition-all"
                                             placeholder="e.g. Acme Construction Ltd"
                                             value={formData.companyName}
                                             onChange={(e) => updateForm("companyName", e.target.value)}
@@ -434,16 +439,21 @@ export default function ToolboxWizard({ onBack, onComplete }: ToolboxWizardProps
                                         <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5">
                                             Audience / Trade <span className="text-red-600">*</span>
                                         </label>
-                                        <select
-                                            className="w-full border border-slate-300 rounded-lg p-3 text-sm focus:ring-2 focus:ring-emerald-500 outline-none"
-                                            value={formData.audience}
-                                            onChange={(e) => updateForm("audience", e.target.value)}
-                                        >
-                                            <option value="">Select audience...</option>
-                                            {AUDIENCES.map(a => (
-                                                <option key={a} value={a}>{a}</option>
-                                            ))}
-                                        </select>
+                                        <div className="relative">
+                                            <select
+                                                className="w-full border border-slate-200 px-4 py-3 rounded-xl text-base focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400 outline-none bg-white shadow-sm hover:border-slate-300 transition-all appearance-none"
+                                                value={formData.audience}
+                                                onChange={(e) => updateForm("audience", e.target.value)}
+                                            >
+                                                <option value="">Select audience...</option>
+                                                {AUDIENCES.map(a => (
+                                                    <option key={a} value={a}>{a}</option>
+                                                ))}
+                                            </select>
+                                            <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
+                                                <ChevronRight className="w-4 h-4 rotate-90" />
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -454,15 +464,15 @@ export default function ToolboxWizard({ onBack, onComplete }: ToolboxWizardProps
                     {step === 2 && (
                         <div className="space-y-6">
                             <div className="flex items-center gap-3 mb-6">
-                                <div className="h-10 w-10 rounded-full bg-emerald-50 flex items-center justify-center">
-                                    <AlertTriangle className="w-5 h-5 text-emerald-600" />
+                                <div className="h-10 w-10 rounded-full bg-slate-100 flex items-center justify-center">
+                                    <AlertTriangle className="w-5 h-5 text-slate-900" />
                                 </div>
                                 <h2 className="text-2xl font-semibold text-slate-900">
                                     <TypewriterText messages={["Hazards & Key Points"]} loop={false} />
                                 </h2>
                             </div>
 
-                            <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm space-y-6">
+                            <div className="bg-slate-50 p-6 rounded-2xl border border-slate-200 space-y-6">
                                 {/* Hazards */}
                                 <div>
                                     <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-3">
@@ -473,7 +483,7 @@ export default function ToolboxWizard({ onBack, onComplete }: ToolboxWizardProps
                                             h === "Other hazard" ? (
                                                 <div key={h} className="col-span-2 flex gap-2 mt-2">
                                                     <input
-                                                        className="flex-1 border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-emerald-500 outline-none"
+                                                        className="flex-1 border border-slate-200 px-4 py-3 rounded-xl text-base focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400 outline-none bg-white shadow-sm hover:border-slate-300 transition-all"
                                                         placeholder="Add custom hazard..."
                                                         value={customHazard}
                                                         onChange={(e) => setCustomHazard(e.target.value)}
@@ -481,7 +491,7 @@ export default function ToolboxWizard({ onBack, onComplete }: ToolboxWizardProps
                                                     />
                                                     <button
                                                         onClick={addCustomHazard}
-                                                        className="px-4 py-2 bg-slate-100 text-slate-700 rounded-lg text-sm font-medium hover:bg-slate-200"
+                                                        className="px-5 py-3 bg-slate-900 text-white rounded-xl text-sm font-bold hover:bg-black shadow-md"
                                                     >
                                                         Add
                                                     </button>
@@ -490,9 +500,9 @@ export default function ToolboxWizard({ onBack, onComplete }: ToolboxWizardProps
                                                 <button
                                                     key={h}
                                                     onClick={() => toggleHazard(h)}
-                                                    className={`text-left px-3 py-2 rounded-lg text-sm border transition-all ${formData.hazards.includes(h)
-                                                        ? "bg-emerald-50 border-emerald-500 text-emerald-700 font-medium"
-                                                        : "bg-white border-slate-200 text-slate-600 hover:border-emerald-300"
+                                                    className={`text-left px-4 py-3 rounded-xl text-sm border transition-all ${formData.hazards.includes(h)
+                                                        ? "bg-slate-900 border-slate-900 text-white font-medium shadow-md"
+                                                        : "bg-white border-slate-200 text-slate-600 hover:border-slate-300 hover:bg-slate-50"
                                                         }`}
                                                 >
                                                     {h}
@@ -508,7 +518,7 @@ export default function ToolboxWizard({ onBack, onComplete }: ToolboxWizardProps
                                         Key Messages / Talking Points
                                     </label>
                                     <textarea
-                                        className="w-full border border-slate-300 rounded-lg p-3 text-sm focus:ring-2 focus:ring-emerald-500 outline-none min-h-[100px]"
+                                        className="w-full border border-slate-200 px-4 py-3 rounded-xl min-h-[120px] text-base focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400 outline-none bg-white shadow-sm hover:border-slate-300 transition-all"
                                         placeholder="- Emphasise correct use of harnesses&#10;- Discuss recent near-miss&#10;- Reminder about housekeeping"
                                         value={formData.keyMessages}
                                         onChange={(e) => updateForm("keyMessages", e.target.value)}
@@ -521,7 +531,7 @@ export default function ToolboxWizard({ onBack, onComplete }: ToolboxWizardProps
                                         PPE Required <span className="text-red-600">*</span>
                                     </label>
                                     <input
-                                        className="w-full border border-slate-300 rounded-lg p-3 text-sm focus:ring-2 focus:ring-emerald-500 outline-none"
+                                        className="w-full border border-slate-200 px-4 py-3 rounded-xl text-base focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400 outline-none bg-white shadow-sm hover:border-slate-300 transition-all"
                                         placeholder="e.g. Helmets, Hi-Vis, Gloves, Eye Protection"
                                         value={formData.ppe.join(", ")}
                                         onChange={(e) => updateForm("ppe", e.target.value.split(",").map(s => s.trim()))}
@@ -534,7 +544,7 @@ export default function ToolboxWizard({ onBack, onComplete }: ToolboxWizardProps
                                         Emergency Arrangements <span className="text-red-600">*</span>
                                     </label>
                                     <input
-                                        className="w-full border border-slate-300 rounded-lg p-3 text-sm focus:ring-2 focus:ring-emerald-500 outline-none"
+                                        className="w-full border border-slate-200 px-4 py-3 rounded-xl text-base focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400 outline-none bg-white shadow-sm hover:border-slate-300 transition-all"
                                         placeholder="e.g. Muster point at Gate A, First Aider is John Doe"
                                         value={formData.emergencyArrangements}
                                         onChange={(e) => updateForm("emergencyArrangements", e.target.value)}
@@ -548,15 +558,15 @@ export default function ToolboxWizard({ onBack, onComplete }: ToolboxWizardProps
                     {step === 3 && (
                         <div className="space-y-6">
                             <div className="flex items-center gap-3 mb-6">
-                                <div className="h-10 w-10 rounded-full bg-emerald-50 flex items-center justify-center">
-                                    <Users className="w-5 h-5 text-emerald-600" />
+                                <div className="h-10 w-10 rounded-full bg-slate-100 flex items-center justify-center">
+                                    <Users className="w-5 h-5 text-slate-900" />
                                 </div>
                                 <h2 className="text-2xl font-semibold text-slate-900">
                                     <TypewriterText messages={["Attendance & Sign-off"]} loop={false} />
                                 </h2>
                             </div>
 
-                            <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm space-y-6">
+                            <div className="bg-slate-50 p-6 rounded-2xl border border-slate-200 space-y-6">
                                 <div className="flex items-center justify-between p-4 bg-slate-50 rounded-lg border border-slate-200">
                                     <div>
                                         <h4 className="font-medium text-slate-900">Include Attendance Sheet?</h4>
@@ -583,7 +593,7 @@ export default function ToolboxWizard({ onBack, onComplete }: ToolboxWizardProps
                                                 Expected Attendees <span className="text-red-600">*</span>
                                             </label>
                                             <input
-                                                className="w-full border border-slate-300 rounded-lg p-3 text-sm focus:ring-2 focus:ring-emerald-500 outline-none"
+                                                className="w-full border border-slate-200 px-4 py-3 rounded-xl text-base focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400 outline-none bg-white shadow-sm hover:border-slate-300 transition-all"
                                                 placeholder="e.g. 10"
                                                 value={formData.attendanceConfig.expectedAttendees}
                                                 onChange={(e) => setFormData(prev => ({
@@ -597,7 +607,7 @@ export default function ToolboxWizard({ onBack, onComplete }: ToolboxWizardProps
                                                 Notes for Attendees <span className="text-red-600">*</span>
                                             </label>
                                             <textarea
-                                                className="w-full border border-slate-300 rounded-lg p-3 text-sm focus:ring-2 focus:ring-emerald-500 outline-none"
+                                                className="w-full border border-slate-200 px-4 py-3 rounded-xl text-base focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400 outline-none bg-white shadow-sm hover:border-slate-300 transition-all"
                                                 placeholder="e.g. Please sign to confirm you have understood the briefing."
                                                 value={formData.attendanceConfig.notes}
                                                 onChange={(e) => setFormData(prev => ({
@@ -616,8 +626,8 @@ export default function ToolboxWizard({ onBack, onComplete }: ToolboxWizardProps
                     {step === 4 && (
                         <div className="space-y-6">
                             <div className="flex items-center gap-3 mb-6">
-                                <div className="h-10 w-10 rounded-full bg-emerald-50 flex items-center justify-center">
-                                    <CheckSquare className="w-5 h-5 text-emerald-600" />
+                                <div className="h-10 w-10 rounded-full bg-slate-100 flex items-center justify-center">
+                                    <CheckSquare className="w-5 h-5 text-slate-900" />
                                 </div>
                                 <h2 className="text-2xl font-semibold text-slate-900">
                                     <TypewriterText messages={["Review & Generate"]} loop={false} />
@@ -627,7 +637,7 @@ export default function ToolboxWizard({ onBack, onComplete }: ToolboxWizardProps
                                 Final sense-check before you generate. If anything looks off, go back and adjust the relevant step.
                             </p>
 
-                            <div className="bg-slate-50 border border-slate-200 rounded-xl p-4 text-xs space-y-3">
+                            <div className="bg-slate-50 border border-slate-200 rounded-2xl p-6 text-xs space-y-4">
                                 <h3 className="text-sm font-semibold text-slate-900 mb-1">
                                     Summary
                                 </h3>
@@ -686,28 +696,28 @@ export default function ToolboxWizard({ onBack, onComplete }: ToolboxWizardProps
                     )}
 
                     {/* FOOTER ACTIONS - INLINE */}
-                    <div className="flex justify-between gap-3 pt-4 mt-8">
-                        <div className="flex gap-2 pt-2">
+                    <div className="flex justify-between gap-3 pt-6 border-t border-slate-200 mt-8">
+                        <div className="flex gap-2">
                             {step > 0 && (
                                 <button
                                     onClick={prevStep}
-                                    className="inline-flex items-center justify-center rounded-lg border border-slate-300 px-4 py-2.5 text-sm font-semibold text-slate-800 hover:bg-slate-50"
+                                    className="inline-flex items-center justify-center rounded-xl border border-slate-200 bg-white px-5 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-50 hover:border-slate-300 transition-all"
                                 >
                                     Back
                                 </button>
                             )}
                             <button
                                 onClick={onBack}
-                                className="inline-flex items-center justify-center rounded-lg border border-slate-300 px-4 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-50"
+                                className="inline-flex items-center justify-center rounded-xl border border-transparent px-4 py-3 text-sm font-semibold text-slate-500 hover:text-slate-800 transition-colors"
                             >
-                                {step === 0 ? "Back to RS Hub" : "← Back to RS Hub"}
+                                {step === 0 ? "Cancel" : "Cancel Wizard"}
                             </button>
                         </div>
 
                         {step < 4 ? (
                             <button
                                 onClick={nextStep}
-                                className="inline-flex items-center justify-center rounded-lg bg-[#0b2040] px-5 py-2.5 text-sm font-semibold text-white hover:bg-black transition-colors"
+                                className="inline-flex items-center justify-center rounded-xl bg-slate-900 px-8 py-3 text-sm font-bold text-white hover:bg-black shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all"
                             >
                                 Next Step
                             </button>
@@ -715,7 +725,7 @@ export default function ToolboxWizard({ onBack, onComplete }: ToolboxWizardProps
                             <button
                                 onClick={handleGenerate}
                                 disabled={isGenerating}
-                                className="inline-flex items-center justify-center gap-2 rounded-lg bg-emerald-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-emerald-700 disabled:opacity-60 disabled:cursor-not-allowed transition-colors"
+                                className="inline-flex items-center justify-center gap-2 rounded-xl bg-slate-900 px-8 py-3 text-sm font-bold text-white hover:bg-black shadow-lg hover:shadow-xl hover:-translate-y-0.5 disabled:opacity-60 disabled:cursor-not-allowed transition-all"
                             >
                                 {isGenerating ? (
                                     <Loader2 className="w-4 h-4 animate-spin" />

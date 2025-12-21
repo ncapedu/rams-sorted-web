@@ -39,7 +39,7 @@ export default function FaqPage() {
     ];
 
     return (
-        <div className="py-24 px-6 min-h-screen bg-swirl">
+        <div className="py-24 px-6">
             <div className="max-w-3xl mx-auto">
                 <div className="text-center mb-16">
                     <h1 className="text-4xl font-bold text-white mb-6 min-h-[50px] drop-shadow-md">
@@ -55,7 +55,7 @@ export default function FaqPage() {
                     {faqs.map((faq, index) => (
                         <div
                             key={index}
-                            className="bg-[#0f172a] border-2 border-slate-800 rounded-xl overflow-hidden transition-all duration-300 hover:border-slate-700 hover:shadow-lg hover:bg-[#1e293b]"
+                            className="bg-white/5 backdrop-blur-md border border-white/10 rounded-xl overflow-hidden transition-all duration-300 hover:border-white/20 hover:bg-white/10 hover:shadow-xl"
                             style={{ animationDelay: `${index * 100}ms` }}
                         >
                             <button

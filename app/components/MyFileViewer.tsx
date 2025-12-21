@@ -82,9 +82,9 @@ interface MyFileViewerProps {
 const ToolbarButton = ({ onClick, icon: Icon, title, active = false, className = "" }: any) => (
   <button
     onClick={onClick}
-    className={`p-1.5 rounded-md transition-all duration-200 ${active
-      ? "bg-blue-100 text-blue-700 shadow-sm ring-1 ring-blue-200"
-      : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+    className={`p-2 rounded-lg transition-all duration-200 ${active
+      ? "bg-slate-900 text-white shadow-md ring-1 ring-slate-900"
+      : "text-slate-500 hover:bg-slate-100 hover:text-slate-900"
       } ${className}`}
     title={title}
   >
@@ -246,7 +246,7 @@ const MyFileViewer = ({ file, onBack, onUpdateFile }: MyFileViewerProps) => {
   };
 
   return (
-    <div className={`flex flex-col h-full ${viewMode === "print" ? "bg-[#f5f4f0]" : "bg-white"}`}>
+    <div className={`flex flex-col h-full ${viewMode === "print" ? "bg-slate-50/50" : "bg-white"}`}>
       <style>{`
         body {
           padding: 0 !important;
@@ -255,11 +255,11 @@ const MyFileViewer = ({ file, onBack, onUpdateFile }: MyFileViewerProps) => {
         }
       `}</style>
       {/* Fixed Toolbar */}
-      <div className="shrink-0 flex flex-wrap items-center justify-between px-4 py-2 bg-white border-b border-slate-200 shadow-sm z-20 gap-y-2">
-        <div className="flex items-center gap-3">
+      <div className="shrink-0 flex flex-wrap items-center justify-between px-6 py-3 bg-white/80 backdrop-blur-md border-b border-slate-200 shadow-sm z-20 gap-y-2 sticky top-0">
+        <div className="flex items-center gap-4">
           <button
             onClick={onBack}
-            className="flex items-center gap-1 text-sm font-medium text-slate-600 hover:text-slate-900 transition-colors"
+            className="flex items-center gap-1.5 text-sm font-semibold text-slate-600 hover:text-slate-900 transition-colors bg-slate-100/50 hover:bg-slate-100 px-3 py-1.5 rounded-lg border border-transparent hover:border-slate-200"
           >
             <ArrowLeft className="w-4 h-4" />
             Back
@@ -349,17 +349,17 @@ const MyFileViewer = ({ file, onBack, onUpdateFile }: MyFileViewerProps) => {
 
         <div className="flex items-center gap-3">
           {/* View Mode */}
-          <div className="flex items-center bg-slate-100 p-0.5 rounded-lg border border-slate-200">
+          <div className="flex items-center bg-slate-100 p-1 rounded-xl border border-slate-200/50">
             <button
               onClick={() => setViewMode("web")}
-              className={`p-1.5 rounded-md transition-all ${viewMode === "web" ? "bg-white shadow text-blue-600" : "text-slate-500 hover:text-slate-700"}`}
+              className={`p-1.5 rounded-lg transition-all ${viewMode === "web" ? "bg-white shadow-sm text-slate-900 font-medium" : "text-slate-500 hover:text-slate-700"}`}
               title="Web View"
             >
               <Layout className="w-4 h-4" />
             </button>
             <button
               onClick={() => setViewMode("print")}
-              className={`p-1.5 rounded-md transition-all ${viewMode === "print" ? "bg-white shadow text-blue-600" : "text-slate-500 hover:text-slate-700"}`}
+              className={`p-1.5 rounded-lg transition-all ${viewMode === "print" ? "bg-white shadow-sm text-slate-900 font-medium" : "text-slate-500 hover:text-slate-700"}`}
               title="Print View"
             >
               <Printer className="w-4 h-4" />
@@ -399,9 +399,9 @@ const MyFileViewer = ({ file, onBack, onUpdateFile }: MyFileViewerProps) => {
             <button
               onClick={handleExportPDF}
               disabled={isExportingPdf}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium border border-transparent transition-colors ${isExportingPdf
+              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold border border-transparent transition-all ${isExportingPdf
                 ? "bg-slate-100 text-slate-400 cursor-not-allowed"
-                : "hover:bg-slate-100 text-slate-700 hover:border-slate-200"
+                : "bg-slate-900 text-white hover:bg-black hover:shadow-lg hover:-translate-y-0.5"
                 }`}
             >
               {isExportingPdf ? (
@@ -409,7 +409,7 @@ const MyFileViewer = ({ file, onBack, onUpdateFile }: MyFileViewerProps) => {
               ) : (
                 <Download className="w-4 h-4" />
               )}
-              {isExportingPdf ? "Generating..." : "PDF"}
+              {isExportingPdf ? "Generating..." : "Export PDF"}
             </button>
           </div>
         </div>
@@ -437,7 +437,7 @@ const MyFileViewer = ({ file, onBack, onUpdateFile }: MyFileViewerProps) => {
           >
             <div
               ref={pageRef}
-              className={`print-only-content origin-top-left ${viewMode === "print" ? "bg-white shadow-sm absolute shadow-[0_0_0_1px_rgba(0,0,0,0.08),0_20px_40px_rgba(15,23,42,0.08)]" : "bg-white w-full min-h-full relative shadow-none border-none outline-none"}`}
+              className={`print-only-content origin-top-left ${viewMode === "print" ? "bg-white shadow-2xl absolute ring-1 ring-slate-900/5" : "bg-white w-full min-h-full relative shadow-none border-none outline-none"}`}
               style={viewMode === "print" ? {
                 width: "210mm",
                 minHeight: "297mm",

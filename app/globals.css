@@ -5,8 +5,6 @@
   --foreground: #171717;
 }
 
-
-
 html {
   scrollbar-gutter: stable;
   background: #020617;
@@ -15,7 +13,7 @@ html {
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
   min-height: 100vh;
 }
 
@@ -36,7 +34,7 @@ body {
 
 /* Custom Scrollbar */
 ::-webkit-scrollbar {
-  width: 12px;
+  width: 10px;
 }
 
 ::-webkit-scrollbar-track {
@@ -44,28 +42,48 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-  background-color: #cbd5e1;
-  border: 3px solid transparent;
+  background-color: rgba(255, 255, 255, 0.2);
+  border: 2px solid transparent;
   background-clip: content-box;
   border-radius: 9999px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background-color: #94a3b8;
+  background-color: rgba(255, 255, 255, 0.4);
 }
 
 
 .bg-swirl {
-  background: linear-gradient(-45deg, #0f172a, #0f172a, #450a0a, #0f172a, #0f172a);
+  background: linear-gradient(-45deg, #020617, #0f172a, #450a0a, #0f172a, #020617);
   background-size: 400% 400%;
-  animation: swirl 8s ease infinite;
+  animation: swirl 15s ease-in-out infinite;
 }
 
 .bg-pricing-swirl {
   /* Dark Slate/Black -> Medium Blue (#2563eb) -> Dark Slate */
-  background: linear-gradient(-45deg, #020617, #0f172a, #2563eb, #0f172a);
+  background: linear-gradient(-45deg, #020617, #0f172a, #1e40af, #0f172a);
   background-size: 400% 400%;
-  animation: swirl 5s ease infinite;
+  animation: swirl 12s ease-in-out infinite;
+}
+
+/* Premium Glass Utilities */
+.glass-panel {
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+}
+
+.glass-panel-hover {
+  transition: all 0.3s ease;
+}
+
+.glass-panel-hover:hover {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.15);
+  transform: translateY(-2px);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
 }
 
 @keyframes slideInLeft {
@@ -103,7 +121,7 @@ body {
 @keyframes slideInUp {
   0% {
     opacity: 0;
-    transform: translateY(100px) scale(0.9);
+    transform: translateY(60px) scale(0.95);
   }
 
   100% {
@@ -113,7 +131,7 @@ body {
 }
 
 .animate-slide-up {
-  animation: slideInUp 1.5s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  animation: slideInUp 1.2s cubic-bezier(0.22, 1, 0.36, 1) forwards;
 }
 
 @keyframes shine {
@@ -194,18 +212,15 @@ body {
 
 @keyframes swirl-product {
   0% {
-    background-color: #000000;
-    /* Black */
+    background-color: #020617;
   }
 
   50% {
     background-color: #450a0a;
-    /* Very Dark Red */
   }
 
   100% {
-    background-color: #000000;
-    /* Black */
+    background-color: #020617;
   }
 }
 
@@ -214,7 +229,7 @@ body {
 }
 
 .bg-documents-swirl {
-  background: linear-gradient(-45deg, #000000, #172554, #020617, #1e3a8a);
+  background: linear-gradient(-45deg, #020617, #172554, #020617, #1e3a8a);
   background-size: 400% 400%;
   animation: swirl 8s ease infinite;
 }
@@ -241,7 +256,7 @@ body {
       rgba(240, 230, 255, 0.5),
       rgba(255, 255, 255, 0.8));
   background-size: 300% 300%;
-  animation: liquid 8s ease infinite;
+  animation: liquid 10s ease infinite;
 }
 
 /* Dashboard Animations */
@@ -259,14 +274,14 @@ body {
 
 /* ... existing code ... */
 .rs-fade-slide-in {
-  animation: rsFadeSlideIn 0.7s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  animation: rsFadeSlideIn 0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards;
 }
 
 .bg-auth-swirl {
   /* Aggressive Wave: Dark Burgundy -> Dark Blue -> Bright Blue -> Light Sky */
-  background: linear-gradient(-45deg, #450a0a, #020617, #1d4ed8, #bae6fd);
+  background: linear-gradient(-45deg, #450a0a, #020617, #1d4ed8, #020617);
   background-size: 400% 400%;
-  animation: swirl 7s ease infinite;
+  animation: swirl 10s ease-in-out infinite;
 }
 
 /* Liquid Glass Animation */
@@ -298,9 +313,9 @@ body {
   height: 100%;
   background: linear-gradient(90deg,
       transparent,
-      rgba(255, 255, 255, 0.4),
-      rgba(255, 255, 255, 0.6),
-      rgba(255, 255, 255, 0.4),
+      rgba(255, 255, 255, 0.1),
+      rgba(255, 255, 255, 0.2),
+      rgba(255, 255, 255, 0.1),
       transparent);
   transform: skewX(-15deg);
   animation: liquid-shimmer 8s cubic-bezier(0.4, 0, 0.2, 1) infinite;
@@ -310,7 +325,7 @@ body {
 @keyframes float-up {
   0% {
     opacity: 0;
-    transform: translateY(60px) scale(0.95);
+    transform: translateY(40px) scale(0.98);
   }
 
   100% {
