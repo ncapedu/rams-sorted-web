@@ -321,7 +321,6 @@ export default function CoshhWizard({ onBack, onSave }: CoshhWizardProps) {
                                             Assessment Name <span className="text-red-600">*</span>
                                         </label>
                                         <input
-                                            <input
                                             className="border border-slate-200 px-4 py-3 rounded-lg w-full text-sm focus:ring-2 focus:ring-blue-500/10 focus:border-blue-500 outline-none bg-white shadow-sm hover:border-slate-300 transition-all duration-200"
                                             placeholder="e.g. Paint Stripping - Block A"
                                             value={formData.documentName}
