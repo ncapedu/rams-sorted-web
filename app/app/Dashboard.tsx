@@ -667,10 +667,10 @@ export default function Dashboard({ initialFiles, user }: DashboardProps) {
       <div className="h-screen w-full flex overflow-hidden bg-slate-50 text-slate-900">
         {/* SIDEBAR */}
         <aside
-          className={`relative flex flex-col border-r border-slate-200 bg-white transition-all duration-300 ease-out ${sidebarOpen ? "w-64" : "w-16"
+          className={`relative flex flex-col border-r border-[#E5E5E5] bg-[#F7F7F5] transition-all duration-300 ease-out ${sidebarOpen ? "w-72" : "w-16"
             }`}
         >
-          <div className="flex h-full flex-col bg-white text-slate-900">
+          <div className="flex h-full flex-col bg-[#F7F7F5] text-slate-900">
             {/* Top brand + toggle */}
             <div className="relative flex items-center justify-start px-3 pt-3 pb-2">
               <div
@@ -679,18 +679,19 @@ export default function Dashboard({ initialFiles, user }: DashboardProps) {
                   : "opacity-0 w-0 overflow-hidden"
                   }`}
               >
-                <div className="relative h-[40px] w-[60px] transform origin-left mr-9">
+                <div className="relative h-[24px] w-[60px] transform origin-left mr-9 opacity-80 grayscale hover:grayscale-0 transition-all duration-500">
                   <Image
                     src="/rams-logo6.png"
                     alt="RAMS Sorted logo"
                     fill
-                    className="object-contain"
+                    className="object-contain object-left"
                   />
                 </div>
               </div>
+              {/* No toggle button here - moving it or removing for cleaner look, or simpler icon */}
               <button
                 onClick={() => setSidebarOpen((prev) => !prev)}
-                className="absolute right-3 flex h-6 w-6 items-center justify-center rounded-md border border-gray-200 bg-white hover:bg-gray-50 hover:border-gray-300 transition-all shadow-sm"
+                className="absolute right-3 flex h-6 w-6 items-center justify-center rounded-md text-slate-400 hover:text-slate-600 hover:bg-slate-200/50 transition-all"
               >
                 {sidebarOpen ? (
                   <ChevronRight className="w-3.5 h-3.5 text-slate-600 rotate-180" />
@@ -710,9 +711,9 @@ export default function Dashboard({ initialFiles, user }: DashboardProps) {
                       setStep(1);
                       setActiveFile(null);
                     }}
-                    className="flex w-full items-center justify-start px-3 gap-3 rounded-md bg-slate-900 py-2.5 text-sm font-medium text-white hover:bg-slate-800 transition-all duration-200"
+                    className="flex w-full items-center justify-start px-3 gap-3 rounded-lg bg-[#E3E3E1] py-2.5 text-sm font-medium text-slate-700 hover:bg-[#D7D7D5] transition-all duration-200"
                   >
-                    <LayoutDashboard className="w-4 h-4 text-slate-300" />
+                    <LayoutDashboard className="w-4 h-4 text-slate-600" />
                     <span>RS Hub</span>
                   </button>
                 ) : (
@@ -723,7 +724,7 @@ export default function Dashboard({ initialFiles, user }: DashboardProps) {
                         setStep(1);
                         setActiveFile(null);
                       }}
-                      className="flex h-9 w-9 items-center justify-center rounded-md bg-slate-900 text-white hover:bg-slate-800 transition-all"
+                      className="flex h-9 w-9 items-center justify-center rounded-lg bg-[#E3E3E1] text-slate-700 hover:bg-[#D7D7D5] transition-all"
                     >
                       <LayoutDashboard className="w-4 h-4" />
                     </button>
@@ -749,9 +750,9 @@ export default function Dashboard({ initialFiles, user }: DashboardProps) {
                     recentFiles.map((file) => (
                       <div
                         key={file.id}
-                        className={`group w-full px-2 py-1.5 rounded-md transition-all duration-200 cursor-pointer text-sm flex items-center gap-2 ${activeFile?.id === file.id
-                          ? "bg-slate-100 text-slate-900 font-medium"
-                          : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
+                        className={`group w-full px-3 py-2 rounded-lg transition-all duration-200 cursor-pointer text-sm flex items-center gap-2 ${activeFile?.id === file.id
+                          ? "bg-[#EAEAE8] text-slate-900 font-medium"
+                          : "text-slate-600 hover:bg-[#EAEAE8] hover:text-slate-900"
                           }`}
                         onClick={() => {
                           setActiveFile(file);
@@ -864,7 +865,7 @@ export default function Dashboard({ initialFiles, user }: DashboardProps) {
             </div>
 
             {/* Bottom: profile / settings (fixed) */}
-            <div className={`mt-auto border-t border-slate-200 p-3 transition-all duration-300 ${sidebarOpen ? "px-3" : "px-3"}`}>
+            <div className={`mt-auto border-t border-[#E5E5E5] p-3 transition-all duration-300 ${sidebarOpen ? "px-3" : "px-3"}`}>
               {sidebarOpen ? (
                 <button
                   className="group relative flex w-full items-center gap-3 p-2 rounded-md cursor-pointer hover:bg-slate-100 transition-colors duration-200 text-left"
