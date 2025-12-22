@@ -21,6 +21,7 @@ import {
   CheckSquare,
   Users,
   Shield,
+  PanelLeft,
 } from "lucide-react";
 import TypewriterText from "../components/TypewriterText";
 
@@ -672,32 +673,30 @@ export default function Dashboard({ initialFiles, user }: DashboardProps) {
         >
           <div className="flex h-full flex-col bg-[#F7F7F5] text-slate-900">
             {/* Top brand + toggle */}
-            <div className="relative flex items-center justify-start px-3 pt-3 pb-2">
+            <div className={`relative flex items-center pt-5 pb-4 ${sidebarOpen ? "justify-between px-4" : "justify-center px-0 flex-col gap-4"}`}>
+              {/* Logo */}
               <div
-                className={`flex items-center gap-2 transition-all ${sidebarOpen
-                  ? "opacity-100 w-auto"
-                  : "opacity-0 w-0 overflow-hidden"
+                className={`relative transition-all duration-300 ${sidebarOpen
+                  ? "w-[120px] h-[40px]"
+                  : "w-[40px] h-[40px]"
                   }`}
               >
-                <div className="relative h-[24px] w-[60px] transform origin-left mr-9 opacity-80 grayscale hover:grayscale-0 transition-all duration-500">
-                  <Image
-                    src="/rams-logo6.png"
-                    alt="RAMS Sorted logo"
-                    fill
-                    className="object-contain object-left"
-                  />
-                </div>
+                <Image
+                  src="/rams-logo6.png"
+                  alt="RAMS Sorted logo"
+                  fill
+                  className={`object-contain transition-all duration-300 ${sidebarOpen ? "object-left" : "object-center"}`}
+                  priority
+                />
               </div>
-              {/* No toggle button here - moving it or removing for cleaner look, or simpler icon */}
+
+              {/* Toggle Button - Claude style */}
               <button
                 onClick={() => setSidebarOpen((prev) => !prev)}
-                className="absolute right-3 flex h-6 w-6 items-center justify-center rounded-md text-slate-400 hover:text-slate-600 hover:bg-slate-200/50 transition-all"
+                className={`rounded-lg p-1.5 text-slate-400 hover:text-slate-600 hover:bg-slate-200/50 transition-all ${!sidebarOpen ? "mt-2" : ""}`}
+                title={sidebarOpen ? "Close sidebar" : "Open sidebar"}
               >
-                {sidebarOpen ? (
-                  <ChevronRight className="w-3.5 h-3.5 text-slate-600 rotate-180" />
-                ) : (
-                  <ChevronRight className="w-3.5 h-3.5 text-slate-600" />
-                )}
+                <PanelLeft className="w-5 h-5" />
               </button>
             </div>
 
