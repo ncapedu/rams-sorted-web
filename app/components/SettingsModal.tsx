@@ -170,7 +170,7 @@ export default function SettingsModal({ isOpen, onClose, user }: SettingsModalPr
 
             {/* Slide-over Panel */}
             <div
-                className={`absolute inset-y-0 right-0 w-full max-w-2xl bg-white shadow-2xl transform transition-transform duration-400 cubic-bezier(0.16, 1, 0.3, 1) pointer-events-auto flex flex-col ${isOpen && !isClosing
+                className={`absolute inset-y-0 right-0 w-full max-w-[520px] bg-white shadow-xl transform transition-transform duration-300 ease-out pointer-events-auto flex flex-col border-l border-gray-100 ${isOpen && !isClosing
                     ? "translate-x-0"
                     : "translate-x-full"
                     }`}
@@ -195,300 +195,306 @@ export default function SettingsModal({ isOpen, onClose, user }: SettingsModalPr
                 </div>
 
                 {/* Vertical Sidebar Layout (Desktop-like feel inside panel) */}
-                <div className="flex flex-1 overflow-hidden">
-                    {/* Navigation Sidebar */}
-                    <div className="w-[160px] bg-[#F7F7F5] border-r border-[#E5E5E5] flex-shrink-0 py-6 px-3 space-y-1 hidden sm:block">
-                        <NavButton
-                            active={activeTab === "account"}
-                            onClick={() => setActiveTab("account")}
-                            icon={<User className="w-4 h-4" />}
-                            label="Account"
-                        />
-                        <NavButton
-                            active={activeTab === "general"}
-                            onClick={() => setActiveTab("general")}
-                            icon={<Settings className="w-4 h-4" />}
-                            label="General"
-                        />
-                        <NavButton
-                            active={activeTab === "contact"}
-                            onClick={() => setActiveTab("contact")}
-                            icon={<HelpCircle className="w-4 h-4" />}
-                            label="Support"
-                        />
-                    </div>
+                <div className="flex flex-col flex-1 overflow-hidden bg-[#fafafa]">
+                    {/* Navigation Tabs (Horizontal for drawer context or top row) - adjusting to sidebar per prompt request for strict hierarchy if needed, 
+                        but prompt says "Left Settings nav ... Make it look like a modern sidebar list".
+                        Given the 500px width, a split view is tight. 
+                        Usually drawers this size use a Top Tab bar or single column.
+                        However, prompt asks for "Left Settings nav". I will use a skinny left rail or stick to top if 500px is too narrow.
+                        Actually, 520px wide drawer with left sidebar (160px) leaves 360px for content. That's mobile size.
+                        I will use a single column layout with clear Section Headers as allows, or a very slim left nav.
+                        Wait, strict prompt: "Left Settings nav ... modern sidebar list". 
+                        I will try to make it work or adjust width slightly larger if needed, OR assume full height layout.
+                        Let's keep the split but make left rail transparent/clean.
+                     */}
+                    <div className="flex flex-1 overflow-hidden">
+                        {/* Navigation Sidebar */}
+                        <div className="w-[140px] bg-gray-50/50 border-r border-gray-200 flex-shrink-0 py-6 px-2 space-y-0.5 hidden sm:block">
+                            <NavButton
+                                active={activeTab === "account"}
+                                onClick={() => setActiveTab("account")}
+                                icon={<User className="w-4 h-4" />}
+                                label="Account"
+                            />
+                            <NavButton
+                                active={activeTab === "general"}
+                                onClick={() => setActiveTab("general")}
+                                icon={<Settings className="w-4 h-4" />}
+                                label="General"
+                            />
+                            <NavButton
+                                active={activeTab === "contact"}
+                                onClick={() => setActiveTab("contact")}
+                                icon={<HelpCircle className="w-4 h-4" />}
+                                label="Support"
+                            />
+                        </div>
 
-                    {/* Mobile Tabs (Visible only on very small screens if sidebar is hidden) */}
-                    <div className="sm:hidden w-full px-6 py-2 border-b border-slate-100 flex space-x-4 overflow-x-auto">
-                        {/* Mobile tab implementation left simplified for now, assuming panel width > sm breakpoint usually */}
-                    </div>
+                        {/* Mobile Tabs (Visible only on very small screens if sidebar is hidden) */}
+                        <div className="sm:hidden w-full px-6 py-2 border-b border-slate-100 flex space-x-4 overflow-x-auto">
+                            {/* Mobile tab implementation left simplified for now, assuming panel width > sm breakpoint usually */}
+                        </div>
 
-                    {/* Content Area */}
-                    <div className="flex-1 overflow-y-auto p-8 scroll-smooth bg-white">
+                        {/* Content Area */}
+                        <div className="flex-1 overflow-y-auto p-8 scroll-smooth bg-white">
 
-                        {/* General Tab */}
-                        {activeTab === "general" && (
-                            <div className="space-y-10 animate-fade-in-up">
-                                <section>
-                                    <div className="mb-6">
-                                        <h3 className="text-lg font-bold text-slate-900 tracking-tight">Security</h3>
-                                        <p className="text-sm text-slate-500 mt-1">Manage your password and authentication methods.</p>
-                                    </div>
+                            {/* General Tab */}
+                            {activeTab === "general" && (
+                                <div className="space-y-10 animate-fade-in-up">
+                                    <section>
+                                        <div className="mb-6">
+                                            <h3 className="text-lg font-bold text-slate-900 tracking-tight">Security</h3>
+                                            <p className="text-sm text-slate-500 mt-1">Manage your password and authentication methods.</p>
+                                        </div>
 
-                                    <div className="space-y-4">
-                                        {/* Password Row */}
-                                        <div className="p-4 rounded-md border border-[#E5E5E5] bg-white hover:border-slate-300 transition-colors">
-                                            <div className="flex items-start justify-between">
-                                                <div className="flex items-center gap-3">
-                                                    <div className="p-2 rounded-lg bg-orange-50 text-orange-600">
-                                                        <Shield className="w-5 h-5" />
-                                                    </div>
-                                                    <div>
-                                                        <p className="text-sm font-medium text-slate-900">Password</p>
-                                                        <p className="text-xs text-slate-500">
-                                                            {passwordLastUpdated
-                                                                ? `Last updated ${new Date(passwordLastUpdated).toLocaleDateString()}`
-                                                                : "Password set since account creation"}
-                                                        </p>
-                                                    </div>
-                                                </div>
-                                                <button
-                                                    onClick={() => setIsPasswordEditing(!isPasswordEditing)}
-                                                    className="text-xs font-semibold text-slate-900 border border-slate-200 px-3 py-1.5 rounded bg-white hover:bg-slate-50 transition-colors"
-                                                >
-                                                    {isPasswordEditing ? "Cancel" : "Update"}
-                                                </button>
-                                            </div>
-
-                                            {/* Password Edit Form */}
-                                            {isPasswordEditing && (
-                                                <div className="mt-4 pt-4 border-t border-slate-100 space-y-3 animate-in fade-in slide-in-from-top-2 duration-200">
-                                                    <div>
-                                                        <label className="block text-xs font-semibold text-slate-700 mb-1">Current Password</label>
-                                                        <input
-                                                            type="password"
-                                                            value={passwordForm.current}
-                                                            onChange={(e) => setPasswordForm({ ...passwordForm, current: e.target.value })}
-                                                            className="w-full text-sm px-3 py-2 rounded-md border border-slate-200 focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-900 transition-all"
-                                                            placeholder="Enter current password"
-                                                        />
-                                                    </div>
-                                                    <div>
-                                                        <label className="block text-xs font-semibold text-slate-700 mb-1">New Password</label>
-                                                        <input
-                                                            type="password"
-                                                            value={passwordForm.new}
-                                                            onChange={(e) => setPasswordForm({ ...passwordForm, new: e.target.value })}
-                                                            className="w-full text-sm px-3 py-2 rounded-md border border-slate-200 focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-900 transition-all"
-                                                            placeholder="Enter new password"
-                                                        />
-                                                        <p className="text-[10px] text-slate-400 mt-1">Must be at least 6 characters long.</p>
-                                                    </div>
-                                                    {passwordMessage.text && (
-                                                        <p className={`text-xs font-medium ${passwordMessage.type === 'error' ? 'text-red-500' : 'text-green-600'}`}>
-                                                            {passwordMessage.text}
-                                                        </p>
-                                                    )}
-                                                    <div className="flex justify-end pt-1">
+                                        <div className="space-y-4">
+                                            {/* Password Row */}
+                                            <div className="space-y-6">
+                                                {/* Password Row */}
+                                                <div className="p-0 rounded-none border-b border-gray-100 pb-6">
+                                                    <div className="flex items-start justify-between">
+                                                        <div className="flex items-center gap-3">
+                                                            <div className="p-2 rounded-lg bg-orange-50 text-orange-600">
+                                                                <Shield className="w-5 h-5" />
+                                                            </div>
+                                                            <div>
+                                                                <p className="text-sm font-medium text-slate-900">Password</p>
+                                                                <p className="text-xs text-slate-500">
+                                                                    {passwordLastUpdated
+                                                                        ? `Last updated ${new Date(passwordLastUpdated).toLocaleDateString()}`
+                                                                        : "Password set since account creation"}
+                                                                </p>
+                                                            </div>
+                                                        </div>
                                                         <button
-                                                            onClick={handlePasswordUpdate}
-                                                            disabled={isPasswordLoading}
-                                                            className="bg-slate-900 text-white text-xs font-bold px-4 py-2 rounded-md hover:bg-slate-800 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                                                            onClick={() => setIsPasswordEditing(!isPasswordEditing)}
+                                                            className="text-xs font-semibold text-slate-900 border border-slate-200 px-3 py-1.5 rounded bg-white hover:bg-slate-50 transition-colors"
                                                         >
-                                                            {isPasswordLoading ? "Updating..." : "Save New Password"}
+                                                            {isPasswordEditing ? "Cancel" : "Update"}
                                                         </button>
                                                     </div>
+
+                                                    {/* Password Edit Form */}
+                                                    {isPasswordEditing && (
+                                                        <div className="mt-4 pt-4 border-t border-slate-100 space-y-3 animate-in fade-in slide-in-from-top-2 duration-200">
+                                                            <div>
+                                                                <label className="block text-xs font-semibold text-slate-700 mb-1">Current Password</label>
+                                                                <input
+                                                                    type="password"
+                                                                    value={passwordForm.current}
+                                                                    onChange={(e) => setPasswordForm({ ...passwordForm, current: e.target.value })}
+                                                                    className="w-full text-sm px-3 py-2 rounded-md border border-slate-200 focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-900 transition-all"
+                                                                    placeholder="Enter current password"
+                                                                />
+                                                            </div>
+                                                            <div>
+                                                                <label className="block text-xs font-semibold text-slate-700 mb-1">New Password</label>
+                                                                <input
+                                                                    type="password"
+                                                                    value={passwordForm.new}
+                                                                    onChange={(e) => setPasswordForm({ ...passwordForm, new: e.target.value })}
+                                                                    className="w-full text-sm px-3 py-2 rounded-md border border-slate-200 focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-900 transition-all"
+                                                                    placeholder="Enter new password"
+                                                                />
+                                                                <p className="text-[10px] text-slate-400 mt-1">Must be at least 6 characters long.</p>
+                                                            </div>
+                                                            {passwordMessage.text && (
+                                                                <p className={`text-xs font-medium ${passwordMessage.type === 'error' ? 'text-red-500' : 'text-green-600'}`}>
+                                                                    {passwordMessage.text}
+                                                                </p>
+                                                            )}
+                                                            <div className="flex justify-end pt-1">
+                                                                <button
+                                                                    onClick={handlePasswordUpdate}
+                                                                    disabled={isPasswordLoading}
+                                                                    className="bg-slate-900 text-white text-xs font-bold px-4 py-2 rounded-md hover:bg-slate-800 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                                                                >
+                                                                    {isPasswordLoading ? "Updating..." : "Save New Password"}
+                                                                </button>
+                                                            </div>
+                                                        </div>
+                                                    )}
                                                 </div>
-                                            )}
+
+                                                {/* 2FA Row */}
+                                                <div className="group flex items-center justify-between p-4 rounded-lg border border-slate-200 hover:border-slate-300 hover:shadow-sm transition-all duration-200 bg-white">
+                                                    <div className="flex items-center gap-4">
+                                                        <div className="p-2.5 rounded-full bg-slate-50 text-slate-600 group-hover:scale-105 transition-transform">
+                                                            <Smartphone className="w-5 h-5" />
+                                                        </div>
+                                                        <div>
+                                                            <p className="text-sm font-semibold text-slate-900">Two-Factor Authentication</p>
+                                                            <p className="text-xs text-slate-500 mt-0.5">Add an extra layer of security</p>
+                                                        </div>
+                                                    </div>
+                                                    {/* Toggle Switch */}
+                                                    <button className="relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none bg-slate-200 hover:bg-slate-300">
+                                                        <span className="sr-only">Enable 2FA</span>
+                                                        <span className="pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out translate-x-0" />
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </section>
+                                </div>
+                            )}
+
+                            {/* Account Tab */}
+                            {activeTab === "account" && (
+                                <div className="space-y-10 animate-fade-in-up">
+                                    {/* Profile Details */}
+                                    <section className="space-y-6">
+                                        <h3 className="text-lg font-bold text-slate-900 tracking-tight">Profile Details</h3>
+
+                                        <div className="flex items-center gap-4 py-2">
+                                            <div className="h-12 w-12 rounded-full bg-gray-100 flex items-center justify-center text-lg font-medium text-gray-500 overflow-hidden ring-1 ring-gray-100">
+                                                {user?.image ? (
+                                                    <Image src={user.image} alt={user.name || "User"} width={48} height={48} className="object-cover h-full w-full" />
+                                                ) : (
+                                                    <span>{(user?.name?.[0] || user?.email?.[0] || "U").toUpperCase()}</span>
+                                                )}
+                                            </div>
+                                            <div className="space-y-0.5">
+                                                <h4 className="text-sm font-semibold text-gray-900 leading-none">{user?.name || "User Name"}</h4>
+                                                <p className="text-xs text-gray-500">{user?.email || "user@example.com"}</p>
+                                            </div>
+                                            <div className="ml-auto flex items-center gap-1.5">
+                                                <div className="h-2 w-2 rounded-full bg-green-500"></div>
+                                                <span className="text-xs font-medium text-gray-600">Active</span>
+                                            </div>
+                                        </div>
+                                    </section>
+
+                                    <hr className="border-slate-100" />
+
+                                    {/* Subscription Section */}
+                                    <section>
+                                        <div className="mb-5 flex items-center justify-between">
+                                            <div>
+                                                <h3 className="text-lg font-bold text-slate-900 tracking-tight">Subscription</h3>
+                                                <p className="text-sm text-slate-500 mt-1">Manage plan details and billing.</p>
+                                            </div>
                                         </div>
 
-                                        {/* 2FA Row */}
-                                        <div className="group flex items-center justify-between p-4 rounded-lg border border-slate-200 hover:border-slate-300 hover:shadow-sm transition-all duration-200 bg-white">
-                                            <div className="flex items-center gap-4">
-                                                <div className="p-2.5 rounded-full bg-slate-50 text-slate-600 group-hover:scale-105 transition-transform">
-                                                    <Smartphone className="w-5 h-5" />
-                                                </div>
+                                        {/* Subscription Card Design */}
+                                        <div className="rounded-lg border border-gray-200 bg-white p-4">
+                                            <div className="flex items-center justify-between mb-4">
                                                 <div>
-                                                    <p className="text-sm font-semibold text-slate-900">Two-Factor Authentication</p>
-                                                    <p className="text-xs text-slate-500 mt-0.5">Add an extra layer of security</p>
-                                                </div>
-                                            </div>
-                                            {/* Toggle Switch */}
-                                            <button className="relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none bg-slate-200 hover:bg-slate-300">
-                                                <span className="sr-only">Enable 2FA</span>
-                                                <span className="pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out translate-x-0" />
-                                            </button>
-                                        </div>
-                                    </div>
-                                </section>
-                            </div>
-                        )}
-
-                        {/* Account Tab */}
-                        {activeTab === "account" && (
-                            <div className="space-y-10 animate-fade-in-up">
-                                {/* Profile Details */}
-                                <section className="space-y-6">
-                                    <h3 className="text-lg font-bold text-slate-900 tracking-tight">Profile Details</h3>
-
-                                    <div className="flex items-start gap-5 p-4 border border-slate-200 rounded-lg bg-white">
-                                        <div className="relative h-16 w-16 rounded-full bg-slate-100 flex items-center justify-center overflow-hidden shrink-0 border border-slate-200">
-                                            {user?.image ? (
-                                                <Image src={user.image} alt={user.name || "User"} width={64} height={64} className="object-cover h-full w-full" />
-                                            ) : (
-                                                <span className="text-xl font-bold text-slate-400">{(user?.name?.[0] || user?.email?.[0] || "U").toUpperCase()}</span>
-                                            )}
-                                        </div>
-                                        <div className="space-y-1 pt-1">
-                                            <h4 className="text-lg font-bold text-slate-900 leading-none">{user?.name || "User Name"}</h4>
-                                            <p className="text-sm text-slate-500 font-medium">{user?.email || "user@example.com"}</p>
-                                            <div className="flex gap-2 mt-2">
-                                                <Badge color="blue" label="Pro User" />
-                                                <Badge color="green" label="Active" />
-                                            </div>
-                                        </div>
-                                    </div>
-                                </section>
-
-                                <hr className="border-slate-100" />
-
-                                {/* Subscription Section */}
-                                <section>
-                                    <div className="mb-5 flex items-center justify-between">
-                                        <div>
-                                            <h3 className="text-lg font-bold text-slate-900 tracking-tight">Subscription</h3>
-                                            <p className="text-sm text-slate-500 mt-1">Manage plan details and billing.</p>
-                                        </div>
-                                    </div>
-
-                                    {/* Premium Card UI */}
-                                    <div className="relative overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm">
-                                        {/* Decorative gradient top */}
-                                        <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500" />
-
-                                        <div className="p-6">
-                                            <div className="flex items-start justify-between mb-8">
-                                                <div className="flex items-center gap-3">
-                                                    <div className="h-10 w-10 rounded-lg bg-blue-50 flex items-center justify-center text-blue-600">
-                                                        <CreditCard className="w-5 h-5" />
-                                                    </div>
-                                                    <div>
-                                                        <p className="text-sm font-bold text-slate-900 uppercase tracking-wide">RAMS Sorted Pro</p>
-                                                        <p className="text-xs text-slate-500 font-medium mt-0.5">Renews Jan 12, 2026</p>
-                                                    </div>
+                                                    <p className="text-sm font-semibold text-gray-900">RAMS Sorted Pro</p>
+                                                    <p className="text-xs text-gray-500 mt-0.5">Renews Jan 12, 2026</p>
                                                 </div>
                                                 <div className="text-right">
-                                                    <span className="text-2xl font-bold text-slate-900 tracking-tight">£15</span>
-                                                    <span className="text-sm text-slate-500 font-medium">/mo</span>
+                                                    <span className="text-lg font-semibold text-gray-900">£15</span>
+                                                    <span className="text-xs text-gray-500">/mo</span>
                                                 </div>
                                             </div>
 
                                             <div className="flex gap-3">
-                                                <button className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white text-sm font-semibold rounded-md transition-all shadow-sm active:scale-[0.98]">
+                                                <button className="flex-1 px-3 py-2 bg-gray-900 text-white text-xs font-medium rounded-md hover:bg-gray-800 transition-colors">
                                                     Manage Billing
                                                 </button>
-                                                <button className="inline-flex items-center justify-center gap-2 px-4 py-2 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 text-sm font-semibold rounded-md transition-all shadow-sm active:scale-[0.98]">
+                                                <button className="px-3 py-2 bg-white border border-gray-200 text-gray-700 text-xs font-medium rounded-md hover:bg-gray-50 transition-colors">
                                                     Invoices
                                                 </button>
                                             </div>
                                         </div>
-                                    </div>
-                                </section>
+                                    </section>
 
-                                <hr className="border-slate-100" />
+                                    <hr className="border-slate-100" />
 
-                                <div className="pt-2">
-                                    <button
-                                        onClick={() => signOut({ callbackUrl: '/' })}
-                                        className="w-full flex items-center justify-center gap-2.5 text-slate-600 hover:text-slate-900 hover:bg-slate-50 text-sm font-semibold px-4 py-3 rounded-md transition-all border border-slate-200 bg-white shadow-sm"
-                                    >
-                                        <LogOut className="w-4 h-4" />
-                                        Sign out of account
-                                    </button>
-                                </div>
-
-                                {/* Danger Zone */}
-                                <section className="pt-6 border-t border-slate-100">
-                                    <h3 className="text-sm font-bold text-red-600 uppercase tracking-widest mb-4">Danger Zone</h3>
-                                    <div className="rounded-lg border border-red-100 bg-red-50/50 p-4 flex items-center justify-between">
-                                        <div className="max-w-[70%]">
-                                            <h4 className="text-sm font-bold text-slate-900">Close Account</h4>
-                                            <p className="text-xs text-slate-500 mt-1">
-                                                Permanently delete your account and all associated data. This action cannot be undone.
-                                            </p>
-                                        </div>
+                                    <div className="pt-2">
                                         <button
-                                            onClick={() => setIsCloseAccountConfirmOpen(true)}
-                                            className="px-4 py-2 bg-white border border-red-200 text-red-600 text-xs font-bold rounded-md hover:bg-red-50 transition-colors shadow-sm"
+                                            onClick={() => signOut({ callbackUrl: '/' })}
+                                            className="w-full flex items-center justify-center gap-2.5 text-slate-600 hover:text-slate-900 hover:bg-slate-50 text-sm font-semibold px-4 py-3 rounded-md transition-all border border-slate-200 bg-white shadow-sm"
                                         >
-                                            Close Account
+                                            <LogOut className="w-4 h-4" />
+                                            Sign out of account
                                         </button>
                                     </div>
-                                </section>
-                            </div>
-                        )}
 
-                        {/* Contact Tab */}
-                        {activeTab === "contact" && (
-                            <div className="space-y-8 animate-fade-in-up">
-                                <div>
-                                    <h3 className="text-lg font-bold text-slate-900 tracking-tight">Success Center</h3>
-                                    <p className="text-sm text-slate-500 mt-1">We’re here to help you get the most out of RAMS Sorted.</p>
-                                </div>
-
-                                <div className="grid gap-4">
-                                    <a
-                                        href="/faq"
-                                        target="_blank"
-                                        className="group block p-5 rounded-lg border border-slate-200 bg-white hover:border-blue-300 hover:shadow-md transition-all duration-300 relative overflow-hidden"
-                                    >
-                                        <div className="relative z-10 flex items-start gap-4">
-                                            <div className="p-3 bg-blue-50 rounded-lg text-blue-600 group-hover:scale-110 transition-transform duration-300">
-                                                <HelpCircle className="w-6 h-6" />
+                                    {/* Danger Zone */}
+                                    <section className="pt-6 border-t border-slate-100">
+                                        <h3 className="text-sm font-bold text-red-600 uppercase tracking-widest mb-4">Danger Zone</h3>
+                                        <div className="rounded-lg border border-red-100 bg-red-50/50 p-4 flex items-center justify-between">
+                                            <div className="max-w-[70%]">
+                                                <h4 className="text-sm font-bold text-slate-900">Close Account</h4>
+                                                <p className="text-xs text-slate-500 mt-1">
+                                                    Permanently delete your account and all associated data. This action cannot be undone.
+                                                </p>
                                             </div>
-                                            <div className="flex-1">
-                                                <div className="flex items-center justify-between">
-                                                    <h4 className="text-base font-bold text-slate-900">Help & FAQ</h4>
-                                                    <ExternalLink className="w-4 h-4 text-slate-300 group-hover:text-blue-500 transition-colors" />
+                                            <button
+                                                onClick={() => setIsCloseAccountConfirmOpen(true)}
+                                                className="px-4 py-2 bg-white border border-red-200 text-red-600 text-xs font-bold rounded-md hover:bg-red-50 transition-colors shadow-sm"
+                                            >
+                                                Close Account
+                                            </button>
+                                        </div>
+                                    </section>
+                                </div>
+                            )}
+
+                            {/* Contact Tab */}
+                            {activeTab === "contact" && (
+                                <div className="space-y-8 animate-fade-in-up">
+                                    <div>
+                                        <h3 className="text-lg font-bold text-slate-900 tracking-tight">Success Center</h3>
+                                        <p className="text-sm text-slate-500 mt-1">We’re here to help you get the most out of RAMS Sorted.</p>
+                                    </div>
+
+                                    <div className="grid gap-4">
+                                        <a
+                                            href="/faq"
+                                            target="_blank"
+                                            className="group block p-5 rounded-lg border border-slate-200 bg-white hover:border-blue-300 hover:shadow-md transition-all duration-300 relative overflow-hidden"
+                                        >
+                                            <div className="relative z-10 flex items-start gap-4">
+                                                <div className="p-3 bg-blue-50 rounded-lg text-blue-600 group-hover:scale-110 transition-transform duration-300">
+                                                    <HelpCircle className="w-6 h-6" />
                                                 </div>
-                                                <p className="text-sm text-slate-500 mt-1 leading-relaxed">
-                                                    Instant answers to common questions about billing, account limits, and features.
-                                                </p>
+                                                <div className="flex-1">
+                                                    <div className="flex items-center justify-between">
+                                                        <h4 className="text-base font-bold text-slate-900">Help & FAQ</h4>
+                                                        <ExternalLink className="w-4 h-4 text-slate-300 group-hover:text-blue-500 transition-colors" />
+                                                    </div>
+                                                    <p className="text-sm text-slate-500 mt-1 leading-relaxed">
+                                                        Instant answers to common questions about billing, account limits, and features.
+                                                    </p>
+                                                </div>
                                             </div>
-                                        </div>
-                                    </a>
+                                        </a>
 
-                                    <a
-                                        href="mailto:support@ramssorted.com"
-                                        className="group block p-5 rounded-lg border border-slate-200 bg-white hover:border-slate-300 hover:shadow-md transition-all duration-300"
-                                    >
-                                        <div className="flex items-start gap-4">
-                                            <div className="p-3 bg-slate-50 rounded-lg text-slate-600 group-hover:scale-110 transition-transform duration-300">
-                                                <Mail className="w-6 h-6" />
+                                        <a
+                                            href="mailto:support@ramssorted.com"
+                                            className="group block p-5 rounded-lg border border-slate-200 bg-white hover:border-slate-300 hover:shadow-md transition-all duration-300"
+                                        >
+                                            <div className="flex items-start gap-4">
+                                                <div className="p-3 bg-slate-50 rounded-lg text-slate-600 group-hover:scale-110 transition-transform duration-300">
+                                                    <Mail className="w-6 h-6" />
+                                                </div>
+                                                <div className="flex-1">
+                                                    <h4 className="text-base font-bold text-slate-900">Email Support</h4>
+                                                    <p className="text-sm text-slate-500 mt-1 leading-relaxed">
+                                                        Can’t find what you need? Our team is ready to assist you.
+                                                    </p>
+                                                    <p className="text-xs font-semibold text-slate-400 mt-3 group-hover:text-slate-600 transition-colors">
+                                                        support@ramssorted.com
+                                                    </p>
+                                                </div>
                                             </div>
-                                            <div className="flex-1">
-                                                <h4 className="text-base font-bold text-slate-900">Email Support</h4>
-                                                <p className="text-sm text-slate-500 mt-1 leading-relaxed">
-                                                    Can’t find what you need? Our team is ready to assist you.
-                                                </p>
-                                                <p className="text-xs font-semibold text-slate-400 mt-3 group-hover:text-slate-600 transition-colors">
-                                                    support@ramssorted.com
-                                                </p>
-                                            </div>
-                                        </div>
-                                    </a>
-                                </div>
+                                        </a>
+                                    </div>
 
-                                <div className="p-6 mt-8 rounded-lg bg-slate-50 border border-slate-100 text-center">
-                                    <p className="text-xs font-semibold text-slate-400 uppercase tracking-widest">
-                                        Version 1.0.0
-                                    </p>
-                                    <p className="text-xs text-slate-400 mt-1">
-                                        &copy; {new Date().getFullYear()} RAMS Sorted
-                                    </p>
+                                    <div className="p-6 mt-8 rounded-lg bg-slate-50 border border-slate-100 text-center">
+                                        <p className="text-xs font-semibold text-slate-400 uppercase tracking-widest">
+                                            Version 1.0.0
+                                        </p>
+                                        <p className="text-xs text-slate-400 mt-1">
+                                            &copy; {new Date().getFullYear()} RAMS Sorted
+                                        </p>
+                                    </div>
                                 </div>
-                            </div>
-                        )}
+                            )}
+                        </div>
                     </div>
                 </div>
             </div>
@@ -578,16 +584,15 @@ function NavButton({ active, onClick, icon, label }: { active: boolean; onClick:
     return (
         <button
             onClick={onClick}
-            className={`w-full flex items-center gap-3.5 px-3.5 py-2.5 rounded-md text-sm font-medium transition-all duration-200 group ${active
-                ? "bg-[#E3E3E1] text-[#2D2D2A] shadow-none"
-                : "text-[#6B6B66] hover:text-[#2D2D2A] hover:bg-[#EAEAE8]"
+            className={`w-full flex items-center gap-3 px-3 py-2 rounded-md text-sm transition-all duration-200 ${active
+                ? "bg-gray-100 text-gray-900 font-medium border-l-2 border-blue-600 rounded-l-none"
+                : "text-gray-500 hover:text-gray-900 hover:bg-gray-50"
                 }`}
         >
-            <span className={`transition-colors duration-200 ${active ? "text-slate-900" : "text-slate-400 group-hover:text-slate-600"}`}>
+            <span className={`transition-colors duration-200 ${active ? "text-gray-900" : "text-gray-400"}`}>
                 {icon}
             </span>
             {label}
-            {active && <div className="ml-auto w-1.5 h-1.5 rounded-full bg-blue-500" />}
         </button>
     );
 }
@@ -605,4 +610,3 @@ function Badge({ color, label }: { color: "blue" | "green" | "slate"; label: str
         </span>
     );
 }
-
