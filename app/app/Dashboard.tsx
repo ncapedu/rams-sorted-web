@@ -210,8 +210,12 @@ export default function Dashboard({ initialFiles, user }: DashboardProps) {
   const [renamingFileId, setRenamingFileId] = useState<string | null>(null);
 
   // --- SUBTLE AUTO-SAVE LOGIC ---
+  // --- SUBTLE AUTO-SAVE LOGIC ---
   const saveDocument = async (file: RAMSFile) => {
     try {
+      // Ensure we have a valid type, defaulting to RAMS if missing
+      const docType = file.type || "RAMS";
+
       await fetch("/api/documents", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
@@ -219,14 +223,14 @@ export default function Dashboard({ initialFiles, user }: DashboardProps) {
           id: file.id,
           name: file.name,
           content: file.content,
-          type: file.type,
+          type: docType,
           payload: {
-            ...file, // Spread all extra fields like toolboxData, coshhData etc.
-            htmlContent: undefined // Avoid duplicating bulky html content in payload if not needed, but safe to keep
+            ...file,
+            htmlContent: undefined
           }
         }),
       });
-      // Optional: show a tiny "Saved" indicator or just keep it silent
+      console.log(`Auto-saved ${docType} ${file.id}`);
     } catch (e) {
       console.error("Auto-save failed", e);
     }
@@ -593,6 +597,7 @@ export default function Dashboard({ initialFiles, user }: DashboardProps) {
         name: safeDocName,
         createdAt: now.toLocaleString(),
         content: htmlContent,
+        type: "RAMS",
       };
 
       // Save to API
@@ -603,7 +608,8 @@ export default function Dashboard({ initialFiles, user }: DashboardProps) {
           body: JSON.stringify({
             name: safeDocName,
             content: htmlContent,
-            payload: ramsData
+            payload: ramsData,
+            type: "RAMS"
           }),
         });
 
