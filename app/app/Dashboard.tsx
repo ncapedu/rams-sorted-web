@@ -219,6 +219,7 @@ export default function Dashboard({ initialFiles, user }: DashboardProps) {
       await fetch("/api/documents", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
+        keepalive: true,
         body: JSON.stringify({
           id: file.id,
           name: file.name,
@@ -947,7 +948,14 @@ export default function Dashboard({ initialFiles, user }: DashboardProps) {
                       prev.map((f) => (f.id === updated.id ? updated : f))
                     );
                     setActiveFile(updated);
-                    debouncedSave(updated);
+
+                    // LOGIC: If content changed, debounce (avoid spamming API on every keystroke).
+                    // If propertly (name, etc) changed, save immediately.
+                    if (updated.content !== activeFile?.content) {
+                      debouncedSave(updated);
+                    } else {
+                      saveDocument(updated);
+                    }
                   }}
                 />
               </div>
