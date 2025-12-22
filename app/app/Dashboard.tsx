@@ -825,7 +825,7 @@ export default function Dashboard({ initialFiles, user }: DashboardProps) {
                             </button>
                             {fileMenuOpenId === file.id && (
                               <div
-                                className="absolute right-0 mt-1 w-36 rounded-md bg-white shadow-lg border border-slate-200 z-20"
+                                className="absolute right-0 mt-1 w-40 rounded-xl bg-white shadow-xl border border-slate-200 z-[100] overflow-hidden"
                                 onClick={(e) => e.stopPropagation()}
                               >
                                 <button
@@ -1188,12 +1188,12 @@ export default function Dashboard({ initialFiles, user }: DashboardProps) {
                           <div className="grid grid-cols-2 gap-4">
                             <button
                               onClick={() => handleInput("userType", "company")}
-                              className={`p-5 rounded-lg border text-left transition-all duration-200 ${formData.userType === "company"
-                                ? "border-red-600 bg-red-50/50 ring-1 ring-red-600"
-                                : "border-slate-200 hover:border-red-300 hover:bg-slate-50"
+                              className={`p-5 rounded-xl border text-left transition-all duration-200 ${formData.userType === "company"
+                                ? "border-red-600 bg-red-50 text-red-700 ring-1 ring-red-600"
+                                : "border-slate-200 hover:border-red-300 hover:bg-slate-50 text-slate-700"
                                 }`}
                             >
-                              <div className={`font-bold text-sm mb-1 ${formData.userType === "company" ? "text-slate-900" : "text-slate-700"}`}>Business</div>
+                              <div className="font-bold text-sm mb-1">Business</div>
                               <div className="text-[11px] text-slate-500 leading-tight">
                                 Company with employees
                               </div>
@@ -1201,12 +1201,12 @@ export default function Dashboard({ initialFiles, user }: DashboardProps) {
 
                             <button
                               onClick={() => handleInput("userType", "sole_trader")}
-                              className={`p-5 rounded-lg border text-left transition-all duration-200 ${formData.userType === "sole_trader"
-                                ? "border-red-600 bg-red-50/50 ring-1 ring-red-600"
-                                : "border-slate-200 hover:border-red-300 hover:bg-slate-50"
+                              className={`p-5 rounded-xl border text-left transition-all duration-200 ${formData.userType === "sole_trader"
+                                ? "border-red-600 bg-red-50 text-red-700 ring-1 ring-red-600"
+                                : "border-slate-200 hover:border-red-300 hover:bg-slate-50 text-slate-700"
                                 }`}
                             >
-                              <div className={`font-bold text-sm mb-1 ${formData.userType === "sole_trader" ? "text-slate-900" : "text-slate-700"}`}>Sole Trader</div>
+                              <div className="font-bold text-sm mb-1">Sole Trader</div>
                               <div className="text-[11px] text-slate-500 leading-tight">
                                 Independent / Self-employed
                               </div>
@@ -1247,7 +1247,7 @@ export default function Dashboard({ initialFiles, user }: DashboardProps) {
                             setMode("wizard");
                             setStep(1);
                           }}
-                          className="bg-red-600 hover:bg-red-700 text-white text-sm font-bold px-6 py-2.5 rounded-lg shadow-sm hover:shadow transition-all"
+                          className="border-2 border-red-600 text-red-700 hover:bg-red-50 text-sm font-bold px-6 py-2.5 rounded-lg transition-all"
                         >
                           Next Step
                         </button>
@@ -1335,7 +1335,7 @@ export default function Dashboard({ initialFiles, user }: DashboardProps) {
                           />
                         </div>
 
-                        <div className="col-span-1 md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-4 bg-slate-50 p-4 rounded-lg border border-slate-100">
+                        <div className="col-span-1 md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-4 p-4 rounded-xl border border-slate-200">
                           <div className="md:col-span-2 text-xs font-bold text-slate-400 uppercase tracking-wider mb-[-8px]">
                             Contact Pack (Optional)
                           </div>
@@ -1368,7 +1368,7 @@ export default function Dashboard({ initialFiles, user }: DashboardProps) {
                         </div>
                       </div>
 
-                      <div className="bg-slate-50 p-6 rounded-2xl border border-slate-200 space-y-6">
+                      <div className="p-6 rounded-2xl border border-slate-200 space-y-6">
                         <h3 className="font-semibold text-sm text-slate-900 border-b border-slate-200 pb-2">
                           Project Info
                         </h3>
@@ -1422,25 +1422,14 @@ export default function Dashboard({ initialFiles, user }: DashboardProps) {
                         <div className="flex gap-2">
                           <button
                             onClick={prevStep}
-                            className="inline-flex items-center justify-center rounded-xl border border-slate-200 bg-white px-5 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-50 hover:border-slate-300 transition-all"
+                            className="text-slate-500 hover:text-slate-700 text-sm font-medium px-4 py-2 hover:bg-slate-50 rounded-lg transition-colors"
                           >
                             Back
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setMode("landing");
-                              setStep(1);
-                              setActiveFile(null);
-                            }}
-                            className="inline-flex items-center justify-center rounded-xl border border-transparent px-4 py-3 text-sm font-semibold text-slate-500 hover:text-slate-800 transition-colors"
-                          >
-                            Cancel
                           </button>
                         </div>
                         <button
                           onClick={nextStep}
-                          className="inline-flex items-center justify-center rounded-xl bg-slate-900 px-8 py-3 text-sm font-bold text-white hover:bg-black shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all"
+                          className="border-2 border-red-600 text-red-700 hover:bg-red-50 text-sm font-bold px-6 py-2.5 rounded-lg transition-all"
                         >
                           Next Step
                         </button>
@@ -1581,7 +1570,7 @@ export default function Dashboard({ initialFiles, user }: DashboardProps) {
                       </div>
 
                       {/* Schedule & workforce */}
-                      <div className="bg-slate-50 p-6 rounded-2xl border border-slate-200 space-y-5">
+                      <div className="p-6 rounded-2xl border border-slate-200 space-y-5">
                         <h3 className="font-semibold text-sm text-slate-900 border-b border-slate-200 pb-2">
                           Schedule &amp; Workforce (optional – but useful)
                         </h3>
@@ -1649,7 +1638,7 @@ export default function Dashboard({ initialFiles, user }: DashboardProps) {
                       </div>
 
                       {questions.length > 0 && (
-                        <div className="bg-slate-50 p-6 rounded-2xl border border-slate-200">
+                        <div className="p-6 rounded-2xl border border-slate-200">
                           <h4 className="font-semibold text-sm text-slate-900 mb-3 border-b border-slate-200 pb-2">
                             Pre-Start Safety Checks (optional responses)
                           </h4>
@@ -1893,7 +1882,7 @@ export default function Dashboard({ initialFiles, user }: DashboardProps) {
                         are genuinely not available.
                       </p>
 
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-5 bg-slate-50 p-6 rounded-2xl border border-slate-200">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-5 p-6 rounded-2xl border border-slate-200">
                         <div>
                           <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-1.5 ml-1">
                             Supervisor Name
@@ -2034,7 +2023,7 @@ export default function Dashboard({ initialFiles, user }: DashboardProps) {
                           ([group, items]: [string, any]) => (
                             <div
                               key={group}
-                              className="bg-slate-50 border border-slate-200 rounded-2xl p-5"
+                              className="border border-slate-200 rounded-2xl p-5"
                             >
                               <h4 className="text-xs font-bold uppercase tracking-wider text-slate-500 mb-3 border-b border-slate-200 pb-2">
                                 {group}
@@ -2045,7 +2034,7 @@ export default function Dashboard({ initialFiles, user }: DashboardProps) {
                                     key={h}
                                     onClick={() => toggleHazard(h)}
                                     className={`text-xs font-medium py-2 px-4 rounded-xl border transition-all duration-200 ${hazards.includes(h)
-                                      ? "bg-slate-900 text-white border-slate-900 shadow-md ring-2 ring-slate-900 ring-offset-1"
+                                      ? "border-red-600 bg-red-50 text-red-700 shadow-sm ring-1 ring-red-600"
                                       : "bg-white text-slate-600 border-slate-200 hover:border-slate-300 hover:bg-slate-50"
                                       }`}
                                   >
@@ -2087,25 +2076,14 @@ export default function Dashboard({ initialFiles, user }: DashboardProps) {
                         <div className="flex gap-2">
                           <button
                             onClick={prevStep}
-                            className="inline-flex items-center justify-center rounded-xl border border-slate-200 bg-white px-5 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-50 hover:border-slate-300 transition-all"
+                            className="text-slate-500 hover:text-slate-700 text-sm font-medium px-4 py-2 hover:bg-slate-50 rounded-lg transition-colors"
                           >
                             Back
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setMode("landing");
-                              setStep(1);
-                              setActiveFile(null);
-                            }}
-                            className="inline-flex items-center justify-center rounded-xl border border-transparent px-4 py-3 text-sm font-semibold text-slate-500 hover:text-slate-800 transition-colors"
-                          >
-                            Cancel
                           </button>
                         </div>
                         <button
                           onClick={nextStep}
-                          className="inline-flex items-center justify-center rounded-xl bg-slate-900 px-8 py-3 text-sm font-bold text-white hover:bg-black shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all"
+                          className="border-2 border-red-600 text-red-700 hover:bg-red-50 text-sm font-bold px-6 py-2.5 rounded-lg transition-all"
                         >
                           Next Step
                         </button>
@@ -2134,7 +2112,7 @@ export default function Dashboard({ initialFiles, user }: DashboardProps) {
                         </p>
 
                         {/* Single review panel */}
-                        <div className="bg-slate-50 border border-slate-200 rounded-2xl p-6 text-sm space-y-4">
+                        <div className="border border-slate-200 rounded-2xl p-6 text-sm space-y-4">
                           <h3 className="text-base font-bold text-slate-900 mb-2 border-b border-slate-200 pb-2">
                             Summary
                           </h3>
@@ -2241,7 +2219,7 @@ export default function Dashboard({ initialFiles, user }: DashboardProps) {
                           <div className="flex gap-2">
                             <button
                               onClick={prevStep}
-                              className="inline-flex items-center justify-center rounded-xl border border-slate-200 bg-white px-5 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-50 hover:border-slate-300 transition-all"
+                              className="inline-flex items-center justify-center rounded-xl border border-slate-200 bg-white px-5 py-3 text-sm font-semibold text-slate-700 hover:border-slate-300 transition-all"
                             >
                               Back
                             </button>
@@ -2260,7 +2238,7 @@ export default function Dashboard({ initialFiles, user }: DashboardProps) {
                           <button
                             onClick={generateRAMS}
                             disabled={isGenerating}
-                            className="inline-flex items-center justify-center gap-2 rounded-xl bg-slate-900 px-8 py-3 text-sm font-bold text-white hover:bg-black disabled:opacity-60 disabled:cursor-not-allowed shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all"
+                            className="inline-flex items-center justify-center gap-2 rounded-xl border-2 border-red-600 text-red-700 hover:bg-red-50 px-8 py-3 text-sm font-bold disabled:opacity-60 disabled:cursor-not-allowed shadow-sm hover:shadow-md transition-all"
                           >
                             {isGenerating ? (
                               <Loader2 className="w-4 h-4 animate-spin" />

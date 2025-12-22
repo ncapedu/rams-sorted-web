@@ -352,7 +352,7 @@ export default function ToolboxWizard({ onBack, onComplete }: ToolboxWizardProps
                                 </h2>
                             </div>
 
-                            <div className="bg-slate-50 p-6 rounded-lg border border-slate-200 space-y-6">
+                            <div className="p-6 rounded-lg border border-slate-200 space-y-6">
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     {/* Topic */}
                                     <div className="col-span-2">
@@ -474,7 +474,7 @@ export default function ToolboxWizard({ onBack, onComplete }: ToolboxWizardProps
                                 </h2>
                             </div>
 
-                            <div className="bg-slate-50 p-6 rounded-2xl border border-slate-200 space-y-6">
+                            <div className="p-6 rounded-2xl border border-slate-200 space-y-6">
                                 {/* Hazards */}
                                 <div>
                                     <label className="block text-xs font-semibold uppercase tracking-wide text-slate-700 mb-3">
@@ -503,7 +503,7 @@ export default function ToolboxWizard({ onBack, onComplete }: ToolboxWizardProps
                                                     key={h}
                                                     onClick={() => toggleHazard(h)}
                                                     className={`text-left px-4 py-3 rounded-xl text-sm border transition-all ${formData.hazards.includes(h)
-                                                        ? "bg-slate-900 border-slate-900 text-white font-medium shadow-md"
+                                                        ? "border-emerald-600 bg-emerald-50 text-emerald-700 font-medium shadow-sm ring-1 ring-emerald-600"
                                                         : "bg-white border-slate-200 text-slate-600 hover:border-slate-300 hover:bg-slate-50"
                                                         }`}
                                                 >
@@ -568,8 +568,8 @@ export default function ToolboxWizard({ onBack, onComplete }: ToolboxWizardProps
                                 </h2>
                             </div>
 
-                            <div className="bg-slate-50 p-6 rounded-2xl border border-slate-200 space-y-6">
-                                <div className="flex items-center justify-between p-4 bg-slate-50 rounded-lg border border-slate-200">
+                            <div className="p-6 rounded-2xl border border-slate-200 space-y-6">
+                                <div className="flex items-center justify-between p-4 bg-white rounded-lg border border-slate-200">
                                     <div>
                                         <h4 className="font-medium text-slate-900">Include Attendance Sheet?</h4>
                                         <p className="text-sm text-slate-500">Adds a signature table to the end of the document.</p>
@@ -639,7 +639,7 @@ export default function ToolboxWizard({ onBack, onComplete }: ToolboxWizardProps
                                 Final sense-check before you generate. If anything looks off, go back and adjust the relevant step.
                             </p>
 
-                            <div className="bg-slate-50 border border-slate-200 rounded-2xl p-6 text-xs space-y-4">
+                            <div className="border border-slate-200 rounded-2xl p-6 text-xs space-y-4">
                                 <h3 className="text-sm font-semibold text-slate-900 mb-1">
                                     Summary
                                 </h3>
@@ -678,7 +678,7 @@ export default function ToolboxWizard({ onBack, onComplete }: ToolboxWizardProps
 
                                 <div>
                                     <h4 className="text-xs font-bold uppercase text-slate-500 mb-2">Key Messages</h4>
-                                    <p className="text-sm text-slate-700 whitespace-pre-wrap bg-slate-50 p-3 rounded border border-slate-200">
+                                    <p className="text-sm text-slate-700 whitespace-pre-wrap bg-white p-3 rounded border border-slate-200">
                                         {formData.keyMessages || "No specific key messages added."}
                                     </p>
                                 </div>
@@ -719,7 +719,7 @@ export default function ToolboxWizard({ onBack, onComplete }: ToolboxWizardProps
                         {step < 4 ? (
                             <button
                                 onClick={nextStep}
-                                className="bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-bold px-6 py-2.5 rounded-lg shadow-sm hover:shadow transition-all"
+                                className="border-2 border-emerald-600 text-emerald-700 hover:bg-emerald-50 text-sm font-bold px-6 py-2.5 rounded-lg transition-all"
                             >
                                 Next Step
                             </button>
@@ -727,7 +727,7 @@ export default function ToolboxWizard({ onBack, onComplete }: ToolboxWizardProps
                             <button
                                 onClick={handleGenerate}
                                 disabled={isGenerating}
-                                className="inline-flex items-center justify-center gap-2 bg-slate-900 hover:bg-black text-white text-sm font-bold px-8 py-2.5 rounded-lg shadow-lg hover:shadow-xl hover:-translate-y-0.5 disabled:opacity-60 disabled:cursor-not-allowed transition-all"
+                                className="inline-flex items-center justify-center gap-2 rounded-xl border-2 border-emerald-600 text-emerald-700 hover:bg-emerald-50 px-8 py-3 text-sm font-bold disabled:opacity-60 disabled:cursor-not-allowed shadow-sm hover:shadow-md transition-all"
                             >
                                 {isGenerating ? (
                                     <Loader2 className="w-4 h-4 animate-spin" />
