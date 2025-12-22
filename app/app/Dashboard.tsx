@@ -758,7 +758,7 @@ export default function Dashboard({ initialFiles, user }: DashboardProps) {
                           setMode("viewer");
                         }}
                       >
-                        <div className="flex items-center justify-between gap-2">
+                        <div className="flex-1 flex items-center justify-between gap-2">
                           <div className="flex-1 min-w-0">
                             {renamingFileId === file.id ? (
                               <input
