@@ -673,30 +673,30 @@ export default function Dashboard({ initialFiles, user }: DashboardProps) {
         >
           <div className="flex h-full flex-col bg-[#F7F7F5] text-slate-900">
             {/* Top brand + toggle */}
-            <div className={`relative flex items-center pt-5 pb-4 ${sidebarOpen ? "justify-between px-4" : "justify-center px-0 flex-col gap-4"}`}>
-              {/* Logo */}
+            <div className={`relative flex items-center pt-5 pb-4 ${sidebarOpen ? "justify-between px-4" : "justify-center px-0 flex-col"}`}>
+              {/* Logo - Disappears when minimized */}
               <div
-                className={`relative transition-all duration-300 ${sidebarOpen
-                  ? "w-[120px] h-[40px]"
-                  : "w-[40px] h-[40px]"
+                className={`relative transition-all duration-300 overflow-hidden ${sidebarOpen
+                  ? "w-[120px] h-[40px] opacity-100"
+                  : "w-0 h-0 opacity-0"
                   }`}
               >
                 <Image
                   src="/rams-logo6.png"
                   alt="RAMS Sorted logo"
                   fill
-                  className={`object-contain transition-all duration-300 ${sidebarOpen ? "object-left" : "object-center"}`}
+                  className="object-contain object-left"
                   priority
                 />
               </div>
 
-              {/* Toggle Button - Claude style */}
+              {/* Toggle Button - Centered when minimized, Top-Right when open */}
               <button
                 onClick={() => setSidebarOpen((prev) => !prev)}
-                className={`rounded-lg p-1.5 text-slate-400 hover:text-slate-600 hover:bg-slate-200/50 transition-all ${!sidebarOpen ? "mt-2" : ""}`}
+                className={`rounded-lg p-1.5 text-slate-500 hover:text-slate-900 hover:bg-slate-200/50 transition-all ${!sidebarOpen ? "mt-0" : ""}`}
                 title={sidebarOpen ? "Close sidebar" : "Open sidebar"}
               >
-                <PanelLeft className="w-5 h-5" />
+                <PanelLeft className="w-5 h-5" strokeWidth={2.5} />
               </button>
             </div>
 
@@ -999,7 +999,7 @@ export default function Dashboard({ initialFiles, user }: DashboardProps) {
                 }}
               />
             ) : mode === "landing" ? (
-              <div className="flex-1 overflow-y-auto bg-slate-50 flex flex-col" style={{ scrollbarGutter: 'stable' }}>
+              <div className="flex-1 overflow-y-auto bg-slate-50 flex flex-col">
                 <div className="flex-grow flex flex-col items-center justify-center py-12 px-6 rs-fade-slide-in">
                   <div className="max-w-6xl w-full text-center">
                     <h1 className="text-4xl md:text-5xl font-bold text-slate-900 mb-3 tracking-tight">
