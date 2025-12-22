@@ -234,7 +234,7 @@ export default function Dashboard({ initialFiles, user }: DashboardProps) {
 
   const debouncedSave = useDebounce((file: RAMSFile) => {
     saveDocument(file);
-  }, 1000);
+  }, 400);
 
   // Close menu on outside click
   useEffect(() => {
@@ -778,6 +778,7 @@ export default function Dashboard({ initialFiles, user }: DashboardProps) {
                                       if (activeFile?.id === file.id) {
                                         setActiveFile(updated);
                                       }
+                                      saveDocument(updated);
                                     }
                                     setRenamingFileId(null);
                                   } else if (e.key === "Escape") {
@@ -794,6 +795,7 @@ export default function Dashboard({ initialFiles, user }: DashboardProps) {
                                     if (activeFile?.id === file.id) {
                                       setActiveFile(updated);
                                     }
+                                    saveDocument(updated);
                                   }
                                   setRenamingFileId(null);
                                 }}
