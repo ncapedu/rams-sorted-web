@@ -181,7 +181,7 @@ export default function SettingsModal({ isOpen, onClose, user }: SettingsModalPr
                 tabIndex={-1}
             >
                 {/* Header */}
-                <div className="flex items-center justify-between px-8 py-6 border-b border-slate-100/80 bg-white/80 backdrop-blur-md sticky top-0 z-10">
+                <div className="flex items-center justify-between px-8 py-6 border-b border-[#E5E5E5] bg-white/95 backdrop-blur-md sticky top-0 z-10">
                     <h2 className="text-xl font-bold text-slate-900 tracking-tight">
                         Settings
                     </h2>
@@ -197,7 +197,7 @@ export default function SettingsModal({ isOpen, onClose, user }: SettingsModalPr
                 {/* Vertical Sidebar Layout (Desktop-like feel inside panel) */}
                 <div className="flex flex-1 overflow-hidden">
                     {/* Navigation Sidebar */}
-                    <div className="w-[160px] bg-slate-50/50 border-r border-slate-100 flex-shrink-0 py-6 px-3 space-y-1 hidden sm:block">
+                    <div className="w-[160px] bg-[#F7F7F5] border-r border-[#E5E5E5] flex-shrink-0 py-6 px-3 space-y-1 hidden sm:block">
                         <NavButton
                             active={activeTab === "account"}
                             onClick={() => setActiveTab("account")}
@@ -237,7 +237,7 @@ export default function SettingsModal({ isOpen, onClose, user }: SettingsModalPr
 
                                     <div className="space-y-4">
                                         {/* Password Row */}
-                                        <div className="p-4 rounded-lg border border-slate-200 bg-white hover:border-slate-300 transition-colors">
+                                        <div className="p-4 rounded-md border border-[#E5E5E5] bg-white hover:border-slate-300 transition-colors">
                                             <div className="flex items-start justify-between">
                                                 <div className="flex items-center gap-3">
                                                     <div className="p-2 rounded-lg bg-orange-50 text-orange-600">
@@ -579,8 +579,8 @@ function NavButton({ active, onClick, icon, label }: { active: boolean; onClick:
         <button
             onClick={onClick}
             className={`w-full flex items-center gap-3.5 px-3.5 py-2.5 rounded-md text-sm font-medium transition-all duration-200 group ${active
-                ? "bg-white text-slate-900 shadow-sm ring-1 ring-black/5"
-                : "text-slate-500 hover:text-slate-900 hover:bg-white/60"
+                ? "bg-[#E3E3E1] text-[#2D2D2A] shadow-none"
+                : "text-[#6B6B66] hover:text-[#2D2D2A] hover:bg-[#EAEAE8]"
                 }`}
         >
             <span className={`transition-colors duration-200 ${active ? "text-slate-900" : "text-slate-400 group-hover:text-slate-600"}`}>

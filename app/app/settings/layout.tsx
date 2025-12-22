@@ -19,7 +19,7 @@ export default function SettingsLayout({
     const pathname = usePathname();
 
     return (
-        <div className="min-h-screen bg-[#f5f4f0] p-4 md:p-8">
+        <div className="min-h-screen bg-[#F7F7F5] p-4 md:p-8">
             <div className="max-w-6xl mx-auto space-y-8">
                 <div>
                     <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Settings</h1>
@@ -37,8 +37,8 @@ export default function SettingsLayout({
                                     key={tab.name}
                                     href={tab.href}
                                     className={`flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition-all ${isActive
-                                        ? "bg-slate-200/60 text-slate-900"
-                                        : "text-slate-500 hover:text-slate-900 hover:bg-slate-100"
+                                        ? "bg-[#E3E3E1] text-[#2D2D2A]"
+                                        : "text-[#6B6B66] hover:text-[#2D2D2A] hover:bg-[#EAEAE8]"
                                         }`}
                                 >
                                     <Icon className={`w-4 h-4 ${isActive ? "text-slate-900" : "text-slate-400"}`} />
@@ -49,7 +49,7 @@ export default function SettingsLayout({
                     </aside>
 
                     {/* Main Content Area */}
-                    <div className="flex-1 w-full max-w-3xl bg-white rounded-lg border border-slate-200 p-6 md:p-8 min-h-[500px]">
+                    <div className="flex-1 w-full max-w-3xl bg-white rounded-lg border border-[#E5E5E5] p-6 md:p-8 min-h-[500px]">
                         {children}
                     </div>
                 </div>

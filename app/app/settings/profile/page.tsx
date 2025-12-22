@@ -19,7 +19,7 @@ export default async function ProfilePage() {
                 <p className="text-sm text-slate-500">Manage your public profile and account details.</p>
             </div>
 
-            <div className="bg-slate-50 p-6 rounded-xl border border-slate-200 flex items-center gap-4">
+            <div className="p-0 flex items-center gap-4">
                 <div className="h-16 w-16 rounded-full bg-slate-200 flex items-center justify-center text-xl font-bold text-slate-500 uppercase">
                     {session.user.image ? (
                         <img src={session.user.image} alt="Avatar" className="h-full w-full rounded-full object-cover" />
@@ -39,7 +39,7 @@ export default async function ProfilePage() {
                     <input
                         name="name"
                         defaultValue={session.user.name || ""}
-                        className="w-full h-10 px-3 rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 transition-all text-sm"
+                        className="w-full h-10 px-3 rounded-md border border-[#E5E5E5] focus:outline-none focus:border-slate-400 transition-all text-sm text-slate-900 placeholder:text-slate-400"
                         placeholder="Your full name"
                     />
                 </div>
@@ -49,7 +49,7 @@ export default async function ProfilePage() {
                     <input
                         disabled
                         value={session.user.username || ""}
-                        className="w-full h-10 px-3 rounded-lg border border-slate-200 bg-slate-50 text-slate-500 cursor-not-allowed text-sm"
+                        className="w-full h-10 px-3 rounded-md border border-[#E5E5E5] bg-[#F7F7F5] text-slate-500 cursor-not-allowed text-sm"
                     />
                     <p className="text-[11px] text-slate-400">Username cannot be changed.</p>
                 </div>
@@ -59,13 +59,13 @@ export default async function ProfilePage() {
                     <input
                         disabled
                         value={session.user.email || ""}
-                        className="w-full h-10 px-3 rounded-lg border border-slate-200 bg-slate-50 text-slate-500 cursor-not-allowed text-sm"
+                        className="w-full h-10 px-3 rounded-md border border-[#E5E5E5] bg-[#F7F7F5] text-slate-500 cursor-not-allowed text-sm"
                     />
                     <p className="text-[11px] text-slate-400">Contact support to change your email address.</p>
                 </div>
 
                 <div className="pt-2">
-                    <button type="submit" className="bg-slate-900 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-slate-800 transition-colors">
+                    <button type="submit" className="bg-[#2D2D2A] text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-black transition-colors shadow-sm">
                         Save Changes
                     </button>
                 </div>
