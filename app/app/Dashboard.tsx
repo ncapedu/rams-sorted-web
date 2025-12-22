@@ -811,7 +811,7 @@ export default function Dashboard({ initialFiles, user }: DashboardProps) {
                             )}
 
                           </div>
-                          <div className="relative">
+                          <div className="relative shrink-0 ml-auto">
                             <button
                               onClick={(e) => {
                                 e.stopPropagation();
