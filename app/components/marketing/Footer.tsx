@@ -7,19 +7,11 @@ export default function Footer() {
             <div className="max-w-7xl mx-auto px-6">
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
                     <div className="col-span-1 md:col-span-1">
-                        <Link href="/" className="flex items-center gap-0 mb-4">
-                            <div className="relative w-7 h-7">
+                        <Link href="/" className="flex items-center gap-0 mb-6">
+                            <div className="relative w-14 h-14">
                                 <Image
                                     src="/rams-logo6.png"
                                     alt="RAMS Sorted Logo"
-                                    fill
-                                    className="object-contain"
-                                />
-                            </div>
-                            <div className="relative h-24 w-[24rem] -ml-[9rem] mt-1">
-                                <Image
-                                    src="/rams-sorted-text.png"
-                                    alt="RAMS Sorted"
                                     fill
                                     className="object-contain"
                                 />
