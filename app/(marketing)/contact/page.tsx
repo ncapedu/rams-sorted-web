@@ -22,7 +22,7 @@ export default function ContactPage() {
     };
 
     return (
-        <div className="pt-24 pb-16 px-6 min-h-screen bg-contact-swirl">
+        <div className="pt-24 pb-16 px-6 min-h-screen bg-documents-swirl">
             <div className="max-w-3xl mx-auto">
                 <h1 className="text-4xl lg:text-5xl font-bold text-white mb-6 min-h-[60px]">
                     <TypewriterText text="Contact Us" speed={50} cursor />
