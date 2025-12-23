@@ -17,7 +17,7 @@ export default function MarketingHome() {
     const [showVersionContent, setShowVersionContent] = useState(false);
 
     return (
-        <div className="flex flex-col pb-0">
+        <div className="flex flex-col pb-0 bg-home-swirl">
             {/* DARK HERO SECTION */}
             <section className="min-h-[100dvh] w-full bg-transparent flex items-center justify-center relative px-6 py-20 lg:py-4">
                 <div className="max-w-[1600px] mx-auto w-full grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center">

@@ -39,7 +39,7 @@ export default function FaqPage() {
     ];
 
     return (
-        <div className="py-24 px-6">
+        <div className="py-24 px-6 min-h-screen bg-faq-swirl">
             <div className="max-w-3xl mx-auto">
                 <div className="text-center mb-16">
                     <h1 className="text-4xl font-bold text-white mb-6 min-h-[50px] drop-shadow-md">
