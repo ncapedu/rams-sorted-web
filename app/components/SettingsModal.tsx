@@ -170,7 +170,7 @@ export default function SettingsModal({ isOpen, onClose, user }: SettingsModalPr
 
             {/* Slide-over Panel */}
             <div
-                className={`absolute inset-y-0 right-0 w-full max-w-[520px] bg-white shadow-xl transform transition-transform duration-300 ease-out pointer-events-auto flex flex-col border-l border-gray-100 ${isOpen && !isClosing
+                className={`absolute inset-y-0 right-0 w-full max-w-3xl bg-white shadow-xl transform transition-transform duration-300 ease-out pointer-events-auto flex flex-col border-l border-gray-100 ${isOpen && !isClosing
                     ? "translate-x-0"
                     : "translate-x-full"
                     }`}
