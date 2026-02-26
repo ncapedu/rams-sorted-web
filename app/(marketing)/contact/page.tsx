@@ -1,24 +1,44 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import TypewriterText from "@/app/components/marketing/TypewriterText";
 
 export default function ContactPage() {
     const [submitted, setSubmitted] = useState(false);
     const [loading, setLoading] = useState(false);
+    const [error, setError] = useState("");
+    const [refId] = useState(() => Math.floor(Math.random() * 900000) + 100000);
+    const formRef = useRef<HTMLFormElement>(null);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setLoading(true);
+        setError("");
 
-        // Simulate API call
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        const formData = new FormData(e.currentTarget as HTMLFormElement);
+        const name = formData.get("name") as string;
+        const email = formData.get("email") as string;
+        const subject = formData.get("subject") as string;
+        const message = formData.get("message") as string;
 
-        // In a real app, we would send this to an API route
-        console.log("Form submitted");
+        try {
+            const res = await fetch("/api/contact", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ name, email, subject, message }),
+            });
 
-        setLoading(false);
-        setSubmitted(true);
+            if (!res.ok) {
+                const data = await res.json();
+                throw new Error(data.error || "Something went wrong. Please try again.");
+            }
+
+            setSubmitted(true);
+        } catch (err: unknown) {
+            setError(err instanceof Error ? err.message : "Something went wrong. Please try again.");
+        } finally {
+            setLoading(false);
+        }
     };
 
     return (
@@ -29,7 +49,7 @@ export default function ContactPage() {
                 </h1>
                 <div className="animate-slide-up opacity-0 relative z-10" style={{ animationDelay: '0.3s' }}>
                     <p className="text-xl text-slate-300 mb-16 leading-relaxed">
-                        Have a question or need support? We're here to help.
+                        Have a question or need support? We&apos;re here to help.
                     </p>
                 </div>
 
@@ -43,26 +63,27 @@ export default function ContactPage() {
                                 </div>
                                 <h3 className="text-2xl font-bold text-emerald-400 mb-2">Message Received</h3>
                                 <p className="text-emerald-200/80 mb-4">
-                                    Thanks for reaching out! Your reference ID is <span className="font-mono font-bold text-white">#{Math.floor(Math.random() * 100000)}</span>.
+                                    Thanks for reaching out! Your reference is <span className="font-mono font-bold text-white">#{refId}</span>.
                                 </p>
                                 <p className="text-emerald-200/60 text-sm">
-                                    We'll get back to you shortly.
+                                    We&apos;ll get back to you at your email within 24 hours.
                                 </p>
                                 <button
-                                    onClick={() => setSubmitted(false)}
+                                    onClick={() => { setSubmitted(false); formRef.current?.reset(); }}
                                     className="mt-6 text-emerald-400 font-medium hover:text-emerald-300 underline"
                                 >
                                     Send another message
                                 </button>
                             </div>
                         ) : (
-                            <form onSubmit={handleSubmit} className="space-y-6 bg-white/5 backdrop-blur-lg border border-white/10 p-8 rounded-2xl">
+                            <form ref={formRef} onSubmit={handleSubmit} className="space-y-6 bg-white/5 backdrop-blur-lg border border-white/10 p-8 rounded-2xl">
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     <div>
                                         <label htmlFor="name" className="block text-sm font-medium text-slate-300 mb-1.5 focus-within:text-white transition-colors">Name</label>
                                         <input
                                             type="text"
                                             id="name"
+                                            name="name"
                                             required
                                             className="w-full rounded-xl bg-white/5 border border-white/10 text-white placeholder:text-slate-500 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 py-3 px-4 transition-all outline-none"
                                             placeholder="Joe Bloggs"
@@ -73,6 +94,7 @@ export default function ContactPage() {
                                         <input
                                             type="email"
                                             id="email"
+                                            name="email"
                                             required
                                             className="w-full rounded-xl bg-white/5 border border-white/10 text-white placeholder:text-slate-500 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 py-3 px-4 transition-all outline-none"
                                             placeholder="joe@example.com"
@@ -85,11 +107,14 @@ export default function ContactPage() {
                                     <div className="relative">
                                         <select
                                             id="subject"
+                                            name="subject"
                                             className="w-full rounded-xl bg-white/5 border border-white/10 text-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500 py-3 px-4 appearance-none transition-all outline-none"
                                         >
                                             <option className="bg-slate-900 text-white">Account Support</option>
                                             <option className="bg-slate-900 text-white">Billing Question</option>
                                             <option className="bg-slate-900 text-white">Feature Request</option>
+                                            <option className="bg-slate-900 text-white">Technical Issue</option>
+                                            <option className="bg-slate-900 text-white">General Enquiry</option>
                                             <option className="bg-slate-900 text-white">Other</option>
                                         </select>
                                         <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
@@ -102,12 +127,20 @@ export default function ContactPage() {
                                     <label htmlFor="message" className="block text-sm font-medium text-slate-300 mb-1.5 focus-within:text-white transition-colors">Message</label>
                                     <textarea
                                         id="message"
+                                        name="message"
                                         rows={5}
                                         required
+                                        minLength={10}
                                         className="w-full rounded-xl bg-white/5 border border-white/10 text-white placeholder:text-slate-500 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 py-3 px-4 transition-all outline-none resize-none"
                                         placeholder="How can we help?"
                                     />
                                 </div>
+
+                                {error && (
+                                    <div className="p-4 text-sm font-medium text-red-400 bg-red-900/20 rounded-xl border border-red-900/30 animate-in fade-in slide-in-from-top-2">
+                                        {error}
+                                    </div>
+                                )}
 
                                 <button
                                     type="submit"

@@ -134,6 +134,29 @@ export default function PricingPage() {
                 <p className="text-xs text-slate-400 mt-8 opacity-0 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-300 fill-mode-forwards">
                     Prices exclude VAT. 14-day free trial requires card details. Cancel anytime.
                 </p>
+
+                {/* Clarification Section */}
+                <div className="mt-16 max-w-2xl mx-auto text-left space-y-4 opacity-0 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-500 fill-mode-forwards">
+                    <h2 className="text-lg font-bold text-white text-center mb-6">Common questions</h2>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="bg-white/5 border border-white/10 rounded-xl p-5">
+                            <h3 className="font-semibold text-white text-sm mb-2">What are fair-use limits?</h3>
+                            <p className="text-xs text-slate-400 leading-relaxed">Both plans cover normal professional use — typically up to 50 document generations per month. Designed for individual contractors and small teams.</p>
+                        </div>
+                        <div className="bg-white/5 border border-white/10 rounded-xl p-5">
+                            <h3 className="font-semibold text-white text-sm mb-2">What happens after the trial?</h3>
+                            <p className="text-xs text-slate-400 leading-relaxed">After 14 days, your chosen plan starts automatically. Cancel any time before the trial ends and you won&apos;t be charged.</p>
+                        </div>
+                        <div className="bg-white/5 border border-white/10 rounded-xl p-5">
+                            <h3 className="font-semibold text-white text-sm mb-2">Can I switch plans?</h3>
+                            <p className="text-xs text-slate-400 leading-relaxed">Yes. You can upgrade or downgrade at any time. Changes take effect at your next billing date.</p>
+                        </div>
+                        <div className="bg-white/5 border border-white/10 rounded-xl p-5">
+                            <h3 className="font-semibold text-white text-sm mb-2">What formats can I export?</h3>
+                            <p className="text-xs text-slate-400 leading-relaxed">All documents export as Microsoft Word (.docx) for further editing, or PDF for immediate site and client use.</p>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     );

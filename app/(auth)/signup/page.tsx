@@ -25,6 +25,7 @@ function SignUpContent() {
 
     // Form state
     const [password, setPassword] = useState("");
+    const [agreedToTerms, setAgreedToTerms] = useState(false);
 
     const strength = requirements.map(r => r.re.test(password));
     const isStrong = strength.every(Boolean);
@@ -47,6 +48,12 @@ function SignUpContent() {
 
         if (!isStrong) {
             setError("Please meet all password requirements.");
+            setLoading(false);
+            return;
+        }
+
+        if (!agreedToTerms) {
+            setError("Please accept the Terms & Conditions to continue.");
             setLoading(false);
             return;
         }
@@ -177,6 +184,27 @@ function SignUpContent() {
                         </div>
                     </div>
 
+                    {/* Terms & Conditions */}
+                    <div className="flex items-start gap-3">
+                        <input
+                            id="terms"
+                            type="checkbox"
+                            checked={agreedToTerms}
+                            onChange={(e) => setAgreedToTerms(e.target.checked)}
+                            className="mt-1 w-4 h-4 rounded border-slate-600 bg-slate-900 accent-blue-500 cursor-pointer shrink-0"
+                        />
+                        <label htmlFor="terms" className="text-xs text-slate-400 leading-relaxed cursor-pointer">
+                            I agree to the{" "}
+                            <a href="/terms" target="_blank" className="text-blue-400 hover:text-blue-300 underline">
+                                Terms &amp; Conditions
+                            </a>{" "}
+                            and{" "}
+                            <a href="/privacy" target="_blank" className="text-blue-400 hover:text-blue-300 underline">
+                                Privacy Policy
+                            </a>
+                        </label>
+                    </div>
+
                     {error && (
                         <div className="p-4 text-sm font-medium text-red-400 bg-red-900/20 rounded-xl border border-red-900/30 flex items-center justify-center animate-in fade-in slide-in-from-top-2">
                             {error}
@@ -185,7 +213,7 @@ function SignUpContent() {
 
                     <button
                         type="submit"
-                        disabled={loading}
+                        disabled={loading || !agreedToTerms}
                         className="w-full h-12 bg-blue-600 text-white font-bold text-base rounded-xl hover:bg-blue-500 transition-all hover:shadow-lg hover:shadow-blue-500/25 hover:-translate-y-0.5 disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2 active:scale-[0.98] mt-2"
                     >
                         {loading ? (

@@ -120,7 +120,7 @@ function SignInContent() {
                     </div>
 
                     {error && (
-                        <div className="p-4 text-sm font-medium text-red-600 bg-red-50 rounded-xl border border-red-100 flex items-center justify-center animate-in fade-in slide-in-from-top-2">
+                        <div className="p-4 text-sm font-medium text-red-400 bg-red-900/20 rounded-xl border border-red-900/30 flex items-center justify-center animate-in fade-in slide-in-from-top-2">
                             {error}
                         </div>
                     )}
@@ -140,10 +140,10 @@ function SignInContent() {
 
                 <div className="pt-4 border-t border-slate-800 flex justify-center">
                     <Link
-                        href="/pricing"
+                        href="/signup"
                         className="inline-flex items-center gap-1.5 text-sm font-medium text-slate-400 hover:text-blue-400 transition-colors group"
                     >
-                        View Pricing to create an account
+                        Don&apos;t have an account? Get started free
                         <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
                     </Link>
                 </div>

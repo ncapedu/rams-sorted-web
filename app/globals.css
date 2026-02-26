@@ -354,3 +354,29 @@ body {
   background-size: 400% 400%;
   animation: swirl 15s ease infinite;
 }
+
+.animate-float-up {
+  animation: float-up 0.7s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+/* Respect user preference for reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  .bg-swirl,
+  .bg-pricing-swirl,
+  .bg-documents-swirl,
+  .bg-contact-swirl,
+  .bg-faq-swirl,
+  .bg-home-swirl,
+  .bg-auth-swirl {
+    animation: none;
+    background-position: 0% 50%;
+  }
+}
